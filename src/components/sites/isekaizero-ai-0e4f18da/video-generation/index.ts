@@ -1,3 +1,4 @@
+export { VideoGenerationPage, type VideoGenerationPageProps } from "./VideoGenerationPage";
 export { VideoModelPicker, type VideoModelPickerProps, type VideoRequirement } from "./VideoModelPicker";
 export { VideoParamsForm, paramSummary, type VideoParamsFormProps } from "./VideoParamsForm";
 export {
