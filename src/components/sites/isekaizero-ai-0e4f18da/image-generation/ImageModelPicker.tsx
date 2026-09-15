@@ -2,11 +2,15 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { Check, Search, X } from "lucide-react";
+import { Check, ChevronDown, Search, X } from "lucide-react";
 
 import { IMAGE_CATALOG } from "@/lib/sites/isekaizero-ai-0e4f18da/catalog";
-import { providerHeaders, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
+import { IMAGE_FILTERS, matchesImageFilter, type ImageFilter, type ProviderImageModel } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
+import { PROVIDER_PRESETS, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import { cn } from "@/lib/utils";
+
+import { FilterChips, ModelIcon, UncensoredBadge, pickerRowClass } from "./picker-ui";
+import { useProviderCatalog } from "./use-provider-catalog";
 
 const IMG = "/sites/isekaizero-ai-0e4f18da/shared/images";
 
@@ -86,36 +90,6 @@ export function SheetGroupLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Model picker                                                        */
-/* ------------------------------------------------------------------ */
-
-interface ProviderImageModelRow {
-  id: string;
-  name: string;
-  description: string;
-  ownedBy: string;
-  costPerImage?: number;
-  iconUrl?: string;
-}
-
-interface PickerRow {
-  id: string;
-  name: string;
-  description: string;
-  iconUrl?: string;
-  costPerImage?: number;
-  source: "provider" | "catalog";
-}
-
-export interface ImageModelPickerProps {
-  open: boolean;
-  onClose: () => void;
-  /** Currently selected provider-facing model id. */
-  value: string;
-  onSelect: (id: string, name: string, costPerImage?: number) => void;
-}
-
 /** "{cost×100} Mana/Arcane" (one decimal, trailing zero dropped). */
 export function formatManaCost(costPerImage: number): string {
   const mana = Math.round(costPerImage * 100 * 10) / 10;
@@ -132,37 +106,46 @@ export function CrystalPair({ className }: { className?: string }) {
   );
 }
 
-function ModelIcon({ name, iconUrl }: { name: string; iconUrl?: string }) {
-  const [broken, setBroken] = useState(false);
-  const monogram = name.trim().charAt(0).toUpperCase() || "?";
-  return (
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[20px] bg-white">
-      {iconUrl && !broken ? (
-        // eslint-disable-next-line @next/next/no-img-element -- provider icons come from arbitrary hosts
-        <img src={iconUrl} alt="" width={40} height={40} className="h-10 w-10 object-cover" onError={() => setBroken(true)} />
-      ) : (
-        <span className="text-[16px] font-bold leading-none text-[rgb(17,18,60)]">{monogram}</span>
-      )}
-    </div>
-  );
+/* ------------------------------------------------------------------ */
+/* Model picker                                                        */
+/* ------------------------------------------------------------------ */
+
+interface PickerRow {
+  id: string;
+  name: string;
+  description: string;
+  iconUrl?: string;
+  costPerImage?: number;
+  resolutions: string[];
+  nsfw: boolean;
+  source: "provider" | "catalog";
+}
+
+export interface PickedImageModel {
+  id: string;
+  name: string;
+  costPerImage?: number;
+  /** Provider size strings; empty for catalog rows and providers that list none. */
+  resolutions: string[];
+}
+
+export interface ImageModelPickerProps {
+  open: boolean;
+  onClose: () => void;
+  /** Currently selected provider-facing model id. */
+  value: string;
+  onSelect: (model: PickedImageModel) => void;
 }
 
 function ModelRow({ row, selected, onPick }: { row: PickerRow; selected: boolean; onPick: () => void }) {
   return (
-    <button
-      type="button"
-      onClick={onPick}
-      aria-pressed={selected}
-      className={cn(
-        "flex w-full cursor-pointer items-center gap-3 rounded-[12px] border p-3 text-left transition-colors",
-        selected
-          ? "border-[rgba(167,185,255,0.6)] bg-[rgba(42,65,228,0.25)]"
-          : "border-transparent hover:bg-[rgba(255,255,255,0.06)]",
-      )}
-    >
+    <button type="button" onClick={onPick} aria-pressed={selected} className={pickerRowClass(selected)}>
       <ModelIcon name={row.name} iconUrl={row.iconUrl} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="truncate text-[15px] font-semibold leading-5 text-white">{row.name}</div>
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="truncate text-[15px] font-semibold leading-5 text-white">{row.name}</span>
+          {row.nsfw ? <UncensoredBadge /> : null}
+        </div>
         {row.description ? (
           <div className="iz-line-clamp-2 mt-[2px] text-[12px] leading-4 text-[rgba(255,255,255,0.6)]">{row.description}</div>
         ) : null}
@@ -195,74 +178,54 @@ const CATALOG_ROWS: PickerRow[] = IMAGE_CATALOG.filter((m) => m.actions.includes
   description: m.description,
   iconUrl: m.iconUrl,
   costPerImage: m.costPerImage,
+  resolutions: [],
+  nsfw: false,
   source: "catalog",
 }));
 
+function toRow(m: ProviderImageModel): PickerRow {
+  return { id: m.id, name: m.name, description: m.description, iconUrl: m.iconUrl, costPerImage: m.costPerImage, resolutions: m.resolutions, nsfw: m.nsfw, source: "provider" };
+}
+
 /**
- * Bottom sheet listing image models in two groups: the user's BYOK provider (`GET /api/providers/models`)
- * and the platform catalog (`IMAGE_CATALOG` rows that support "generate").
+ * Bottom sheet listing image models: the user's provider first (search + filter chips + Uncensored badges),
+ * then the curated Isekai catalog in a collapsible group.
  */
 export function ImageModelPicker({ open, onClose, value, onSelect }: ImageModelPickerProps) {
   const [settings] = useProviderSettings();
+  const catalog = useProviderCatalog();
   const [query, setQuery] = useState("");
-  const [providerRows, setProviderRows] = useState<PickerRow[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<ImageFilter>("all");
+  const [catalogOpen, setCatalogOpen] = useState(false);
+  const [wasOpen, setWasOpen] = useState(open);
 
   const configured = Boolean(settings.baseUrl && settings.apiKey);
-  const providerKey = `${settings.preset}|${settings.baseUrl}|${settings.imageBaseUrl}|${settings.apiKey}`;
+  const presetLabel = PROVIDER_PRESETS.find((p) => p.id === settings.preset)?.label ?? "Provider";
 
-  useEffect(() => {
-    if (!open) return;
-    setQuery("");
-    if (!configured) {
-      setProviderRows([]);
-      setLoadError(null);
-      return;
+  // Reset the sheet's local UI state whenever it transitions from closed to open (React's
+  // "adjusting state when a prop changes" pattern — avoids calling setState from inside an effect).
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) {
+      setQuery("");
+      setFilter("all");
+      setCatalogOpen(!configured);
     }
-    let cancelled = false;
-    setLoading(true);
-    setLoadError(null);
-    fetch("/api/providers/models", { headers: providerHeaders(settings), cache: "no-store" })
-      .then(async (res) => {
-        const json = (await res.json().catch(() => ({}))) as { images?: ProviderImageModelRow[]; error?: string };
-        if (cancelled) return;
-        if (!res.ok || json.error) {
-          setLoadError(json.error || `Could not load provider models (${res.status})`);
-          setProviderRows([]);
-          return;
-        }
-        setProviderRows(
-          (json.images ?? []).map((m) => ({
-            id: m.id,
-            name: m.name || m.id,
-            description: m.description,
-            iconUrl: m.iconUrl,
-            costPerImage: m.costPerImage,
-            source: "provider",
-          })),
-        );
-      })
-      .catch((e: Error) => {
-        if (cancelled) return;
-        setLoadError(`Could not load provider models: ${e.message}`);
-        setProviderRows([]);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- refetch only when the sheet opens or the provider changes
-  }, [open, configured, providerKey]);
+  }
 
   const q = query.trim().toLowerCase();
-  const providerVisible = useMemo(() => providerRows.filter((r) => rowMatches(r, q)), [providerRows, q]);
+  const chips = useMemo(
+    () => IMAGE_FILTERS.filter((f) => f.id === "all" || catalog.images.some((m) => matchesImageFilter(m, f.id))),
+    [catalog.images],
+  );
+  const providerVisible = useMemo(
+    () => catalog.images.filter((m) => matchesImageFilter(m, filter)).map(toRow).filter((r) => rowMatches(r, q)),
+    [catalog.images, filter, q],
+  );
   const catalogVisible = useMemo(() => CATALOG_ROWS.filter((r) => rowMatches(r, q)), [q]);
 
   const pick = (row: PickerRow) => {
-    onSelect(row.id, row.name, row.costPerImage);
+    onSelect({ id: row.id, name: row.name, costPerImage: row.costPerImage, resolutions: row.resolutions });
     onClose();
   };
 
@@ -280,43 +243,58 @@ export function ImageModelPicker({ open, onClose, value, onSelect }: ImageModelP
         />
       </label>
 
-      <SheetGroupLabel>Your provider</SheetGroupLabel>
+      <SheetGroupLabel>Your provider · {presetLabel}</SheetGroupLabel>
       {!configured ? (
         <p className="px-3 py-2 text-[12px] leading-4 text-[rgba(255,255,255,0.5)]">
           Connect a provider in Settings → Providers to list its image models.
         </p>
-      ) : loading ? (
+      ) : catalog.status === "loading" || catalog.status === "idle" ? (
         <div className="flex flex-col gap-1">
           {[0, 1, 2].map((i) => (
             <div key={i} className="iz-skeleton h-16 rounded-[12px]" />
           ))}
         </div>
-      ) : loadError ? (
+      ) : catalog.status === "error" ? (
         <p className="rounded-[10px] border border-[rgba(255,87,71,0.4)] bg-[rgba(255,87,71,0.12)] px-[14px] py-3 text-[13px] leading-[18px] text-white">
-          {loadError}
-        </p>
-      ) : providerVisible.length === 0 ? (
-        <p className="px-3 py-2 text-[12px] leading-4 text-[rgba(255,255,255,0.5)]">
-          {providerRows.length === 0 ? "Your provider did not report any image models." : "No matches."}
+          {catalog.error}
         </p>
       ) : (
-        <div className="flex flex-col gap-1">
-          {providerVisible.map((row) => (
-            <ModelRow key={`p:${row.id}`} row={row} selected={row.id === value} onPick={() => pick(row)} />
-          ))}
-        </div>
+        <>
+          {chips.length > 1 ? <FilterChips options={chips} value={filter} onChange={setFilter} /> : null}
+          {providerVisible.length === 0 ? (
+            <p className="px-3 py-2 text-[12px] leading-4 text-[rgba(255,255,255,0.5)]">
+              {catalog.images.length === 0 ? "Your provider did not report any image models." : "No matches."}
+            </p>
+          ) : (
+            <div className="flex flex-col gap-1">
+              {providerVisible.map((row) => (
+                <ModelRow key={`p:${row.id}`} row={row} selected={row.id === value} onPick={() => pick(row)} />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
-      <SheetGroupLabel>Platform catalog</SheetGroupLabel>
-      {catalogVisible.length === 0 ? (
-        <p className="px-3 py-2 text-[12px] leading-4 text-[rgba(255,255,255,0.5)]">No matches.</p>
-      ) : (
-        <div className="flex flex-col gap-1">
-          {catalogVisible.map((row) => (
-            <ModelRow key={`c:${row.id}`} row={row} selected={row.id === value} onPick={() => pick(row)} />
-          ))}
-        </div>
-      )}
+      <button
+        type="button"
+        aria-expanded={catalogOpen}
+        onClick={() => setCatalogOpen((v) => !v)}
+        className="mt-[10px] flex w-full cursor-pointer items-center justify-between py-1 text-left"
+      >
+        <SheetGroupLabel>Isekai catalog ({catalogVisible.length})</SheetGroupLabel>
+        <ChevronDown size={16} className={cn("text-[rgba(255,255,255,0.5)] transition-transform", catalogOpen ? "rotate-180" : "")} aria-hidden />
+      </button>
+      {catalogOpen ? (
+        catalogVisible.length === 0 ? (
+          <p className="px-3 py-2 text-[12px] leading-4 text-[rgba(255,255,255,0.5)]">No matches.</p>
+        ) : (
+          <div className="flex flex-col gap-1">
+            {catalogVisible.map((row) => (
+              <ModelRow key={`c:${row.id}`} row={row} selected={row.id === value} onPick={() => pick(row)} />
+            ))}
+          </div>
+        )
+      ) : null}
     </BottomSheet>
   );
 }

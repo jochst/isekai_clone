@@ -169,7 +169,7 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, tok
         open={pickerOpen}
         onClose={() => setPickerOpen(false)}
         value={settings.illustrationModel === "default" ? provider.imageModel : settings.illustrationModel}
-        onSelect={(id) => onChange({ illustrationModel: id })}
+        onSelect={(m) => onChange({ illustrationModel: m.id })}
       />
     </>
   );
