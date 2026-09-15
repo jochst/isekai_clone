@@ -6,7 +6,8 @@ import { useMemo, useState } from "react";
 
 import { ImageModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/image-generation/ImageModelPicker";
 import { useProviderCatalog } from "@/components/sites/isekaizero-ai-0e4f18da/image-generation/use-provider-catalog";
-import { VideoModelPicker, VideoParamsForm, paramSummary } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation";
+import { VideoModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoModelPicker";
+import { VideoParamsForm, paramSummary } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoParamsForm";
 import { resolveImageModel, resolveVideoModel, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import type { ChatSession, ChatSettings, ProviderSettings, VideoParamValue } from "@/types/isekaizero";

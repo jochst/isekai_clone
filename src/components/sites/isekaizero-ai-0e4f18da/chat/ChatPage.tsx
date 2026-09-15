@@ -71,6 +71,9 @@ function errorMessage(e: unknown, fallback: string): string {
   return e instanceof Error && e.message ? e.message : fallback;
 }
 
+/** `submit` resolves to `null` without touching the job when it rejects the request up front. */
+const VIDEO_START_FAILED = "Video generation could not start. Check your provider settings.";
+
 export interface ChatPageProps {
   sessionId: string;
 }
@@ -84,6 +87,8 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const { toast, showToast } = useToast();
 
   const catalog = useProviderCatalog();
+  /* Destructured so the callbacks below depend on stable primitives/arrays, not the per-render catalog object. */
+  const { status: catalogStatus, videoSupported, videoReason, videos: videoCatalog, imageById } = catalog;
   const videoLocations = useRef(new Map<string, string>()); // video id → message id
   const onVideoJob = useCallback(
     (job: VideoJob) => {
@@ -147,7 +152,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           settings: provider,
           model: image.model,
           prompt: image.prompt,
-          size: resolveImageSize(catalog.imageById(image.model), provider),
+          size: resolveImageSize(imageById(image.model), provider),
         });
         updateSceneImage(sessionId, messageId, image.id, { url: result.url, prompt: result.prompt, status: "done", error: undefined });
         addUsage({ images: 1, cost: result.cost ?? 0, remainingBalance: result.remainingBalance });
@@ -155,7 +160,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         updateSceneImage(sessionId, messageId, image.id, { status: "error", error: errorMessage(e, "Image generation failed.") });
       }
     },
-    [provider, sessionId, catalog],
+    [provider, sessionId, imageById],
   );
 
   const illustrate = useCallback(
@@ -198,15 +203,15 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     (messageId: string, imageId?: string) => {
       const current = getChatSession(sessionId);
       if (!current || !storyline) return;
-      if (!provider.apiKey) {
+      if (!provider.baseUrl || !provider.apiKey) {
         showToast("Connect a provider first");
         return;
       }
-      if (catalog.status === "ready" && !catalog.videoSupported) {
-        showToast(catalog.videoReason ?? "Video generation requires the NanoGPT preset.");
+      if (catalogStatus === "ready" && !videoSupported) {
+        showToast(videoReason ?? "Video generation requires the NanoGPT preset.");
         return;
       }
-      const model = resolveVideoModel(current.settings, provider, catalog.videos);
+      const model = resolveVideoModel(current.settings, provider, videoCatalog);
       if (!model.id) {
         showToast("Pick a video model in Chat Settings → Scene Videos first");
         return;
@@ -241,9 +246,11 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       };
       attachSceneVideo(sessionId, messageId, video);
       videoLocations.current.set(video.id, messageId);
-      void submitVideo({ id: video.id, model: video.model, prompt, params, imageUrl: fromImage ? sourceUrl : undefined });
+      void submitVideo({ id: video.id, model: video.model, prompt, params, imageUrl: fromImage ? sourceUrl : undefined }).then((job) => {
+        if (!job) updateSceneVideo(sessionId, messageId, video.id, { status: "error", error: VIDEO_START_FAILED });
+      });
     },
-    [sessionId, storyline, provider, catalog, showToast, submitVideo],
+    [sessionId, storyline, provider, catalogStatus, videoSupported, videoReason, videoCatalog, showToast, submitVideo],
   );
 
   const regenerateVideo = useCallback(
@@ -252,7 +259,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       const message = current?.messages.find((m) => m.id === messageId);
       const video = message?.videos?.find((v) => v.id === videoId);
       if (!video) return;
-      if (!provider.apiKey) {
+      if (!provider.baseUrl || !provider.apiKey) {
         showToast("Connect a provider first");
         return;
       }
@@ -264,9 +271,11 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       }
       updateSceneVideo(sessionId, messageId, videoId, { status: "queued", error: undefined, url: "", runId: undefined });
       videoLocations.current.set(videoId, messageId);
-      void submitVideo({ id: videoId, model: video.model, prompt: video.prompt, params: video.params, imageUrl: sourceUrl || undefined });
+      void submitVideo({ id: videoId, model: video.model, prompt: video.prompt, params: video.params, imageUrl: sourceUrl || undefined }).then((job) => {
+        if (!job) updateSceneVideo(sessionId, messageId, videoId, { status: "error", error: VIDEO_START_FAILED });
+      });
     },
-    [sessionId, provider.apiKey, showToast, submitVideo],
+    [sessionId, provider.baseUrl, provider.apiKey, showToast, submitVideo],
   );
 
   const checkVideo = useCallback(
@@ -282,11 +291,16 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     [sessionId, resumeVideo],
   );
 
-  /* Resume polling for videos that were still running when the page was last closed. */
-  const resumedRef = useRef(false);
+  /*
+   * Resume polling for videos that were still running when the page was last closed. Keyed on the session
+   * id, not a boolean: this component is reused across sessions (Branch, back/forward), and each one has
+   * to resume once. Locations from the previous session are dropped so its pollers can't write here.
+   */
+  const resumedRef = useRef<string | null>(null);
   useEffect(() => {
-    if (resumedRef.current || !hydrated || !session || !provider.apiKey) return;
-    resumedRef.current = true;
+    if (resumedRef.current === sessionId || !hydrated || !session || !provider.apiKey) return;
+    resumedRef.current = sessionId;
+    videoLocations.current.clear();
     for (const message of session.messages) {
       for (const video of message.videos ?? []) {
         if (video.runId && (video.status === "queued" || video.status === "generating")) {
@@ -295,7 +309,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         }
       }
     }
-  }, [hydrated, session, provider.apiKey, resumeVideo]);
+  }, [sessionId, hydrated, session, provider.apiKey, resumeVideo]);
 
   /* ---------------------------------------------------------------- completions */
 

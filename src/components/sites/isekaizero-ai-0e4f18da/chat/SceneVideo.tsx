@@ -17,6 +17,12 @@ const BTN = "h-8 rounded-[14px] border border-white/10 bg-white/[0.06] px-3 text
 
 export function SceneVideo({ video, onRegenerate, onCheckAgain }: SceneVideoProps) {
   const [expired, setExpired] = useState(false);
+  /* A regenerated video reuses this card (same id), so a stale "expired" must clear when the URL changes. */
+  const [lastUrl, setLastUrl] = useState(video.url);
+  if (video.url !== lastUrl) {
+    setLastUrl(video.url);
+    setExpired(false);
+  }
   const pending = video.status === "queued" || video.status === "generating";
 
   return (
