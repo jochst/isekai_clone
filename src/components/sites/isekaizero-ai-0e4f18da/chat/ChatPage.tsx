@@ -9,10 +9,13 @@ import {
   DEFAULT_CHAT_SETTINGS,
   addUsage,
   attachSceneImage,
+  attachSceneVideo,
   branchSession,
   getChatSession,
+  getSceneImageUrl,
   newId,
   updateSceneImage,
+  updateSceneVideo,
   useChatSession,
   useHydrated,
   useUsage,
@@ -22,19 +25,25 @@ import {
   CONTINUE_SENTINEL,
   MAX_TOKENS_MAP,
   TEMPERATURE_MAP,
+  buildMotionPrompt,
   buildScenePrompt,
   buildSystemPrompt,
   estimateContextTokens,
   estimateTokens,
   generateSceneImage,
   resolveImageModel,
+  resolveImageSize,
   resolveTextModel,
+  resolveVideoModel,
   streamChat,
   suggestDestinies,
   toApiMessages,
 } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { isProviderConfigured, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatMessage, SceneImage as SceneImageModel } from "@/types/isekaizero";
+import type { ChatMessage, SceneImage as SceneImageModel, SceneVideo as SceneVideoModel } from "@/types/isekaizero";
+
+import { useProviderCatalog } from "../image-generation/use-provider-catalog";
+import { useVideoGeneration, type VideoJob } from "../video-generation/use-video-generation";
 
 import { ChatHeader, MemorySheet } from "./ChatHeader";
 import { ChatSettingsSheet } from "./ChatSettingsSheet";
@@ -73,6 +82,25 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const [provider] = useProviderSettings();
   const usage = useUsage();
   const { toast, showToast } = useToast();
+
+  const catalog = useProviderCatalog();
+  const videoLocations = useRef(new Map<string, string>()); // video id → message id
+  const onVideoJob = useCallback(
+    (job: VideoJob) => {
+      const messageId = videoLocations.current.get(job.id);
+      if (!messageId) return;
+      updateSceneVideo(sessionId, messageId, job.id, {
+        status: job.status === "canceled" ? "error" : job.status,
+        runId: job.runId,
+        url: job.url,
+        cost: job.cost,
+        error: job.status === "canceled" ? "Canceled" : job.error,
+      });
+    },
+    [sessionId],
+  );
+  /* Destructured: the hook's result object is new every render, its callbacks are stable. */
+  const { submit: submitVideo, resume: resumeVideo } = useVideoGeneration(provider, onVideoJob);
 
   const [streaming, setStreaming] = useState(false);
   const [takeTurn, setTakeTurn] = useState(false);
@@ -115,14 +143,19 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const runImage = useCallback(
     async (messageId: string, image: SceneImageModel) => {
       try {
-        const result = await generateSceneImage({ settings: provider, model: image.model, prompt: image.prompt, size: provider.imageSize });
+        const result = await generateSceneImage({
+          settings: provider,
+          model: image.model,
+          prompt: image.prompt,
+          size: resolveImageSize(catalog.imageById(image.model), provider),
+        });
         updateSceneImage(sessionId, messageId, image.id, { url: result.url, prompt: result.prompt, status: "done", error: undefined });
         addUsage({ images: 1, cost: result.cost ?? 0, remainingBalance: result.remainingBalance });
       } catch (e) {
         updateSceneImage(sessionId, messageId, image.id, { status: "error", error: errorMessage(e, "Image generation failed.") });
       }
     },
-    [provider, sessionId],
+    [provider, sessionId, catalog],
   );
 
   const illustrate = useCallback(
@@ -158,6 +191,111 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     },
     [sessionId, provider.apiKey, showToast, runImage],
   );
+
+  /* ---------------------------------------------------------------- videos */
+
+  const animate = useCallback(
+    (messageId: string, imageId?: string) => {
+      const current = getChatSession(sessionId);
+      if (!current || !storyline) return;
+      if (!provider.apiKey) {
+        showToast("Connect a provider first");
+        return;
+      }
+      if (catalog.status === "ready" && !catalog.videoSupported) {
+        showToast(catalog.videoReason ?? "Video generation requires the NanoGPT preset.");
+        return;
+      }
+      const model = resolveVideoModel(current.settings, provider, catalog.videos);
+      if (!model.id) {
+        showToast("Pick a video model in Chat Settings → Scene Videos first");
+        return;
+      }
+      const index = current.messages.findIndex((m) => m.id === messageId);
+      if (index === -1) return;
+      const message = current.messages[index];
+      const source = imageId
+        ? message.images?.find((img) => img.id === imageId)
+        : [...(message.images ?? [])].reverse().find((img) => img.status === "done" && getSceneImageUrl(img));
+      const sourceUrl = source ? getSceneImageUrl(source) : "";
+      const fromImage = Boolean(sourceUrl);
+      if (fromImage && model.imageToVideo === false) {
+        showToast("Pick a video model that supports image-to-video in Chat Settings");
+        return;
+      }
+      if (!fromImage && model.textToVideo === false) {
+        showToast("This video model needs a scene image. Illustrate the message first.");
+        return;
+      }
+      const prompt = buildMotionPrompt(storyline, current.messages.slice(0, index + 1), current.settings.illustrationPerspective, { fromImage });
+      const params = { ...(model.defaults ?? {}), ...provider.videoParams };
+      const video: SceneVideoModel = {
+        id: newId(),
+        status: "queued",
+        url: "",
+        prompt,
+        model: model.id,
+        sourceImageId: fromImage ? source?.id : undefined,
+        params,
+        createdAt: Date.now(),
+      };
+      attachSceneVideo(sessionId, messageId, video);
+      videoLocations.current.set(video.id, messageId);
+      void submitVideo({ id: video.id, model: video.model, prompt, params, imageUrl: fromImage ? sourceUrl : undefined });
+    },
+    [sessionId, storyline, provider, catalog, showToast, submitVideo],
+  );
+
+  const regenerateVideo = useCallback(
+    (messageId: string, videoId: string) => {
+      const current = getChatSession(sessionId);
+      const message = current?.messages.find((m) => m.id === messageId);
+      const video = message?.videos?.find((v) => v.id === videoId);
+      if (!video) return;
+      if (!provider.apiKey) {
+        showToast("Connect a provider first");
+        return;
+      }
+      const source = video.sourceImageId ? message?.images?.find((img) => img.id === video.sourceImageId) : undefined;
+      const sourceUrl = source ? getSceneImageUrl(source) : "";
+      if (video.sourceImageId && !sourceUrl) {
+        showToast("Regenerate the scene image, then animate it again.");
+        return;
+      }
+      updateSceneVideo(sessionId, messageId, videoId, { status: "queued", error: undefined, url: "", runId: undefined });
+      videoLocations.current.set(videoId, messageId);
+      void submitVideo({ id: videoId, model: video.model, prompt: video.prompt, params: video.params, imageUrl: sourceUrl || undefined });
+    },
+    [sessionId, provider.apiKey, showToast, submitVideo],
+  );
+
+  const checkVideo = useCallback(
+    (messageId: string, videoId: string) => {
+      const video = getChatSession(sessionId)
+        ?.messages.find((m) => m.id === messageId)
+        ?.videos?.find((v) => v.id === videoId);
+      if (!video?.runId) return;
+      updateSceneVideo(sessionId, messageId, videoId, { status: "generating", error: undefined });
+      videoLocations.current.set(videoId, messageId);
+      resumeVideo({ id: videoId, runId: video.runId, model: video.model, prompt: video.prompt, params: video.params, createdAt: video.createdAt });
+    },
+    [sessionId, resumeVideo],
+  );
+
+  /* Resume polling for videos that were still running when the page was last closed. */
+  const resumedRef = useRef(false);
+  useEffect(() => {
+    if (resumedRef.current || !hydrated || !session || !provider.apiKey) return;
+    resumedRef.current = true;
+    for (const message of session.messages) {
+      for (const video of message.videos ?? []) {
+        if (video.runId && (video.status === "queued" || video.status === "generating")) {
+          videoLocations.current.set(video.id, message.id);
+          resumeVideo({ id: video.id, runId: video.runId, model: video.model, prompt: video.prompt, params: video.params, createdAt: video.createdAt });
+        }
+      }
+    }
+  }, [hydrated, session, provider.apiKey, resumeVideo]);
 
   /* ---------------------------------------------------------------- completions */
 
@@ -288,11 +426,14 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         case "illustration":
           illustrate(message.id);
           return;
+        case "animate":
+          animate(message.id);
+          return;
         default:
           return;
       }
     },
-    [sessionId, update, router, showToast, illustrate],
+    [sessionId, update, router, showToast, illustrate, animate],
   );
 
   /* ---------------------------------------------------------------- render */
@@ -355,6 +496,10 @@ export function ChatPage({ sessionId }: ChatPageProps) {
               onRetry={retry}
               onNarrate={() => showToast("Voice narration is not part of this demo")}
               onRegenerateImage={(imageId) => regenerateImage(message.id, imageId)}
+              onAnimate={() => animate(message.id)}
+              onAnimateImage={(imageId) => animate(message.id, imageId)}
+              onRegenerateVideo={(videoId) => regenerateVideo(message.id, videoId)}
+              onCheckVideo={(videoId) => checkVideo(message.id, videoId)}
               onEdit={(content) => editMessage(message.id, content)}
               onAction={(action) => messageAction(message, action)}
             />

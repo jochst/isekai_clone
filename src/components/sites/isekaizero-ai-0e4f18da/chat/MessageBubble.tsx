@@ -9,6 +9,7 @@ import type { ChatMessage } from "@/types/isekaizero";
 
 import { MessagePopover, type MessageAction } from "./MessagePopover";
 import { SceneImage } from "./SceneImage";
+import { SceneVideo } from "./SceneVideo";
 
 export interface MessageBubbleProps {
   message: ChatMessage;
@@ -20,6 +21,11 @@ export interface MessageBubbleProps {
   onRetry: () => void;
   onNarrate: () => void;
   onRegenerateImage: (imageId: string) => void;
+  /** Message-level Animate: latest finished scene image → image-to-video, else text-to-video. */
+  onAnimate: () => void;
+  onAnimateImage: (imageId: string) => void;
+  onRegenerateVideo: (videoId: string) => void;
+  onCheckVideo: (videoId: string) => void;
   onEdit: (content: string) => void;
   /** Popover actions other than Info/Edit (handled inline) and Illustration (→ onIllustrate). */
   onAction: (action: MessageAction) => void;
@@ -56,7 +62,22 @@ function formatTime(ts: number): string {
 const PILL =
   "flex h-7 items-center gap-[6px] rounded-[14px] border border-white/10 bg-white/[0.06] px-[10px] text-[12px] transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50";
 
-export function MessageBubble({ message, index, canRetry, modelName, onIllustrate, onRetry, onNarrate, onRegenerateImage, onEdit, onAction }: MessageBubbleProps) {
+export function MessageBubble({
+  message,
+  index,
+  canRetry,
+  modelName,
+  onIllustrate,
+  onRetry,
+  onNarrate,
+  onRegenerateImage,
+  onAnimate,
+  onAnimateImage,
+  onRegenerateVideo,
+  onCheckVideo,
+  onEdit,
+  onAction,
+}: MessageBubbleProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -74,6 +95,10 @@ export function MessageBubble({ message, index, canRetry, modelName, onIllustrat
     }
     if (action === "illustration") {
       onIllustrate();
+      return;
+    }
+    if (action === "animate") {
+      onAnimate();
       return;
     }
     onAction(action);
@@ -141,7 +166,7 @@ export function MessageBubble({ message, index, canRetry, modelName, onIllustrat
           <span className="text-[11px] text-white/40">
             #{index + 1} · {formatTime(message.createdAt)}
           </span>
-          <MessagePopover open={menuOpen} onClose={() => setMenuOpen(false)} onAction={handleAction} hidden={["illustration", "manga", "visualNovel"]}>
+          <MessagePopover open={menuOpen} onClose={() => setMenuOpen(false)} onAction={handleAction} hidden={["illustration", "animate", "manga", "visualNovel"]}>
             <button type="button" aria-label="More" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)} className={cn(PILL, "px-2")}>
               <MoreHorizontal size={14} />
             </button>
@@ -171,7 +196,10 @@ export function MessageBubble({ message, index, canRetry, modelName, onIllustrat
       {infoLine}
 
       {message.images?.map((img) => (
-        <SceneImage key={img.id} image={img} onRegenerate={() => onRegenerateImage(img.id)} />
+        <SceneImage key={img.id} image={img} onRegenerate={() => onRegenerateImage(img.id)} onAnimate={() => onAnimateImage(img.id)} />
+      ))}
+      {message.videos?.map((v) => (
+        <SceneVideo key={v.id} video={v} onRegenerate={() => onRegenerateVideo(v.id)} onCheckAgain={() => onCheckVideo(v.id)} />
       ))}
 
       <div className="mt-2 flex flex-wrap items-center gap-[6px] opacity-85">
@@ -186,7 +214,7 @@ export function MessageBubble({ message, index, canRetry, modelName, onIllustrat
             <RefreshCw size={14} /> Retry
           </button>
         ) : null}
-        <MessagePopover open={menuOpen} onClose={() => setMenuOpen(false)} onAction={handleAction} hidden={streaming ? ["edit", "branch", "illustration"] : []}>
+        <MessagePopover open={menuOpen} onClose={() => setMenuOpen(false)} onAction={handleAction} hidden={streaming ? ["edit", "branch", "illustration", "animate"] : []}>
           <button type="button" aria-label="More" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)} className={PILL}>
             <MoreHorizontal size={14} /> More
           </button>
