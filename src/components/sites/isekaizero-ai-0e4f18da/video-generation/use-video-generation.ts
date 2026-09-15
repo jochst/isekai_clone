@@ -113,7 +113,11 @@ export function useVideoGeneration(settings: ProviderSettings, onUpdate?: (job: 
         },
       );
       pollers.current.set(job.id, handle);
-      void handle.done.then(() => pollers.current.delete(job.id));
+      // If polling is restarted for this id before this handle settles, its `done` still resolves
+      // (canceled) and this `.then` can run after the newer handle was `set` — only delete our own entry.
+      void handle.done.then(() => {
+        if (pollers.current.get(job.id) === handle) pollers.current.delete(job.id);
+      });
     },
     [upsert],
   );
@@ -145,6 +149,10 @@ export function useVideoGeneration(settings: ProviderSettings, onUpdate?: (job: 
         imageUrl: params.imageUrl,
         createdAt: existing?.createdAt ?? Date.now(),
       };
+      // Reusing an id (e.g. re-submitting a scene) must stop any poller still writing stale status/url
+      // or double-counting usage onto the fresh job before the new submit resolves.
+      pollers.current.get(job.id)?.cancel();
+      pollers.current.delete(job.id);
       upsert(job);
       try {
         const submitted = await submitSceneVideo({ settings: s, model: job.model, prompt: job.prompt, params: job.params, imageUrl: job.imageUrl });
@@ -176,6 +184,8 @@ export function useVideoGeneration(settings: ProviderSettings, onUpdate?: (job: 
         imageUrl: params.imageUrl,
         createdAt: params.createdAt ?? Date.now(),
       };
+      pollers.current.get(job.id)?.cancel();
+      pollers.current.delete(job.id);
       upsert(job);
       startPolling(job);
     },
@@ -187,7 +197,7 @@ export function useVideoGeneration(settings: ProviderSettings, onUpdate?: (job: 
       pollers.current.get(id)?.cancel();
       pollers.current.delete(id);
       const job = latest.current.get(id);
-      if (job && job.status !== "done") upsert({ ...job, status: "canceled", error: "Canceled" });
+      if (job && job.status !== "done" && job.status !== "error") upsert({ ...job, status: "canceled", error: "Canceled" });
     },
     [upsert],
   );

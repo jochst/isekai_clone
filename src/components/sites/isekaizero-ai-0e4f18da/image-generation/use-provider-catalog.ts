@@ -27,6 +27,13 @@ const LOADING: ProviderCatalogState = { ...IDLE, status: "loading" };
 const cache = new Map<string, ProviderCatalogState>();
 const listeners = new Set<() => void>();
 
+/*
+ * Bumped by `invalidateProviderCatalog`. `useSyncExternalStore` only re-renders subscribers, it can't
+ * make the load effect re-run: that effect is keyed on `[key, gen]`, so after a clear it sees a new
+ * `gen` for the *same* `key` and re-fetches instead of leaving mounted consumers stuck on `LOADING`.
+ */
+let generation = 0;
+
 function emit(): void {
   listeners.forEach((l) => l());
 }
@@ -80,6 +87,7 @@ function load(key: string, settings: ProviderSettings): void {
 /** Drops every cached catalog (call after the user changes providers on the settings page). */
 export function invalidateProviderCatalog(): void {
   cache.clear();
+  generation += 1;
   emit();
 }
 
@@ -91,12 +99,18 @@ export function useProviderCatalog(): ProviderCatalog {
   const [settings, , hydrated] = useProviderSettings();
   const configured = hydrated && Boolean(settings.baseUrl && settings.apiKey);
   const key = configured ? connectionKey(settings) : "";
+  const gen = useSyncExternalStore(
+    subscribe,
+    () => generation,
+    () => 0,
+  );
 
   useEffect(() => {
     if (key && !cache.has(key)) load(key, settings);
-    // `settings` only matters through `key`; the connection fields are what change the fetch.
+    // `settings` only matters through `key`; the connection fields are what change the fetch. `gen` is
+    // read only to force a re-run after `invalidateProviderCatalog` clears the cache for this same key.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [key, gen]);
 
   const state = useSyncExternalStore(
     subscribe,
