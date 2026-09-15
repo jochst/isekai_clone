@@ -6,9 +6,9 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 interface VideoGenerateBody {
-  model: string;
-  prompt: string;
-  params?: Record<string, unknown>;
+  model?: unknown;
+  prompt?: unknown;
+  params?: unknown;
   /** http(s) URL → forwarded as `imageUrl`; data:image URL → forwarded as `imageDataUrl`. */
   image?: { url: string };
 }
@@ -42,11 +42,14 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
-  if (!body.model) return NextResponse.json({ error: "No video model selected. Pick one in the Video model picker." }, { status: 400 });
-  if (!body.prompt?.trim()) return NextResponse.json({ error: "prompt is required" }, { status: 400 });
+  if (typeof body.model !== "string" || !body.model.trim()) {
+    return NextResponse.json({ error: "No video model selected. Pick one in the Video model picker." }, { status: 400 });
+  }
+  if (typeof body.prompt !== "string" || !body.prompt.trim()) return NextResponse.json({ error: "prompt is required" }, { status: 400 });
 
   const payload: Record<string, unknown> = { model: body.model, prompt: body.prompt.trim().slice(0, 3000) };
-  for (const [key, value] of Object.entries(body.params ?? {})) {
+  const params = typeof body.params === "object" && body.params !== null && !Array.isArray(body.params) ? (body.params as Record<string, unknown>) : {};
+  for (const [key, value] of Object.entries(params)) {
     if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
       payload[key] = STRING_PARAMS.has(key) ? String(value) : value;
     }

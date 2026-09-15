@@ -296,6 +296,21 @@ export function defaultVideoParams(specs: VideoParamSpec[], extra?: unknown): Re
   return out;
 }
 
+/**
+ * Effective param values for `specs`: the specs' defaults overlaid with only those stored values whose
+ * key the model declares. `ProviderSettings.videoParams` is one map shared by every video surface, so a
+ * value saved while a different model was selected must not leak into this model's submit.
+ */
+export function effectiveVideoParams(
+  specs: VideoParamSpec[],
+  defaults: Record<string, VideoParamValue>,
+  stored: Record<string, VideoParamValue>,
+): Record<string, VideoParamValue> {
+  const out: Record<string, VideoParamValue> = { ...defaults };
+  for (const s of specs) if (s.key in stored) out[s.key] = stored[s.key];
+  return out;
+}
+
 /* ------------------------------------------------------------------ video pricing */
 
 const PER_SECOND_KEYS = [

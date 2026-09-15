@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   VIDEO_FILTERS,
   defaultVideoParams,
+  effectiveVideoParams,
   filterVideoParams,
   matchesVideoFilter,
   normalizeVideoModel,
@@ -49,6 +50,21 @@ describe("defaultVideoParams", () => {
     expect(defaultVideoParams(specs)).toEqual({ duration: "5", resolution: "720p", aspect_ratio: "16:9", seed: -1, prompt_upsampling: true, save_audio: false, steps: 30 });
     expect(defaultVideoParams(specs, { resolution: "1080p", steps: "40", ignored: 1 })).toMatchObject({ resolution: "1080p", steps: 40 });
     expect(defaultVideoParams(specs, { resolution: "1080p" })).not.toHaveProperty("ignored");
+  });
+});
+
+describe("effectiveVideoParams", () => {
+  const specs = filterVideoParams(rawParams);
+  const defaults = defaultVideoParams(specs);
+
+  it("drops stored keys the model does not declare", () => {
+    expect(effectiveVideoParams(specs, defaults, { resolution: "1080p", not_a_param: "x" })).not.toHaveProperty("not_a_param");
+  });
+  it("overrides defaults with stored values for keys the model declares", () => {
+    expect(effectiveVideoParams(specs, defaults, { resolution: "1080p" })).toMatchObject({ resolution: "1080p" });
+  });
+  it("falls back to defaults when nothing is stored", () => {
+    expect(effectiveVideoParams(specs, defaults, {})).toEqual(defaults);
   });
 });
 

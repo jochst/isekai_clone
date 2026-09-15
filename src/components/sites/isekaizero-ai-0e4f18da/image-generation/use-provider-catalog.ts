@@ -18,6 +18,8 @@ export interface ProviderCatalogState {
 export interface ProviderCatalog extends ProviderCatalogState {
   imageById: (id: string) => ProviderImageModel | undefined;
   videoById: (id: string) => ProviderVideoModel | undefined;
+  /** Clears the cached failure so this connection is refetched (used by "Retry" affordances). */
+  retry: () => void;
 }
 
 const IDLE: ProviderCatalogState = { status: "idle", error: null, images: [], videos: [], videoSupported: false };
@@ -92,6 +94,18 @@ export function invalidateProviderCatalog(): void {
 }
 
 /**
+ * Drops only cached entries that ended in an error, so a transient failure doesn't disable the catalog
+ * for the rest of the session. Entries still loading or ready are left alone.
+ */
+export function retryProviderCatalog(): void {
+  for (const [k, v] of cache) {
+    if (v.status === "error") cache.delete(k);
+  }
+  generation += 1;
+  emit();
+}
+
+/**
  * Image + video catalogs for the configured provider, fetched once per connection and shared by every
  * component. `status` is "idle" until the provider is configured and hydrated.
  */
@@ -121,5 +135,5 @@ export function useProviderCatalog(): ProviderCatalog {
   const imageById = useCallback((id: string) => state.images.find((m) => m.id === id), [state.images]);
   const videoById = useCallback((id: string) => state.videos.find((m) => m.id === id), [state.videos]);
 
-  return { ...state, imageById, videoById };
+  return { ...state, imageById, videoById, retry: retryProviderCatalog };
 }

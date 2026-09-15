@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Clapperboard, Download, ImagePlus, Loader2, Sparkles, X } from "lucide-react";
 
-import { VIDEO_UNSUPPORTED_REASON } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
+import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { PROVIDER_PRESETS, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import { cn } from "@/lib/utils";
 import type { VideoParamValue } from "@/types/isekaizero";
@@ -68,7 +68,10 @@ export function VideoGenerationPage({ className }: VideoGenerationPageProps) {
   const configured = Boolean(settings.baseUrl && settings.apiKey);
   const presetLabel = PROVIDER_PRESETS.find((p) => p.id === settings.preset)?.label ?? "Provider";
   const model = catalog.videoById(settings.videoModel);
-  const values = useMemo<Record<string, VideoParamValue>>(() => ({ ...(model?.defaults ?? {}), ...settings.videoParams }), [model, settings.videoParams]);
+  const values = useMemo<Record<string, VideoParamValue>>(
+    () => effectiveVideoParams(model?.params ?? [], model?.defaults ?? {}, settings.videoParams),
+    [model, settings.videoParams],
+  );
 
   const supportsImage = model?.imageToVideo ?? true;
   const needsImage = model !== undefined && !model.textToVideo && model.imageToVideo;
@@ -121,6 +124,7 @@ export function VideoGenerationPage({ className }: VideoGenerationPageProps) {
   const notice = localError ?? error;
   const showConnectNotice = (hydrated && !configured) || notice === VIDEO_PROVIDER_NOT_CONFIGURED_ERROR;
   const unsupported = hydrated && configured && catalog.status === "ready" && !catalog.videoSupported;
+  const catalogError = hydrated && configured && catalog.status === "error" ? catalog.error : null;
 
   return (
     <div className={cn("flex min-h-screen flex-col text-white", className)}>
@@ -171,7 +175,18 @@ export function VideoGenerationPage({ className }: VideoGenerationPageProps) {
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
-                  <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => void onFile(e.target.files?.[0])} />
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const input = e.currentTarget;
+                      void onFile(input.files?.[0]).finally(() => {
+                        input.value = "";
+                      });
+                    }}
+                  />
                   <button type="button" onClick={() => fileRef.current?.click()} className="flex h-11 items-center justify-center gap-2 rounded-[12px] border border-dashed border-[rgba(255,255,255,0.25)] bg-white/[0.04] text-[14px] font-medium hover:bg-white/[0.08]">
                     <ImagePlus size={18} /> Upload image
                   </button>
@@ -237,6 +252,17 @@ export function VideoGenerationPage({ className }: VideoGenerationPageProps) {
                 <Link href="/settings/providers" className="font-semibold underline underline-offset-2 hover:text-[rgb(167,185,255)]">
                   Open provider settings
                 </Link>
+              </div>
+            ) : catalogError ? (
+              <div role="alert" className="rounded-[10px] border border-[rgba(255,87,71,0.4)] bg-[rgba(255,87,71,0.12)] px-[14px] py-3 text-[13px] leading-[18px] text-white">
+                <p>{catalogError}</p>
+                <button
+                  type="button"
+                  onClick={() => catalog.retry()}
+                  className="mt-2 text-[12px] font-semibold underline underline-offset-2 hover:text-[rgb(167,185,255)]"
+                >
+                  Retry
+                </button>
               </div>
             ) : notice ? (
               <div role="alert" className="rounded-[10px] border border-[rgba(255,87,71,0.4)] bg-[rgba(255,87,71,0.12)] px-[14px] py-3 text-[13px] leading-[18px] text-white">

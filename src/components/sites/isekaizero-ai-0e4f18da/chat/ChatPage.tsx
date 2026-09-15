@@ -39,6 +39,7 @@ import {
   suggestDestinies,
   toApiMessages,
 } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
+import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { isProviderConfigured, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import type { ChatMessage, SceneImage as SceneImageModel, SceneVideo as SceneVideoModel } from "@/types/isekaizero";
 
@@ -208,7 +209,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         return;
       }
       if (catalogStatus === "ready" && !videoSupported) {
-        showToast(videoReason ?? "Video generation requires the NanoGPT preset.");
+        showToast(videoReason ?? VIDEO_UNSUPPORTED_REASON);
         return;
       }
       const model = resolveVideoModel(current.settings, provider, videoCatalog);
@@ -233,7 +234,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         return;
       }
       const prompt = buildMotionPrompt(storyline, current.messages.slice(0, index + 1), current.settings.illustrationPerspective, { fromImage });
-      const params = { ...(model.defaults ?? {}), ...provider.videoParams };
+      const params = effectiveVideoParams(model.params ?? [], model.defaults ?? {}, provider.videoParams);
       const video: SceneVideoModel = {
         id: newId(),
         status: "queued",
@@ -286,7 +287,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       if (!video?.runId) return;
       updateSceneVideo(sessionId, messageId, videoId, { status: "generating", error: undefined });
       videoLocations.current.set(videoId, messageId);
-      resumeVideo({ id: videoId, runId: video.runId, model: video.model, prompt: video.prompt, params: video.params, createdAt: video.createdAt });
+      resumeVideo({ id: videoId, runId: video.runId, model: video.model, prompt: video.prompt, params: video.params, cost: video.cost, createdAt: video.createdAt });
     },
     [sessionId, resumeVideo],
   );
@@ -305,7 +306,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       for (const video of message.videos ?? []) {
         if (video.runId && (video.status === "queued" || video.status === "generating")) {
           videoLocations.current.set(video.id, message.id);
-          resumeVideo({ id: video.id, runId: video.runId, model: video.model, prompt: video.prompt, params: video.params, createdAt: video.createdAt });
+          resumeVideo({ id: video.id, runId: video.runId, model: video.model, prompt: video.prompt, params: video.params, cost: video.cost, createdAt: video.createdAt });
         }
       }
     }

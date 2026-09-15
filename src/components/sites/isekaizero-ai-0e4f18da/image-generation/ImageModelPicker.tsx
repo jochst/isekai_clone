@@ -255,9 +255,16 @@ export function ImageModelPicker({ open, onClose, value, onSelect }: ImageModelP
           ))}
         </div>
       ) : catalog.status === "error" ? (
-        <p className="rounded-[10px] border border-[rgba(255,87,71,0.4)] bg-[rgba(255,87,71,0.12)] px-[14px] py-3 text-[13px] leading-[18px] text-white">
-          {catalog.error}
-        </p>
+        <div className="rounded-[10px] border border-[rgba(255,87,71,0.4)] bg-[rgba(255,87,71,0.12)] px-[14px] py-3 text-[13px] leading-[18px] text-white">
+          <p>{catalog.error}</p>
+          <button
+            type="button"
+            onClick={() => catalog.retry()}
+            className="mt-2 text-[12px] font-semibold underline underline-offset-2 hover:text-[rgb(167,185,255)]"
+          >
+            Retry
+          </button>
+        </div>
       ) : (
         <>
           {chips.length > 1 ? <FilterChips options={chips} value={filter} onChange={setFilter} /> : null}

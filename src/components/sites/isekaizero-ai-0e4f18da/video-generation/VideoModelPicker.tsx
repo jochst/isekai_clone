@@ -3,7 +3,7 @@
 import { Check, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { VIDEO_FILTERS, matchesVideoFilter, type ProviderVideoModel, type VideoFilter } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
+import { VIDEO_FILTERS, VIDEO_UNSUPPORTED_REASON, matchesVideoFilter, type ProviderVideoModel, type VideoFilter } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { PROVIDER_PRESETS, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 
 import { BottomSheet, SheetGroupLabel } from "../image-generation/ImageModelPicker";
@@ -90,9 +90,20 @@ export function VideoModelPicker({ open, onClose, value, onSelect, require }: Vi
       </div>
     );
   } else if (catalog.status === "error") {
-    body = <p className="rounded-[10px] border border-[rgba(255,87,71,0.4)] bg-[rgba(255,87,71,0.12)] px-[14px] py-3 text-[13px] leading-[18px] text-white">{catalog.error}</p>;
+    body = (
+      <div className="rounded-[10px] border border-[rgba(255,87,71,0.4)] bg-[rgba(255,87,71,0.12)] px-[14px] py-3 text-[13px] leading-[18px] text-white">
+        <p>{catalog.error}</p>
+        <button
+          type="button"
+          onClick={() => catalog.retry()}
+          className="mt-2 text-[12px] font-semibold underline underline-offset-2 hover:text-[rgb(167,185,255)]"
+        >
+          Retry
+        </button>
+      </div>
+    );
   } else if (!catalog.videoSupported) {
-    body = <p className="px-3 py-2 text-[12px] leading-4 text-[rgba(255,255,255,0.5)]">{catalog.videoReason ?? "Video generation requires the NanoGPT preset."}</p>;
+    body = <p className="px-3 py-2 text-[12px] leading-4 text-[rgba(255,255,255,0.5)]">{catalog.videoReason ?? VIDEO_UNSUPPORTED_REASON}</p>;
   } else {
     body = (
       <>

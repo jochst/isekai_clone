@@ -43,6 +43,7 @@ export interface ResumeJobParams {
   prompt: string;
   params: Record<string, VideoParamValue>;
   imageUrl?: string;
+  cost?: number;
   createdAt?: number;
 }
 
@@ -182,6 +183,7 @@ export function useVideoGeneration(settings: ProviderSettings, onUpdate?: (job: 
         model: params.model,
         params: params.params,
         imageUrl: params.imageUrl,
+        cost: params.cost,
         createdAt: params.createdAt ?? Date.now(),
       };
       pollers.current.get(job.id)?.cancel();

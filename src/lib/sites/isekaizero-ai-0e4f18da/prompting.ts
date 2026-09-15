@@ -516,7 +516,12 @@ export async function submitSceneVideo(opts: SubmitVideoOptions): Promise<Submit
 }
 
 export async function pollSceneVideo(settings: ProviderSettings, runId: string, signal?: AbortSignal): Promise<VideoStatusResult> {
-  const res = await fetch(`/api/videos/status?requestId=${encodeURIComponent(runId)}`, { headers: providerHeaders(settings), cache: "no-store", signal });
+  // Per-request timeout so a hung upstream request can't stall a single poll forever; combined with the
+  // caller's signal (cancel, unmount) so either one aborts the fetch. The poller treats a thrown abort as
+  // a transient failure unless its own controller (the caller's `signal`) is the one that fired.
+  const timeout = AbortSignal.timeout(30_000);
+  const combined = signal ? AbortSignal.any([signal, timeout]) : timeout;
+  const res = await fetch(`/api/videos/status?requestId=${encodeURIComponent(runId)}`, { headers: providerHeaders(settings), cache: "no-store", signal: combined });
   if (!res.ok) await readErrorResponse(res);
   const json = (await res.json()) as Partial<VideoStatusResult> & { error?: unknown };
   if (!json.status) throw new ChatApiError(errorText(json.error, "Video status error"), 502);

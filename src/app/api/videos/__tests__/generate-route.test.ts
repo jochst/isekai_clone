@@ -37,6 +37,21 @@ describe("POST /api/videos/generate", () => {
     expect((await other.json()).error).toBe("Video generation requires the NanoGPT preset.");
   });
 
+  it("rejects a non-string prompt", async () => {
+    vi.stubGlobal("fetch", vi.fn());
+    expect((await post({ model: "m", prompt: 123 })).status).toBe(400);
+  });
+
+  it("ignores a non-object params value instead of iterating its characters", async () => {
+    const fetchMock = vi.fn(async () => jsonResponse({ runId: "vid_3" }));
+    vi.stubGlobal("fetch", fetchMock);
+    const res = await post({ model: "m", prompt: "p", params: "ab" });
+    expect(res.status).toBe(200);
+    const forwarded = JSON.parse(String(((fetchMock.mock.calls as unknown[][])[0] as [string, RequestInit])[1].body)) as Record<string, unknown>;
+    expect(forwarded).not.toHaveProperty("0");
+    expect(forwarded).not.toHaveProperty("1");
+  });
+
   it("adds the regenerate hint when the provider rejects the source image", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ error: "Failed to fetch image" }, 400)));
     const res = await post({ model: "m", prompt: "p", image: { url: "https://cdn/expired.png" } });

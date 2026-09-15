@@ -9,6 +9,7 @@ import { useProviderCatalog } from "@/components/sites/isekaizero-ai-0e4f18da/im
 import { VideoModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoModelPicker";
 import { VideoParamsForm, paramSummary } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoParamsForm";
 import { resolveImageModel, resolveVideoModel, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
+import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import type { ChatSession, ChatSettings, ProviderSettings, VideoParamValue } from "@/types/isekaizero";
 
@@ -33,8 +34,8 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, tok
   const [videoPickerOpen, setVideoPickerOpen] = useState(false);
   const videoModel = resolveVideoModel(settings, provider, catalog.videos);
   const videoValues = useMemo<Record<string, VideoParamValue>>(
-    () => ({ ...(videoModel.defaults ?? {}), ...provider.videoParams }),
-    [videoModel.defaults, provider.videoParams],
+    () => effectiveVideoParams(videoModel.params ?? [], videoModel.defaults ?? {}, provider.videoParams),
+    [videoModel.params, videoModel.defaults, provider.videoParams],
   );
   const imageModel = resolveImageModel(settings, provider);
   const image = {
@@ -179,7 +180,7 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, tok
               </span>
             </button>
             {catalog.status === "ready" && !catalog.videoSupported ? (
-              <p className="mt-1 text-[12px] leading-4 text-[#ffb4ab]">{catalog.videoReason ?? "Video generation requires the NanoGPT preset."}</p>
+              <p className="mt-1 text-[12px] leading-4 text-[#ffb4ab]">{catalog.videoReason ?? VIDEO_UNSUPPORTED_REASON}</p>
             ) : null}
             {videoModel.params ? (
               <>
