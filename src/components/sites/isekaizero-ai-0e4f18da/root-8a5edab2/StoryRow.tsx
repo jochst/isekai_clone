@@ -6,6 +6,7 @@ import { ChevronRight, Flame, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { StoryRow as StoryRowData, Storyline } from "@/types/isekaizero";
 import { StoryCard } from "../shared/StoryCard";
+import { createElement } from "react";
 import { iconByName } from "../shared/category-meta";
 
 export interface StoryRowProps {
@@ -18,10 +19,10 @@ function RowTitle({ titleStyle, title }: { titleStyle: StoryRowData["titleStyle"
     "font-[family-name:var(--font-roboto)] text-[16px] font-semibold leading-[19px] sm:text-[20px] sm:leading-[24px]";
 
   if (titleStyle.kind === "color") {
-    const Icon = iconByName(titleStyle.icon);
+    const icon = iconByName(titleStyle.icon);
     return (
       <>
-        {Icon ? <Icon size={22} className="mr-[6px] shrink-0" style={{ color: titleStyle.color }} aria-hidden="true" /> : null}
+        {icon ? createElement(icon, { size: 22, className: "mr-[6px] shrink-0", style: { color: titleStyle.color }, "aria-hidden": "true" }) : null}
         <span className={titleClass} style={{ color: titleStyle.color }}>
           {title}
         </span>

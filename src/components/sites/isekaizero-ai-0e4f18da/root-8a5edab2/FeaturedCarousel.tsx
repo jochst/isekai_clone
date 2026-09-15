@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type KeyboardEvent, type TouchEvent } from "react";
+import { createElement, useEffect, useRef, useState, type KeyboardEvent, type TouchEvent } from "react";
 import {
   BookOpen,
   Bookmark,
@@ -209,7 +209,6 @@ function FeaturedSlide({
 }) {
   const href = `/storylines/${story.id}`;
   const category = CATEGORY_META[story.category];
-  const CategoryIcon = categoryIcon(story.category);
   const badges = badgesFor(story.flags);
   const stats: { key: string; icon: LucideIcon; value: number }[] = [
     { key: "plays", icon: MessageCircle, value: story.stats.plays },
@@ -330,7 +329,7 @@ function FeaturedSlide({
             className="flex h-[21px] items-center rounded-[10px] px-[8px] py-[3px] text-[11px] font-semibold text-white"
             style={{ backgroundColor: category.color }}
           >
-            <CategoryIcon size={11} className="mr-[4px]" aria-hidden />
+            {createElement(categoryIcon(story.category), { size: 11, className: "mr-[4px]", "aria-hidden": true })}
             {category.label}
           </span>
           {story.tags.map((tag) => (

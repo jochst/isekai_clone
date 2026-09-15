@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import type { ProviderPreset, ProviderSettings } from "@/types/isekaizero";
 
 export const PROVIDER_STORAGE_KEY = "iz.provider-settings.v1";
@@ -76,26 +76,47 @@ export const DEFAULT_PROVIDER_SETTINGS: ProviderSettings = {
   imageSize: "1024x1024",
 };
 
-export function readProviderSettings(): ProviderSettings {
-  if (typeof window === "undefined") return DEFAULT_PROVIDER_SETTINGS;
+const CHANGE_EVENT = "iz:provider-settings";
+
+/* Snapshot cache so useSyncExternalStore gets a stable reference for an unchanged raw value. */
+let cachedRaw: string | null | undefined;
+let cachedSettings: ProviderSettings = DEFAULT_PROVIDER_SETTINGS;
+let memoryFallback: ProviderSettings | null = null;
+
+function parse(raw: string | null): ProviderSettings {
+  if (!raw) return DEFAULT_PROVIDER_SETTINGS;
   try {
-    const raw = window.localStorage.getItem(PROVIDER_STORAGE_KEY);
-    if (!raw) return DEFAULT_PROVIDER_SETTINGS;
-    const parsed = JSON.parse(raw) as Partial<ProviderSettings>;
-    return { ...DEFAULT_PROVIDER_SETTINGS, ...parsed };
+    return { ...DEFAULT_PROVIDER_SETTINGS, ...(JSON.parse(raw) as Partial<ProviderSettings>) };
   } catch {
     return DEFAULT_PROVIDER_SETTINGS;
   }
+}
+
+export function readProviderSettings(): ProviderSettings {
+  if (typeof window === "undefined") return DEFAULT_PROVIDER_SETTINGS;
+  if (memoryFallback) return memoryFallback;
+  let raw: string | null = null;
+  try {
+    raw = window.localStorage.getItem(PROVIDER_STORAGE_KEY);
+  } catch {
+    return cachedSettings;
+  }
+  if (raw !== cachedRaw) {
+    cachedRaw = raw;
+    cachedSettings = parse(raw);
+  }
+  return cachedSettings;
 }
 
 export function writeProviderSettings(next: ProviderSettings): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(PROVIDER_STORAGE_KEY, JSON.stringify(next));
-    window.dispatchEvent(new CustomEvent("iz:provider-settings"));
   } catch {
-    /* storage unavailable (private mode) — keep in-memory only */
+    /* storage unavailable (private mode) — keep in memory only */
+    memoryFallback = next;
   }
+  window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
 }
 
 export function isProviderConfigured(s: ProviderSettings): boolean {
@@ -112,28 +133,44 @@ export function providerHeaders(s: ProviderSettings): Record<string, string> {
   };
 }
 
-export function useProviderSettings(): [ProviderSettings, (patch: Partial<ProviderSettings>) => void, boolean] {
-  const [settings, setSettings] = useState<ProviderSettings>(DEFAULT_PROVIDER_SETTINGS);
-  const [hydrated, setHydrated] = useState(false);
+function subscribe(onChange: () => void): () => void {
+  window.addEventListener(CHANGE_EVENT, onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener(CHANGE_EVENT, onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
 
-  useEffect(() => {
-    setSettings(readProviderSettings());
-    setHydrated(true);
-    const onChange = () => setSettings(readProviderSettings());
-    window.addEventListener("iz:provider-settings", onChange);
-    window.addEventListener("storage", onChange);
-    return () => {
-      window.removeEventListener("iz:provider-settings", onChange);
-      window.removeEventListener("storage", onChange);
-    };
-  }, []);
+const getServerSnapshot = () => DEFAULT_PROVIDER_SETTINGS;
+
+let hydratedFlag = false;
+const hydratedListeners = new Set<() => void>();
+function subscribeHydrated(cb: () => void): () => void {
+  hydratedListeners.add(cb);
+  if (!hydratedFlag) {
+    hydratedFlag = true;
+    queueMicrotask(() => hydratedListeners.forEach((l) => l()));
+  }
+  return () => {
+    hydratedListeners.delete(cb);
+  };
+}
+
+/**
+ * Returns `[settings, update, hydrated]`. `hydrated` is false during SSR / the first client render so
+ * components can avoid flashing the "not configured" state before localStorage has been read.
+ */
+export function useProviderSettings(): [ProviderSettings, (patch: Partial<ProviderSettings>) => void, boolean] {
+  const settings = useSyncExternalStore(subscribe, readProviderSettings, getServerSnapshot);
+  const hydrated = useSyncExternalStore(
+    subscribeHydrated,
+    () => hydratedFlag,
+    () => false,
+  );
 
   const update = useCallback((patch: Partial<ProviderSettings>) => {
-    setSettings((prev) => {
-      const next = { ...prev, ...patch };
-      writeProviderSettings(next);
-      return next;
-    });
+    writeProviderSettings({ ...readProviderSettings(), ...patch });
   }, []);
 
   return [settings, update, hydrated];
