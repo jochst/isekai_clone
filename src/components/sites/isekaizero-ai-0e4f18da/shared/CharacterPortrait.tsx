@@ -22,6 +22,10 @@ function initials(name: string): string {
  * Fills its parent (`absolute inset-0`). No external images.
  */
 export function CharacterPortrait({ character, className, showName = false }: CharacterPortraitProps) {
+  if (character.imageUrl?.startsWith("/api/imports/assets/")) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={character.imageUrl} alt={character.name} className={cn("absolute inset-0 h-full w-full object-cover", className)} />;
+  }
   const [g0, g1] = character.gradient;
 
   return (

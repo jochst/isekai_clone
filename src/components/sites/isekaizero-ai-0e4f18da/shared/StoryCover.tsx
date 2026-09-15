@@ -47,6 +47,10 @@ export interface StoryCoverProps {
  * a bottom vignette and an optional faded title watermark. No external images.
  */
 export function StoryCover({ cover, title, className, mode = "portrait", watermark = true }: StoryCoverProps) {
+  if (cover.imageUrl?.startsWith("/api/imports/assets/")) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={cover.imageUrl} alt="" className={cn("absolute inset-0 h-full w-full object-cover", className)} />;
+  }
   const [g0, g1, g2] = cover.gradient;
 
   return (

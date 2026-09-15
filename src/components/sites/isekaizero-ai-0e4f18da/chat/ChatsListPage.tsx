@@ -89,7 +89,7 @@ export function ChatsListPage() {
                 >
                   <Link href={`/chats/${s.id}`} className="absolute inset-0 rounded-[14px]" aria-label={`Open ${s.title}`} />
                   <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded-[8px] bg-[#11123c]">
-                    {storyline ? <StoryCover cover={storyline.cover} title={storyline.title} watermark={false} /> : null}
+                    {storyline || s.storylineCover ? <StoryCover cover={storyline?.cover ?? s.storylineCover!} title={s.title} watermark={false} /> : null}
                   </div>
                   <div className="pointer-events-none relative min-w-0 flex-1">
                     <div className="truncate font-[family-name:var(--font-roboto)] text-[15px] font-bold">{s.title}</div>

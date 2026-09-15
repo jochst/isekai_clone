@@ -13,6 +13,7 @@ import { useCallback, useSyncExternalStore } from "react";
 import type { ChatMessage, ChatSession, ChatSettings, SceneImage, Storyline } from "@/types/isekaizero";
 
 import { readProviderSettings } from "./provider-settings";
+import { replaceCardMacros } from "@/lib/imports/prompt";
 
 export const CHATS_STORAGE_KEY = "iz.chats.v1";
 export const USAGE_STORAGE_KEY = "iz.usage.v1";
@@ -194,6 +195,7 @@ export function buildDefaultChatSettings(): ChatSettings {
 }
 
 export interface CreateChatOptions {
+  greetingIndex?: number;
   playerName?: string;
   scenarioIndex?: number;
 }
@@ -202,16 +204,19 @@ export interface CreateChatOptions {
 export function createChatSession(storyline: Storyline, opts: CreateChatOptions = {}): ChatSession {
   const now = Date.now();
   const scenario = opts.scenarioIndex !== undefined ? storyline.scenarios[opts.scenarioIndex] : undefined;
-  const opening = scenario ? `${storyline.opening}\n\n*${scenario.title}: ${scenario.summary}*` : storyline.opening;
+  const selectedOpening = opts.greetingIndex && storyline.imported?.alternateGreetings[opts.greetingIndex - 1] || storyline.opening;
+  const opening = scenario ? `${selectedOpening}\n\n*${scenario.title}: ${scenario.summary}*` : selectedOpening;
+  const playerName = opts.playerName?.trim() || "You";
   const session: ChatSession = {
     id: newId(),
     storylineId: storyline.id,
+    storylineCover: storyline.imported ? storyline.cover : undefined,
     title: storyline.title,
     createdAt: now,
     updatedAt: now,
-    playerName: opts.playerName?.trim() || "You",
+    playerName,
     settings: buildDefaultChatSettings(),
-    messages: [{ id: newId(), role: "assistant", content: opening, createdAt: now, speaker: "Narrator" }],
+    messages: opening ? [{ id: newId(), role: "assistant", content: storyline.imported ? replaceCardMacros(opening, storyline.characters[0]?.name || storyline.title, playerName) : opening, createdAt: now, speaker: "Narrator" }] : [],
   };
   sessionsStore.set(sortSessions([session, ...sessionsStore.get()]));
   return session;

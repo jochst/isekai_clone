@@ -22,6 +22,7 @@ export function StartBar({ storyline, className }: StartBarProps) {
   const [saved, setSaved] = useState(false);
   const [liked, setLiked] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [greetingIndex, setGreetingIndex] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
@@ -40,13 +41,14 @@ export function StartBar({ storyline, className }: StartBarProps) {
   }, [modalOpen]);
 
   const playAsGuest = () => {
-    const session = createChatSession(storyline);
+    const session = createChatSession(storyline, { greetingIndex });
     setModalOpen(false);
     router.push(`/chats/${session.id}`);
   };
 
   return (
     <>
+      {!!storyline.imported?.alternateGreetings.length && <label className="mt-4 block text-sm text-white">Opening scene<select value={greetingIndex} onChange={e => setGreetingIndex(Number(e.target.value))} className="mt-2 w-full rounded-xl border border-white/20 bg-slate-900 p-3"><option value={0}>Default opening</option>{storyline.imported.alternateGreetings.map((_greeting, i) => <option key={i} value={i + 1}>Alternate opening {i + 1}</option>)}</select></label>}
       <div
         className={cn(
           "fixed inset-x-0 bottom-0 z-30 flex w-full flex-row items-center gap-[10px] border border-[rgba(255,255,255,0.08)] bg-[rgba(2,9,32,0.85)] px-[15px] py-[12px] backdrop-blur-[10px]",

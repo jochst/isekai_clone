@@ -30,17 +30,18 @@ export function StorylinePage({ storyline, related }: StorylinePageProps) {
     <div className="mx-auto flex w-full max-w-[1056px] flex-col pb-[120px] text-white lg:flex-row lg:items-start lg:gap-[16px] lg:px-[20px] lg:pt-[20px] xl:px-0">
       {/* Left column */}
       <div className="contents lg:block lg:w-[400px] lg:shrink lg:grow-0 lg:basis-[400px]">
+        {storyline.imported && <div className="order-1 mx-3 my-3 rounded-xl border border-white/15 bg-white/5 p-3 text-xs leading-5 lg:mx-0"><p>Personal import · {storyline.imported.source} · {storyline.imported.contentRating}</p><p>Original creator: {storyline.creator.handle}</p>{storyline.imported.sourceUrl && <a href={storyline.imported.sourceUrl} target="_blank" rel="noreferrer" className="text-indigo-200 underline">View original source</a>}{storyline.imported.warnings.map((warning, i) => <p key={i} className="mt-2 text-amber-200">{warning}</p>)}</div>}
         <CoverCard
           storyline={storyline}
           selectedIndex={selectedIndex}
           onSelect={setSelectedIndex}
           className="order-1 lg:order-none"
         />
-        <CommentsPanel
+        {!storyline.imported && <CommentsPanel
           storylineId={storyline.id}
           count={storyline.stats.comments}
           className={`order-6 lg:order-none ${mobileItem}`}
-        />
+        />}
       </div>
 
       {/* Right column */}

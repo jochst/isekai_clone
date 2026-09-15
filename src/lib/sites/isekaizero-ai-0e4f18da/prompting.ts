@@ -6,6 +6,7 @@ import type { ChatMessage, ChatSession, ChatSettings, ProviderSettings, Storylin
 
 import { IMAGE_CATALOG, LLM_CATALOG } from "./catalog";
 import { providerHeaders } from "./provider-settings";
+import { importedPrompt, replaceCardMacros } from "@/lib/imports/prompt";
 
 /** Hidden user turn sent by the Composer's "Continue" action. */
 export const CONTINUE_SENTINEL = "(continue the scene)";
@@ -101,8 +102,14 @@ export function buildSystemPrompt(storyline: Storyline, session: ChatSession, op
     `Write in ${PERSPECTIVE_MAP[settings.perspective]}, present tense, ${WORDS_MAP[settings.responseLength]}.`,
     "Never speak or act for the player. Stay in character; keep dialogue in quotes and actions in italics using *asterisks*.",
     "End each reply at a moment that invites the player to act.",
+    importedPrompt(storyline, session),
   ];
-  return lines.filter(Boolean).join("\n");
+  const prompt = lines.filter(Boolean).join("\n");
+  return storyline.imported ? replaceCardMacros(prompt, storyline.characters[0]?.name || storyline.title, playerName) : prompt;
+}
+
+export function importedPostHistory(storyline: Storyline, session: ChatSession): string {
+  return replaceCardMacros(storyline.imported?.postHistoryInstructions || "", storyline.characters[0]?.name || storyline.title, session.playerName);
 }
 
 function mentions(text: string, character: Storyline["characters"][number]): boolean {
@@ -133,11 +140,11 @@ export interface ApiMessage {
 }
 
 /** Drops local error rows (`role: "system"` in the transcript) and empty placeholders. */
-export function toApiMessages(systemPrompt: string, messages: ChatMessage[]): ApiMessage[] {
+export function toApiMessages(systemPrompt: string, messages: ChatMessage[], postHistory = ""): ApiMessage[] {
   const history = messages
     .filter((m) => m.role !== "system" && m.content.trim().length > 0)
     .map<ApiMessage>((m) => ({ role: m.role === "user" ? "user" : "assistant", content: m.content }));
-  return [{ role: "system", content: systemPrompt }, ...history];
+  return [{ role: "system", content: systemPrompt }, ...history, ...(postHistory ? [{ role: "system" as const, content: postHistory }] : [])];
 }
 
 /* ------------------------------------------------------------------ chat streaming */
@@ -343,7 +350,7 @@ export interface DestinyOptions {
 /** "Choose Your Destiny": asks the model for three short possible next actions. */
 export async function suggestDestinies(opts: DestinyOptions): Promise<string[]> {
   const system = buildSystemPrompt(opts.storyline, opts.session);
-  const messages = toApiMessages(system, opts.session.messages);
+  const messages = toApiMessages(system, opts.session.messages, importedPostHistory(opts.storyline, opts.session));
   messages.push({
     role: "user",
     content:

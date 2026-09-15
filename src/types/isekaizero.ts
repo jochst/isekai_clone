@@ -1,6 +1,6 @@
 /**
  * Content and provider types for the ISEKAI ZERO clone.
- * All storyline/character content in this project is ORIGINAL mock data — nothing is copied from the target site.
+ * Built-in entries are original mock data; personal imports retain source attribution.
  */
 
 export type StoryCategory =
@@ -20,6 +20,7 @@ export type StoryCategory =
   | "betrayal";
 
 export interface Character {
+  imageUrl?: string;
   id: string;
   name: string;
   /** Short role line shown under the name in the casts strip. */
@@ -42,6 +43,18 @@ export interface Creator {
 }
 
 export interface Storyline {
+  imported?: {
+    kind: "character" | "story";
+    source: string;
+    sourceUrl?: string;
+    contentRating: string;
+    warnings: string[];
+    alternateGreetings: string[];
+    systemPrompt: string;
+    postHistoryInstructions: string;
+    exampleDialogue: string;
+    characterBook?: unknown;
+  };
   id: string;
   title: string;
   tagline: string;
@@ -61,7 +74,7 @@ export interface Storyline {
   updatedAt: string;
   version: number;
   /** Cover art gradient (locally generated) and accent glyph. */
-  cover: { gradient: [string, string, string]; glyph: string; pattern: "rays" | "grid" | "waves" | "stars" | "dots" };
+  cover: { gradient: [string, string, string]; glyph: string; pattern: "rays" | "grid" | "waves" | "stars" | "dots"; imageUrl?: string };
   tokens: { storyline: number; characters: number; scenario: number };
 }
 
@@ -204,6 +217,7 @@ export interface ChatSettings {
 }
 
 export interface ChatSession {
+  storylineCover?: Storyline["cover"];
   id: string;
   storylineId: string;
   title: string;

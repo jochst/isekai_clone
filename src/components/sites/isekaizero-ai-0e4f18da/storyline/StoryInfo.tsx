@@ -118,6 +118,7 @@ export function StoryInfo({ storyline, className }: StoryInfoProps) {
       </div>
 
       {/* Stats */}
+      {!storyline.imported && <>
       <div className="mt-[14px] flex h-[52px] flex-row items-center justify-around border-y border-[rgba(255,255,255,0.08)]">
         <StatItem Icon={MessageCircle} size={18} value={stats.plays} label="plays" />
         <StatItem Icon={MessagesSquare} size={18} value={stats.chats} label="chats" />
@@ -178,6 +179,7 @@ export function StoryInfo({ storyline, className }: StoryInfoProps) {
           {following ? "Following" : "Follow"}
         </button>
       </div>
+      </>}
     </div>
   );
 }

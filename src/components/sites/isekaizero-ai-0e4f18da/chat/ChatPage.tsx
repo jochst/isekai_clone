@@ -18,12 +18,14 @@ import {
   useUsage,
 } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
 import { getStoryline } from "@/lib/sites/isekaizero-ai-0e4f18da/mock-data";
+import { useImportedStoryline } from "@/lib/imports/use-imported-storyline";
 import {
   CONTINUE_SENTINEL,
   MAX_TOKENS_MAP,
   TEMPERATURE_MAP,
   buildScenePrompt,
   buildSystemPrompt,
+  importedPostHistory,
   estimateContextTokens,
   estimateTokens,
   generateSceneImage,
@@ -84,7 +86,8 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const listRef = useRef<HTMLDivElement>(null);
   const stickToBottomRef = useRef(true);
 
-  const storyline = useMemo(() => (session ? getStoryline(session.storylineId) : undefined), [session]);
+  const imported = useImportedStoryline(session?.storylineId);
+  const storyline = useMemo(() => (session ? getStoryline(session.storylineId) ?? imported.storyline : undefined), [session, imported.storyline]);
   const configured = isProviderConfigured(provider);
   const model = useMemo(() => resolveTextModel(session?.settings ?? DEFAULT_CHAT_SETTINGS, provider), [session?.settings, provider]);
   const systemPrompt = useMemo(() => (session && storyline ? buildSystemPrompt(storyline, session, { takeTurn }) : ""), [session, storyline, takeTurn]);
@@ -178,7 +181,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       update({ messages: [...base, placeholder] });
 
       const system = buildSystemPrompt(storyline, { ...current, messages: base }, { takeTurn });
-      const apiMessages = toApiMessages(system, base);
+      const apiMessages = toApiMessages(system, base, importedPostHistory(storyline, current));
       const { settings } = current;
 
       try {
@@ -297,7 +300,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
 
   /* ---------------------------------------------------------------- render */
 
-  if (!hydrated) {
+  if (!hydrated || imported.loading) {
     return (
       <div className="flex h-screen flex-col bg-[#020920] text-white">
         <div className="h-[60px] border-b border-white/[0.06] bg-[#11123c]" />
@@ -315,7 +318,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       <div className="flex h-screen flex-col items-center justify-center gap-4 bg-[#020920] p-6 text-center text-white">
         <p className="text-[16px] font-bold">This chat could not be found.</p>
         <p className="max-w-[360px] text-[13px] leading-[18px] text-white/60">
-          {session ? "Its storyline is no longer available." : "Chats are stored in this browser only — it may have been deleted or started elsewhere."}
+          {session ? imported.error || "Its storyline is no longer available." : "Chats are stored in this browser only — it may have been deleted or started elsewhere."}
         </p>
         <Link href="/chats" className="iz-btn-primary flex h-10 items-center rounded-[20px] px-5 text-[14px] font-semibold">
           Back to chats

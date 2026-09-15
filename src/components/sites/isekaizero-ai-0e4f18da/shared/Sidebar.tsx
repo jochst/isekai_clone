@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useSyncExternalStore } from "react";
-import { Bell, Music, PanelLeftClose, PanelLeftOpen, type LucideIcon } from "lucide-react";
+import { Bell, Music, Download, PanelLeftClose, PanelLeftOpen, type LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -22,7 +22,7 @@ export type NavIcon =
   | { kind: "static"; src: string; size: number };
 
 export interface NavItem {
-  key: NavKey | "music" | "store" | "notifications";
+  key: NavKey | "music" | "store" | "notifications" | "imports";
   label: string;
   href: string;
   icon: NavIcon;
@@ -31,6 +31,7 @@ export interface NavItem {
 export const NAV_ITEMS: readonly NavItem[] = [
   { key: "home", label: "Home", href: "/", icon: { kind: "png", name: "home" } },
   { key: "explore", label: "Explore", href: "/explore", icon: { kind: "png", name: "explore" } },
+  { key: "imports", label: "Import library", href: "/imports", icon: { kind: "lucide", Icon: Download, size: 22 } },
   { key: "creation", label: "Creation", href: "/creation/generate-image", icon: { kind: "png", name: "creation" } },
   { key: "chats", label: "Chats", href: "/chats", icon: { kind: "png", name: "chat" } },
   { key: "music", label: "Music", href: "#", icon: { kind: "lucide", Icon: Music, size: 22 } },

@@ -280,10 +280,11 @@ export function ExplorePage({ storylines }: ExplorePageProps) {
   const visible = useMemo(() => {
     const filtered = storylines.filter(
       (storyline) =>
+        (contentType === "character" ? storyline.imported?.kind === "character" : storyline.imported?.kind !== "character") &&
         matchesQuery(storyline, query) && (categories.length === 0 || categories.includes(storyline.category)),
     );
     return sortStorylines(filtered, sort);
-  }, [storylines, query, categories, sort]);
+  }, [storylines, query, categories, sort, contentType]);
 
   const togglePopover = (next: Exclude<Popover, null>) => setPopover((prev) => (prev === next ? null : next));
 
@@ -463,7 +464,7 @@ export function ExplorePage({ storylines }: ExplorePageProps) {
       </div>
 
       {/* Grid */}
-      {contentType === "storyline" && visible.length > 0 ? (
+      {(contentType === "storyline" || contentType === "character") && visible.length > 0 ? (
         <div className="mx-[12px] mt-[16px] grid grid-cols-2 gap-[14px] sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {visible.map((storyline) => (
             <StoryCard key={storyline.id} storyline={storyline} variant="grid" />
