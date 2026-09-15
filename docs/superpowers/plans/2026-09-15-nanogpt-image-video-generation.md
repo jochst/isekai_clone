@@ -691,7 +691,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
   - `interface VideoParamSpec { key: string; label: string; description?: string; type: "select" | "boolean" | "number" | "string"; options?: { value: string; label: string }[]; default?: VideoParamValue; min?: number; max?: number; step?: number }`
   - `interface ProviderVideoModel { id; name; description; ownedBy; iconUrl?; nsfw; textToVideo; imageToVideo; audio; priceSummary: string; params: VideoParamSpec[]; defaults: Record<string, VideoParamValue>; tags: string[]; category?: string }`
   - `filterVideoParams(raw: unknown): VideoParamSpec[]`, `defaultVideoParams(specs, extra?: unknown): Record<string, VideoParamValue>`, `videoPriceSummary(pricing?: Record<string, unknown>): string`, `normalizeVideoModel(row, origin): ProviderVideoModel`
-  - `type VideoJobStatus = "queued" | "generating" | "done" | "error" | "canceled"`, `interface VideoStatusResult { status: VideoJobStatus; url?: string; cost?: number; error?: string; nsfwFlagged?: boolean }`, `normalizeVideoStatus(raw: unknown): VideoStatusResult`
+  - `type VideoJobStatus = "queued" | "generating" | "done" | "error" | "canceled"`, `interface VideoStatusResult { status: VideoJobStatus; url?: string; cost?: number; error?: string; nsfwFlagged?: boolean }`, `normalizeVideoStatus(raw: unknown): VideoStatusResult`, `VIDEO_UNSUPPORTED_REASON` (constant, ruling R1: route files may not export values)
   - `type VideoFilter = "all" | "uncensored" | "text-to-video" | "image-to-video" | "audio"`, `VIDEO_FILTERS`, `matchesVideoFilter(m, f)`
 
 - [ ] **Step 1: Write failing tests**
@@ -976,6 +976,9 @@ export function videoPriceSummary(pricing: Record<string, unknown> | undefined):
 }
 
 /* ------------------------------------------------------------------ video models */
+
+/** Shown wherever video is requested on a non-NanoGPT preset (video routes return this as the error). */
+export const VIDEO_UNSUPPORTED_REASON = "Video generation requires the NanoGPT preset.";
 
 export interface ProviderVideoModel {
   id: string;
@@ -1264,7 +1267,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 
 **Interfaces:**
 - Consumes: `normalizeVideoModel`, `ProviderVideoModel`, `RawCatalogRow` (Task 4); `isNanoGpt`, `nativeApiBase`, `authHeaders`, `providerErrorMessage`, `readProviderContext` (Task 5).
-- Produces: `export const VIDEO_UNSUPPORTED_REASON = "Video generation requires the NanoGPT preset."`; response `VideoModelsResponse = { videos: ProviderVideoModel[]; supported: boolean; reason?: string }`.
+- Produces: response `VideoModelsResponse = { videos: ProviderVideoModel[]; supported: boolean; reason?: string }`.
 
 - [ ] **Step 1: Write failing tests**
 
@@ -1272,7 +1275,8 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 
 ```ts
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { GET, VIDEO_UNSUPPORTED_REASON } from "../video-models/route";
+import { VIDEO_UNSUPPORTED_REASON } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
+import { GET } from "../video-models/route";
 
 const nano = { "x-iz-base-url": "https://nano-gpt.com/api/v1", "x-iz-api-key": "k", "x-iz-preset": "nano-gpt" };
 const jsonResponse = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -1318,12 +1322,12 @@ Expected: FAIL — module not found.
 
 ```ts
 import { NextResponse } from "next/server";
-import { normalizeVideoModel, type ProviderVideoModel, type RawCatalogRow } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
+import { VIDEO_UNSUPPORTED_REASON, normalizeVideoModel, type ProviderVideoModel, type RawCatalogRow } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { authHeaders, isNanoGpt, nativeApiBase, providerErrorMessage, readProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 export const runtime = "nodejs";
 
-export const VIDEO_UNSUPPORTED_REASON = "Video generation requires the NanoGPT preset.";
+/* VIDEO_UNSUPPORTED_REASON is exported from provider-catalog.ts (Task 4): Next.js rejects non-handler value exports from route files. */
 
 export interface VideoModelsResponse {
   videos: ProviderVideoModel[];
@@ -1490,7 +1494,7 @@ Expected: FAIL — modules not found.
 
 ```ts
 import { NextResponse } from "next/server";
-import { VIDEO_UNSUPPORTED_REASON } from "@/app/api/providers/video-models/route";
+import { VIDEO_UNSUPPORTED_REASON } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { authHeaders, isNanoGpt, nativeApiBase, providerErrorMessage, readProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 export const runtime = "nodejs";
@@ -1581,7 +1585,7 @@ export async function POST(req: Request) {
 
 ```ts
 import { NextResponse } from "next/server";
-import { VIDEO_UNSUPPORTED_REASON } from "@/app/api/providers/video-models/route";
+import { VIDEO_UNSUPPORTED_REASON } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { normalizeVideoStatus } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { authHeaders, isNanoGpt, nativeApiBase, providerErrorMessage, readProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
