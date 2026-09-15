@@ -23,7 +23,7 @@ import type { Storyline } from "@/types/isekaizero";
 import { StoryCover } from "@/components/sites/isekaizero-ai-0e4f18da/shared/StoryCover";
 import { CharacterPortrait } from "@/components/sites/isekaizero-ai-0e4f18da/shared/CharacterPortrait";
 import { formatCount } from "@/components/sites/isekaizero-ai-0e4f18da/shared/format";
-import { CATEGORY_META } from "@/components/sites/isekaizero-ai-0e4f18da/shared/category-meta";
+import { CATEGORY_META, categoryIcon } from "@/components/sites/isekaizero-ai-0e4f18da/shared/category-meta";
 import { cn } from "@/lib/utils";
 
 const AUTO_ADVANCE_MS = 6000;
@@ -209,7 +209,7 @@ function FeaturedSlide({
 }) {
   const href = `/storylines/${story.id}`;
   const category = CATEGORY_META[story.category];
-  const CategoryIcon = category.icon;
+  const CategoryIcon = categoryIcon(story.category);
   const badges = badgesFor(story.flags);
   const stats: { key: string; icon: LucideIcon; value: number }[] = [
     { key: "plays", icon: MessageCircle, value: story.stats.plays },
