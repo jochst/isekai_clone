@@ -78,7 +78,7 @@ export function AppShell({
           {children}
         </main>
 
-        {hasMobileChrome && <MobileTabBar active={active} className="lg:hidden" />}
+        {nav === "sidebar" && <MobileTabBar active={active} className="lg:hidden" />}
       </div>
     </div>
   );

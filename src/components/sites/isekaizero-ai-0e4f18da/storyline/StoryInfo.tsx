@@ -139,7 +139,7 @@ export function StoryInfo({ storyline, className }: StoryInfoProps) {
           <button key={emoji} type="button" className="flex flex-row items-center" aria-label={`React ${emoji}`}>
             <span className="text-[22px] leading-none">{emoji}</span>
             <span className="ml-[4px] text-[10px] font-semibold leading-none text-[rgba(255,255,255,0.6)]">
-              {((seed >> (i * 5)) % 4) + 1}
+              {((seed >>> (i * 5)) % 4) + 1}
             </span>
           </button>
         ))}

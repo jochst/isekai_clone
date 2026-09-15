@@ -94,7 +94,7 @@ export function HomeHero({ items }: { items: HomeHeroItem[] }) {
           );
           const media = (
             <span className="relative block h-[149px] w-[104px] overflow-hidden rounded-[8px] bg-[rgba(200,200,220,0.12)]">
-              <StoryCover cover={item.cover} title={item.title} />
+              <StoryCover cover={item.cover} title={item.title} watermark={false} />
             </span>
           );
 

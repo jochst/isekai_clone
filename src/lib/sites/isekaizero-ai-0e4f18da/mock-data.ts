@@ -17,7 +17,7 @@ export const STORYLINES: Storyline[] = [
     category: "isekai",
     tags: ["Isekai", "Fantasy", "Underdog", "GuildLife", "AnyPOV", "SlowBurn", "Adventure", "Comedy"],
     creator: {
-      handle: "@inkwellfox",
+      handle: "inkwellfox",
       bio: "Writes underdog isekai with too many guild receptionists.",
       followers: 8420,
       gradient: ["#f97316", "#7c2d12"],
@@ -116,7 +116,7 @@ export const STORYLINES: Storyline[] = [
     category: "isekai",
     tags: ["Isekai", "Villainess", "Romance", "Otome", "SliceOfLife", "AnyPOV", "Comedy", "Nobility"],
     creator: {
-      handle: "@marmalade_court",
+      handle: "marmalade_court",
       bio: "Villainess enjoyer. Every ballroom is a battlefield.",
       followers: 6210,
       gradient: ["#ec4899", "#831843"],
@@ -200,7 +200,7 @@ export const STORYLINES: Storyline[] = [
     category: "isekai",
     tags: ["Isekai", "Comedy", "DarkLord", "Household", "AnyPOV", "FoundFamily", "Fantasy"],
     creator: {
-      handle: "@quietgrimoire",
+      handle: "quietgrimoire",
       bio: "Slow, silly, sincere. Mostly writes about people making soup for monsters.",
       followers: 3140,
       gradient: ["#6d28d9", "#1e1b4b"],
@@ -299,7 +299,7 @@ export const STORYLINES: Storyline[] = [
     category: "mecha",
     tags: ["Mecha", "Kaiju", "Military", "SciFi", "Squad", "AnyPOV", "Drama", "Action"],
     creator: {
-      handle: "@steelharbor",
+      handle: "steelharbor",
       bio: "Big robots, bigger feelings. Ex-naval, writes from the cockpit.",
       followers: 7780,
       gradient: ["#0ea5e9", "#0c4a6e"],
@@ -398,7 +398,7 @@ export const STORYLINES: Storyline[] = [
     category: "mecha",
     tags: ["Mecha", "Racing", "SciFi", "Underdog", "Crew", "AnyPOV", "Action", "Rivals"],
     creator: {
-      handle: "@dustline_k",
+      handle: "dustline_k",
       bio: "Speed, grit, and mechs that should not run but do.",
       followers: 2260,
       gradient: ["#ea580c", "#431407"],
@@ -482,7 +482,7 @@ export const STORYLINES: Storyline[] = [
     category: "academy",
     tags: ["Academy", "Monsters", "Comedy", "Supernatural", "FoundFamily", "AnyPOV", "SlowBurn", "School"],
     creator: {
-      handle: "@moth_and_matron",
+      handle: "moth_and_matron",
       bio: "Monster school forever. Every kid deserves a weird best friend.",
       followers: 5430,
       gradient: ["#84cc16", "#1a2e05"],
@@ -581,7 +581,7 @@ export const STORYLINES: Storyline[] = [
     category: "academy",
     tags: ["Academy", "Magic", "Mystery", "Psychological", "Fantasy", "AnyPOV", "SlowBurn", "DarkAcademia"],
     creator: {
-      handle: "@candlewick_e",
+      handle: "candlewick_e",
       bio: "Dark academia and slow reveals. Please take notes.",
       followers: 4890,
       gradient: ["#b45309", "#1c1917"],
@@ -669,7 +669,7 @@ export const STORYLINES: Storyline[] = [
     category: "academy",
     tags: ["Academy", "Airships", "Steampunk", "Adventure", "Squad", "AnyPOV", "Rivals", "ComingOfAge"],
     creator: {
-      handle: "@skyward_thimble",
+      handle: "skyward_thimble",
       bio: "Airships, cadets, and the wind. Writes cockpit banter.",
       followers: 1870,
       gradient: ["#0ea5e9", "#1e3a8a"],
@@ -753,7 +753,7 @@ export const STORYLINES: Storyline[] = [
     category: "betrayal",
     tags: ["Betrayal", "Revenge", "Fantasy", "DarkFantasy", "Dungeon", "AnyPOV", "Angst", "Redemption"],
     creator: {
-      handle: "@ashenquill",
+      handle: "ashenquill",
       bio: "Betrayal arcs and the long road back. Bring tissues, not torches.",
       followers: 8890,
       gradient: ["#dc2626", "#450a0a"],
@@ -852,7 +852,7 @@ export const STORYLINES: Storyline[] = [
     category: "betrayal",
     tags: ["Betrayal", "Royalty", "Intrigue", "Fantasy", "Twins", "AnyPOV", "Political", "Drama"],
     creator: {
-      handle: "@velvet_treason",
+      handle: "velvet_treason",
       bio: "Court intrigue with knives in the flower arrangements.",
       followers: 4120,
       gradient: ["#7e22ce", "#3b0764"],
@@ -936,7 +936,7 @@ export const STORYLINES: Storyline[] = [
     category: "thriller",
     tags: ["Thriller", "Cyberpunk", "Heist", "Crew", "SciFi", "AnyPOV", "Noir", "Betrayal"],
     creator: {
-      handle: "@glasswire",
+      handle: "glasswire",
       bio: "Rain, neon, and plans that go wrong at step three.",
       followers: 7150,
       gradient: ["#e11d48", "#0f172a"],
@@ -1035,7 +1035,7 @@ export const STORYLINES: Storyline[] = [
     category: "thriller",
     tags: ["Thriller", "Samurai", "Revenge", "Historical", "Drama", "AnyPOV", "Honor", "Tragedy"],
     creator: {
-      handle: "@rainbladeink",
+      handle: "rainbladeink",
       bio: "Quiet swords. Loud consequences.",
       followers: 5560,
       gradient: ["#991b1b", "#1c1917"],
@@ -1123,7 +1123,7 @@ export const STORYLINES: Storyline[] = [
     category: "horror",
     tags: ["Horror", "SmallTown", "Mystery", "Folk", "Psychological", "AnyPOV", "SlowBurn", "Eerie"],
     creator: {
-      handle: "@fogline_press",
+      handle: "fogline_press",
       bio: "Slow rural horror. The town is always nice. That's the problem.",
       followers: 6690,
       gradient: ["#334155", "#020617"],
@@ -1222,7 +1222,7 @@ export const STORYLINES: Storyline[] = [
     category: "horror",
     tags: ["Horror", "Isolation", "Maritime", "Mystery", "Gothic", "AnyPOV", "Survival", "Eerie"],
     creator: {
-      handle: "@saltglass",
+      handle: "saltglass",
       bio: "One location, one lamp, a long night.",
       followers: 2980,
       gradient: ["#0e7490", "#083344"],
@@ -1306,7 +1306,7 @@ export const STORYLINES: Storyline[] = [
     category: "horror",
     tags: ["Horror", "Urban", "Liminal", "Mystery", "Apartment", "AnyPOV", "Psychological", "Survival"],
     creator: {
-      handle: "@stairwell_ghost",
+      handle: "stairwell_ghost",
       bio: "Urban horror in apartment buildings. Take the stairs.",
       followers: 3720,
       gradient: ["#4c1d95", "#0f0a1e"],
@@ -1394,7 +1394,7 @@ export const STORYLINES: Storyline[] = [
     category: "sciFi",
     tags: ["SciFi", "SpaceOpera", "Fleet", "Command", "Politics", "AnyPOV", "Drama", "FirstContact"],
     creator: {
-      handle: "@voidharbor",
+      handle: "voidharbor",
       bio: "Space opera with budgets. Every ship has a name and a grudge.",
       followers: 8010,
       gradient: ["#f97316", "#7c2d12"],
@@ -1493,7 +1493,7 @@ export const STORYLINES: Storyline[] = [
     category: "sciFi",
     tags: ["SciFi", "GenerationShip", "Mystery", "Dystopia", "Conspiracy", "AnyPOV", "SlowBurn", "Thriller"],
     creator: {
-      handle: "@hullwright",
+      handle: "hullwright",
       bio: "Closed systems, open questions.",
       followers: 3350,
       gradient: ["#0d9488", "#042f2e"],
@@ -1581,7 +1581,7 @@ export const STORYLINES: Storyline[] = [
     category: "sciFi",
     tags: ["SciFi", "Workplace", "Comedy", "FirstContact", "Crew", "AnyPOV", "SliceOfLife", "Space"],
     creator: {
-      handle: "@lowgravity_lou",
+      handle: "lowgravity_lou",
       bio: "Blue-collar space. The coffee is bad and the stars are fine.",
       followers: 1290,
       gradient: ["#0284c7", "#0c4a6e"],
@@ -1665,7 +1665,7 @@ export const STORYLINES: Storyline[] = [
     category: "sports",
     tags: ["Sports", "Basketball", "School", "Drama", "Underdog", "AnyPOV", "SliceOfLife", "FoundFamily"],
     creator: {
-      handle: "@gymfloor_echo",
+      handle: "gymfloor_echo",
       bio: "Sports drama. Sweat, squeaky floors, and one more possession.",
       followers: 2740,
       gradient: ["#f97316", "#7c2d12"],
@@ -1753,7 +1753,7 @@ export const STORYLINES: Storyline[] = [
     category: "sports",
     tags: ["Sports", "Kendo", "School", "Drama", "Underdog", "AnyPOV", "Rivals", "ComingOfAge"],
     creator: {
-      handle: "@shinai_and_ink",
+      handle: "shinai_and_ink",
       bio: "Martial arts club drama. The strike is the easy part.",
       followers: 4470,
       gradient: ["#16a34a", "#052e16"],
@@ -1852,7 +1852,7 @@ export const STORYLINES: Storyline[] = [
     category: "fantasy",
     tags: ["Fantasy", "Cozy", "Tavern", "Management", "SliceOfLife", "AnyPOV", "FoundFamily", "Bittersweet"],
     creator: {
-      handle: "@inkwellfox",
+      handle: "inkwellfox",
       bio: "Writes underdog isekai with too many guild receptionists.",
       followers: 8420,
       gradient: ["#f97316", "#7c2d12"],
@@ -1951,7 +1951,7 @@ export const STORYLINES: Storyline[] = [
     category: "comedy",
     tags: ["Comedy", "Workplace", "DemonLord", "Fantasy", "Office", "AnyPOV", "SliceOfLife", "Satire"],
     creator: {
-      handle: "@ninetofive_nether",
+      handle: "ninetofive_nether",
       bio: "Workplace comedy with a body count of zero. Mostly.",
       followers: 7320,
       gradient: ["#dc2626", "#450a0a"],
@@ -2050,7 +2050,7 @@ export const STORYLINES: Storyline[] = [
     category: "fantasy",
     tags: ["Fantasy", "Courtroom", "Politics", "Intrigue", "Drama", "AnyPOV", "Dragon", "Legal"],
     creator: {
-      handle: "@brief_and_blade",
+      handle: "brief_and_blade",
       bio: "Fantasy legal drama. Objection, sustained, exiled.",
       followers: 3960,
       gradient: ["#65a30d", "#1a2e05"],
@@ -2138,7 +2138,7 @@ export const STORYLINES: Storyline[] = [
     category: "fantasy",
     tags: ["Fantasy", "Dungeon", "Management", "Guild", "Mystery", "AnyPOV", "Strategy", "Adventure"],
     creator: {
-      handle: "@ninthfloor_desk",
+      handle: "ninthfloor_desk",
       bio: "Dungeon logistics. Somebody has to sign the forms.",
       followers: 2130,
       gradient: ["#4c1d95", "#1e1b4b"],
@@ -2226,7 +2226,7 @@ export const STORYLINES: Storyline[] = [
     category: "psychological",
     tags: ["Psychological", "TimeLoop", "Mystery", "Thriller", "Ensemble", "AnyPOV", "Suspense", "Gothic"],
     creator: {
-      handle: "@clockwise_cass",
+      handle: "clockwise_cass",
       bio: "Loops, locks, and dinner parties that go badly.",
       followers: 8730,
       gradient: ["#0f172a", "#7c3aed"],
@@ -2325,7 +2325,7 @@ export const STORYLINES: Storyline[] = [
     category: "psychological",
     tags: ["Psychological", "Mystery", "Medical", "Memory", "SlowBurn", "AnyPOV", "Drama", "Noir"],
     creator: {
-      handle: "@lethe_nightshift",
+      handle: "lethe_nightshift",
       bio: "Quiet psychological drama. Nothing is what you remember.",
       followers: 2440,
       gradient: ["#1e3a8a", "#0f172a"],
@@ -2413,7 +2413,7 @@ export const STORYLINES: Storyline[] = [
     category: "comedy",
     tags: ["Comedy", "Idols", "Music", "Ensemble", "SliceOfLife", "AnyPOV", "Underdog", "Wholesome"],
     creator: {
-      handle: "@glitterpop_gremlin",
+      handle: "glitterpop_gremlin",
       bio: "Idol comedy. Everyone gets a solo eventually.",
       followers: 5090,
       gradient: ["#ec4899", "#7c3aed"],
@@ -2512,7 +2512,7 @@ export const STORYLINES: Storyline[] = [
     category: "comedy",
     tags: ["Comedy", "SliceOfLife", "Roommates", "Fantasy", "Urban", "AnyPOV", "Wholesome", "Romance"],
     creator: {
-      handle: "@leaseagreement",
+      handle: "leaseagreement",
       bio: "Roommate comedies. The dishes are always the real villain.",
       followers: 3810,
       gradient: ["#8b5cf6", "#4c1d95"],
@@ -2600,7 +2600,7 @@ export const STORYLINES: Storyline[] = [
     category: "adventure",
     tags: ["Adventure", "PostApocalyptic", "Caravan", "Survival", "Western", "AnyPOV", "Ensemble", "Drama"],
     creator: {
-      handle: "@redhorizon_rw",
+      handle: "redhorizon_rw",
       bio: "Post-apocalyptic westerns. Keep the wagons rolling.",
       followers: 4630,
       gradient: ["#b91c1c", "#7c2d12"],
@@ -2699,7 +2699,7 @@ export const STORYLINES: Storyline[] = [
     category: "adventure",
     tags: ["Adventure", "Skyworld", "Exploration", "Fantasy", "Cozy", "AnyPOV", "Mystery", "Wonder"],
     creator: {
-      handle: "@cloudroad_atlas",
+      handle: "cloudroad_atlas",
       bio: "Maps of places that move. Exploration with a warm heart.",
       followers: 2050,
       gradient: ["#0ea5e9", "#1e3a8a"],
@@ -2787,7 +2787,7 @@ export const STORYLINES: Storyline[] = [
     category: "adventure",
     tags: ["Adventure", "Pirates", "Crew", "Fantasy", "Treasure", "AnyPOV", "Comedy", "Swashbuckling"],
     creator: {
-      handle: "@saltandsable",
+      handle: "saltandsable",
       bio: "Pirate crews with feelings. Every knot is a plot point.",
       followers: 5920,
       gradient: ["#0e7490", "#083344"],
@@ -2886,7 +2886,7 @@ export const STORYLINES: Storyline[] = [
     category: "romance",
     tags: ["Romance", "Vampire", "Gothic", "Court", "Intrigue", "AnyPOV", "SlowBurn", "Dark"],
     creator: {
-      handle: "@nocturne_and_lace",
+      handle: "nocturne_and_lace",
       bio: "Gothic romance. Candles, consequences, and very old men who should know better.",
       followers: 8950,
       gradient: ["#881337", "#1c1917"],
@@ -2985,7 +2985,7 @@ export const STORYLINES: Storyline[] = [
     category: "romance",
     tags: ["Romance", "Bakery", "Rivals", "SliceOfLife", "Cozy", "AnyPOV", "SmallTown", "EnemiesToLovers"],
     creator: {
-      handle: "@ovenwarm",
+      handle: "ovenwarm",
       bio: "Cozy romance. Everything is better with butter.",
       followers: 4310,
       gradient: ["#f59e0b", "#7c2d12"],
@@ -3073,7 +3073,7 @@ export const STORYLINES: Storyline[] = [
     category: "romance",
     tags: ["Romance", "Epistolary", "Fantasy", "SlowBurn", "Coastal", "AnyPOV", "Melancholy", "Wholesome"],
     creator: {
-      handle: "@tideline_letters",
+      handle: "tideline_letters",
       bio: "Epistolary romance. Slow tides, long letters.",
       followers: 1630,
       gradient: ["#0e7490", "#164e63"],
@@ -3161,7 +3161,7 @@ export const STORYLINES: Storyline[] = [
     category: "supernatural",
     tags: ["Supernatural", "Urban", "Folklore", "Shrine", "Cozy", "AnyPOV", "SliceOfLife", "Mystery"],
     creator: {
-      handle: "@paperlantern_ko",
+      handle: "paperlantern_ko",
       bio: "Urban folklore. The city is older than it looks.",
       followers: 3470,
       gradient: ["#ea580c", "#7c2d12"],
@@ -3249,7 +3249,7 @@ export const STORYLINES: Storyline[] = [
     category: "supernatural",
     tags: ["Supernatural", "Detective", "Noir", "Ghosts", "Mystery", "AnyPOV", "Drama", "Bittersweet"],
     creator: {
-      handle: "@midnight_casefile",
+      handle: "midnight_casefile",
       bio: "Ghost noir. The dead have paperwork too.",
       followers: 6180,
       gradient: ["#4c1d95", "#0f0a1e"],
