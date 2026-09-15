@@ -6,6 +6,9 @@ import type { ChatMessage, ChatSession, ChatSettings, ProviderSettings, Storylin
 
 import { IMAGE_CATALOG, LLM_CATALOG } from "./catalog";
 import { providerHeaders } from "./provider-settings";
+import type { ProviderImageModel, ProviderVideoModel, VideoParamSpec, VideoStatusResult } from "./provider-catalog";
+import { defaultResolution } from "./provider-catalog";
+import type { VideoParamValue } from "@/types/isekaizero";
 
 /** Hidden user turn sent by the Composer's "Continue" action. */
 export const CONTINUE_SENTINEL = "(continue the scene)";
@@ -78,6 +81,34 @@ export function resolveImageModel(settings: ChatSettings, provider: ProviderSett
   return { id: row?.model ?? selected, name: row?.name ?? selected, costPerImage: row?.costPerImage };
 }
 
+/** Size sent with a scene image: the configured size when the model accepts it (or lists none), else the model's default. */
+export function resolveImageSize(model: ProviderImageModel | undefined, provider: ProviderSettings): string {
+  const configured = provider.imageSize || "1024x1024";
+  if (!model || model.resolutions.length === 0 || model.resolutions.includes(configured)) return configured;
+  return defaultResolution(model.resolutions) ?? configured;
+}
+
+export interface ResolvedVideoModel {
+  /** Provider-facing model id ("" when nothing is configured). */
+  id: string;
+  name: string;
+  textToVideo?: boolean;
+  imageToVideo?: boolean;
+  priceSummary?: string;
+  params?: VideoParamSpec[];
+  defaults?: Record<string, VideoParamValue>;
+}
+
+/** `"default"` → `ProviderSettings.videoModel`; enriched with capabilities when the catalog row is known. */
+export function resolveVideoModel(settings: ChatSettings, provider: ProviderSettings, catalog?: ProviderVideoModel[]): ResolvedVideoModel {
+  const selected = !settings.animationModel || settings.animationModel === "default" ? provider.videoModel : settings.animationModel;
+  const row = catalog?.find((m) => m.id === selected);
+  if (row) {
+    return { id: row.id, name: row.name, textToVideo: row.textToVideo, imageToVideo: row.imageToVideo, priceSummary: row.priceSummary, params: row.params, defaults: row.defaults };
+  }
+  return { id: selected, name: selected || "Not set" };
+}
+
 /* ------------------------------------------------------------------ prompts */
 
 export interface SystemPromptOptions {
@@ -111,18 +142,44 @@ function mentions(text: string, character: Storyline["characters"][number]): boo
   return lower.includes(character.name.toLowerCase()) || (first !== undefined && first.length > 2 && lower.includes(first));
 }
 
-export function buildScenePrompt(
-  storyline: Storyline,
-  lastMessages: ChatMessage[],
-  perspective: ChatSettings["illustrationPerspective"],
-): string {
+interface SceneParts {
+  scene: string;
+  cast: string;
+  shot: string;
+}
+
+function sceneParts(storyline: Storyline, lastMessages: ChatMessage[], perspective: ChatSettings["illustrationPerspective"]): SceneParts {
   const lastAssistant = [...lastMessages].reverse().find((m) => m.role === "assistant" && m.content.trim());
   const scene = (lastAssistant?.content ?? storyline.opening).replace(/\s+/g, " ").trim().slice(0, 600);
   const recent = lastMessages.slice(-3).map((m) => m.content).join("\n");
   const present = storyline.characters.filter((c) => mentions(recent, c));
   const cast = present.length > 0 ? present.map((c) => `${c.name}: ${c.appearance}`).join("; ") : "none in particular";
   const shot = perspective === "pov" ? "first-person POV of the player" : "cinematic third-person shot";
+  return { scene, cast, shot };
+}
+
+export function buildScenePrompt(storyline: Storyline, lastMessages: ChatMessage[], perspective: ChatSettings["illustrationPerspective"]): string {
+  const { scene, cast, shot } = sceneParts(storyline, lastMessages, perspective);
   return `Anime illustration, ${shot}, of the following scene from "${storyline.title}": ${scene}. Characters present: ${cast}. Style: detailed anime key visual, dramatic lighting, high quality, no text, no watermark.`;
+}
+
+const MOTION_PROMPT_MAX = 1500;
+
+/**
+ * Prompt for a scene video. With `fromImage` the text describes motion and camera only, so an image-to-video
+ * model keeps the illustration as drawn; otherwise it is a full text-to-video scene description.
+ */
+export function buildMotionPrompt(
+  storyline: Storyline,
+  lastMessages: ChatMessage[],
+  perspective: ChatSettings["illustrationPerspective"],
+  opts: { fromImage: boolean },
+): string {
+  const { scene, cast, shot } = sceneParts(storyline, lastMessages, perspective);
+  const text = opts.fromImage
+    ? `Animate this illustration from "${storyline.title}": ${scene}. Keep the characters and composition exactly as drawn; add subtle natural motion — breathing, blinking, hair and cloth moving in the air, ambient light flicker — with a slow cinematic push-in. Characters present: ${cast}. No text, no watermark.`
+    : `Anime-style video, ${shot}, of the following scene from "${storyline.title}": ${scene}. Characters present: ${cast}. Smooth natural motion, slow cinematic camera movement, dramatic lighting, high quality, no text, no watermark.`;
+  return text.slice(0, MOTION_PROMPT_MAX);
 }
 
 /* ------------------------------------------------------------------ API messages */
@@ -419,4 +476,49 @@ export async function generateSceneImage(opts: GenerateImageOptions): Promise<Ge
   const first = json.images?.[0];
   if (!first?.url) throw new ChatApiError("Provider returned no image data", 502);
   return { url: first.url, prompt: first.prompt || opts.prompt, model: json.model ?? opts.model, cost: json.cost, remainingBalance: json.remainingBalance };
+}
+
+/* ------------------------------------------------------------------ videos */
+
+export interface SubmitVideoOptions {
+  settings: ProviderSettings;
+  model: string;
+  prompt: string;
+  params: Record<string, VideoParamValue>;
+  /** http(s) or data:image URL of the frame to animate. */
+  imageUrl?: string;
+  signal?: AbortSignal;
+}
+
+export interface SubmittedVideo {
+  runId: string;
+  model: string;
+  cost?: number;
+  remainingBalance?: number;
+}
+
+interface SubmitResponse extends Partial<SubmittedVideo> {
+  error?: unknown;
+}
+
+export async function submitSceneVideo(opts: SubmitVideoOptions): Promise<SubmittedVideo> {
+  const res = await fetch("/api/videos/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...providerHeaders(opts.settings) },
+    body: JSON.stringify({ model: opts.model, prompt: opts.prompt, params: opts.params, image: opts.imageUrl ? { url: opts.imageUrl } : undefined }),
+    signal: opts.signal,
+  });
+  if (!res.ok) await readErrorResponse(res);
+  const json = (await res.json()) as SubmitResponse;
+  if (json.error !== undefined) throw new ChatApiError(errorText(json.error, "Video provider error"), 502);
+  if (!json.runId) throw new ChatApiError("Provider did not return a run id", 502);
+  return { runId: json.runId, model: json.model ?? opts.model, cost: json.cost, remainingBalance: json.remainingBalance };
+}
+
+export async function pollSceneVideo(settings: ProviderSettings, runId: string, signal?: AbortSignal): Promise<VideoStatusResult> {
+  const res = await fetch(`/api/videos/status?requestId=${encodeURIComponent(runId)}`, { headers: providerHeaders(settings), cache: "no-store", signal });
+  if (!res.ok) await readErrorResponse(res);
+  const json = (await res.json()) as Partial<VideoStatusResult> & { error?: unknown };
+  if (!json.status) throw new ChatApiError(errorText(json.error, "Video status error"), 502);
+  return json as VideoStatusResult;
 }
