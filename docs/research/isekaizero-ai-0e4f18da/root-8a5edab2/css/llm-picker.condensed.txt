@@ -1,0 +1,145 @@
+===== header
+<div> [0,0,1440,64] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=1440px height=64px flex col flex=0 0 auto
+  <div> [0,0,1440,64] | backgroundColor=rgb(17, 18, 60) width=1440px height=64px flex col flex=1 1 0%
+  <div> [0,0,1440,0] | width=1440px flex col flex=0 0 auto
+  <div> [0,0,1440,64] | width=1440px height=64px flex row flex=1 1 0%
+    <button> [11,17,30,30] | fontSize=13.3333px margin=3px 11px width=30px height=30px flex row alignItems=center borderRadius=10px textAlign=center flex=0 0 auto
+      <div> [14,20,24,24] (n=3) | margin=3px width=24px height=24px flex col overflow=hidden textAlign=center flex=0 0 auto
+    <h1> [56,20,42,24] "LLMs" | fontSize=18px fontWeight=500 fontFamily=system-ui width=42px height=24px maxWidth=100% row overflow=hidden
+    <div> [1263,20,177,25] | width=176.719px height=25px flex row alignItems=center flex=0 0 auto
+      <div> [1263,20,53,25] (n=2) | margin=0px 16px 0px 0px width=52.8125px height=25px flex row alignItems=center flex=0 0 auto
+      <div> [1332,20,46,25] (n=2) | margin=0px 8px 0px 0px width=45.9062px height=25px flex row alignItems=center flex=0 0 auto
+      <div> [1386,20,54,24] (n=1) | padding=0px 15px width=54px height=24px flex col flex=0 0 auto
+===== tabs
+<div> [180,66,1080,98] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) margin=0px 0px 16px width=1080px height=98px flex col flex=0 0 auto
+  <div> [160,66,1120,40] | margin=0px -20px width=1120px height=40px flex row flex=0 0 auto
+    <div> [160,66,280,39] | padding=10px 6px 0px width=280px height=39px flex col alignItems=center flex=1 1 0%
+      <div> [291,76,18,27] "All" | fontSize=14px fontWeight=700 fontFamily=-apple-system padding=0px 0px 8px width=17.8125px height=27px maxWidth=100% row overflow=hidden
+      <div> [166,103,268,2] | backgroundColor=rgb(167, 185, 255) width=268px height=2px flex col borderRadius=2px 2px 0px 0px flex=0 0 auto
+    <div> [440,66,280,39] | padding=10px 6px 0px width=280px height=39px flex col alignItems=center flex=1 1 0%
+      <div> [552,76,57,27] "Standard" | fontSize=14px fontWeight=500 fontFamily=-apple-system color=rgba(255, 255, 255, 0.55) padding=0px 0px 8px width=57px height=27px maxWidth=100% row overflow=hidden
+      <div> [446,103,268,2] | width=268px height=2px flex col borderRadius=2px 2px 0px 0px flex=0 0 auto
+    <div> [720,66,280,39] | padding=10px 6px 0px width=280px height=39px flex col alignItems=center flex=1 1 0%
+      <div> [831,76,57,27] "Premium" | fontSize=14px fontWeight=500 fontFamily=-apple-system color=rgba(255, 255, 255, 0.55) padding=0px 0px 8px width=57.3125px height=27px maxWidth=100% row overflow=hidden
+      <div> [726,103,268,2] | width=268px height=2px flex col borderRadius=2px 2px 0px 0px flex=0 0 auto
+    <div> [1000,66,280,39] | padding=10px 6px 0px width=280px height=39px flex col alignItems=center flex=1 1 0%
+      <div> [1127,76,27,27] "Free" | fontSize=14px fontWeight=500 fontFamily=-apple-system color=rgba(255, 255, 255, 0.55) padding=0px 0px 8px width=26.9688px height=27px maxWidth=100% row overflow=hidden
+      <div> [1006,103,268,2] | width=268px height=2px flex col borderRadius=2px 2px 0px 0px flex=0 0 auto
+  <div> [180,116,1080,48] | padding=0px 4px margin=10px 0px 0px width=1080px height=48px flex row alignItems=flex-start flex=0 0 auto
+    <div> [184,122,20,42] | margin=6px 8px 0px 0px width=20px height=42px flex col alignItems=center gap=8px flex=0 0 auto
+      <div> [187,122,14,14] "󰈶" | fontSize=14px fontFamily=material-community color=rgba(255, 255, 255, 0.45) width=14px height=14px row
+      <div> [184,144,20,20] | padding=2px width=20px height=20px flex col flex=0 0 auto
+        <div> [186,146,16,16] "󰧭" | fontFamily=material-community color=rgba(255, 255, 255, 0.45) width=16px height=16px row
+    <div> [212,116,1044,25] | width=1044px height=25px flex row gap=6px flex=1 1 0% flexWrap=wrap
+      <div> [212,116,36,25] | backgroundColor=rgba(42, 65, 228, 0.35) padding=4px 10px width=36.0469px height=25px flex col borderRadius=12px border=1px solid rgba(167, 185, 255, 0.9) flex=0 0 auto
+        <div> [223,121,14,15] "All" | fontSize=11px fontWeight=600 fontFamily=-apple-system letterSpacing=0.3px width=14.0469px height=15px row textTransform=capitalize
+      <div> [254,116,73,25] | backgroundColor=rgba(0, 0, 0, 0.15) padding=4px 10px width=72.8125px height=25px flex col borderRadius=12px border=1px solid rgba(255, 255, 255, 0.15) flex=0 0 auto
+        <div> [265,121,51,15] "deepseek" | fontSize=11px fontWeight=500 fontFamily=-apple-system letterSpacing=0.3px color=rgba(255, 255, 255, 0.55) width=50.8125px height=15px row textTransform=capitalize
+      <div> [333,116,58,25] | backgroundColor=rgba(0, 0, 0, 0.15) padding=4px 10px width=58.4219px height=25px flex col borderRadius=12px border=1px solid rgba(255, 255, 255, 0.15) flex=0 0 auto
+        <div> [344,121,36,15] "xiaomi" | fontSize=11px fontWeight=500 fontFamily=-apple-system letterSpacing=0.3px color=rgba(255, 255, 255, 0.55) width=36.4219px height=15px row textTransform=capitalize
+      <div> [397,116,44,25] | backgroundColor=rgba(0, 0, 0, 0.15) padding=4px 10px width=44.3438px height=25px flex col borderRadius=12px border=1px solid rgba(255, 255, 255, 0.15) flex=0 0 auto
+        <div> [408,121,22,15] "z-ai" | fontSize=11px fontWeight=500 fontFamily=-apple-system letterSpacing=0.3px color=rgba(255, 255, 255, 0.55) width=22.3438px height=15px row textTransform=capitalize
+      <div> [448,116,85,25] | backgroundColor=rgba(0, 0, 0, 0.15) padding=4px 10px width=85.0312px height=25px flex col borderRadius=12px border=1px solid rgba(255, 255, 255, 0.15) flex=0 0 auto
+        <div> [459,121,63,15] "moonshotai" | fontSize=11px fontWeight=500 fontFamily=-apple-system letterSpacing=0.3px color=rgba(255, 255, 255, 0.55) width=63.0312px height=15px row textTransform=capitalize
+      <div> [539,116,52,25] | backgroundColor=rgba(0, 0, 0, 0.15) padding=4px 10px width=52.0469px height=25px flex col borderRadius=12px border=1px solid rgba(255, 255, 255, 0.15) flex=0 0 auto
+        <div> [550,121,30,15] "qwen" | fontSize=11px fontWeight=500 fontFamily=-apple-system letterSpacing=0.3px color=rgba(255, 255, 255, 0.55) width=30.0469px height=15px row textTransform=capitalize
+      <div> [597,116,60,25] | backgroundColor=rgba(0, 0, 0, 0.15) padding=4px 10px width=59.9531px height=25px flex col borderRadius=12px border=1px solid rgba(255, 255, 255, 0.15) flex=0 0 auto
+        <div> [608,121,38,15] "google" | fontSize=11px fontWeight=500 fontFamily=-apple-system letterSpacing=0.3px color=rgba(255, 255, 255, 0.55) width=37.9531px height=15px row textTransform=capitalize
+      <div> [663,116,45,25] | backgroundColor=rgba(0, 0, 0, 0.15) padding=4px 10px width=44.7031px height=25px flex col borderRadius=12px border=1px solid rgba(255, 255, 255, 0.15) flex=0 0 auto
+        <div> [674,121,23,15] "x-ai" | fontSize=11px fontWeight=500 fontFamily=-apple-system letterSpacing=0.3px color=rgba(255, 255, 255, 0.55) width=22.7031px height=15px row textTransform=capitalize
+      <div> [713,116,74,25] | backgroundColor=rgba(0, 0, 0, 0.15) padding=4px 10px width=74.1094px height=25px flex col borderRadius=12px border=1px solid rgba(255, 255, 255, 0.15) flex=0 0 auto
+        <div> [724,121,52,15] "anthropic" | fontSize=11px fontWeight=500 fontFamily=-apple-system letterSpacing=0.3px color=rgba(255, 255, 255, 0.55) width=52.1094px height=15px row textTransform=capitalize
+      <div> [793,116,49,25] | backgroundColor=rgba(0, 0, 0, 0.15) padding=4px 10px width=48.9375px height=25px flex col borderRadius=12px border=1px solid rgba(255, 255, 255, 0.15) flex=0 0 auto
+        <div> [804,121,27,15] "meta" | fontSize=11px fontWeight=500 fontFamily=-apple-system letterSpacing=0.3px color=rgba(255, 255, 255, 0.55) width=26.9375px height=15px row textTransform=capitalize
+      <div> [848,116,63,25] | backgroundColor=rgba(0, 0, 0, 0.15) padding=4px 10px width=62.7812px height=25px flex col borderRadius=12px border=1px solid rgba(255, 255, 255, 0.15) flex=0 0 auto
+        <div> [859,121,41,15] "tencent" | fontSize=11px fontWeight=500 fontFamily=-apple-system letterSpacing=0.3px color=rgba(255, 255, 255, 0.55) width=40.7812px height=15px row textTransform=capitalize
+      <div> [917,116,75,25] | backgroundColor=rgba(0, 0, 0, 0.15) padding=4px 10px width=74.8594px height=25px flex col borderRadius=12px border=1px solid rgba(255, 255, 255, 0.15) flex=0 0 auto
+        <div> [928,121,53,15] "aion-labs" | fontSize=11px fontWeight=500 fontFamily=-apple-system letterSpacing=0.3px color=rgba(255, 255, 255, 0.55) width=52.8594px height=15px row textTransform=capitalize
+      <div> [998,116,67,25] | backgroundColor=rgba(0, 0, 0, 0.15) padding=4px 10px width=67.4375px height=25px flex col borderRadius=12px border=1px solid rgba(255, 255, 255, 0.15) flex=0 0 auto
+        <div> [1009,121,45,15] "minimax" | fontSize=11px fontWeight=500 fontFamily=-apple-system letterSpacing=0.3px color=rgba(255, 255, 255, 0.55) width=45.4375px height=15px row textTransform=capitalize
+      <div> [1071,116,52,25] | backgroundColor=rgba(0, 0, 0, 0.15) padding=4px 10px width=51.8125px height=25px flex col borderRadius=12px border=1px solid rgba(255, 255, 255, 0.15) flex=0 0 auto
+        <div> [1082,121,30,15] "baidu" | fontSize=11px fontWeight=500 fontFamily=-apple-system letterSpacing=0.3px color=rgba(255, 255, 255, 0.55) width=29.8125px height=15px row textTransform=capitalize
+===== chips
+===== auto
+<div> [182,182,1076,90] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) backgroundImage=linear-gradient(rgb(48, 31, 93), rgb(54, 51, 107)) padding=16px width=1076px height=90px flex col borderRadius=10px flex=0 0 auto
+  <div> [1188,182,70,22] | backgroundImage=linear-gradient(107.447deg, rgb(167, 185, 255), rgb(243, 244, 255)) padding=1px width=69.5625px height=22px flex col borderRadius=2px 10px 0px 20px flex=0 0 auto
+    <div> [1189,183,68,20] | backgroundImage=linear-gradient(rgb(167, 185, 255), rgb(243, 244, 255)) padding=3px 16px width=67.5625px height=20px flex col borderRadius=2px 10px 0px 20px flex=0 0 auto
+      <div> [1205,186,36,14] "Current" | fontSize=10px fontWeight=700 fontFamily=-apple-system color=rgb(47, 51, 80) width=35.5625px height=14px row
+  <div> [198,198,1044,58] | width=1044px height=58px flex row alignItems=center flex=0 0 auto
+    <div> [198,198,58,58] | backgroundImage=linear-gradient(90deg, rgb(40, 75, 207), rgba(153, 153, 153, 0), rgba(153, 153, 153, 0), rgb(40, 75, 207)) padding=2px width=58px height=58px flex col borderRadius=50px flex=0 0 auto
+      <div> [200,200,54,54] | backgroundColor=rgb(255, 255, 255) width=54px height=54px flex col justifyContent=center alignItems=center borderRadius=50px overflow=hidden flex=0 0 auto
+        <div> [212,212,30,31] "󰁨" | fontSize=30px fontFamily=material-community color=rgb(40, 75, 207) width=30px height=31px row
+    <div> [268,206,974,43] | width=974px height=43px flex col flex=1 1 0%
+      <div> [268,206,974,21] | width=974px height=21px flex row alignItems=center gap=8px flex=0 0 auto
+        <div> [268,206,162,21] "Auto (recommended)" | fontWeight=700 fontFamily=-apple-system width=161.641px height=21px row
+      <div> [268,231,974,18] "The model new chats start with. Auto picks the current recommended model." | fontSize=13px fontFamily=-apple-system lineHeight=18px color=rgba(255, 255, 255, 0.7) margin=4px 0px 0px width=974px height=18px row
+===== card
+<div> [180,286,531,374] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) backgroundImage=linear-gradient(90deg, rgb(40, 75, 207), rgba(153, 153, 153, 0), rgba(153, 153, 153, 0), rgb(40, 75, 207)) padding=2px width=531.359px height=374px flex col borderRadius=12px flex=0 0 auto
+  <div> [182,288,527,370] | backgroundImage=linear-gradient(rgb(48, 31, 93), rgb(54, 51, 107)) padding=16px width=527.359px height=370px flex col borderRadius=10px flex=0 0 auto
+    <div> [198,304,495,109] | width=495.359px height=109px flex row alignItems=center flex=0 0 auto
+      <div> [198,332,54,54] | backgroundImage=linear-gradient(90deg, rgb(40, 75, 207), rgba(153, 153, 153, 0), rgba(153, 153, 153, 0), rgb(40, 75, 207)) padding=2px width=54px height=54px flex col borderRadius=50px flex=0 0 auto
+        <div> [200,334,50,50] | backgroundColor=rgb(255, 255, 255) width=50px height=50px flex col justifyContent=center alignItems=center borderRadius=50px overflow=hidden flex=0 0 auto
+          <div> [200,334,50,50] | width=50px height=50px flex col borderRadius=25px overflow=hidden flex=0 0 auto
+            <div> [200,334,50,0] (n=1) | width=50px row
+      <div> [264,304,429,109] | width=429.359px height=109px flex col flex=1 1 0%
+        <div> [264,304,429,21] | width=429.359px height=21px flex row alignItems=center gap=8px flex=0 0 auto
+          <div> [264,304,182,21] "DeepSeek V4 Flash 0731" | fontWeight=700 fontFamily=-apple-system width=182.344px height=21px row
+        <div> [264,329,429,18] "The 0731 update made it great for roleplaying" | fontSize=13px fontFamily=-apple-system lineHeight=18px color=rgba(255, 255, 255, 0.7) margin=4px 0px 0px width=429.359px height=18px row
+        <div> [264,353,429,16] | margin=6px 0px 0px width=429.359px height=16px flex row alignItems=center gap=4px flex=0 0 auto
+          <div> [264,354,14,14] "󰃨" | fontSize=14px fontFamily=material-community color=rgba(255, 255, 255, 0.7) width=14px height=14px row
+          <div> [282,353,135,16] "Supports prompt caching" | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.7) width=134.672px height=16px row
+        <div> [264,375,429,16] | margin=6px 0px 0px width=429.359px height=16px flex row alignItems=center gap=4px flex=0 0 auto
+          <div> [264,376,14,14] "󰧑" | fontSize=14px fontFamily=material-community color=rgba(255, 255, 255, 0.7) width=14px height=14px row
+          <div> [282,375,103,16] "Supports reasoning" | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.7) width=103.156px height=16px row
+        <div> [264,397,429,16] | margin=6px 0px 0px width=429.359px height=16px flex row alignItems=center gap=4px flex=0 0 auto
+          <div> [264,398,14,14] "󰡱" | fontSize=14px fontFamily=material-community color=rgba(255, 255, 255, 0.7) width=14px height=14px row
+          <div> [282,397,120,16] "Supports function calls" | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.7) width=120.453px height=16px row
+    <div> [198,425,495,25] | margin=12px 0px 4px width=495.359px height=25px flex row gap=6px flex=0 0 auto flexWrap=wrap
+      <div> [198,425,111,25] | backgroundColor=rgba(42, 65, 228, 0.4) padding=4px 10px width=110.594px height=25px flex row alignItems=center gap=6px borderRadius=12px border=1px solid rgb(167, 185, 255) flex=0 0 auto
+        <div> [209,434,7,7] | backgroundColor=rgb(128, 202, 16) width=7px height=7px flex col borderRadius=4px flex=0 0 auto
+        <div> [222,430,76,15] "dedicated-d" | fontSize=11px fontWeight=600 fontFamily=-apple-system letterSpacing=0.5px width=75.5938px height=15px row textTransform=uppercase
+      <div> [315,425,109,25] | backgroundColor=rgba(0, 0, 0, 0.2) padding=4px 10px width=109.344px height=25px flex row alignItems=center gap=6px borderRadius=12px border=1px solid rgba(255, 255, 255, 0.3) flex=0 0 auto
+        <div> [326,434,7,7] | backgroundColor=rgb(128, 202, 16) width=7px height=7px flex col borderRadius=4px flex=0 0 auto
+        <div> [339,430,74,15] "dedicated-b" | fontSize=11px fontWeight=500 fontFamily=-apple-system letterSpacing=0.5px color=rgba(255, 255, 255, 0.7) width=74.3438px height=15px row textTransform=uppercase
+      <div> [430,425,79,25] | backgroundColor=rgba(0, 0, 0, 0.2) padding=4px 10px width=78.6719px height=25px flex row alignItems=center gap=6px borderRadius=12px border=1px solid rgba(255, 255, 255, 0.3) flex=0 0 auto
+        <div> [441,434,7,7] | backgroundColor=rgb(128, 202, 16) width=7px height=7px flex col borderRadius=4px flex=0 0 auto
+        <div> [454,430,44,15] "infron" | fontSize=11px fontWeight=500 fontFamily=-apple-system letterSpacing=0.5px color=rgba(255, 255, 255, 0.7) width=43.6719px height=15px row textTransform=uppercase
+    <div> [198,464,495,18] | margin=10px 0px 0px width=495.359px height=18px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [198,464,56,18] | backgroundColor=rgba(128, 202, 16, 0.2) padding=2px 6px width=56.2031px height=18px flex col borderRadius=4px flex=0 0 auto
+        <div> [204,466,44,14] "Healthy" | fontSize=10px fontWeight=700 fontFamily=-apple-system color=rgb(128, 202, 16) width=44.2031px height=14px row textTransform=uppercase
+      <div> [325,466,27,15] | fontSize=11px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) width=26.8125px height=15px row
+      <span> [423,468,11,11] "󰃨" | fontSize=11px fontFamily=material-community color=rgba(255, 255, 255, 0.5) display=inline row
+      <div> [530,466,45,15] | fontSize=11px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) width=45.1094px height=15px row
+      <div> [646,466,47,15] "6903 calls" | fontSize=11px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) width=47.4062px height=15px row
+    <div> [198,494,495,69] | margin=12px 0px width=495.359px height=69px flex col gap=12px flex=0 0 auto
+      <div> [198,494,495,69] | width=495.359px height=69px flex col gap=4px flex=0 0 auto
+        <div> [198,494,495,69] | width=495.359px height=69px flex col gap=1px flex=0 0 auto
+          <div> [198,494,495,34] | width=495.359px height=34px flex row alignItems=center gap=4px flex=0 0 auto
+            <div> [198,497,80,28] | backgroundColor=rgb(31, 26, 90) padding=4px 8px width=80px height=28px flex col alignItems=center borderRadius=20px border=2px solid rgba(255, 255, 255, 0.25) flex=0 0 auto
+              <div> [216,503,45,16] "INPUT" | fontSize=12px fontWeight=600 fontFamily=-apple-system padding=0px 5px width=44.7812px height=16px row
+            <div> [282,494,170,34] | width=169.781px height=34px flex row alignItems=center flex=0 0 auto
+              <div> [282,496,40,30] (n=2) | margin=0px 6px 0px 0px width=40px height=30px flex col flex=0 0 auto
+              <div> [328,494,124,34] (n=2) | width=123.781px height=34px flex col flex=0 0 auto
+          <div> [198,529,495,34] | width=495.359px height=34px flex row alignItems=center gap=4px flex=0 0 auto
+            <div> [198,532,80,28] | backgroundColor=rgb(31, 26, 90) padding=4px 8px width=80px height=28px flex col alignItems=center borderRadius=20px border=2px solid rgba(255, 255, 255, 0.25) flex=0 0 auto
+              <div> [210,538,56,16] "OUTPUT" | fontSize=12px fontWeight=600 fontFamily=-apple-system padding=0px 5px width=56.2031px height=16px row
+            <div> [282,529,170,34] | width=169.734px height=34px flex row alignItems=center flex=0 0 auto
+              <div> [282,531,40,30] (n=2) | margin=0px 6px 0px 0px width=40px height=30px flex col flex=0 0 auto
+              <div> [328,529,124,34] (n=2) | width=123.734px height=34px flex col flex=0 0 auto
+    <div> [198,585,495,19] | width=495.359px height=19px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [198,585,79,19] "Context limit" | fontSize=14px fontFamily=-apple-system color=rgba(255, 255, 255, 0.9) width=78.8438px height=19px row
+      <div> [634,585,59,19] "1,000,000" | fontSize=14px fontWeight=600 fontFamily=-apple-system width=59.0312px height=19px row
+    <div> [198,614,495,28] | padding=10px 0px 0px margin=10px 0px 0px width=495.359px height=28px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [198,625,138,17] | width=137.5px height=17px flex row alignItems=center gap=5px flex=0 0 auto
+        <div> [198,626,83,15] | width=83px height=15px flex row alignItems=center gap=6px flex=0 0 auto
+          <div> [198,626,83,15] | width=83px height=15px flex row gap=2px flex=0 0 auto
+            <div> [198,626,15,15] "󰓎" | fontSize=15px fontFamily=material-community color=rgb(255, 215, 0) width=15px height=15px row
+            <div> [215,626,15,15] "󰓎" | fontSize=15px fontFamily=material-community color=rgb(255, 215, 0) width=15px height=15px row
+            <div> [232,626,15,15] "󰓐" | fontSize=15px fontFamily=material-community color=rgb(255, 215, 0) width=15px height=15px row
+            <div> [249,626,15,15] "󰓒" | fontSize=15px fontFamily=material-community color=rgba(255, 255, 255, 0.3) width=15px height=15px row
+            <div> [266,626,15,15] "󰓒" | fontSize=15px fontFamily=material-community color=rgba(255, 255, 255, 0.3) width=15px height=15px row
+        <div> [286,625,18,17] "2.4" | fontSize=13px fontWeight=600 fontFamily=-apple-system width=17.8438px height=17px row
+        <div> [309,626,27,16] | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.55) width=26.6562px height=16px row
+      <div> [628,625,65,17] | width=65px height=17px flex row alignItems=center gap=2px flex=0 0 auto
+        <div> [628,625,47,17] "Reviews" | fontSize=13px fontWeight=500 fontFamily=-apple-system color=rgb(167, 185, 255) width=47px height=17px row
+        <div> [677,626,16,16] "󰅂" | fontFamily=material-community color=rgb(167, 185, 255) width=16px height=16px row

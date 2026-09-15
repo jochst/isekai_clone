@@ -1,0 +1,154 @@
+===== genimage
+--- left
+<div> [20,64,459,816] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) padding=20px 20px 32px width=459px height=816px flex col flex=0 0 auto
+  <button> [40,84,419,49] | fontSize=13.3333px width=419px height=49px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+    <div> [40,84,236,49] | margin=0px 12px 0px 0px width=235.5px height=49px flex col textAlign=center flex=1 1 0%
+      <div> [40,84,236,24] | fontSize=18px fontWeight=600 fontFamily=-apple-system margin=0px 0px 4px width=235.5px height=24px maxWidth=100% row overflow=hidden
+        <span> [93,84,13,24] "*" | color=rgb(255, 87, 71) display=inline row
+      <div> [40,114,236,19] "Select AI model for generation" | fontSize=14px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) margin=2px 0px 0px width=235.5px height=19px maxWidth=100% display=flow-root row overflow=clip WebkitLineClamp=2
+    <div> [288,86,172,45] | width=171.5px height=45px maxWidth=50% flex row alignItems=center gap=8px textAlign=center
+      <div> [288,86,144,45] | width=143.5px height=45px maxWidth=100% flex col alignItems=flex-end textAlign=center
+        <div> [288,86,144,21] "Grok Imagine Image" | fontSize=16px fontFamily=-apple-system color=rgb(160, 160, 160) width=143.5px height=21px maxWidth=100% row overflow=hidden
+        <div> [309,113,122,18] | margin=6px 0px 0px width=121.906px height=18px maxWidth=100% flex row justifyContent=flex-end alignItems=center textAlign=center flex=0 0 auto
+          <div> [309,113,28,18] | margin=0px 4px 0px 0px width=28px height=18px flex col textAlign=center flex=0 0 auto
+            <div> [309,113,18,18] (n=1) | width=18px height=18px flex col overflow=hidden position=absolute right=10px textAlign=center flex=0 0 auto
+            <div> [319,113,18,18] (n=1) | width=18px height=18px flex col overflow=hidden position=absolute left=10px textAlign=center flex=0 0 auto
+          <div> [341,114,90,16] "2.6 Mana/Arcane" | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.4) width=89.9062px height=16px row textAlign=right
+      <div> [439,97,20,23] "[i]" | fontSize=20px fontFamily=ionicons width=20px height=23px row
+  <div> [40,157,419,312] | margin=0px 0px 24px width=419px height=312px flex col flex=0 0 auto
+    <span> [106,157,8,24] "*" | fontSize=18px fontWeight=600 fontFamily=-apple-system color=rgb(255, 87, 71) display=inline row
+    <textarea> [40,190,419,200] | fontFamily=-apple-system backgroundColor=rgb(47, 51, 80) padding=16px margin=5px 0px 0px width=419px height=200px row borderRadius=12px border=1px solid rgba(167, 185, 255, 0.5)
+    <div> [40,394,419,16] | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.4) margin=4px 0px 0px width=419px height=16px row textAlign=right
+    <button> [40,418,419,51] | fontSize=13.3333px color=rgba(255, 255, 255, 0.3) margin=8px 0px 0px width=419px height=51px flex col borderRadius=30px overflow=hidden opacity=0.5 textAlign=center flex=0 0 auto
+      <div> [40,418,419,51] | backgroundImage=linear-gradient(90deg, rgb(255, 168, 168), rgba(31, 26, 90, 0), rgba(31, 26, 90, 0), rgb(179, 195, 255)) padding=1px width=419px height=51px flex col borderRadius=30px textAlign=center flex=0 0 auto
+        <div> [41,419,417,49] | backgroundColor=rgb(45, 49, 92) padding=15px 16px width=417px height=49px flex row justifyContent=center alignItems=center gap=6px borderRadius=30px textAlign=center flex=0 0 auto
+          <div> [186,436,16,16] | width=16px height=16px flex col overflow=hidden textAlign=center flex=0 0 auto
+            <div> [186,436,16,16] | backgroundImage=url("https://www.isekaizero.ai/assets/assets/enhance-icon.436f04e1ca2520c82cdc6c4365edf62b.png") width=16px height=16px flex col position=absolute zIndex=-1 textAlign=center flex=0 0 auto
+            <img> [186,436,16,16] IMG=enhance-icon.436f04e1ca2520c82cdc6c4365edf62b.png | width=16px height=16px row overflow=clip position=absolute zIndex=-1 opacity=0 textAlign=center
+          <div> [208,434,104,19] "Enhance Prompt" | fontSize=14px fontWeight=500 fontFamily=-apple-system color=rgb(255, 255, 255) width=104.406px height=19px row
+  <button> [40,493,419,49] | fontSize=13.3333px width=419px height=49px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+    <div> [40,493,328,49] | margin=0px 12px 0px 0px width=327.906px height=49px flex col textAlign=center flex=1 1 0%
+      <div> [40,493,328,24] "Gallery" | fontSize=18px fontWeight=600 fontFamily=-apple-system margin=0px 0px 4px width=327.906px height=24px maxWidth=100% row overflow=hidden
+      <div> [40,523,328,19] "Save to gallery" | fontSize=14px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) margin=2px 0px 0px width=327.906px height=19px maxWidth=100% display=flow-root row overflow=clip WebkitLineClamp=2
+    <div> [380,499,79,37] | width=79.0938px height=37px maxWidth=50% flex row alignItems=center gap=8px textAlign=center
+      <div> [380,499,51,37] | width=51.0938px height=37px maxWidth=100% flex col alignItems=flex-end textAlign=center
+        <div> [380,499,51,21] "Default" | fontSize=16px fontFamily=-apple-system color=rgb(160, 160, 160) width=51.0938px height=21px maxWidth=100% row overflow=hidden
+        <div> [393,520,38,16] "Default" | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.4) width=38.3281px height=16px row
+      <div> [439,506,20,23] "[i]" | fontSize=20px fontFamily=ionicons width=20px height=23px row
+  <button> [40,566,419,49] | fontSize=13.3333px width=419px height=49px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+    <div> [40,566,260,49] | margin=0px 12px 0px 0px width=259.734px height=49px flex col textAlign=center flex=1 1 0%
+      <div> [40,566,260,24] | fontSize=18px fontWeight=600 fontFamily=-apple-system margin=0px 0px 4px width=259.734px height=24px maxWidth=100% row overflow=hidden
+        <span> [143,566,13,24] "*" | color=rgb(255, 87, 71) display=inline row
+      <div> [40,596,260,19] "Select image dimensions" | fontSize=14px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) margin=2px 0px 0px width=259.734px height=19px maxWidth=100% display=flow-root row overflow=clip WebkitLineClamp=2
+    <div> [312,572,147,37] | width=147.266px height=37px maxWidth=50% flex row alignItems=center gap=8px textAlign=center
+      <div> [312,572,119,37] | width=119.266px height=37px maxWidth=100% flex col alignItems=flex-end textAlign=center
+        <div> [312,572,119,21] "Portrait Standard" | fontSize=16px fontFamily=-apple-system color=rgb(160, 160, 160) width=119.266px height=21px maxWidth=100% row overflow=hidden
+        <div> [351,593,80,16] "3:4 • 896×1152" | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.4) width=80.4844px height=16px row
+      <div> [439,579,20,23] "[i]" | fontSize=20px fontFamily=ionicons width=20px height=23px row
+  <button> [40,639,419,49] | fontSize=13.3333px width=419px height=49px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+    <div> [40,639,296,49] | margin=0px 12px 0px 0px width=295.984px height=49px flex col textAlign=center flex=1 1 0%
+      <div> [40,639,296,24] | fontSize=18px fontWeight=600 fontFamily=-apple-system margin=0px 0px 4px width=295.984px height=24px maxWidth=100% row overflow=hidden
+        <span> [188,639,13,24] "*" | color=rgb(255, 87, 71) display=inline row
+      <div> [40,669,296,19] "Select image composition style" | fontSize=14px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) margin=2px 0px 0px width=295.984px height=19px maxWidth=100% display=flow-root row overflow=clip WebkitLineClamp=2
+    <div> [348,652,111,23] | width=111.016px height=23px maxWidth=50% flex row alignItems=center gap=8px textAlign=center
+      <div> [348,653,83,21] "Foreground" | fontSize=16px fontFamily=-apple-system color=rgb(160, 160, 160) width=83.0156px height=21px maxWidth=100% row overflow=hidden
+      <div> [439,652,20,23] "[i]" | fontSize=20px fontFamily=ionicons width=20px height=23px row
+  <div> [40,712,419,44] | width=419px height=44px flex row alignItems=center gap=12px flex=0 0 auto
+    <div> [40,722,24,24] | backgroundColor=rgb(47, 51, 80) width=24px height=24px flex col justifyContent=center alignItems=center borderRadius=6px border=2px solid rgba(167, 185, 255, 0.5) flex=0 0 auto
+    <div> [76,712,383,44] | width=383px height=44px flex col flex=1 1 0%
+      <div> [76,712,383,21] "Auto Remove Background" | fontWeight=500 fontFamily=-apple-system margin=0px 0px 4px width=383px height=21px row
+      <div> [76,737,383,19] "Automatically remove background after generation" | fontSize=14px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) width=383px height=19px row
+  <div> [40,796,419,52] | width=419px height=52px flex row alignItems=center gap=10px flex=0 0 auto
+    <button> [40,796,419,52] | fontSize=13.3333px width=419px height=52px flex col borderRadius=25px textAlign=center flex=1 1 0%
+      <div> [40,796,419,52] | backgroundImage=linear-gradient(90deg, rgb(255, 168, 168), rgba(31, 26, 90, 0) 40%, rgba(31, 26, 90, 0) 60%, rgb(179, 195, 255) 100%) padding=1.5px width=419px height=52px flex col borderRadius=25px textAlign=center flex=0 0 auto
+        <div> [42,798,416,49] | backgroundImage=linear-gradient(90deg, rgb(23, 36, 126), rgb(42, 65, 228)) padding=14px 20px width=416px height=49px flex row justifyContent=center alignItems=center gap=8px borderRadius=23px textAlign=center flex=0 0 auto
+          <div> [179,812,18,20] "[i]" | fontSize=18px fontFamily=ionicons width=18px height=20px row
+          <div> [205,812,116,21] "Generate Image" | fontSize=16px fontWeight=600 fontFamily=-apple-system width=115.688px height=21px row
+--- right
+<div> [480,64,940,836] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=940px height=836px flex col flex=1 1 0%
+  <div> [480,64,940,836] | padding=20px 24px 24px width=940px height=836px flex col gap=16px flex=1 1 0%
+    <div> [504,84,892,792] | backgroundColor=rgba(255, 255, 255, 0.04) padding=16px width=892px height=792px flex col gap=12px borderRadius=16px border=1px solid rgba(255, 255, 255, 0.1) flex=1 1 0%
+      <div> [521,101,858,758] | padding=0px 24px width=858px height=758px flex col justifyContent=center alignItems=center gap=14px flex=1 1 0%
+        <div> [830,317,240,240] | backgroundColor=rgba(255, 255, 255, 0.05) width=240px height=240px maxWidth=240px flex col justifyContent=center alignItems=center borderRadius=16px border=1px dashed rgba(255, 255, 255, 0.15) flex=0 0 auto aspectRatio=1 / 1
+          <div> [918,402,64,70] "[i]" | fontSize=64px fontFamily=ionicons color=rgba(255, 255, 255, 0.3) width=64px height=70px row
+        <div> [888,571,123,21] "Nothing here yet" | fontWeight=600 fontFamily=-apple-system width=123.266px height=21px row textAlign=center
+        <div> [790,606,320,38] "Describe what you want on the left, pick a model, then tap Generate." | fontSize=14px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) width=320px height=38px maxWidth=320px row textAlign=center
+--- generate
+<button> [40,796,419,52] | fontSize=13.3333px fontWeight=400 color=rgb(255, 255, 255) width=419px height=52px flex col borderRadius=25px textAlign=center flex=1 1 0%
+  <div> [40,796,419,52] | backgroundImage=linear-gradient(90deg, rgb(255, 168, 168), rgba(31, 26, 90, 0) 40%, rgba(31, 26, 90, 0) 60%, rgb(179, 195, 255) 100%) padding=1.5px width=419px height=52px flex col borderRadius=25px textAlign=center flex=0 0 auto
+    <div> [42,798,416,49] | backgroundImage=linear-gradient(90deg, rgb(23, 36, 126), rgb(42, 65, 228)) padding=14px 20px width=416px height=49px flex row justifyContent=center alignItems=center gap=8px borderRadius=23px textAlign=center flex=0 0 auto
+      <div> [179,812,18,20] "[i]" | fontSize=18px fontFamily=ionicons width=18px height=20px row
+      <div> [205,812,116,21] "Generate Image" | fontSize=16px fontWeight=600 fontFamily=-apple-system width=115.688px height=21px row
+--- enhance
+<button> [40,418,419,51] | fontSize=13.3333px fontWeight=400 color=rgba(255, 255, 255, 0.3) margin=8px 0px 0px width=419px height=51px flex col borderRadius=30px overflow=hidden opacity=0.5 textAlign=center flex=0 0 auto
+  <div> [40,418,419,51] | backgroundImage=linear-gradient(90deg, rgb(255, 168, 168), rgba(31, 26, 90, 0), rgba(31, 26, 90, 0), rgb(179, 195, 255)) padding=1px width=419px height=51px flex col borderRadius=30px textAlign=center flex=0 0 auto
+    <div> [41,419,417,49] | backgroundColor=rgb(45, 49, 92) padding=15px 16px width=417px height=49px flex row justifyContent=center alignItems=center gap=6px borderRadius=30px textAlign=center flex=0 0 auto
+      <div> [186,436,16,16] | width=16px height=16px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [186,436,16,16] | backgroundImage=url("https://www.isekaizero.ai/assets/assets/enhance-icon.436f04e1ca2520c82cdc6c4365edf62b.png") width=16px height=16px flex col position=absolute zIndex=-1 textAlign=center flex=0 0 auto
+        <img> [186,436,16,16] IMG=enhance-icon.436f04e1ca2520c82cdc6c4365edf62b.png | width=16px height=16px row overflow=clip position=absolute zIndex=-1 opacity=0 textAlign=center
+      <div> [208,434,104,19] "Enhance Prompt" | fontSize=14px fontWeight=500 fontFamily=-apple-system color=rgb(255, 255, 255) width=104.406px height=19px row
+--- textarea
+<textarea> [40,190,419,200] | fontSize=16px fontWeight=400 fontFamily=-apple-system color=rgb(255, 255, 255) backgroundColor=rgb(47, 51, 80) padding=16px margin=5px 0px 0px width=419px height=200px row borderRadius=12px border=1px solid rgba(167, 185, 255, 0.5)
+===== picker
+<div> [20,64,459,816] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) padding=20px 20px 32px width=459px height=816px flex col flex=0 0 auto
+  <button> [40,84,419,49] | fontSize=13.3333px width=419px height=49px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+    <div> [40,84,236,49] | margin=0px 12px 0px 0px width=235.5px height=49px flex col textAlign=center flex=1 1 0%
+      <div> [40,84,236,24] | fontSize=18px fontWeight=600 fontFamily=-apple-system margin=0px 0px 4px width=235.5px height=24px maxWidth=100% row overflow=hidden
+        <span> [93,84,13,24] "*" | color=rgb(255, 87, 71) display=inline row
+      <div> [40,114,236,19] "Select AI model for generation" | fontSize=14px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) margin=2px 0px 0px width=235.5px height=19px maxWidth=100% display=flow-root row overflow=clip WebkitLineClamp=2
+    <div> [288,86,172,45] | width=171.5px height=45px maxWidth=50% flex row alignItems=center gap=8px textAlign=center
+      <div> [288,86,144,45] | width=143.5px height=45px maxWidth=100% flex col alignItems=flex-end textAlign=center
+        <div> [288,86,144,21] "Grok Imagine Image" | fontSize=16px fontFamily=-apple-system color=rgb(160, 160, 160) width=143.5px height=21px maxWidth=100% row overflow=hidden
+        <div> [309,113,122,18] | margin=6px 0px 0px width=121.906px height=18px maxWidth=100% flex row justifyContent=flex-end alignItems=center textAlign=center flex=0 0 auto
+          <div> [309,113,28,18] (n=2) | margin=0px 4px 0px 0px width=28px height=18px flex col textAlign=center flex=0 0 auto
+          <div> [341,114,90,16] "2.6 Mana/Arcane" | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.4) width=89.9062px height=16px row textAlign=right
+      <div> [439,97,20,23] "[i]" | fontSize=20px fontFamily=ionicons width=20px height=23px row
+  <div> [40,157,419,312] | margin=0px 0px 24px width=419px height=312px flex col flex=0 0 auto
+    <span> [106,157,8,24] "*" | fontSize=18px fontWeight=600 fontFamily=-apple-system color=rgb(255, 87, 71) display=inline row
+    <textarea> [40,190,419,200] | fontFamily=-apple-system backgroundColor=rgb(47, 51, 80) padding=16px margin=5px 0px 0px width=419px height=200px row borderRadius=12px border=1px solid rgba(167, 185, 255, 0.5)
+    <div> [40,394,419,16] | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.4) margin=4px 0px 0px width=419px height=16px row textAlign=right
+    <button> [40,418,419,51] | fontSize=13.3333px color=rgba(255, 255, 255, 0.3) margin=8px 0px 0px width=419px height=51px flex col borderRadius=30px overflow=hidden opacity=0.5 textAlign=center flex=0 0 auto
+      <div> [40,418,419,51] | backgroundImage=linear-gradient(90deg, rgb(255, 168, 168), rgba(31, 26, 90, 0), rgba(31, 26, 90, 0), rgb(179, 195, 255)) padding=1px width=419px height=51px flex col borderRadius=30px textAlign=center flex=0 0 auto
+        <div> [41,419,417,49] | backgroundColor=rgb(45, 49, 92) padding=15px 16px width=417px height=49px flex row justifyContent=center alignItems=center gap=6px borderRadius=30px textAlign=center flex=0 0 auto
+          <div> [186,436,16,16] | width=16px height=16px flex col overflow=hidden textAlign=center flex=0 0 auto
+            <div> [186,436,16,16] | backgroundImage=url("https://www.isekaizero.ai/assets/assets/enhance-icon.436f04e1ca2520c82cdc6c4365edf62b.png") width=16px height=16px flex col position=absolute zIndex=-1 textAlign=center flex=0 0 auto
+            <img> [186,436,16,16] IMG=enhance-icon.436f04e1ca2520c82cdc6c4365edf62b.png | width=16px height=16px row overflow=clip position=absolute zIndex=-1 opacity=0 textAlign=center
+          <div> [208,434,104,19] "Enhance Prompt" | fontSize=14px fontWeight=500 fontFamily=-apple-system color=rgb(255, 255, 255) width=104.406px height=19px row
+  <button> [40,493,419,49] | fontSize=13.3333px width=419px height=49px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+    <div> [40,493,328,49] | margin=0px 12px 0px 0px width=327.906px height=49px flex col textAlign=center flex=1 1 0%
+      <div> [40,493,328,24] "Gallery" | fontSize=18px fontWeight=600 fontFamily=-apple-system margin=0px 0px 4px width=327.906px height=24px maxWidth=100% row overflow=hidden
+      <div> [40,523,328,19] "Save to gallery" | fontSize=14px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) margin=2px 0px 0px width=327.906px height=19px maxWidth=100% display=flow-root row overflow=clip WebkitLineClamp=2
+    <div> [380,499,79,37] | width=79.0938px height=37px maxWidth=50% flex row alignItems=center gap=8px textAlign=center
+      <div> [380,499,51,37] | width=51.0938px height=37px maxWidth=100% flex col alignItems=flex-end textAlign=center
+        <div> [380,499,51,21] "Default" | fontSize=16px fontFamily=-apple-system color=rgb(160, 160, 160) width=51.0938px height=21px maxWidth=100% row overflow=hidden
+        <div> [393,520,38,16] "Default" | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.4) width=38.3281px height=16px row
+      <div> [439,506,20,23] "[i]" | fontSize=20px fontFamily=ionicons width=20px height=23px row
+  <button> [40,566,419,49] | fontSize=13.3333px width=419px height=49px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+    <div> [40,566,260,49] | margin=0px 12px 0px 0px width=259.734px height=49px flex col textAlign=center flex=1 1 0%
+      <div> [40,566,260,24] | fontSize=18px fontWeight=600 fontFamily=-apple-system margin=0px 0px 4px width=259.734px height=24px maxWidth=100% row overflow=hidden
+        <span> [143,566,13,24] "*" | color=rgb(255, 87, 71) display=inline row
+      <div> [40,596,260,19] "Select image dimensions" | fontSize=14px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) margin=2px 0px 0px width=259.734px height=19px maxWidth=100% display=flow-root row overflow=clip WebkitLineClamp=2
+    <div> [312,572,147,37] | width=147.266px height=37px maxWidth=50% flex row alignItems=center gap=8px textAlign=center
+      <div> [312,572,119,37] | width=119.266px height=37px maxWidth=100% flex col alignItems=flex-end textAlign=center
+        <div> [312,572,119,21] "Portrait Standard" | fontSize=16px fontFamily=-apple-system color=rgb(160, 160, 160) width=119.266px height=21px maxWidth=100% row overflow=hidden
+        <div> [351,593,80,16] "3:4 • 896×1152" | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.4) width=80.4844px height=16px row
+      <div> [439,579,20,23] "[i]" | fontSize=20px fontFamily=ionicons width=20px height=23px row
+  <button> [40,639,419,49] | fontSize=13.3333px width=419px height=49px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+    <div> [40,639,296,49] | margin=0px 12px 0px 0px width=295.984px height=49px flex col textAlign=center flex=1 1 0%
+      <div> [40,639,296,24] | fontSize=18px fontWeight=600 fontFamily=-apple-system margin=0px 0px 4px width=295.984px height=24px maxWidth=100% row overflow=hidden
+        <span> [188,639,13,24] "*" | color=rgb(255, 87, 71) display=inline row
+      <div> [40,669,296,19] "Select image composition style" | fontSize=14px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) margin=2px 0px 0px width=295.984px height=19px maxWidth=100% display=flow-root row overflow=clip WebkitLineClamp=2
+    <div> [348,652,111,23] | width=111.016px height=23px maxWidth=50% flex row alignItems=center gap=8px textAlign=center
+      <div> [348,653,83,21] "Foreground" | fontSize=16px fontFamily=-apple-system color=rgb(160, 160, 160) width=83.0156px height=21px maxWidth=100% row overflow=hidden
+      <div> [439,652,20,23] "[i]" | fontSize=20px fontFamily=ionicons width=20px height=23px row
+  <div> [40,712,419,44] | width=419px height=44px flex row alignItems=center gap=12px flex=0 0 auto
+    <div> [40,722,24,24] | backgroundColor=rgb(47, 51, 80) width=24px height=24px flex col justifyContent=center alignItems=center borderRadius=6px border=2px solid rgba(167, 185, 255, 0.5) flex=0 0 auto
+    <div> [76,712,383,44] | width=383px height=44px flex col flex=1 1 0%
+      <div> [76,712,383,21] "Auto Remove Background" | fontWeight=500 fontFamily=-apple-system margin=0px 0px 4px width=383px height=21px row
+      <div> [76,737,383,19] "Automatically remove background after generation" | fontSize=14px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) width=383px height=19px row
+  <div> [40,796,419,52] | width=419px height=52px flex row alignItems=center gap=10px flex=0 0 auto
+    <button> [40,796,419,52] | fontSize=13.3333px width=419px height=52px flex col borderRadius=25px textAlign=center flex=1 1 0%
+      <div> [40,796,419,52] | backgroundImage=linear-gradient(90deg, rgb(255, 168, 168), rgba(31, 26, 90, 0) 40%, rgba(31, 26, 90, 0) 60%, rgb(179, 195, 255) 100%) padding=1.5px width=419px height=52px flex col borderRadius=25px textAlign=center flex=0 0 auto
+        <div> [42,798,416,49] | backgroundImage=linear-gradient(90deg, rgb(23, 36, 126), rgb(42, 65, 228)) padding=14px 20px width=416px height=49px flex row justifyContent=center alignItems=center gap=8px borderRadius=23px textAlign=center flex=0 0 auto
+          <div> [179,812,18,20] "[i]" | fontSize=18px fontFamily=ionicons width=18px height=20px row
+          <div> [205,812,116,21] "Generate Image" | fontSize=16px fontWeight=600 fontFamily=-apple-system width=115.688px height=21px row

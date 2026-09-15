@@ -7,9 +7,11 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-system);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-heading: var(--font-roboto), var(--font-system);
+  --font-poppins: var(--font-poppins), var(--font-system);
+  --font-roboto: var(--font-roboto), var(--font-system);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -46,85 +48,194 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* ISEKAI ZERO design tokens (extracted from getComputedStyle on isekaizero.ai) */
+  --color-iz-bg: #020920;                 /* rgb(2, 9, 32) app background */
+  --color-iz-bar: #11123c;                /* rgb(17, 18, 60) top bar / sidebar gradient start */
+  --color-iz-sidebar-end: #09194d;        /* rgb(9, 25, 77) sidebar gradient end */
+  --color-iz-periwinkle: #a7b9ff;         /* rgb(167, 185, 255) accent / active */
+  --color-iz-pink: #ffa8a8;               /* rgb(255, 168, 168) accent 2 / creator handle / active dot */
+  --color-iz-lavender: #f3f4ff;           /* rgb(243, 244, 255) gradient end */
+  --color-iz-blue: #284bcf;               /* rgb(40, 75, 207) card border gradient */
+  --color-iz-royal: #2a41e4;              /* rgb(42, 65, 228) button gradient end */
+  --color-iz-royal-dark: #17247e;         /* rgb(23, 36, 126) button gradient start */
+  --color-iz-indigo: #1f1a5a;             /* rgb(31, 26, 90) pill bg */
+  --color-iz-card-a: #301f5d;             /* rgb(48, 31, 93) model card gradient start */
+  --color-iz-card-b: #36336b;             /* rgb(54, 51, 107) model card gradient end */
+  --color-iz-input: #2f3350;              /* rgb(47, 51, 80) textarea bg */
+  --color-iz-input-alt: #2d315c;          /* rgb(45, 49, 92) outlined button fill */
+  --color-iz-card-dark: #101214;          /* rgb(16, 18, 20) storyline card inner */
+  --color-iz-card-dark-2: #202224;        /* rgb(32, 34, 36) storyline card media bg */
+  --color-iz-green: #80ca10;              /* rgb(128, 202, 16) healthy */
+  --color-iz-success: #4caf50;            /* rgb(76, 175, 80) public badge */
+  --color-iz-gold: #daa520;               /* rgb(218, 165, 32) featured badge */
+  --color-iz-violet: rgba(138, 43, 226, 0.8); /* visual novel badge */
+  --color-iz-orange: rgba(255, 152, 0, 0.8);  /* dungeon mind badge */
+  --color-iz-mature: #b45309;             /* rgb(180, 83, 9) "M" pill */
+  --color-iz-star: #ffd700;               /* rgb(255, 215, 0) rating stars */
+  --color-iz-required: #ff5747;           /* rgb(255, 87, 71) required asterisk */
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --radius: 0.75rem;
+
+  /* shadcn tokens mapped to the ISEKAI ZERO dark navy palette */
+  --background: #020920;
+  --foreground: #ffffff;
+  --card: #11123c;
+  --card-foreground: #ffffff;
+  --popover: #1b1c4a;
+  --popover-foreground: #ffffff;
+  --primary: #2a41e4;
+  --primary-foreground: #ffffff;
+  --secondary: rgba(255, 255, 255, 0.08);
+  --secondary-foreground: #ffffff;
+  --muted: rgba(255, 255, 255, 0.06);
+  --muted-foreground: rgba(255, 255, 255, 0.6);
+  --accent: rgba(167, 185, 255, 0.12);
+  --accent-foreground: #ffffff;
+  --destructive: #ff5747;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(167, 185, 255, 0.5);
+  --ring: #a7b9ff;
+  --chart-1: #a7b9ff;
+  --chart-2: #ffa8a8;
+  --chart-3: #284bcf;
+  --chart-4: #80ca10;
+  --chart-5: #daa520;
+  --sidebar: #11123c;
+  --sidebar-foreground: rgba(255, 255, 255, 0.6);
+  --sidebar-primary: #a7b9ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(167, 185, 255, 0.12);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #a7b9ff;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  color-scheme: dark;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html,
   body {
-    @apply bg-background text-foreground;
+    height: 100%;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-system);
   }
-  html {
-    @apply font-sans;
+  button {
+    cursor: pointer;
   }
+}
+
+@layer utilities {
+  /* Gradient text used for the active nav label, hero title and section titles */
+  .iz-gradient-text {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+  .iz-gradient-accent {
+    background-image: linear-gradient(to right, rgb(167, 185, 255), rgb(255, 168, 168));
+  }
+  .iz-gradient-gold {
+    background-image: linear-gradient(rgb(255, 215, 0), rgb(255, 165, 0));
+  }
+  .iz-gradient-title {
+    background-image: linear-gradient(rgb(167, 185, 255), rgb(243, 244, 255));
+  }
+  /* 2px gradient border wrapper used by storyline cards / model cards */
+  .iz-border-card {
+    background-image: linear-gradient(149.006deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%);
+  }
+  .iz-border-model {
+    background-image: linear-gradient(90deg, rgb(40, 75, 207), rgba(153, 153, 153, 0), rgba(153, 153, 153, 0), rgb(40, 75, 207));
+  }
+  .iz-border-button {
+    background-image: linear-gradient(90deg, rgb(255, 168, 168), rgba(31, 26, 90, 0) 40%, rgba(31, 26, 90, 0) 60%, rgb(179, 195, 255) 100%);
+  }
+  .iz-btn-primary {
+    background-image: linear-gradient(90deg, rgb(23, 36, 126), rgb(42, 65, 228));
+  }
+  .iz-model-card {
+    background-image: linear-gradient(rgb(48, 31, 93), rgb(54, 51, 107));
+  }
+  .iz-accordion-card {
+    background-image: linear-gradient(rgb(20, 28, 93), rgb(22, 34, 81), rgb(44, 56, 98));
+  }
+  .iz-sidebar-gradient {
+    background-image: linear-gradient(rgb(17, 18, 60), rgb(9, 25, 77));
+  }
+  .iz-scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .iz-scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .iz-scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
+  .iz-line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .iz-line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+@keyframes iz-shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+.iz-skeleton {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.06) 25%, rgba(255, 255, 255, 0.12) 37%, rgba(255, 255, 255, 0.06) 63%);
+  background-size: 800px 100%;
+  animation: iz-shimmer 1.4s ease infinite;
+}
+
+@keyframes iz-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+.iz-cursor-blink {
+  animation: iz-blink 1s ease-in-out infinite;
+}
+
+@keyframes iz-pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(167, 185, 255, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(167, 185, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(167, 185, 255, 0);
+  }
+}
+.iz-pulse {
+  animation: iz-pulse-ring 1.6s ease-out infinite;
 }

@@ -1,0 +1,850 @@
+===== topnav
+<div> [172,11,838,38] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=838px height=38px maxWidth=1056px flex row alignItems=center gap=12px flex=1 1 0%
+  <div> [172,11,434,38] | width=433.812px height=38px flex row alignItems=center gap=2px flex=0 0 auto
+    <button> [172,11,100,38] | fontSize=13.3333px padding=8px 14px width=100px height=38px flex row alignItems=center gap=8px borderRadius=10px textAlign=center flex=0 0 auto
+      <div> [186,19,22,22] | width=22px height=22px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <img> [186,19,22,22] IMG=HomeWhite.c66d15a7d28df15d1cbaa780e8acbc9d.png | width=22px height=22px row overflow=clip position=absolute objectFit=cover textAlign=center
+      <div> [216,20,42,21] "Home" | fontSize=14px fontFamily=Poppins-Medium color=rgba(255, 255, 255, 0.6) width=42px height=21px row
+    <button> [274,11,108,38] | fontSize=13.3333px padding=8px 14px width=108.469px height=38px flex row alignItems=center gap=8px borderRadius=10px textAlign=center flex=0 0 auto
+      <div> [288,19,22,22] | width=22px height=22px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <img> [288,19,22,22] IMG=ExploreWhite.6ebf4e1dff414ae065c825479e100fb0.png | width=22px height=22px row overflow=clip position=absolute objectFit=cover textAlign=center
+      <div> [318,20,50,21] "Explore" | fontSize=14px fontFamily=Poppins-Medium color=rgba(255, 255, 255, 0.6) width=50.4688px height=21px row
+    <button> [384,11,119,38] | fontSize=13.3333px padding=8px 14px width=119.25px height=38px flex row alignItems=center gap=8px borderRadius=10px textAlign=center flex=0 0 auto
+      <div> [398,19,22,22] | width=22px height=22px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <img> [398,19,22,22] IMG=CreationWhite.7837597672fe0ca31c740d67c9bf367a.png | width=22px height=22px row overflow=clip position=absolute objectFit=cover textAlign=center
+      <div> [428,20,61,21] "Creation" | fontSize=14px fontFamily=Poppins-Medium color=rgba(255, 255, 255, 0.6) width=61.25px height=21px row
+    <button> [506,11,100,38] | fontSize=13.3333px padding=8px 14px width=100.094px height=38px flex row alignItems=center gap=8px borderRadius=10px textAlign=center flex=0 0 auto
+      <div> [520,19,22,22] | width=22px height=22px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <img> [520,19,22,22] IMG=ChatWhite.a713c8c254cd74c995033d562644e322.png | width=22px height=22px row overflow=clip position=absolute objectFit=cover textAlign=center
+      <div> [550,20,42,21] "Chats" | fontSize=14px fontFamily=Poppins-Medium color=rgba(255, 255, 255, 0.6) width=42.0938px height=21px row
+===== cover
+<div> [192,80,400,590] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) backgroundColor=rgba(11, 15, 42, 0.6) width=400px height=589.656px flex col borderRadius=16px border=1px solid rgba(255, 255, 255, 0.1) boxShadow=rgba(0, 0, 0, 0.3) 0px 8px 20px 0px overflow=hidden flex=0 0 auto
+  <div> [193,81,398,531] | backgroundColor=rgba(200, 200, 220, 0.15) width=398px height=530.656px flex col justifyContent=flex-end overflow=hidden flex=0 0 auto aspectRatio=0.75 / 1
+    <video> [193,81,398,531] | width=398px height=530.656px row overflow=clip position=absolute objectFit=cover
+    <div> [205,93,374,38] | width=374px height=38px flex row justifyContent=space-between alignItems=center position=absolute top=12px left=12px right=12px bottom=480.656px zIndex=10 flex=0 0 auto
+      <button> [205,93,38,38] | fontSize=13.3333px backgroundColor=rgba(0, 0, 0, 0.3) width=38px height=38px flex col justifyContent=center alignItems=center borderRadius=20px textAlign=center flex=0 0 auto
+        <div> [213,100,22,24] "[i]" | fontSize=22px fontFamily=ionicons width=22px height=24px row
+      <button> [541,93,38,38] | fontSize=13.3333px backgroundColor=rgba(0, 0, 0, 0.3) width=38px height=38px flex col justifyContent=center alignItems=center borderRadius=20px textAlign=center flex=0 0 auto
+        <div> [549,101,22,22] "[i]" | fontSize=22px fontFamily=material width=22px height=22px row
+    <button> [541,562,38,38] | fontSize=13.3333px backgroundColor=rgba(0, 0, 0, 0.3) width=38px height=38px flex col justifyContent=center alignItems=center borderRadius=20px position=absolute top=480.656px left=348px right=12px bottom=12px zIndex=2 textAlign=center flex=0 0 auto
+      <div> [549,569,22,24] "[i]" | fontSize=22px fontFamily=ionicons width=22px height=24px row
+  <div> [193,612,398,57] | padding=12px width=398px height=57px flex col gap=8px flex=0 0 auto
+    <div> [205,624,374,27] | margin=0px 0px 6px width=374px height=27px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [205,625,317,24] | width=316.594px height=24px flex row alignItems=center gap=6px flex=1 1 0% flexWrap=wrap
+        <button> [205,625,67,24] | fontSize=13.3333px backgroundColor=rgba(255, 255, 255, 0.2) padding=4px 8px width=67.1719px height=24px flex row alignItems=center gap=4px borderRadius=6px textAlign=center flex=0 0 auto
+          <div> [213,630,14,15] "[i]" | fontSize=14px fontFamily=ionicons color=rgb(76, 175, 80) width=14px height=15px row
+          <div> [231,629,33,16] "Public" | fontSize=12px fontWeight=600 fontFamily=-apple-system width=33.1719px height=16px row
+        <button> [278,626,22,22] | fontSize=13.3333px backgroundColor=rgba(52, 152, 219, 0.8) padding=4px width=22px height=22px flex col borderRadius=6px textAlign=center flex=0 0 auto
+          <div> [282,630,14,14] "󰕥" | fontSize=14px fontFamily=material-community width=14px height=14px row
+        <button> [306,626,22,22] | fontSize=13.3333px backgroundColor=rgba(34, 197, 94, 0.8) padding=4px width=22px height=22px flex col borderRadius=6px textAlign=center flex=0 0 auto
+          <div> [310,630,14,14] "[i]" | fontSize=14px fontFamily=material width=14px height=14px row
+        <button> [334,626,22,22] | fontSize=13.3333px backgroundColor=rgb(218, 165, 32) padding=4px width=22px height=22px flex col borderRadius=6px textAlign=center flex=0 0 auto
+          <div> [338,630,14,14] "[i]" | fontSize=14px fontFamily=material width=14px height=14px row
+        <button> [362,626,22,22] | fontSize=13.3333px backgroundColor=rgba(138, 43, 226, 0.8) padding=4px width=22px height=22px flex col borderRadius=6px textAlign=center flex=0 0 auto
+          <div> [366,630,14,14] "󰗚" | fontSize=14px fontFamily=material-community width=14px height=14px row
+      <div> [522,624,57,27] | width=57.4062px height=27px flex row alignItems=center gap=6px flex=0 0 auto
+        <button> [522,624,57,27] | fontSize=13.3333px backgroundColor=rgba(255, 255, 255, 0.2) padding=4px 8px width=57.4062px height=27px flex row alignItems=center gap=4px borderRadius=6px textAlign=center flex=0 0 auto
+          <div> [530,628,18,18] "[i]" | fontSize=18px fontFamily=material width=18px height=18px row
+          <div> [552,628,19,19] | fontSize=14px fontWeight=600 fontFamily=-apple-system width=19.4062px height=19px row flex=0 0 auto
+===== casts
+<div> [192,80,1056,3851] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=1056px height=3851.19px flex row alignItems=flex-start gap=16px flex=0 0 auto
+  <div> [192,80,400,2397] | width=400px height=2396.66px flex col flex=0 1 400px
+    <div> [192,80,400,590] | backgroundColor=rgba(11, 15, 42, 0.6) width=400px height=589.656px flex col borderRadius=16px border=1px solid rgba(255, 255, 255, 0.1) boxShadow=rgba(0, 0, 0, 0.3) 0px 8px 20px 0px overflow=hidden flex=0 0 auto
+      <div> [193,81,398,531] | backgroundColor=rgba(200, 200, 220, 0.15) width=398px height=530.656px flex col justifyContent=flex-end overflow=hidden flex=0 0 auto aspectRatio=0.75 / 1
+        <video> [193,81,398,531] | width=398px height=530.656px row overflow=clip position=absolute objectFit=cover
+        <div> [205,93,374,38] | width=374px height=38px flex row justifyContent=space-between alignItems=center position=absolute top=12px left=12px right=12px bottom=480.656px zIndex=10 flex=0 0 auto
+          <button> [205,93,38,38] | fontSize=13.3333px backgroundColor=rgba(0, 0, 0, 0.3) width=38px height=38px flex col justifyContent=center alignItems=center borderRadius=20px textAlign=center flex=0 0 auto
+            <div> [213,100,22,24] "[i]" | fontSize=22px fontFamily=ionicons width=22px height=24px row
+          <button> [541,93,38,38] | fontSize=13.3333px backgroundColor=rgba(0, 0, 0, 0.3) width=38px height=38px flex col justifyContent=center alignItems=center borderRadius=20px textAlign=center flex=0 0 auto
+            <div> [549,101,22,22] "[i]" | fontSize=22px fontFamily=material width=22px height=22px row
+        <button> [541,562,38,38] | fontSize=13.3333px backgroundColor=rgba(0, 0, 0, 0.3) width=38px height=38px flex col justifyContent=center alignItems=center borderRadius=20px position=absolute top=480.656px left=348px right=12px bottom=12px zIndex=2 textAlign=center flex=0 0 auto
+          <div> [549,569,22,24] "[i]" | fontSize=22px fontFamily=ionicons width=22px height=24px row
+      <div> [193,612,398,57] | padding=12px width=398px height=57px flex col gap=8px flex=0 0 auto
+        <div> [205,624,374,27] | margin=0px 0px 6px width=374px height=27px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+          <div> [205,625,317,24] | width=316.594px height=24px flex row alignItems=center gap=6px flex=1 1 0% flexWrap=wrap
+            <button> [205,625,67,24] (n=2) | fontSize=13.3333px backgroundColor=rgba(255, 255, 255, 0.2) padding=4px 8px width=67.1719px height=24px flex row alignItems=center gap=4px borderRadius=6px textAlign=center flex=0 0 auto
+            <button> [278,626,22,22] (n=1) | fontSize=13.3333px backgroundColor=rgba(52, 152, 219, 0.8) padding=4px width=22px height=22px flex col borderRadius=6px textAlign=center flex=0 0 auto
+            <button> [306,626,22,22] (n=1) | fontSize=13.3333px backgroundColor=rgba(34, 197, 94, 0.8) padding=4px width=22px height=22px flex col borderRadius=6px textAlign=center flex=0 0 auto
+            <button> [334,626,22,22] (n=1) | fontSize=13.3333px backgroundColor=rgb(218, 165, 32) padding=4px width=22px height=22px flex col borderRadius=6px textAlign=center flex=0 0 auto
+            <button> [362,626,22,22] (n=1) | fontSize=13.3333px backgroundColor=rgba(138, 43, 226, 0.8) padding=4px width=22px height=22px flex col borderRadius=6px textAlign=center flex=0 0 auto
+          <div> [522,624,57,27] | width=57.4062px height=27px flex row alignItems=center gap=6px flex=0 0 auto
+            <button> [522,624,57,27] (n=2) | fontSize=13.3333px backgroundColor=rgba(255, 255, 255, 0.2) padding=4px 8px width=57.4062px height=27px flex row alignItems=center gap=4px borderRadius=6px textAlign=center flex=0 0 auto
+    <div> [192,678,400,1799] | padding=12px margin=8px 0px 0px width=400px height=1799px flex col flex=0 0 auto
+      <div> [204,692,376,34] | margin=0px 0px 8px width=376px height=34px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+        <div> [204,699,101,19] "53 Comments" | fontWeight=600 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(255, 255, 255), rgb(255, 191, 191)) width=100.812px height=19px row
+        <div> [492,692,88,34] | backgroundColor=rgb(22, 22, 26) padding=6px 8px width=88.0312px height=34px flex row alignItems=center borderRadius=8px border=1px solid rgb(51, 51, 51) flex=0 0 auto
+          <div> [501,700,18,18] "[i]" | fontSize=18px fontFamily=material color=rgb(184, 192, 216) width=18px height=18px row
+          <div> [523,699,26,19] "Best" | fontSize=14px fontFamily=-apple-system color=rgb(184, 192, 216) margin=0px 2px 0px 4px width=26.0312px height=19px row
+          <div> [551,699,20,20] "[i]" | fontSize=20px fontFamily=material color=rgb(184, 192, 216) width=20px height=20px row
+      <div> [204,734,376,46] | backgroundColor=rgba(255, 255, 255, 0.05) padding=12px 14px margin=0px 0px 12px width=376px height=46px flex row alignItems=center gap=10px borderRadius=8px border=1px solid rgba(255, 255, 255, 0.15) flex=0 0 auto
+        <div> [219,747,18,20] "[i]" | fontSize=18px fontFamily=ionicons color=rgba(255, 255, 255, 0.5) width=18px height=20px row
+        <div> [247,747,131,19] "Join the conversation" | fontSize=14px fontFamily=-apple-system color=rgba(255, 255, 255, 0.4) width=130.984px height=19px row
+      <div> [204,792,376,1673] | width=376px height=1673px flex col overflow=hidden flex=1 1 auto
+        <div> [204,792,376,1673] | width=376px height=1673px flex col flex=0 0 auto
+          <div> [204,792,376,96] (n=2) | width=376px height=96px flex col flex=0 0 auto
+          <div> [204,888,376,96] (n=2) | width=376px height=96px flex col flex=0 0 auto
+          <div> [204,984,376,96] (n=2) | width=376px height=96px flex col flex=0 0 auto
+          <div> [204,1080,376,304] (n=2) | width=376px height=304px flex col flex=0 0 auto
+          <div> [204,1384,376,153] (n=2) | width=376px height=153px flex col flex=0 0 auto
+          <div> [204,1537,376,287] (n=2) | width=376px height=287px flex col flex=0 0 auto
+          <div> [204,1824,376,96] (n=2) | width=376px height=96px flex col flex=0 0 auto
+          <div> [204,1920,376,283] (n=2) | width=376px height=283px flex col flex=0 0 auto
+          <div> [204,2203,376,92] (n=2) | width=376px height=92px flex col flex=0 0 auto
+          <div> [204,2295,376,107] (n=1) | width=376px height=107px flex col flex=0 0 auto
+          <div> [204,2402,376,63] (n=1) | width=376px height=63px flex col flex=0 0 auto
+  <div> [608,80,640,3851] | width=640px height=3851.19px flex col flex=1 1 400px
+    <div> [608,80,640,296] | width=640px height=296px flex col flex=0 0 auto
+      <div> [608,80,640,24] | padding=0px 12px margin=0px 0px 10px width=640px height=24px flex row alignItems=center gap=10px flex=0 0 auto
+        <div> [620,81,4,22] | backgroundImage=linear-gradient(90deg, rgb(167, 185, 255), rgb(255, 168, 168)) width=4px height=22px flex col borderRadius=2px flex=0 0 auto
+        <div> [634,80,45,24] "Casts" | fontSize=18px fontWeight=700 fontFamily=-apple-system letterSpacing=0.3px color=rgb(240, 245, 255) width=45.2656px height=24px row
+        <div> [689,82,28,21] "10" | fontSize=13px fontWeight=500 fontFamily=-apple-system color=rgb(184, 192, 216) backgroundColor=rgba(255, 255, 255, 0.08) padding=2px 8px width=28.4531px height=21px row borderRadius=10px overflow=hidden
+      <div> [608,114,640,254] | padding=0px 12px margin=0px 0px 8px width=640px height=254px flex row justifyContent=flex-start gap=10px overflow=hidden flex=0 0 auto flexWrap=wrap
+        <button> [620,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+          <div> [620,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+        <button> [724,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+          <div> [724,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+        <button> [828,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+          <div> [828,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+        <button> [932,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+          <div> [932,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+        <button> [1036,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+          <div> [1036,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+        <button> [1140,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+          <div> [1140,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+        <button> [620,246,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+          <div> [620,246,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+        <button> [724,246,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+          <div> [724,246,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+        <button> [828,246,94,122] | fontSize=13.3333px backgroundColor=rgba(17, 18, 60, 0.85) width=94px height=122px flex col justifyContent=flex-end borderRadius=12px border=2px solid rgba(255, 255, 255, 0.3) overflow=hidden textAlign=center flex=0 0 auto
+          <div> [830,248,90,118] (n=3) | width=90px height=118px flex col justifyContent=flex-end textAlign=center flex=1 1 0% aspectRatio=0.75 / 1
+        <button> [932,246,94,122] | fontSize=13.3333px backgroundColor=rgba(17, 18, 60, 0.85) width=94px height=122px flex col justifyContent=flex-end borderRadius=12px border=2px solid rgba(255, 255, 255, 0.3) overflow=hidden textAlign=center flex=0 0 auto
+          <div> [934,248,90,118] (n=3) | width=90px height=118px flex col justifyContent=flex-end textAlign=center flex=1 1 0% aspectRatio=0.75 / 1
+    <div> [608,376,640,120] | margin=0px 0px 16px width=640px height=120px flex col borderRadius=8px flex=0 0 auto
+      <div> [608,376,640,120] | backgroundImage=linear-gradient(100.62deg, rgba(167, 185, 255, 0.45), rgba(255, 168, 168, 0.45)) padding=3px width=640px height=120px flex col borderRadius=12px flex=0 0 auto
+        <div> [611,379,634,114] | backgroundColor=rgba(11, 15, 42, 0.7) padding=12px width=634px height=114px flex col borderRadius=10px flex=0 0 auto
+          <div> [623,391,610,37] "DROP//SYNC" | fontSize=28px fontWeight=700 fontFamily=-apple-system color=rgb(240, 245, 255) margin=0px 0px 10px width=610px height=37px row textAlign=left
+          <div> [623,438,610,19] "Bond with partners to pilot mechs and figure out the link between monster and ma" | fontSize=14px fontFamily=-apple-system lineHeight=19px color=rgb(240, 245, 255) width=610px height=19px row
+          <div> [623,465,610,16] "Published 31 May 2026 | Updated 31 May 2026 (v24)" | fontSize=12px fontFamily=-apple-system color=rgb(138, 146, 176) margin=8px 0px 0px width=610px height=16px row opacity=0.7
+    <div> [608,512,640,25] | width=640px height=25px flex row overflow=auto hidden flex=1 1 auto
+      <div> [608,512,1361,25] (n=18) | padding=0px 12px width=1360.98px height=25px flex row flex=0 0 auto
+        <div> [620,512,40,25] | width=40px height=25px flex row flex=0 0 auto
+          <button> [620,512,34,25] (n=1) | fontSize=13.3333px width=34px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [654,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+        <div> [660,512,79,25] | width=79.3906px height=25px flex row flex=0 0 auto
+          <button> [660,512,73,25] (n=1) | fontSize=13.3333px width=73.3906px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [733,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+        <div> [739,512,81,25] | width=80.5781px height=25px flex row flex=0 0 auto
+          <button> [739,512,75,25] (n=1) | fontSize=13.3333px width=74.5781px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [814,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+        <div> [820,512,74,25] | width=73.6875px height=25px flex row flex=0 0 auto
+          <button> [820,512,68,25] (n=1) | fontSize=13.3333px width=67.6875px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [888,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+        <div> [894,512,76,25] | width=75.6875px height=25px flex row flex=0 0 auto
+          <button> [894,512,70,25] (n=1) | fontSize=13.3333px width=69.6875px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [963,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+        <div> [969,512,58,25] | width=57.9531px height=25px flex row flex=0 0 auto
+          <button> [969,512,52,25] (n=1) | fontSize=13.3333px width=51.9531px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [1021,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+        <div> [1027,512,76,25] | width=76.4688px height=25px flex row flex=0 0 auto
+          <button> [1027,512,70,25] (n=1) | fontSize=13.3333px width=70.4688px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [1098,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+        <div> [1104,512,68,25] | width=67.9688px height=25px flex row flex=0 0 auto
+          <button> [1104,512,62,25] (n=1) | fontSize=13.3333px width=61.9688px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [1166,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+        <div> [1172,512,71,25] | width=71.3438px height=25px flex row flex=0 0 auto
+          <button> [1172,512,65,25] (n=1) | fontSize=13.3333px width=65.3438px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [1237,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+        <div> [1243,512,72,25] | width=71.9062px height=25px flex row flex=0 0 auto
+          <button> [1243,512,66,25] (n=1) | fontSize=13.3333px width=65.9062px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [1309,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+        <div> [1315,512,61,25] | width=60.5625px height=25px flex row flex=0 0 auto
+          <button> [1315,512,55,25] (n=1) | fontSize=13.3333px width=54.5625px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [1370,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+        <div> [1376,512,95,25] | width=94.9844px height=25px flex row flex=0 0 auto
+          <button> [1376,512,89,25] (n=1) | fontSize=13.3333px width=88.9844px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [1465,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+        <div> [1471,512,91,25] | width=90.7812px height=25px flex row flex=0 0 auto
+          <button> [1471,512,85,25] (n=1) | fontSize=13.3333px width=84.7812px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [1555,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+        <div> [1561,512,84,25] | width=83.9375px height=25px flex row flex=0 0 auto
+          <button> [1561,512,78,25] (n=1) | fontSize=13.3333px width=77.9375px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [1639,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+        <div> [1645,512,77,25] | width=77.1406px height=25px flex row flex=0 0 auto
+          <button> [1645,512,71,25] (n=1) | fontSize=13.3333px width=71.1406px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [1716,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+        <div> [1722,512,83,25] | width=83.4219px height=25px flex row flex=0 0 auto
+          <button> [1722,512,77,25] (n=1) | fontSize=13.3333px width=77.4219px height=25px flex col textAlign=center flex=0 0 auto
+          <div> [1800,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+    <div> [608,549,640,51] | padding=10px 12px margin=0px 0px 12px width=640px height=51px flex row justifyContent=space-evenly alignItems=center flex=0 0 auto
+      <button> [674,565,49,20] | fontSize=13.3333px width=48.7656px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+        <div> [674,565,18,20] "[i]" | fontSize=18px fontFamily=ionicons width=18px height=20px row
+        <div> [696,566,27,17] "410k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=26.7656px height=17px row
+      <button> [776,565,36,20] | fontSize=13.3333px width=36.0469px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+        <div> [776,565,18,20] "[i]" | fontSize=18px fontFamily=ionicons width=18px height=20px row
+        <div> [798,566,14,17] "3k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=14.0469px height=17px row
+      <button> [865,565,36,20] | fontSize=13.3333px width=36.0625px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+        <div> [865,565,20,20] "[i]" | fontSize=20px fontFamily=material width=20px height=20px row
+        <div> [889,566,12,17] "1k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=12.0625px height=17px row
+      <button> [955,565,38,20] | fontSize=13.3333px width=38.0469px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+        <div> [955,565,20,20] "[i]" | fontSize=20px fontFamily=material width=20px height=20px row
+        <div> [979,566,14,17] "2k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=14.0469px height=17px row
+      <button> [1046,564,38,21] | fontSize=13.3333px width=38.4375px height=21px flex row alignItems=center textAlign=center flex=0 0 auto
+        <div> [1046,564,20,21] "󰆅" | fontSize=20px fontFamily=material-community width=20px height=21px row
+        <div> [1070,566,14,17] "53" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=14.4375px height=17px row
+      <div> [1138,561,44,27] | backgroundImage=linear-gradient(121.535deg, rgb(255, 152, 152), rgb(167, 185, 255)) padding=4px 8px width=44.0625px height=27px flex row alignItems=center gap=4px borderRadius=12px flex=0 0 auto
+        <div> [1146,567,16,16] "󰊡" | fontFamily=material-community width=16px height=16px row
+        <div> [1166,565,8,19] "7" | fontSize=14px fontWeight=700 fontFamily=-apple-system width=8.0625px height=19px row
+    <div> [608,612,640,26] | margin=0px 0px 12px width=640px height=26px flex row justifyContent=space-evenly flex=0 0 auto
+      <div> [708,612,34,26] | width=34.0312px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+        <div> [708,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+          <img> [708,612,26,26] IMG=afa42358-38f6-42f9-90cb-7cd3b7819383.webp | width=26px height=26px row overflow=clip position=absolute objectFit=contain
+        <div> [738,618,4,14] "1" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=4.03125px height=14px row
+      <div> [842,612,36,26] | width=35.5625px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+        <div> [842,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+          <img> [842,612,26,26] IMG=aa16cbde-af43-40fd-ae0e-448f0aed2cf8.webp | width=26px height=26px row overflow=clip position=absolute objectFit=contain
+        <div> [872,618,6,14] "2" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=5.5625px height=14px row
+      <div> [977,612,36,26] | width=35.5625px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+        <div> [977,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+          <img> [977,612,26,26] IMG=e7813ad4-c4f3-403f-838b-553d3b929593.webp | width=26px height=26px row overflow=clip position=absolute objectFit=contain
+        <div> [1007,618,6,14] "2" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=5.5625px height=14px row
+      <div> [1113,612,36,26] | width=35.5625px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+        <div> [1113,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+          <img> [1113,612,26,26] IMG=046deab6-349c-41c9-b918-fba6cdcd21f3.webp | width=26px height=26px row overflow=clip position=absolute objectFit=contain
+        <div> [1143,618,6,14] "2" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=5.5625px height=14px row
+    <div> [620,650,616,60] | backgroundColor=rgba(255, 255, 255, 0.05) padding=8px margin=0px 12px 4px width=616px height=60px flex row justifyContent=space-between alignItems=center borderRadius=12px overflow=hidden flex=0 0 auto
+      <div> [620,650,616,60] | width=616px height=60px flex col borderRadius=12px overflow=hidden position=absolute opacity=0.3 flex=0 0 auto
+        <img> [620,650,616,60] IMG=6a4058015279228bb26c9f15.webp | width=616px height=60px row overflow=clip position=absolute objectFit=cover
+      <button> [628,658,512,44] | fontSize=13.3333px width=512px height=44px flex row alignItems=center textAlign=center flex=1 1 0%
+        <div> [628,658,44,44] | margin=0px 12px 0px 0px width=44px height=44px flex col borderRadius=22px overflow=hidden textAlign=center flex=0 0 auto
+          <img> [628,658,44,44] IMG=6a35254b52dada2d061bcc6c.webp | width=44px height=44px row overflow=clip position=absolute objectFit=cover textAlign=center
+        <div> [684,661,456,38] | width=456px height=38px flex col textAlign=center flex=1 1 0%
+          <div> [684,661,456,20] | width=456px height=20px flex row alignItems=center gap=4px textAlign=center flex=0 0 auto
+            <div> [684,661,65,20] | fontSize=15px fontWeight=600 fontFamily=-apple-system width=64.5938px height=20px row
+            <div> [753,663,16,16] "󰞑" | fontSize=16px fontFamily=material-community color=rgb(74, 158, 255) width=16px height=16px row
+            <div> [773,663,77,16] "1728 followers" | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) width=77.0156px height=16px maxWidth=100% row overflow=hidden
+          <div> [684,683,456,16] "Creating stories I want to play with characters I want to care about." | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) margin=2px 0px 0px width=456px height=16px maxWidth=100% display=flow-root row overflow=clip WebkitLineClamp=2
+      <button> [1148,664,80,33] | fontSize=13.3333px backgroundColor=rgb(102, 126, 234) padding=8px 16px margin=0px 0px 0px 8px width=80px height=33px flex col alignItems=center borderRadius=20px textAlign=center flex=0 0 auto
+        <div> [1169,672,39,17] "Follow" | fontSize=13px fontWeight=600 fontFamily=-apple-system width=38.6875px height=17px row
+    <div> [608,714,640,2174] | margin=0px 0px 8px width=640px height=2174.22px flex col borderRadius=8px overflow=hidden flex=0 0 auto
+      <button> [608,714,640,42] | fontSize=13.3333px padding=10px 12px width=640px height=42px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+        <div> [620,726,148,19] "Detailed Information" | fontSize=16px fontWeight=600 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(255, 255, 255), rgb(255, 152, 152)) width=147.5px height=19px row
+        <div> [1214,724,22,22] "[i]" | fontSize=22px fontFamily=material color=rgb(240, 245, 255) width=22px height=22px row
+      <div> [608,756,640,2132] | width=640px height=2132.22px flex col flex=0 0 auto
+        <div> [608,752,640,39] | padding=0px 12px margin=-4px 0px 0px width=640px height=39px flex row gap=2px normal flex=0 0 auto flexWrap=wrap
+          <div> [620,752,38,38] (n=1) | padding=10px 8px margin=0px 16px 0px 0px width=37.6562px height=38px flex col flex=0 0 auto
+          <div> [674,752,68,38] (n=1) | padding=10px 8px margin=0px 16px 0px 0px width=67.7344px height=38px flex col flex=0 0 auto
+        <div> [608,791,640,2097] | padding=12px width=640px height=2097.22px flex col overflow=hidden flex=0 0 auto
+          <div> [620,803,616,1925] (n=1) | width=616px height=1925.22px flex col flex=0 0 auto
+          <div> [620,2740,616,62] (n=2) | backgroundImage=linear-gradient(95.7474deg, rgba(167, 185, 255, 0.2), rgba(255, 168, 168, 0.15)) padding=12px margin=12px 0px 0px width=616px height=62px flex row alignItems=center gap=10px borderRadius=10px border=1px solid rgba(167, 185, 255, 0.3) flex=0 0 auto
+          <div> [620,2814,616,62] (n=2) | backgroundImage=linear-gradient(95.7474deg, rgba(255, 193, 7, 0.2), rgba(255, 87, 34, 0.15)) padding=12px margin=12px 0px 0px width=616px height=62px flex row alignItems=center gap=10px borderRadius=10px border=1px solid rgba(255, 193, 7, 0.3) flex=0 0 auto
+    <div> [608,2896,640,196] | margin=0px 0px 8px width=640px height=196px flex col borderRadius=8px overflow=hidden flex=0 0 auto
+      <button> [608,2896,640,42] | fontSize=13.3333px padding=10px 12px width=640px height=42px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+        <div> [620,2908,76,19] "Token Info" | fontSize=16px fontWeight=600 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(255, 255, 255), rgb(255, 152, 152)) width=75.7188px height=19px row
+        <div> [1214,2906,22,22] "[i]" | fontSize=22px fontFamily=material color=rgb(240, 245, 255) width=22px height=22px row
+      <div> [608,2938,640,154] | padding=12px width=640px height=154px flex col overflow=hidden flex=0 0 auto
+        <div> [620,2950,616,19] | margin=0px 0px 8px width=616px height=19px flex row justifyContent=space-between flex=0 0 auto
+          <div> [620,2950,100,19] "Storyline Tokens" | fontSize=14px fontFamily=-apple-system color=rgb(148, 148, 148) width=99.75px height=19px row
+          <div> [1221,2950,15,19] "3k" | fontSize=14px fontFamily=-apple-system width=14.5156px height=19px row
+        <div> [620,2977,616,19] | margin=0px 0px 8px width=616px height=19px flex row justifyContent=space-between flex=0 0 auto
+          <div> [620,2977,111,19] "Characters Tokens" | fontSize=14px fontFamily=-apple-system color=rgb(148, 148, 148) width=111.203px height=19px row
+          <div> [1221,2977,15,19] "5k" | fontSize=14px fontFamily=-apple-system width=14.5156px height=19px row
+        <div> [620,3004,616,28] | padding=8px 0px 0px margin=0px 0px 8px width=616px height=28px flex row justifyContent=space-between flex=0 0 auto
+          <div> [620,3013,101,19] "Estimated Total" | fontSize=14px fontWeight=700 fontFamily=-apple-system width=101.359px height=19px row
+          <div> [1220,3013,16,19] "8k" | fontSize=14px fontWeight=700 fontFamily=-apple-system width=15.8906px height=19px row
+        <div> [620,3044,616,1] | margin=4px 0px 8px width=616px height=1px flex col flex=0 0 auto
+        <div> [620,3053,616,19] | margin=0px 0px 8px width=616px height=19px flex row justifyContent=space-between flex=0 0 auto
+          <div> [620,3053,119,19] "Scenario #1 Tokens" | fontSize=14px fontFamily=-apple-system color=rgb(148, 148, 148) width=118.547px height=19px row
+          <div> [1213,3053,23,19] "662" | fontSize=14px fontFamily=-apple-system width=22.6406px height=19px row
+    <div> [608,3100,640,823] | margin=0px 0px 8px width=640px height=822.969px flex col borderRadius=8px overflow=hidden flex=0 0 auto
+      <button> [608,3100,640,42] | fontSize=13.3333px padding=10px 12px width=640px height=42px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+        <div> [620,3112,116,19] "Related Content" | fontSize=16px fontWeight=600 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(255, 255, 255), rgb(255, 152, 152)) width=115.641px height=19px row
+        <div> [1214,3110,22,22] "[i]" | fontSize=22px fontFamily=material color=rgb(240, 245, 255) width=22px height=22px row
+      <div> [608,3142,640,781] | padding=8px 0px width=640px height=780.969px flex col flex=0 0 auto
+        <div> [608,3150,640,765] | padding=4px 8px width=640px height=764.969px flex row gap=4px flex=0 0 auto flexWrap=wrap
+          <div> [620,3154,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+          <div> [777,3154,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+          <div> [934,3154,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+          <div> [1091,3154,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+          <div> [620,3408,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+          <div> [777,3408,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+          <div> [934,3408,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+          <div> [1091,3408,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+          <div> [620,3662,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+          <div> [777,3662,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+          <div> [934,3662,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+          <div> [1091,3662,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+===== titleBlock
+<div> [608,376,640,120] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) backgroundImage=linear-gradient(100.62deg, rgba(167, 185, 255, 0.45), rgba(255, 168, 168, 0.45)) padding=3px width=640px height=120px flex col borderRadius=12px flex=0 0 auto
+  <div> [611,379,634,114] | backgroundColor=rgba(11, 15, 42, 0.7) padding=12px width=634px height=114px flex col borderRadius=10px flex=0 0 auto
+    <div> [623,391,610,37] "DROP//SYNC" | fontSize=28px fontWeight=700 fontFamily=-apple-system color=rgb(240, 245, 255) margin=0px 0px 10px width=610px height=37px row textAlign=left
+    <div> [623,438,610,19] "Bond with partners to pilot mechs and figure out the link between monster and ma" | fontSize=14px fontFamily=-apple-system lineHeight=19px color=rgb(240, 245, 255) width=610px height=19px row
+    <div> [623,465,610,16] "Published 31 May 2026 | Updated 31 May 2026 (v24)" | fontSize=12px fontFamily=-apple-system color=rgb(138, 146, 176) margin=8px 0px 0px width=610px height=16px row opacity=0.7
+===== tags
+<div> [739,512,81,25] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=80.5781px height=25px flex row flex=0 0 auto
+  <div> [739,512,75,24] | fontSize=13.3333px backgroundImage=linear-gradient(rgba(146, 146, 146, 0.4), rgba(100, 111, 153, 0.4)) padding=5px 10px width=74.5781px height=24px flex col justifyContent=center alignItems=center borderRadius=20px textAlign=center flex=0 0 auto
+    <div> [749,517,55,14] | fontSize=12px fontWeight=500 fontFamily=Roboto-Medium width=54.5781px height=14px row
+  <div> [814,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+===== stats
+<div> [608,80,640,3851] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=640px height=3851.19px flex col flex=1 1 400px
+  <div> [608,80,640,296] | width=640px height=296px flex col flex=0 0 auto
+    <div> [608,80,640,24] | padding=0px 12px margin=0px 0px 10px width=640px height=24px flex row alignItems=center gap=10px flex=0 0 auto
+      <div> [620,81,4,22] | backgroundImage=linear-gradient(90deg, rgb(167, 185, 255), rgb(255, 168, 168)) width=4px height=22px flex col borderRadius=2px flex=0 0 auto
+      <div> [634,80,45,24] "Casts" | fontSize=18px fontWeight=700 fontFamily=-apple-system letterSpacing=0.3px color=rgb(240, 245, 255) width=45.2656px height=24px row
+      <div> [689,82,28,21] "10" | fontSize=13px fontWeight=500 fontFamily=-apple-system color=rgb(184, 192, 216) backgroundColor=rgba(255, 255, 255, 0.08) padding=2px 8px width=28.4531px height=21px row borderRadius=10px overflow=hidden
+    <div> [608,114,640,254] | padding=0px 12px margin=0px 0px 8px width=640px height=254px flex row justifyContent=flex-start gap=10px overflow=hidden flex=0 0 auto flexWrap=wrap
+      <button> [620,114,94,122] (n=1) | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+      <button> [724,114,94,122] (n=1) | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+      <button> [828,114,94,122] (n=1) | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+      <button> [932,114,94,122] (n=1) | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+      <button> [1036,114,94,122] (n=1) | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+      <button> [1140,114,94,122] (n=1) | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+      <button> [620,246,94,122] (n=1) | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+      <button> [724,246,94,122] (n=1) | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+      <button> [828,246,94,122] (n=1) | fontSize=13.3333px backgroundColor=rgba(17, 18, 60, 0.85) width=94px height=122px flex col justifyContent=flex-end borderRadius=12px border=2px solid rgba(255, 255, 255, 0.3) overflow=hidden textAlign=center flex=0 0 auto
+      <button> [932,246,94,122] (n=1) | fontSize=13.3333px backgroundColor=rgba(17, 18, 60, 0.85) width=94px height=122px flex col justifyContent=flex-end borderRadius=12px border=2px solid rgba(255, 255, 255, 0.3) overflow=hidden textAlign=center flex=0 0 auto
+  <div> [608,376,640,120] | margin=0px 0px 16px width=640px height=120px flex col borderRadius=8px flex=0 0 auto
+    <div> [608,376,640,120] | backgroundImage=linear-gradient(100.62deg, rgba(167, 185, 255, 0.45), rgba(255, 168, 168, 0.45)) padding=3px width=640px height=120px flex col borderRadius=12px flex=0 0 auto
+      <div> [611,379,634,114] | backgroundColor=rgba(11, 15, 42, 0.7) padding=12px width=634px height=114px flex col borderRadius=10px flex=0 0 auto
+        <div> [623,391,610,37] "DROP//SYNC" | fontSize=28px fontWeight=700 fontFamily=-apple-system color=rgb(240, 245, 255) margin=0px 0px 10px width=610px height=37px row textAlign=left
+        <div> [623,438,610,19] "Bond with partners to pilot mechs and figure out the link between monster and ma" | fontSize=14px fontFamily=-apple-system lineHeight=19px color=rgb(240, 245, 255) width=610px height=19px row
+        <div> [623,465,610,16] "Published 31 May 2026 | Updated 31 May 2026 (v24)" | fontSize=12px fontFamily=-apple-system color=rgb(138, 146, 176) margin=8px 0px 0px width=610px height=16px row opacity=0.7
+  <div> [608,512,640,25] | width=640px height=25px flex row overflow=auto hidden flex=1 1 auto
+    <div> [608,512,1361,25] (n=18) | padding=0px 12px width=1360.98px height=25px flex row flex=0 0 auto
+      <div> [620,512,40,25] (n=2) | width=40px height=25px flex row flex=0 0 auto
+      <div> [660,512,79,25] (n=2) | width=79.3906px height=25px flex row flex=0 0 auto
+      <div> [739,512,81,25] (n=2) | width=80.5781px height=25px flex row flex=0 0 auto
+      <div> [820,512,74,25] (n=2) | width=73.6875px height=25px flex row flex=0 0 auto
+      <div> [894,512,76,25] (n=2) | width=75.6875px height=25px flex row flex=0 0 auto
+      <div> [969,512,58,25] (n=2) | width=57.9531px height=25px flex row flex=0 0 auto
+      <div> [1027,512,76,25] (n=2) | width=76.4688px height=25px flex row flex=0 0 auto
+      <div> [1104,512,68,25] (n=2) | width=67.9688px height=25px flex row flex=0 0 auto
+      <div> [1172,512,71,25] (n=2) | width=71.3438px height=25px flex row flex=0 0 auto
+      <div> [1243,512,72,25] (n=2) | width=71.9062px height=25px flex row flex=0 0 auto
+      <div> [1315,512,61,25] (n=2) | width=60.5625px height=25px flex row flex=0 0 auto
+      <div> [1376,512,95,25] (n=2) | width=94.9844px height=25px flex row flex=0 0 auto
+      <div> [1471,512,91,25] (n=2) | width=90.7812px height=25px flex row flex=0 0 auto
+      <div> [1561,512,84,25] (n=2) | width=83.9375px height=25px flex row flex=0 0 auto
+      <div> [1645,512,77,25] (n=2) | width=77.1406px height=25px flex row flex=0 0 auto
+      <div> [1722,512,83,25] (n=2) | width=83.4219px height=25px flex row flex=0 0 auto
+  <div> [608,549,640,51] | padding=10px 12px margin=0px 0px 12px width=640px height=51px flex row justifyContent=space-evenly alignItems=center flex=0 0 auto
+    <button> [674,565,49,20] | fontSize=13.3333px width=48.7656px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+      <div> [674,565,18,20] "[i]" | fontSize=18px fontFamily=ionicons width=18px height=20px row
+      <div> [696,566,27,17] "410k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=26.7656px height=17px row
+    <button> [776,565,36,20] | fontSize=13.3333px width=36.0469px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+      <div> [776,565,18,20] "[i]" | fontSize=18px fontFamily=ionicons width=18px height=20px row
+      <div> [798,566,14,17] "3k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=14.0469px height=17px row
+    <button> [865,565,36,20] | fontSize=13.3333px width=36.0625px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+      <div> [865,565,20,20] "[i]" | fontSize=20px fontFamily=material width=20px height=20px row
+      <div> [889,566,12,17] "1k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=12.0625px height=17px row
+    <button> [955,565,38,20] | fontSize=13.3333px width=38.0469px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+      <div> [955,565,20,20] "[i]" | fontSize=20px fontFamily=material width=20px height=20px row
+      <div> [979,566,14,17] "2k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=14.0469px height=17px row
+    <button> [1046,564,38,21] | fontSize=13.3333px width=38.4375px height=21px flex row alignItems=center textAlign=center flex=0 0 auto
+      <div> [1046,564,20,21] "󰆅" | fontSize=20px fontFamily=material-community width=20px height=21px row
+      <div> [1070,566,14,17] "53" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=14.4375px height=17px row
+    <div> [1138,561,44,27] | backgroundImage=linear-gradient(121.535deg, rgb(255, 152, 152), rgb(167, 185, 255)) padding=4px 8px width=44.0625px height=27px flex row alignItems=center gap=4px borderRadius=12px flex=0 0 auto
+      <div> [1146,567,16,16] "󰊡" | fontFamily=material-community width=16px height=16px row
+      <div> [1166,565,8,19] "7" | fontSize=14px fontWeight=700 fontFamily=-apple-system width=8.0625px height=19px row
+  <div> [608,612,640,26] | margin=0px 0px 12px width=640px height=26px flex row justifyContent=space-evenly flex=0 0 auto
+    <div> [708,612,34,26] | width=34.0312px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+      <div> [708,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+        <div> [708,612,26,0] (n=1) | width=26px row
+      <div> [738,618,4,14] "1" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=4.03125px height=14px row
+    <div> [842,612,36,26] | width=35.5625px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+      <div> [842,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+        <div> [842,612,26,0] (n=1) | width=26px row
+      <div> [872,618,6,14] "2" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=5.5625px height=14px row
+    <div> [977,612,36,26] | width=35.5625px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+      <div> [977,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+        <div> [977,612,26,0] (n=1) | width=26px row
+      <div> [1007,618,6,14] "2" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=5.5625px height=14px row
+    <div> [1113,612,36,26] | width=35.5625px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+      <div> [1113,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+        <div> [1113,612,26,0] (n=1) | width=26px row
+      <div> [1143,618,6,14] "2" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=5.5625px height=14px row
+  <div> [620,650,616,60] | backgroundColor=rgba(255, 255, 255, 0.05) padding=8px margin=0px 12px 4px width=616px height=60px flex row justifyContent=space-between alignItems=center borderRadius=12px overflow=hidden flex=0 0 auto
+    <div> [620,650,616,60] | width=616px height=60px flex col borderRadius=12px overflow=hidden position=absolute opacity=0.3 flex=0 0 auto
+      <img> [620,650,616,60] IMG=6a4058015279228bb26c9f15.webp | width=616px height=60px row overflow=clip position=absolute objectFit=cover
+    <button> [628,658,512,44] | fontSize=13.3333px width=512px height=44px flex row alignItems=center textAlign=center flex=1 1 0%
+      <div> [628,658,44,44] | margin=0px 12px 0px 0px width=44px height=44px flex col borderRadius=22px overflow=hidden textAlign=center flex=0 0 auto
+        <div> [628,658,44,0] (n=1) | width=44px row textAlign=center
+      <div> [684,661,456,38] | width=456px height=38px flex col textAlign=center flex=1 1 0%
+        <div> [684,661,456,20] (n=3) | width=456px height=20px flex row alignItems=center gap=4px textAlign=center flex=0 0 auto
+        <div> [684,683,456,16] "Creating stories I want to play with characters I want to care about." | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) margin=2px 0px 0px width=456px height=16px maxWidth=100% display=flow-root row overflow=clip WebkitLineClamp=2
+    <button> [1148,664,80,33] | fontSize=13.3333px backgroundColor=rgb(102, 126, 234) padding=8px 16px margin=0px 0px 0px 8px width=80px height=33px flex col alignItems=center borderRadius=20px textAlign=center flex=0 0 auto
+      <div> [1169,672,39,17] "Follow" | fontSize=13px fontWeight=600 fontFamily=-apple-system width=38.6875px height=17px row
+  <div> [608,714,640,2174] | margin=0px 0px 8px width=640px height=2174.22px flex col borderRadius=8px overflow=hidden flex=0 0 auto
+    <button> [608,714,640,42] | fontSize=13.3333px padding=10px 12px width=640px height=42px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+      <div> [620,726,148,19] "Detailed Information" | fontSize=16px fontWeight=600 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(255, 255, 255), rgb(255, 152, 152)) width=147.5px height=19px row
+      <div> [1214,724,22,22] "[i]" | fontSize=22px fontFamily=material color=rgb(240, 245, 255) width=22px height=22px row
+    <div> [608,756,640,2132] | width=640px height=2132.22px flex col flex=0 0 auto
+      <div> [608,752,640,39] (n=2) | padding=0px 12px margin=-4px 0px 0px width=640px height=39px flex row gap=2px normal flex=0 0 auto flexWrap=wrap
+      <div> [608,791,640,2097] (n=3) | padding=12px width=640px height=2097.22px flex col overflow=hidden flex=0 0 auto
+  <div> [608,2896,640,196] | margin=0px 0px 8px width=640px height=196px flex col borderRadius=8px overflow=hidden flex=0 0 auto
+    <button> [608,2896,640,42] | fontSize=13.3333px padding=10px 12px width=640px height=42px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+      <div> [620,2908,76,19] "Token Info" | fontSize=16px fontWeight=600 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(255, 255, 255), rgb(255, 152, 152)) width=75.7188px height=19px row
+      <div> [1214,2906,22,22] "[i]" | fontSize=22px fontFamily=material color=rgb(240, 245, 255) width=22px height=22px row
+    <div> [608,2938,640,154] | padding=12px width=640px height=154px flex col overflow=hidden flex=0 0 auto
+      <div> [620,2950,616,19] (n=2) | margin=0px 0px 8px width=616px height=19px flex row justifyContent=space-between flex=0 0 auto
+      <div> [620,2977,616,19] (n=2) | margin=0px 0px 8px width=616px height=19px flex row justifyContent=space-between flex=0 0 auto
+      <div> [620,3004,616,28] (n=2) | padding=8px 0px 0px margin=0px 0px 8px width=616px height=28px flex row justifyContent=space-between flex=0 0 auto
+      <div> [620,3044,616,1] | margin=4px 0px 8px width=616px height=1px flex col flex=0 0 auto
+      <div> [620,3053,616,19] (n=2) | margin=0px 0px 8px width=616px height=19px flex row justifyContent=space-between flex=0 0 auto
+  <div> [608,3100,640,823] | margin=0px 0px 8px width=640px height=822.969px flex col borderRadius=8px overflow=hidden flex=0 0 auto
+    <button> [608,3100,640,42] | fontSize=13.3333px padding=10px 12px width=640px height=42px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+      <div> [620,3112,116,19] "Related Content" | fontSize=16px fontWeight=600 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(255, 255, 255), rgb(255, 152, 152)) width=115.641px height=19px row
+      <div> [1214,3110,22,22] "[i]" | fontSize=22px fontFamily=material color=rgb(240, 245, 255) width=22px height=22px row
+    <div> [608,3142,640,781] | padding=8px 0px width=640px height=780.969px flex col flex=0 0 auto
+      <div> [608,3150,640,765] (n=12) | padding=4px 8px width=640px height=764.969px flex row gap=4px flex=0 0 auto flexWrap=wrap
+===== creator
+<div> [608,80,640,3851] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=640px height=3851.19px flex col flex=1 1 400px
+  <div> [608,80,640,296] | width=640px height=296px flex col flex=0 0 auto
+    <div> [608,80,640,24] | padding=0px 12px margin=0px 0px 10px width=640px height=24px flex row alignItems=center gap=10px flex=0 0 auto
+      <div> [620,81,4,22] | backgroundImage=linear-gradient(90deg, rgb(167, 185, 255), rgb(255, 168, 168)) width=4px height=22px flex col borderRadius=2px flex=0 0 auto
+      <div> [634,80,45,24] "Casts" | fontSize=18px fontWeight=700 fontFamily=-apple-system letterSpacing=0.3px color=rgb(240, 245, 255) width=45.2656px height=24px row
+      <div> [689,82,28,21] "10" | fontSize=13px fontWeight=500 fontFamily=-apple-system color=rgb(184, 192, 216) backgroundColor=rgba(255, 255, 255, 0.08) padding=2px 8px width=28.4531px height=21px row borderRadius=10px overflow=hidden
+    <div> [608,114,640,254] | padding=0px 12px margin=0px 0px 8px width=640px height=254px flex row justifyContent=flex-start gap=10px overflow=hidden flex=0 0 auto flexWrap=wrap
+      <button> [620,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [620,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [724,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [724,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [828,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [828,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [932,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [932,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [1036,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [1036,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [1140,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [1140,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [620,246,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [620,246,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [724,246,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [724,246,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [828,246,94,122] | fontSize=13.3333px backgroundColor=rgba(17, 18, 60, 0.85) width=94px height=122px flex col justifyContent=flex-end borderRadius=12px border=2px solid rgba(255, 255, 255, 0.3) overflow=hidden textAlign=center flex=0 0 auto
+        <div> [830,248,90,118] (n=3) | width=90px height=118px flex col justifyContent=flex-end textAlign=center flex=1 1 0% aspectRatio=0.75 / 1
+      <button> [932,246,94,122] | fontSize=13.3333px backgroundColor=rgba(17, 18, 60, 0.85) width=94px height=122px flex col justifyContent=flex-end borderRadius=12px border=2px solid rgba(255, 255, 255, 0.3) overflow=hidden textAlign=center flex=0 0 auto
+        <div> [934,248,90,118] (n=3) | width=90px height=118px flex col justifyContent=flex-end textAlign=center flex=1 1 0% aspectRatio=0.75 / 1
+  <div> [608,376,640,120] | margin=0px 0px 16px width=640px height=120px flex col borderRadius=8px flex=0 0 auto
+    <div> [608,376,640,120] | backgroundImage=linear-gradient(100.62deg, rgba(167, 185, 255, 0.45), rgba(255, 168, 168, 0.45)) padding=3px width=640px height=120px flex col borderRadius=12px flex=0 0 auto
+      <div> [611,379,634,114] | backgroundColor=rgba(11, 15, 42, 0.7) padding=12px width=634px height=114px flex col borderRadius=10px flex=0 0 auto
+        <div> [623,391,610,37] "DROP//SYNC" | fontSize=28px fontWeight=700 fontFamily=-apple-system color=rgb(240, 245, 255) margin=0px 0px 10px width=610px height=37px row textAlign=left
+        <div> [623,438,610,19] "Bond with partners to pilot mechs and figure out the link between monster and ma" | fontSize=14px fontFamily=-apple-system lineHeight=19px color=rgb(240, 245, 255) width=610px height=19px row
+        <div> [623,465,610,16] "Published 31 May 2026 | Updated 31 May 2026 (v24)" | fontSize=12px fontFamily=-apple-system color=rgb(138, 146, 176) margin=8px 0px 0px width=610px height=16px row opacity=0.7
+  <div> [608,512,640,25] | width=640px height=25px flex row overflow=auto hidden flex=1 1 auto
+    <div> [608,512,1361,25] (n=18) | padding=0px 12px width=1360.98px height=25px flex row flex=0 0 auto
+      <div> [620,512,40,25] | width=40px height=25px flex row flex=0 0 auto
+        <button> [620,512,34,25] (n=1) | fontSize=13.3333px width=34px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [654,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [660,512,79,25] | width=79.3906px height=25px flex row flex=0 0 auto
+        <button> [660,512,73,25] (n=1) | fontSize=13.3333px width=73.3906px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [733,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [739,512,81,25] | width=80.5781px height=25px flex row flex=0 0 auto
+        <button> [739,512,75,25] (n=1) | fontSize=13.3333px width=74.5781px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [814,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [820,512,74,25] | width=73.6875px height=25px flex row flex=0 0 auto
+        <button> [820,512,68,25] (n=1) | fontSize=13.3333px width=67.6875px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [888,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [894,512,76,25] | width=75.6875px height=25px flex row flex=0 0 auto
+        <button> [894,512,70,25] (n=1) | fontSize=13.3333px width=69.6875px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [963,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [969,512,58,25] | width=57.9531px height=25px flex row flex=0 0 auto
+        <button> [969,512,52,25] (n=1) | fontSize=13.3333px width=51.9531px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1021,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1027,512,76,25] | width=76.4688px height=25px flex row flex=0 0 auto
+        <button> [1027,512,70,25] (n=1) | fontSize=13.3333px width=70.4688px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1098,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1104,512,68,25] | width=67.9688px height=25px flex row flex=0 0 auto
+        <button> [1104,512,62,25] (n=1) | fontSize=13.3333px width=61.9688px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1166,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1172,512,71,25] | width=71.3438px height=25px flex row flex=0 0 auto
+        <button> [1172,512,65,25] (n=1) | fontSize=13.3333px width=65.3438px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1237,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1243,512,72,25] | width=71.9062px height=25px flex row flex=0 0 auto
+        <button> [1243,512,66,25] (n=1) | fontSize=13.3333px width=65.9062px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1309,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1315,512,61,25] | width=60.5625px height=25px flex row flex=0 0 auto
+        <button> [1315,512,55,25] (n=1) | fontSize=13.3333px width=54.5625px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1370,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1376,512,95,25] | width=94.9844px height=25px flex row flex=0 0 auto
+        <button> [1376,512,89,25] (n=1) | fontSize=13.3333px width=88.9844px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1465,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1471,512,91,25] | width=90.7812px height=25px flex row flex=0 0 auto
+        <button> [1471,512,85,25] (n=1) | fontSize=13.3333px width=84.7812px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1555,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1561,512,84,25] | width=83.9375px height=25px flex row flex=0 0 auto
+        <button> [1561,512,78,25] (n=1) | fontSize=13.3333px width=77.9375px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1639,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1645,512,77,25] | width=77.1406px height=25px flex row flex=0 0 auto
+        <button> [1645,512,71,25] (n=1) | fontSize=13.3333px width=71.1406px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1716,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1722,512,83,25] | width=83.4219px height=25px flex row flex=0 0 auto
+        <button> [1722,512,77,25] (n=1) | fontSize=13.3333px width=77.4219px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1800,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+  <div> [608,549,640,51] | padding=10px 12px margin=0px 0px 12px width=640px height=51px flex row justifyContent=space-evenly alignItems=center flex=0 0 auto
+    <button> [674,565,49,20] | fontSize=13.3333px width=48.7656px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+      <div> [674,565,18,20] "[i]" | fontSize=18px fontFamily=ionicons width=18px height=20px row
+      <div> [696,566,27,17] "410k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=26.7656px height=17px row
+    <button> [776,565,36,20] | fontSize=13.3333px width=36.0469px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+      <div> [776,565,18,20] "[i]" | fontSize=18px fontFamily=ionicons width=18px height=20px row
+      <div> [798,566,14,17] "3k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=14.0469px height=17px row
+    <button> [865,565,36,20] | fontSize=13.3333px width=36.0625px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+      <div> [865,565,20,20] "[i]" | fontSize=20px fontFamily=material width=20px height=20px row
+      <div> [889,566,12,17] "1k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=12.0625px height=17px row
+    <button> [955,565,38,20] | fontSize=13.3333px width=38.0469px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+      <div> [955,565,20,20] "[i]" | fontSize=20px fontFamily=material width=20px height=20px row
+      <div> [979,566,14,17] "2k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=14.0469px height=17px row
+    <button> [1046,564,38,21] | fontSize=13.3333px width=38.4375px height=21px flex row alignItems=center textAlign=center flex=0 0 auto
+      <div> [1046,564,20,21] "󰆅" | fontSize=20px fontFamily=material-community width=20px height=21px row
+      <div> [1070,566,14,17] "53" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=14.4375px height=17px row
+    <div> [1138,561,44,27] | backgroundImage=linear-gradient(121.535deg, rgb(255, 152, 152), rgb(167, 185, 255)) padding=4px 8px width=44.0625px height=27px flex row alignItems=center gap=4px borderRadius=12px flex=0 0 auto
+      <div> [1146,567,16,16] "󰊡" | fontFamily=material-community width=16px height=16px row
+      <div> [1166,565,8,19] "7" | fontSize=14px fontWeight=700 fontFamily=-apple-system width=8.0625px height=19px row
+  <div> [608,612,640,26] | margin=0px 0px 12px width=640px height=26px flex row justifyContent=space-evenly flex=0 0 auto
+    <div> [708,612,34,26] | width=34.0312px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+      <div> [708,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+        <img> [708,612,26,26] IMG=afa42358-38f6-42f9-90cb-7cd3b7819383.webp | width=26px height=26px row overflow=clip position=absolute objectFit=contain
+      <div> [738,618,4,14] "1" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=4.03125px height=14px row
+    <div> [842,612,36,26] | width=35.5625px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+      <div> [842,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+        <img> [842,612,26,26] IMG=aa16cbde-af43-40fd-ae0e-448f0aed2cf8.webp | width=26px height=26px row overflow=clip position=absolute objectFit=contain
+      <div> [872,618,6,14] "2" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=5.5625px height=14px row
+    <div> [977,612,36,26] | width=35.5625px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+      <div> [977,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+        <img> [977,612,26,26] IMG=e7813ad4-c4f3-403f-838b-553d3b929593.webp | width=26px height=26px row overflow=clip position=absolute objectFit=contain
+      <div> [1007,618,6,14] "2" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=5.5625px height=14px row
+    <div> [1113,612,36,26] | width=35.5625px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+      <div> [1113,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+        <img> [1113,612,26,26] IMG=046deab6-349c-41c9-b918-fba6cdcd21f3.webp | width=26px height=26px row overflow=clip position=absolute objectFit=contain
+      <div> [1143,618,6,14] "2" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=5.5625px height=14px row
+  <div> [620,650,616,60] | backgroundColor=rgba(255, 255, 255, 0.05) padding=8px margin=0px 12px 4px width=616px height=60px flex row justifyContent=space-between alignItems=center borderRadius=12px overflow=hidden flex=0 0 auto
+    <div> [620,650,616,60] | width=616px height=60px flex col borderRadius=12px overflow=hidden position=absolute opacity=0.3 flex=0 0 auto
+      <img> [620,650,616,60] IMG=6a4058015279228bb26c9f15.webp | width=616px height=60px row overflow=clip position=absolute objectFit=cover
+    <button> [628,658,512,44] | fontSize=13.3333px width=512px height=44px flex row alignItems=center textAlign=center flex=1 1 0%
+      <div> [628,658,44,44] | margin=0px 12px 0px 0px width=44px height=44px flex col borderRadius=22px overflow=hidden textAlign=center flex=0 0 auto
+        <img> [628,658,44,44] IMG=6a35254b52dada2d061bcc6c.webp | width=44px height=44px row overflow=clip position=absolute objectFit=cover textAlign=center
+      <div> [684,661,456,38] | width=456px height=38px flex col textAlign=center flex=1 1 0%
+        <div> [684,661,456,20] | width=456px height=20px flex row alignItems=center gap=4px textAlign=center flex=0 0 auto
+          <div> [684,661,65,20] | fontSize=15px fontWeight=600 fontFamily=-apple-system width=64.5938px height=20px row
+          <div> [753,663,16,16] "󰞑" | fontSize=16px fontFamily=material-community color=rgb(74, 158, 255) width=16px height=16px row
+          <div> [773,663,77,16] "1728 followers" | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) width=77.0156px height=16px maxWidth=100% row overflow=hidden
+        <div> [684,683,456,16] "Creating stories I want to play with characters I want to care about." | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) margin=2px 0px 0px width=456px height=16px maxWidth=100% display=flow-root row overflow=clip WebkitLineClamp=2
+    <button> [1148,664,80,33] | fontSize=13.3333px backgroundColor=rgb(102, 126, 234) padding=8px 16px margin=0px 0px 0px 8px width=80px height=33px flex col alignItems=center borderRadius=20px textAlign=center flex=0 0 auto
+      <div> [1169,672,39,17] "Follow" | fontSize=13px fontWeight=600 fontFamily=-apple-system width=38.6875px height=17px row
+  <div> [608,714,640,2174] | margin=0px 0px 8px width=640px height=2174.22px flex col borderRadius=8px overflow=hidden flex=0 0 auto
+    <button> [608,714,640,42] | fontSize=13.3333px padding=10px 12px width=640px height=42px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+      <div> [620,726,148,19] "Detailed Information" | fontSize=16px fontWeight=600 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(255, 255, 255), rgb(255, 152, 152)) width=147.5px height=19px row
+      <div> [1214,724,22,22] "[i]" | fontSize=22px fontFamily=material color=rgb(240, 245, 255) width=22px height=22px row
+    <div> [608,756,640,2132] | width=640px height=2132.22px flex col flex=0 0 auto
+      <div> [608,752,640,39] | padding=0px 12px margin=-4px 0px 0px width=640px height=39px flex row gap=2px normal flex=0 0 auto flexWrap=wrap
+        <div> [620,752,38,38] (n=1) | padding=10px 8px margin=0px 16px 0px 0px width=37.6562px height=38px flex col flex=0 0 auto
+        <div> [674,752,68,38] (n=1) | padding=10px 8px margin=0px 16px 0px 0px width=67.7344px height=38px flex col flex=0 0 auto
+      <div> [608,791,640,2097] | padding=12px width=640px height=2097.22px flex col overflow=hidden flex=0 0 auto
+        <div> [620,803,616,1925] (n=1) | width=616px height=1925.22px flex col flex=0 0 auto
+        <div> [620,2740,616,62] (n=2) | backgroundImage=linear-gradient(95.7474deg, rgba(167, 185, 255, 0.2), rgba(255, 168, 168, 0.15)) padding=12px margin=12px 0px 0px width=616px height=62px flex row alignItems=center gap=10px borderRadius=10px border=1px solid rgba(167, 185, 255, 0.3) flex=0 0 auto
+        <div> [620,2814,616,62] (n=2) | backgroundImage=linear-gradient(95.7474deg, rgba(255, 193, 7, 0.2), rgba(255, 87, 34, 0.15)) padding=12px margin=12px 0px 0px width=616px height=62px flex row alignItems=center gap=10px borderRadius=10px border=1px solid rgba(255, 193, 7, 0.3) flex=0 0 auto
+  <div> [608,2896,640,196] | margin=0px 0px 8px width=640px height=196px flex col borderRadius=8px overflow=hidden flex=0 0 auto
+    <button> [608,2896,640,42] | fontSize=13.3333px padding=10px 12px width=640px height=42px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+      <div> [620,2908,76,19] "Token Info" | fontSize=16px fontWeight=600 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(255, 255, 255), rgb(255, 152, 152)) width=75.7188px height=19px row
+      <div> [1214,2906,22,22] "[i]" | fontSize=22px fontFamily=material color=rgb(240, 245, 255) width=22px height=22px row
+    <div> [608,2938,640,154] | padding=12px width=640px height=154px flex col overflow=hidden flex=0 0 auto
+      <div> [620,2950,616,19] | margin=0px 0px 8px width=616px height=19px flex row justifyContent=space-between flex=0 0 auto
+        <div> [620,2950,100,19] "Storyline Tokens" | fontSize=14px fontFamily=-apple-system color=rgb(148, 148, 148) width=99.75px height=19px row
+        <div> [1221,2950,15,19] "3k" | fontSize=14px fontFamily=-apple-system width=14.5156px height=19px row
+      <div> [620,2977,616,19] | margin=0px 0px 8px width=616px height=19px flex row justifyContent=space-between flex=0 0 auto
+        <div> [620,2977,111,19] "Characters Tokens" | fontSize=14px fontFamily=-apple-system color=rgb(148, 148, 148) width=111.203px height=19px row
+        <div> [1221,2977,15,19] "5k" | fontSize=14px fontFamily=-apple-system width=14.5156px height=19px row
+      <div> [620,3004,616,28] | padding=8px 0px 0px margin=0px 0px 8px width=616px height=28px flex row justifyContent=space-between flex=0 0 auto
+        <div> [620,3013,101,19] "Estimated Total" | fontSize=14px fontWeight=700 fontFamily=-apple-system width=101.359px height=19px row
+        <div> [1220,3013,16,19] "8k" | fontSize=14px fontWeight=700 fontFamily=-apple-system width=15.8906px height=19px row
+      <div> [620,3044,616,1] | margin=4px 0px 8px width=616px height=1px flex col flex=0 0 auto
+      <div> [620,3053,616,19] | margin=0px 0px 8px width=616px height=19px flex row justifyContent=space-between flex=0 0 auto
+        <div> [620,3053,119,19] "Scenario #1 Tokens" | fontSize=14px fontFamily=-apple-system color=rgb(148, 148, 148) width=118.547px height=19px row
+        <div> [1213,3053,23,19] "662" | fontSize=14px fontFamily=-apple-system width=22.6406px height=19px row
+  <div> [608,3100,640,823] | margin=0px 0px 8px width=640px height=822.969px flex col borderRadius=8px overflow=hidden flex=0 0 auto
+    <button> [608,3100,640,42] | fontSize=13.3333px padding=10px 12px width=640px height=42px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+      <div> [620,3112,116,19] "Related Content" | fontSize=16px fontWeight=600 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(255, 255, 255), rgb(255, 152, 152)) width=115.641px height=19px row
+      <div> [1214,3110,22,22] "[i]" | fontSize=22px fontFamily=material color=rgb(240, 245, 255) width=22px height=22px row
+    <div> [608,3142,640,781] | padding=8px 0px width=640px height=780.969px flex col flex=0 0 auto
+      <div> [608,3150,640,765] | padding=4px 8px width=640px height=764.969px flex row gap=4px flex=0 0 auto flexWrap=wrap
+        <div> [620,3154,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [777,3154,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [934,3154,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [1091,3154,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [620,3408,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [777,3408,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [934,3408,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [1091,3408,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [620,3662,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [777,3662,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [934,3662,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [1091,3662,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+===== detail
+<div> [608,80,640,3851] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=640px height=3851.19px flex col flex=1 1 400px
+  <div> [608,80,640,296] | width=640px height=296px flex col flex=0 0 auto
+    <div> [608,80,640,24] | padding=0px 12px margin=0px 0px 10px width=640px height=24px flex row alignItems=center gap=10px flex=0 0 auto
+      <div> [620,81,4,22] | backgroundImage=linear-gradient(90deg, rgb(167, 185, 255), rgb(255, 168, 168)) width=4px height=22px flex col borderRadius=2px flex=0 0 auto
+      <div> [634,80,45,24] "Casts" | fontSize=18px fontWeight=700 fontFamily=-apple-system letterSpacing=0.3px color=rgb(240, 245, 255) width=45.2656px height=24px row
+      <div> [689,82,28,21] "10" | fontSize=13px fontWeight=500 fontFamily=-apple-system color=rgb(184, 192, 216) backgroundColor=rgba(255, 255, 255, 0.08) padding=2px 8px width=28.4531px height=21px row borderRadius=10px overflow=hidden
+    <div> [608,114,640,254] | padding=0px 12px margin=0px 0px 8px width=640px height=254px flex row justifyContent=flex-start gap=10px overflow=hidden flex=0 0 auto flexWrap=wrap
+      <button> [620,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [620,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [724,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [724,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [828,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [828,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [932,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [932,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [1036,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [1036,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [1140,114,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [1140,114,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [620,246,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [620,246,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [724,246,94,122] | fontSize=13.3333px width=94px height=122px flex col overflow=hidden textAlign=center flex=0 0 auto
+        <div> [724,246,94,122] (n=1) | backgroundImage=linear-gradient(142.386deg, rgb(167, 185, 255), rgb(255, 168, 168)) padding=2px width=94px height=122px flex col borderRadius=12px textAlign=center flex=1 1 0%
+      <button> [828,246,94,122] | fontSize=13.3333px backgroundColor=rgba(17, 18, 60, 0.85) width=94px height=122px flex col justifyContent=flex-end borderRadius=12px border=2px solid rgba(255, 255, 255, 0.3) overflow=hidden textAlign=center flex=0 0 auto
+        <div> [830,248,90,118] (n=3) | width=90px height=118px flex col justifyContent=flex-end textAlign=center flex=1 1 0% aspectRatio=0.75 / 1
+      <button> [932,246,94,122] | fontSize=13.3333px backgroundColor=rgba(17, 18, 60, 0.85) width=94px height=122px flex col justifyContent=flex-end borderRadius=12px border=2px solid rgba(255, 255, 255, 0.3) overflow=hidden textAlign=center flex=0 0 auto
+        <div> [934,248,90,118] (n=3) | width=90px height=118px flex col justifyContent=flex-end textAlign=center flex=1 1 0% aspectRatio=0.75 / 1
+  <div> [608,376,640,120] | margin=0px 0px 16px width=640px height=120px flex col borderRadius=8px flex=0 0 auto
+    <div> [608,376,640,120] | backgroundImage=linear-gradient(100.62deg, rgba(167, 185, 255, 0.45), rgba(255, 168, 168, 0.45)) padding=3px width=640px height=120px flex col borderRadius=12px flex=0 0 auto
+      <div> [611,379,634,114] | backgroundColor=rgba(11, 15, 42, 0.7) padding=12px width=634px height=114px flex col borderRadius=10px flex=0 0 auto
+        <div> [623,391,610,37] "DROP//SYNC" | fontSize=28px fontWeight=700 fontFamily=-apple-system color=rgb(240, 245, 255) margin=0px 0px 10px width=610px height=37px row textAlign=left
+        <div> [623,438,610,19] "Bond with partners to pilot mechs and figure out the link between monster and ma" | fontSize=14px fontFamily=-apple-system lineHeight=19px color=rgb(240, 245, 255) width=610px height=19px row
+        <div> [623,465,610,16] "Published 31 May 2026 | Updated 31 May 2026 (v24)" | fontSize=12px fontFamily=-apple-system color=rgb(138, 146, 176) margin=8px 0px 0px width=610px height=16px row opacity=0.7
+  <div> [608,512,640,25] | width=640px height=25px flex row overflow=auto hidden flex=1 1 auto
+    <div> [608,512,1361,25] (n=18) | padding=0px 12px width=1360.98px height=25px flex row flex=0 0 auto
+      <div> [620,512,40,25] | width=40px height=25px flex row flex=0 0 auto
+        <button> [620,512,34,25] (n=1) | fontSize=13.3333px width=34px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [654,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [660,512,79,25] | width=79.3906px height=25px flex row flex=0 0 auto
+        <button> [660,512,73,25] (n=1) | fontSize=13.3333px width=73.3906px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [733,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [739,512,81,25] | width=80.5781px height=25px flex row flex=0 0 auto
+        <button> [739,512,75,25] (n=1) | fontSize=13.3333px width=74.5781px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [814,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [820,512,74,25] | width=73.6875px height=25px flex row flex=0 0 auto
+        <button> [820,512,68,25] (n=1) | fontSize=13.3333px width=67.6875px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [888,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [894,512,76,25] | width=75.6875px height=25px flex row flex=0 0 auto
+        <button> [894,512,70,25] (n=1) | fontSize=13.3333px width=69.6875px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [963,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [969,512,58,25] | width=57.9531px height=25px flex row flex=0 0 auto
+        <button> [969,512,52,25] (n=1) | fontSize=13.3333px width=51.9531px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1021,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1027,512,76,25] | width=76.4688px height=25px flex row flex=0 0 auto
+        <button> [1027,512,70,25] (n=1) | fontSize=13.3333px width=70.4688px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1098,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1104,512,68,25] | width=67.9688px height=25px flex row flex=0 0 auto
+        <button> [1104,512,62,25] (n=1) | fontSize=13.3333px width=61.9688px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1166,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1172,512,71,25] | width=71.3438px height=25px flex row flex=0 0 auto
+        <button> [1172,512,65,25] (n=1) | fontSize=13.3333px width=65.3438px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1237,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1243,512,72,25] | width=71.9062px height=25px flex row flex=0 0 auto
+        <button> [1243,512,66,25] (n=1) | fontSize=13.3333px width=65.9062px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1309,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1315,512,61,25] | width=60.5625px height=25px flex row flex=0 0 auto
+        <button> [1315,512,55,25] (n=1) | fontSize=13.3333px width=54.5625px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1370,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1376,512,95,25] | width=94.9844px height=25px flex row flex=0 0 auto
+        <button> [1376,512,89,25] (n=1) | fontSize=13.3333px width=88.9844px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1465,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1471,512,91,25] | width=90.7812px height=25px flex row flex=0 0 auto
+        <button> [1471,512,85,25] (n=1) | fontSize=13.3333px width=84.7812px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1555,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1561,512,84,25] | width=83.9375px height=25px flex row flex=0 0 auto
+        <button> [1561,512,78,25] (n=1) | fontSize=13.3333px width=77.9375px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1639,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1645,512,77,25] | width=77.1406px height=25px flex row flex=0 0 auto
+        <button> [1645,512,71,25] (n=1) | fontSize=13.3333px width=71.1406px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1716,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+      <div> [1722,512,83,25] | width=83.4219px height=25px flex row flex=0 0 auto
+        <button> [1722,512,77,25] (n=1) | fontSize=13.3333px width=77.4219px height=25px flex col textAlign=center flex=0 0 auto
+        <div> [1800,512,6,25] | width=6px height=25px flex col flex=0 0 auto
+  <div> [608,549,640,51] | padding=10px 12px margin=0px 0px 12px width=640px height=51px flex row justifyContent=space-evenly alignItems=center flex=0 0 auto
+    <button> [674,565,49,20] | fontSize=13.3333px width=48.7656px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+      <div> [674,565,18,20] "[i]" | fontSize=18px fontFamily=ionicons width=18px height=20px row
+      <div> [696,566,27,17] "410k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=26.7656px height=17px row
+    <button> [776,565,36,20] | fontSize=13.3333px width=36.0469px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+      <div> [776,565,18,20] "[i]" | fontSize=18px fontFamily=ionicons width=18px height=20px row
+      <div> [798,566,14,17] "3k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=14.0469px height=17px row
+    <button> [865,565,36,20] | fontSize=13.3333px width=36.0625px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+      <div> [865,565,20,20] "[i]" | fontSize=20px fontFamily=material width=20px height=20px row
+      <div> [889,566,12,17] "1k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=12.0625px height=17px row
+    <button> [955,565,38,20] | fontSize=13.3333px width=38.0469px height=20px flex row alignItems=center textAlign=center flex=0 0 auto
+      <div> [955,565,20,20] "[i]" | fontSize=20px fontFamily=material width=20px height=20px row
+      <div> [979,566,14,17] "2k" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=14.0469px height=17px row
+    <button> [1046,564,38,21] | fontSize=13.3333px width=38.4375px height=21px flex row alignItems=center textAlign=center flex=0 0 auto
+      <div> [1046,564,20,21] "󰆅" | fontSize=20px fontFamily=material-community width=20px height=21px row
+      <div> [1070,566,14,17] "53" | fontSize=13px fontWeight=500 fontFamily=-apple-system margin=0px 0px 0px 4px width=14.4375px height=17px row
+    <div> [1138,561,44,27] | backgroundImage=linear-gradient(121.535deg, rgb(255, 152, 152), rgb(167, 185, 255)) padding=4px 8px width=44.0625px height=27px flex row alignItems=center gap=4px borderRadius=12px flex=0 0 auto
+      <div> [1146,567,16,16] "󰊡" | fontFamily=material-community width=16px height=16px row
+      <div> [1166,565,8,19] "7" | fontSize=14px fontWeight=700 fontFamily=-apple-system width=8.0625px height=19px row
+  <div> [608,612,640,26] | margin=0px 0px 12px width=640px height=26px flex row justifyContent=space-evenly flex=0 0 auto
+    <div> [708,612,34,26] | width=34.0312px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+      <div> [708,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+        <img> [708,612,26,26] IMG=afa42358-38f6-42f9-90cb-7cd3b7819383.webp | width=26px height=26px row overflow=clip position=absolute objectFit=contain
+      <div> [738,618,4,14] "1" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=4.03125px height=14px row
+    <div> [842,612,36,26] | width=35.5625px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+      <div> [842,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+        <img> [842,612,26,26] IMG=aa16cbde-af43-40fd-ae0e-448f0aed2cf8.webp | width=26px height=26px row overflow=clip position=absolute objectFit=contain
+      <div> [872,618,6,14] "2" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=5.5625px height=14px row
+    <div> [977,612,36,26] | width=35.5625px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+      <div> [977,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+        <img> [977,612,26,26] IMG=e7813ad4-c4f3-403f-838b-553d3b929593.webp | width=26px height=26px row overflow=clip position=absolute objectFit=contain
+      <div> [1007,618,6,14] "2" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=5.5625px height=14px row
+    <div> [1113,612,36,26] | width=35.5625px height=26px flex row alignItems=center gap=4px flex=0 0 auto
+      <div> [1113,612,26,26] | width=26px height=26px flex col overflow=hidden flex=0 0 auto
+        <img> [1113,612,26,26] IMG=046deab6-349c-41c9-b918-fba6cdcd21f3.webp | width=26px height=26px row overflow=clip position=absolute objectFit=contain
+      <div> [1143,618,6,14] "2" | fontSize=10px fontWeight=600 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=5.5625px height=14px row
+  <div> [620,650,616,60] | backgroundColor=rgba(255, 255, 255, 0.05) padding=8px margin=0px 12px 4px width=616px height=60px flex row justifyContent=space-between alignItems=center borderRadius=12px overflow=hidden flex=0 0 auto
+    <div> [620,650,616,60] | width=616px height=60px flex col borderRadius=12px overflow=hidden position=absolute opacity=0.3 flex=0 0 auto
+      <img> [620,650,616,60] IMG=6a4058015279228bb26c9f15.webp | width=616px height=60px row overflow=clip position=absolute objectFit=cover
+    <button> [628,658,512,44] | fontSize=13.3333px width=512px height=44px flex row alignItems=center textAlign=center flex=1 1 0%
+      <div> [628,658,44,44] | margin=0px 12px 0px 0px width=44px height=44px flex col borderRadius=22px overflow=hidden textAlign=center flex=0 0 auto
+        <img> [628,658,44,44] IMG=6a35254b52dada2d061bcc6c.webp | width=44px height=44px row overflow=clip position=absolute objectFit=cover textAlign=center
+      <div> [684,661,456,38] | width=456px height=38px flex col textAlign=center flex=1 1 0%
+        <div> [684,661,456,20] | width=456px height=20px flex row alignItems=center gap=4px textAlign=center flex=0 0 auto
+          <div> [684,661,65,20] | fontSize=15px fontWeight=600 fontFamily=-apple-system width=64.5938px height=20px row
+          <div> [753,663,16,16] "󰞑" | fontSize=16px fontFamily=material-community color=rgb(74, 158, 255) width=16px height=16px row
+          <div> [773,663,77,16] "1728 followers" | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) width=77.0156px height=16px maxWidth=100% row overflow=hidden
+        <div> [684,683,456,16] "Creating stories I want to play with characters I want to care about." | fontSize=12px fontFamily=-apple-system color=rgba(255, 255, 255, 0.5) margin=2px 0px 0px width=456px height=16px maxWidth=100% display=flow-root row overflow=clip WebkitLineClamp=2
+    <button> [1148,664,80,33] | fontSize=13.3333px backgroundColor=rgb(102, 126, 234) padding=8px 16px margin=0px 0px 0px 8px width=80px height=33px flex col alignItems=center borderRadius=20px textAlign=center flex=0 0 auto
+      <div> [1169,672,39,17] "Follow" | fontSize=13px fontWeight=600 fontFamily=-apple-system width=38.6875px height=17px row
+  <div> [608,714,640,2174] | margin=0px 0px 8px width=640px height=2174.22px flex col borderRadius=8px overflow=hidden flex=0 0 auto
+    <button> [608,714,640,42] | fontSize=13.3333px padding=10px 12px width=640px height=42px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+      <div> [620,726,148,19] "Detailed Information" | fontSize=16px fontWeight=600 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(255, 255, 255), rgb(255, 152, 152)) width=147.5px height=19px row
+      <div> [1214,724,22,22] "[i]" | fontSize=22px fontFamily=material color=rgb(240, 245, 255) width=22px height=22px row
+    <div> [608,756,640,2132] | width=640px height=2132.22px flex col flex=0 0 auto
+      <div> [608,752,640,39] | padding=0px 12px margin=-4px 0px 0px width=640px height=39px flex row gap=2px normal flex=0 0 auto flexWrap=wrap
+        <div> [620,752,38,38] (n=1) | padding=10px 8px margin=0px 16px 0px 0px width=37.6562px height=38px flex col flex=0 0 auto
+        <div> [674,752,68,38] (n=1) | padding=10px 8px margin=0px 16px 0px 0px width=67.7344px height=38px flex col flex=0 0 auto
+      <div> [608,791,640,2097] | padding=12px width=640px height=2097.22px flex col overflow=hidden flex=0 0 auto
+        <div> [620,803,616,1925] (n=1) | width=616px height=1925.22px flex col flex=0 0 auto
+        <div> [620,2740,616,62] (n=2) | backgroundImage=linear-gradient(95.7474deg, rgba(167, 185, 255, 0.2), rgba(255, 168, 168, 0.15)) padding=12px margin=12px 0px 0px width=616px height=62px flex row alignItems=center gap=10px borderRadius=10px border=1px solid rgba(167, 185, 255, 0.3) flex=0 0 auto
+        <div> [620,2814,616,62] (n=2) | backgroundImage=linear-gradient(95.7474deg, rgba(255, 193, 7, 0.2), rgba(255, 87, 34, 0.15)) padding=12px margin=12px 0px 0px width=616px height=62px flex row alignItems=center gap=10px borderRadius=10px border=1px solid rgba(255, 193, 7, 0.3) flex=0 0 auto
+  <div> [608,2896,640,196] | margin=0px 0px 8px width=640px height=196px flex col borderRadius=8px overflow=hidden flex=0 0 auto
+    <button> [608,2896,640,42] | fontSize=13.3333px padding=10px 12px width=640px height=42px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+      <div> [620,2908,76,19] "Token Info" | fontSize=16px fontWeight=600 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(255, 255, 255), rgb(255, 152, 152)) width=75.7188px height=19px row
+      <div> [1214,2906,22,22] "[i]" | fontSize=22px fontFamily=material color=rgb(240, 245, 255) width=22px height=22px row
+    <div> [608,2938,640,154] | padding=12px width=640px height=154px flex col overflow=hidden flex=0 0 auto
+      <div> [620,2950,616,19] | margin=0px 0px 8px width=616px height=19px flex row justifyContent=space-between flex=0 0 auto
+        <div> [620,2950,100,19] "Storyline Tokens" | fontSize=14px fontFamily=-apple-system color=rgb(148, 148, 148) width=99.75px height=19px row
+        <div> [1221,2950,15,19] "3k" | fontSize=14px fontFamily=-apple-system width=14.5156px height=19px row
+      <div> [620,2977,616,19] | margin=0px 0px 8px width=616px height=19px flex row justifyContent=space-between flex=0 0 auto
+        <div> [620,2977,111,19] "Characters Tokens" | fontSize=14px fontFamily=-apple-system color=rgb(148, 148, 148) width=111.203px height=19px row
+        <div> [1221,2977,15,19] "5k" | fontSize=14px fontFamily=-apple-system width=14.5156px height=19px row
+      <div> [620,3004,616,28] | padding=8px 0px 0px margin=0px 0px 8px width=616px height=28px flex row justifyContent=space-between flex=0 0 auto
+        <div> [620,3013,101,19] "Estimated Total" | fontSize=14px fontWeight=700 fontFamily=-apple-system width=101.359px height=19px row
+        <div> [1220,3013,16,19] "8k" | fontSize=14px fontWeight=700 fontFamily=-apple-system width=15.8906px height=19px row
+      <div> [620,3044,616,1] | margin=4px 0px 8px width=616px height=1px flex col flex=0 0 auto
+      <div> [620,3053,616,19] | margin=0px 0px 8px width=616px height=19px flex row justifyContent=space-between flex=0 0 auto
+        <div> [620,3053,119,19] "Scenario #1 Tokens" | fontSize=14px fontFamily=-apple-system color=rgb(148, 148, 148) width=118.547px height=19px row
+        <div> [1213,3053,23,19] "662" | fontSize=14px fontFamily=-apple-system width=22.6406px height=19px row
+  <div> [608,3100,640,823] | margin=0px 0px 8px width=640px height=822.969px flex col borderRadius=8px overflow=hidden flex=0 0 auto
+    <button> [608,3100,640,42] | fontSize=13.3333px padding=10px 12px width=640px height=42px flex row justifyContent=space-between alignItems=center textAlign=center flex=0 0 auto
+      <div> [620,3112,116,19] "Related Content" | fontSize=16px fontWeight=600 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(255, 255, 255), rgb(255, 152, 152)) width=115.641px height=19px row
+      <div> [1214,3110,22,22] "[i]" | fontSize=22px fontFamily=material color=rgb(240, 245, 255) width=22px height=22px row
+    <div> [608,3142,640,781] | padding=8px 0px width=640px height=780.969px flex col flex=0 0 auto
+      <div> [608,3150,640,765] | padding=4px 8px width=640px height=764.969px flex row gap=4px flex=0 0 auto flexWrap=wrap
+        <div> [620,3154,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [777,3154,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [934,3154,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [1091,3154,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [620,3408,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [777,3408,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [934,3408,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [1091,3408,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [620,3662,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [777,3662,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [934,3662,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+        <div> [1091,3662,145,242] (n=2) | backgroundImage=linear-gradient(149.071deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=145px height=241.656px flex col borderRadius=16px flex=0 0 auto
+===== startBar
+<button> [749,825,482,50] | fontSize=13.3333px fontWeight=400 color=rgb(255, 255, 255) width=482px height=50px flex col borderRadius=12px border=2px solid rgb(255, 255, 255) textAlign=center flex=1 1 0%
+  <div> [751,827,478,46] | width=478px height=46px flex col justifyContent=center alignItems=center textAlign=center flex=0 0 auto
+    <div> [751,827,478,46] | width=478px height=46px flex col borderRadius=10px overflow=hidden position=absolute textAlign=center flex=0 0 auto
+      <img> [751,827,478,46] IMG=magicalButton.92641b61adfbecf779525a96f2c9eb09.png | width=478px height=46px row overflow=clip position=absolute objectFit=cover textAlign=center
+    <div> [751,827,478,46] | backgroundImage=linear-gradient(90deg, rgba(249, 158, 158, 0.8), rgba(29, 40, 118, 0.8)) width=478px height=46px flex col justifyContent=center alignItems=center borderRadius=10px textAlign=center flex=0 0 auto
+      <div> [958,841,64,19] "Start Now" | fontSize=14px fontWeight=600 fontFamily=-apple-system width=63.7656px height=19px row
+===== comments
+<div> [192,80,400,2397] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=400px height=2396.66px flex col flex=0 1 400px
+  <div> [192,80,400,590] | backgroundColor=rgba(11, 15, 42, 0.6) width=400px height=589.656px flex col borderRadius=16px border=1px solid rgba(255, 255, 255, 0.1) boxShadow=rgba(0, 0, 0, 0.3) 0px 8px 20px 0px overflow=hidden flex=0 0 auto
+    <div> [193,81,398,531] | backgroundColor=rgba(200, 200, 220, 0.15) width=398px height=530.656px flex col justifyContent=flex-end overflow=hidden flex=0 0 auto aspectRatio=0.75 / 1
+      <video> [193,81,398,531] | width=398px height=530.656px row overflow=clip position=absolute objectFit=cover
+      <div> [205,93,374,38] | width=374px height=38px flex row justifyContent=space-between alignItems=center position=absolute top=12px left=12px right=12px bottom=480.656px zIndex=10 flex=0 0 auto
+        <button> [205,93,38,38] | fontSize=13.3333px backgroundColor=rgba(0, 0, 0, 0.3) width=38px height=38px flex col justifyContent=center alignItems=center borderRadius=20px textAlign=center flex=0 0 auto
+          <div> [213,100,22,24] "[i]" | fontSize=22px fontFamily=ionicons width=22px height=24px row
+        <button> [541,93,38,38] | fontSize=13.3333px backgroundColor=rgba(0, 0, 0, 0.3) width=38px height=38px flex col justifyContent=center alignItems=center borderRadius=20px textAlign=center flex=0 0 auto
+          <div> [549,101,22,22] "[i]" | fontSize=22px fontFamily=material width=22px height=22px row
+      <button> [541,562,38,38] | fontSize=13.3333px backgroundColor=rgba(0, 0, 0, 0.3) width=38px height=38px flex col justifyContent=center alignItems=center borderRadius=20px position=absolute top=480.656px left=348px right=12px bottom=12px zIndex=2 textAlign=center flex=0 0 auto
+        <div> [549,569,22,24] "[i]" | fontSize=22px fontFamily=ionicons width=22px height=24px row
+    <div> [193,612,398,57] | padding=12px width=398px height=57px flex col gap=8px flex=0 0 auto
+      <div> [205,624,374,27] | margin=0px 0px 6px width=374px height=27px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+        <div> [205,625,317,24] | width=316.594px height=24px flex row alignItems=center gap=6px flex=1 1 0% flexWrap=wrap
+          <button> [205,625,67,24] | fontSize=13.3333px backgroundColor=rgba(255, 255, 255, 0.2) padding=4px 8px width=67.1719px height=24px flex row alignItems=center gap=4px borderRadius=6px textAlign=center flex=0 0 auto
+            <div> [213,630,14,15] "[i]" | fontSize=14px fontFamily=ionicons color=rgb(76, 175, 80) width=14px height=15px row
+            <div> [231,629,33,16] "Public" | fontSize=12px fontWeight=600 fontFamily=-apple-system width=33.1719px height=16px row
+          <button> [278,626,22,22] | fontSize=13.3333px backgroundColor=rgba(52, 152, 219, 0.8) padding=4px width=22px height=22px flex col borderRadius=6px textAlign=center flex=0 0 auto
+            <div> [282,630,14,14] "󰕥" | fontSize=14px fontFamily=material-community width=14px height=14px row
+          <button> [306,626,22,22] | fontSize=13.3333px backgroundColor=rgba(34, 197, 94, 0.8) padding=4px width=22px height=22px flex col borderRadius=6px textAlign=center flex=0 0 auto
+            <div> [310,630,14,14] "[i]" | fontSize=14px fontFamily=material width=14px height=14px row
+          <button> [334,626,22,22] | fontSize=13.3333px backgroundColor=rgb(218, 165, 32) padding=4px width=22px height=22px flex col borderRadius=6px textAlign=center flex=0 0 auto
+            <div> [338,630,14,14] "[i]" | fontSize=14px fontFamily=material width=14px height=14px row
+          <button> [362,626,22,22] | fontSize=13.3333px backgroundColor=rgba(138, 43, 226, 0.8) padding=4px width=22px height=22px flex col borderRadius=6px textAlign=center flex=0 0 auto
+            <div> [366,630,14,14] "󰗚" | fontSize=14px fontFamily=material-community width=14px height=14px row
+        <div> [522,624,57,27] | width=57.4062px height=27px flex row alignItems=center gap=6px flex=0 0 auto
+          <button> [522,624,57,27] | fontSize=13.3333px backgroundColor=rgba(255, 255, 255, 0.2) padding=4px 8px width=57.4062px height=27px flex row alignItems=center gap=4px borderRadius=6px textAlign=center flex=0 0 auto
+            <div> [530,628,18,18] "[i]" | fontSize=18px fontFamily=material width=18px height=18px row
+            <div> [552,628,19,19] | fontSize=14px fontWeight=600 fontFamily=-apple-system width=19.4062px height=19px row flex=0 0 auto
+  <div> [192,678,400,1799] | padding=12px margin=8px 0px 0px width=400px height=1799px flex col flex=0 0 auto
+    <div> [204,692,376,34] | margin=0px 0px 8px width=376px height=34px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [204,699,101,19] "53 Comments" | fontWeight=600 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(255, 255, 255), rgb(255, 191, 191)) width=100.812px height=19px row
+      <div> [492,692,88,34] | backgroundColor=rgb(22, 22, 26) padding=6px 8px width=88.0312px height=34px flex row alignItems=center borderRadius=8px border=1px solid rgb(51, 51, 51) flex=0 0 auto
+        <div> [501,700,18,18] "[i]" | fontSize=18px fontFamily=material color=rgb(184, 192, 216) width=18px height=18px row
+        <div> [523,699,26,19] "Best" | fontSize=14px fontFamily=-apple-system color=rgb(184, 192, 216) margin=0px 2px 0px 4px width=26.0312px height=19px row
+        <div> [551,699,20,20] "[i]" | fontSize=20px fontFamily=material color=rgb(184, 192, 216) width=20px height=20px row
+    <div> [204,734,376,46] | backgroundColor=rgba(255, 255, 255, 0.05) padding=12px 14px margin=0px 0px 12px width=376px height=46px flex row alignItems=center gap=10px borderRadius=8px border=1px solid rgba(255, 255, 255, 0.15) flex=0 0 auto
+      <div> [219,747,18,20] "[i]" | fontSize=18px fontFamily=ionicons color=rgba(255, 255, 255, 0.5) width=18px height=20px row
+      <div> [247,747,131,19] "Join the conversation" | fontSize=14px fontFamily=-apple-system color=rgba(255, 255, 255, 0.4) width=130.984px height=19px row
+    <div> [204,792,376,1673] | width=376px height=1673px flex col overflow=hidden flex=1 1 auto
+      <div> [204,792,376,1673] | width=376px height=1673px flex col flex=0 0 auto
+        <div> [204,792,376,96] | width=376px height=96px flex col flex=0 0 auto
+          <div> [204,792,376,80] (n=1) | margin=0px 0px 8px width=376px height=80px flex col flex=0 0 auto
+          <div> [204,880,376,8] | width=376px height=8px flex col flex=0 0 auto
+        <div> [204,888,376,96] | width=376px height=96px flex col flex=0 0 auto
+          <div> [204,888,376,80] (n=1) | margin=0px 0px 8px width=376px height=80px flex col flex=0 0 auto
+          <div> [204,976,376,8] | width=376px height=8px flex col flex=0 0 auto
+        <div> [204,984,376,96] | width=376px height=96px flex col flex=0 0 auto
+          <div> [204,984,376,80] (n=1) | margin=0px 0px 8px width=376px height=80px flex col flex=0 0 auto
+          <div> [204,1072,376,8] | width=376px height=8px flex col flex=0 0 auto
+        <div> [204,1080,376,304] | width=376px height=304px flex col flex=0 0 auto
+          <div> [204,1080,376,288] (n=2) | margin=0px 0px 8px width=376px height=288px flex col flex=0 0 auto
+          <div> [204,1376,376,8] | width=376px height=8px flex col flex=0 0 auto
+        <div> [204,1384,376,153] | width=376px height=153px flex col flex=0 0 auto
+          <div> [204,1384,376,137] (n=1) | margin=0px 0px 8px width=376px height=137px flex col flex=0 0 auto
+          <div> [204,1529,376,8] | width=376px height=8px flex col flex=0 0 auto
+        <div> [204,1537,376,287] | width=376px height=287px flex col flex=0 0 auto
+          <div> [204,1537,376,271] (n=2) | margin=0px 0px 8px width=376px height=271px flex col flex=0 0 auto
+          <div> [204,1816,376,8] | width=376px height=8px flex col flex=0 0 auto
+        <div> [204,1824,376,96] | width=376px height=96px flex col flex=0 0 auto
+          <div> [204,1824,376,80] (n=1) | margin=0px 0px 8px width=376px height=80px flex col flex=0 0 auto
+          <div> [204,1912,376,8] | width=376px height=8px flex col flex=0 0 auto
+        <div> [204,1920,376,283] | width=376px height=283px flex col flex=0 0 auto
+          <div> [204,1920,376,267] (n=2) | margin=0px 0px 8px width=376px height=267px flex col flex=0 0 auto
+          <div> [204,2195,376,8] | width=376px height=8px flex col flex=0 0 auto
+        <div> [204,2203,376,92] | width=376px height=92px flex col flex=0 0 auto
+          <div> [204,2203,376,76] (n=1) | margin=0px 0px 8px width=376px height=76px flex col flex=0 0 auto
+          <div> [204,2287,376,8] | width=376px height=8px flex col flex=0 0 auto
+        <div> [204,2295,376,99] (n=1) | margin=0px 0px 8px width=376px height=99px flex col flex=0 0 auto
+        <button> [298,2414,188,39] (n=2) | fontSize=13.3333px backgroundColor=rgba(255, 255, 255, 0.05) padding=10px 18px margin=12px 0px width=188.312px height=39px flex row justifyContent=center alignItems=center gap=6px borderRadius=20px border=1px solid rgba(255, 255, 255, 0.15) textAlign=center flex=0 0 auto
+===== search
+<div> [1026,10,398,40] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=398px height=40px flex row alignItems=center gap=6px flex=0 0 auto
+  <div> [1026,10,300,40] | backgroundColor=rgba(255, 255, 255, 0.06) padding=0px 14px margin=0px 6px 0px 0px width=300px height=40px maxWidth=300px flex row alignItems=center gap=10px borderRadius=20px border=1px solid rgba(255, 255, 255, 0.1) flex=0 0 auto
+    <div> [1041,22,16,17] "[i]" | fontFamily=ionicons color=rgba(255, 255, 255, 0.6) width=16px height=17px row
+    <input> [1067,22,244,17] | fontSize=13px fontFamily=-apple-system width=244px height=17px row overflow=clip flex=1 1 0%
+  <button> [1338,10,40,40] | fontSize=13.3333px width=40px height=40px flex col justifyContent=center alignItems=center borderRadius=10px textAlign=center flex=0 0 auto
+    <div> [1347,18,22,24] "[i]" | fontSize=22px fontFamily=ionicons width=22px height=24px row
+  <button> [1384,10,40,40] | fontSize=13.3333px width=40px height=40px flex col justifyContent=center alignItems=center borderRadius=20px textAlign=center flex=0 0 auto
+    <div> [1393,19,22,22] | width=22px height=22px flex col overflow=hidden textAlign=center flex=0 0 auto
+      <img> [1393,19,22,22] IMG=ProfileWhite.dadf3815290b56786439537a08287eed.png | width=22px height=22px row overflow=clip position=absolute objectFit=cover textAlign=center

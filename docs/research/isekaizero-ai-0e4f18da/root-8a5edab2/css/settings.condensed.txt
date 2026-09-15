@@ -1,0 +1,102 @@
+===== settings
+--- header
+<div> [0,0,1440,64] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=1440px height=64px flex col flex=0 0 auto
+  <div> [0,0,1440,64] | backgroundColor=rgb(17, 18, 60) width=1440px height=64px flex col flex=1 1 0%
+  <div> [0,0,1440,0] | width=1440px flex col flex=0 0 auto
+  <div> [0,0,1440,64] | width=1440px height=64px flex row flex=1 1 0%
+    <button> [11,17,30,30] | fontSize=13.3333px margin=3px 11px width=30px height=30px flex row alignItems=center borderRadius=10px textAlign=center flex=0 0 auto
+      <div> [14,20,24,24] (n=3) | margin=3px width=24px height=24px flex col overflow=hidden textAlign=center flex=0 0 auto
+    <h1> [56,20,173,24] "Default Chat Settings" | fontSize=18px fontWeight=500 fontFamily=system-ui width=173.422px height=24px maxWidth=100% row overflow=hidden
+    <div> [229,0,1211,64] | width=1210.58px height=64px flex row justifyContent=flex-end alignItems=center flex=1 0 0px
+--- override
+<div> [200,64,1040,836] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=1040px height=836px maxWidth=1040px flex col flex=1 1 0%
+  <div> [200,64,1040,38] | padding=12px 15px 0px width=1040px height=38px flex row alignItems=center gap=8px flex=0 0 auto
+    <div> [215,81,936,17] "Set your preferred settings once, every new chat you start will use them." | fontSize=12px fontFamily=-apple-system lineHeight=17px color=rgba(255, 255, 255, 0.6) width=935.578px height=17px row flex=1 1 0%
+    <button> [1159,76,66,26] | fontSize=13.3333px backgroundColor=rgba(255, 255, 255, 0.1) padding=5px 10px width=66.4219px height=26px flex row alignItems=center gap=4px borderRadius=15px textAlign=center flex=0 0 auto
+      <div> [1169,82,13,14] "[i]" | fontSize=13px fontFamily=ionicons width=13px height=14px row
+      <div> [1186,81,29,16] "Reset" | fontSize=12px fontWeight=500 fontFamily=-apple-system width=29.4219px height=16px row
+  <div> [215,114,1010,56] | backgroundColor=rgba(255, 255, 255, 0.06) padding=10px 14px margin=12px 15px 0px width=1010px height=56px flex row alignItems=center gap=12px borderRadius=10px border=1px solid rgba(255, 255, 255, 0.08) flex=0 0 auto
+    <div> [230,125,928,34] | width=928px height=34px flex col flex=1 1 0%
+      <div> [230,125,928,17] "Override creator settings" | fontSize=13px fontWeight=600 fontFamily=-apple-system width=928px height=17px row
+      <div> [230,144,928,15] "Use your defaults even when a story's creator recommends their own settings or A" | fontSize=11px fontFamily=-apple-system lineHeight=15px color=rgba(255, 255, 255, 0.55) margin=2px 0px 0px width=928px height=15px row
+    <div> [1170,132,40,20] | width=40px height=20px flex col flex=0 0 auto
+      <div> [1170,135,40,14] | backgroundColor=rgba(255, 255, 255, 0.2) margin=3px 0px width=40px height=14px flex col borderRadius=10px position=absolute flex=0 0 auto
+      <div> [1170,132,20,20] | backgroundColor=rgb(255, 255, 255) width=20px height=20px flex col borderRadius=100% boxShadow=rgba(0, 0, 0, 0.5) 0px 1px 3px 0px flex=0 0 auto
+      <input> [1170,132,40,20] | fontSize=13.3333px width=40px height=20px row position=absolute
+  <div> [200,182,1040,718] | margin=12px 0px 0px width=1040px height=718px flex row gap=16px flex=1 1 0%
+    <div> [200,182,230,718] | padding=0px 0px 0px 15px width=230px height=718px flex col flex=0 0 auto
+      <div> [215,182,215,46] | backgroundColor=rgba(167, 185, 255, 0.12) padding=12px 14px margin=0px 0px 4px width=215px height=46px flex row alignItems=center gap=10px borderRadius=10px border=1px solid rgba(167, 185, 255, 0.25) flex=0 0 auto
+        <div> [230,195,18,20] "[i]" | fontSize=18px fontFamily=ionicons color=rgb(167, 185, 255) width=18px height=20px row
+        <div> [258,196,62,19] "Overview" | fontSize=14px fontWeight=700 fontFamily=-apple-system width=62.0781px height=19px row
+      <div> [215,232,215,45] | padding=12px 14px margin=0px 0px 4px width=215px height=45px flex row alignItems=center gap=10px borderRadius=10px border=1px solid rgba(0, 0, 0, 0) flex=0 0 auto
+        <div> [230,246,18,18] "󰁨" | fontSize=18px fontFamily=material-community color=rgba(255, 255, 255, 0.55) width=18px height=18px row
+        <div> [258,245,71,19] "Adaptation" | fontSize=14px fontWeight=500 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=71.2031px height=19px row
+      <div> [215,281,215,46] | padding=12px 14px margin=0px 0px 4px width=215px height=46px flex row alignItems=center gap=10px borderRadius=10px border=1px solid rgba(0, 0, 0, 0) flex=0 0 auto
+        <div> [230,294,18,20] "[i]" | fontSize=18px fontFamily=ionicons color=rgba(255, 255, 255, 0.55) width=18px height=20px row
+        <div> [258,295,38,19] "UI/UX" | fontSize=14px fontWeight=500 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=38.2344px height=19px row
+    <div> [446,182,720,718] | width=720px height=718px flex col overflow=hidden auto flex=1 1 0%
+      <div> [446,182,720,352] | padding=15px width=720px height=352px flex col flex=0 0 auto
+        <div> [461,197,690,90] (n=1) | margin=0px 0px 12px width=690px height=90px flex col flex=0 0 auto
+        <div> [461,299,690,70] (n=1) | margin=0px 0px 12px width=690px height=70px flex col flex=0 0 auto
+        <div> [461,381,690,57] (n=1) | margin=0px 0px 12px width=690px height=57px flex col flex=0 0 auto
+        <div> [461,450,690,57] (n=1) | margin=0px 0px 12px width=690px height=57px flex col flex=0 0 auto
+--- sideTabs
+<div> [200,64,1040,836] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=1040px height=836px maxWidth=1040px flex col flex=1 1 0%
+  <div> [200,64,1040,38] | padding=12px 15px 0px width=1040px height=38px flex row alignItems=center gap=8px flex=0 0 auto
+    <div> [215,81,936,17] "Set your preferred settings once, every new chat you start will use them." | fontSize=12px fontFamily=-apple-system lineHeight=17px color=rgba(255, 255, 255, 0.6) width=935.578px height=17px row flex=1 1 0%
+    <button> [1159,76,66,26] | fontSize=13.3333px backgroundColor=rgba(255, 255, 255, 0.1) padding=5px 10px width=66.4219px height=26px flex row alignItems=center gap=4px borderRadius=15px textAlign=center flex=0 0 auto
+      <div> [1169,82,13,14] "[i]" | fontSize=13px fontFamily=ionicons width=13px height=14px row
+      <div> [1186,81,29,16] "Reset" | fontSize=12px fontWeight=500 fontFamily=-apple-system width=29.4219px height=16px row
+  <div> [215,114,1010,56] | backgroundColor=rgba(255, 255, 255, 0.06) padding=10px 14px margin=12px 15px 0px width=1010px height=56px flex row alignItems=center gap=12px borderRadius=10px border=1px solid rgba(255, 255, 255, 0.08) flex=0 0 auto
+    <div> [230,125,928,34] | width=928px height=34px flex col flex=1 1 0%
+      <div> [230,125,928,17] "Override creator settings" | fontSize=13px fontWeight=600 fontFamily=-apple-system width=928px height=17px row
+      <div> [230,144,928,15] "Use your defaults even when a story's creator recommends their own settings or A" | fontSize=11px fontFamily=-apple-system lineHeight=15px color=rgba(255, 255, 255, 0.55) margin=2px 0px 0px width=928px height=15px row
+    <div> [1170,132,40,20] | width=40px height=20px flex col flex=0 0 auto
+      <div> [1170,135,40,14] | backgroundColor=rgba(255, 255, 255, 0.2) margin=3px 0px width=40px height=14px flex col borderRadius=10px position=absolute flex=0 0 auto
+      <div> [1170,132,20,20] | backgroundColor=rgb(255, 255, 255) width=20px height=20px flex col borderRadius=100% boxShadow=rgba(0, 0, 0, 0.5) 0px 1px 3px 0px flex=0 0 auto
+      <input> [1170,132,40,20] | fontSize=13.3333px width=40px height=20px row position=absolute
+  <div> [200,182,1040,718] | margin=12px 0px 0px width=1040px height=718px flex row gap=16px flex=1 1 0%
+    <div> [200,182,230,718] | padding=0px 0px 0px 15px width=230px height=718px flex col flex=0 0 auto
+      <div> [215,182,215,46] | backgroundColor=rgba(167, 185, 255, 0.12) padding=12px 14px margin=0px 0px 4px width=215px height=46px flex row alignItems=center gap=10px borderRadius=10px border=1px solid rgba(167, 185, 255, 0.25) flex=0 0 auto
+        <div> [230,195,18,20] "[i]" | fontSize=18px fontFamily=ionicons color=rgb(167, 185, 255) width=18px height=20px row
+        <div> [258,196,62,19] "Overview" | fontSize=14px fontWeight=700 fontFamily=-apple-system width=62.0781px height=19px row
+      <div> [215,232,215,45] | padding=12px 14px margin=0px 0px 4px width=215px height=45px flex row alignItems=center gap=10px borderRadius=10px border=1px solid rgba(0, 0, 0, 0) flex=0 0 auto
+        <div> [230,246,18,18] "󰁨" | fontSize=18px fontFamily=material-community color=rgba(255, 255, 255, 0.55) width=18px height=18px row
+        <div> [258,245,71,19] "Adaptation" | fontSize=14px fontWeight=500 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=71.2031px height=19px row
+      <div> [215,281,215,46] | padding=12px 14px margin=0px 0px 4px width=215px height=46px flex row alignItems=center gap=10px borderRadius=10px border=1px solid rgba(0, 0, 0, 0) flex=0 0 auto
+        <div> [230,294,18,20] "[i]" | fontSize=18px fontFamily=ionicons color=rgba(255, 255, 255, 0.55) width=18px height=20px row
+        <div> [258,295,38,19] "UI/UX" | fontSize=14px fontWeight=500 fontFamily=-apple-system color=rgba(255, 255, 255, 0.6) width=38.2344px height=19px row
+    <div> [446,182,720,718] | width=720px height=718px flex col overflow=hidden auto flex=1 1 0%
+      <div> [446,182,720,352] | padding=15px width=720px height=352px flex col flex=0 0 auto
+        <div> [461,197,690,90] (n=1) | margin=0px 0px 12px width=690px height=90px flex col flex=0 0 auto
+        <div> [461,299,690,70] (n=1) | margin=0px 0px 12px width=690px height=70px flex col flex=0 0 auto
+        <div> [461,381,690,57] (n=1) | margin=0px 0px 12px width=690px height=57px flex col flex=0 0 auto
+        <div> [461,450,690,57] (n=1) | margin=0px 0px 12px width=690px height=57px flex col flex=0 0 auto
+--- autoCard
+<div> [461,197,690,90] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) backgroundImage=linear-gradient(90deg, rgb(40, 75, 207), rgba(153, 153, 153, 0), rgba(153, 153, 153, 0), rgb(40, 75, 207)) padding=2px width=690px height=90px flex col borderRadius=12px flex=0 0 auto
+  <div> [463,199,686,86] | backgroundImage=linear-gradient(rgb(48, 31, 93), rgb(54, 51, 107)) padding=16px width=686px height=86px flex col borderRadius=10px flex=0 0 auto
+    <div> [479,215,654,54] | width=654px height=54px flex row alignItems=center flex=0 0 auto
+      <div> [479,215,54,54] | backgroundImage=linear-gradient(90deg, rgb(40, 75, 207), rgba(153, 153, 153, 0), rgba(153, 153, 153, 0), rgb(40, 75, 207)) padding=2px width=54px height=54px flex col borderRadius=50px flex=0 0 auto
+        <div> [481,217,50,50] (n=1) | backgroundColor=rgb(255, 255, 255) width=50px height=50px flex col justifyContent=center alignItems=center borderRadius=50px overflow=hidden flex=0 0 auto
+      <div> [545,221,556,43] | width=556px height=43px flex col flex=1 1 0%
+        <div> [545,221,556,21] "Auto (recommended)" | fontWeight=700 fontFamily=-apple-system width=556px height=21px row
+        <div> [545,246,556,18] "The model new chats start with. Auto picks the current recommended model." | fontSize=13px fontFamily=-apple-system lineHeight=18px color=rgba(255, 255, 255, 0.7) margin=4px 0px 0px width=556px height=18px row
+      <div> [1113,231,20,23] "[i]" | fontSize=20px fontFamily=ionicons margin=0px 0px 0px 12px width=20px height=23px row
+--- info
+<div> [461,299,690,70] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) margin=0px 0px 12px width=690px height=70px flex col flex=0 0 auto
+  <div> [461,299,690,70] | backgroundColor=rgba(255, 255, 255, 0.05) padding=16px width=690px height=70px flex row alignItems=flex-start gap=10px borderRadius=12px flex=0 0 auto
+    <div> [477,316,20,23] "[i]" | fontSize=20px fontFamily=ionicons color=rgba(255, 255, 255, 0.6) margin=1px 0px 0px width=20px height=23px row
+    <div> [507,315,628,38] "On Auto, new chats follow the recommended model and its own default settings. Se" | fontSize=13px fontFamily=-apple-system lineHeight=19px color=rgba(255, 255, 255, 0.7) width=628px height=38px row flex=1 1 0%
+--- accordion
+<div> [461,381,690,57] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) backgroundImage=linear-gradient(90deg, rgb(40, 75, 207), rgba(153, 153, 153, 0), rgba(153, 153, 153, 0), rgb(40, 75, 207)) padding=2px width=690px height=57px flex col borderRadius=12px flex=0 0 auto
+  <div> [463,383,686,53] | backgroundImage=linear-gradient(rgb(20, 28, 93), rgb(22, 34, 81), rgb(44, 56, 98)) padding=16px width=686px height=53px flex col borderRadius=10px flex=0 0 auto
+    <div> [479,399,654,21] | width=654px height=21px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [479,399,125,21] "Custom Prompts" | fontWeight=700 fontFamily=-apple-system width=125.484px height=21px row
+      <div> [1115,400,18,20] | width=18px height=20px flex row alignItems=center gap=8px flex=0 0 auto
+        <div> [1115,400,18,20] "[i]" | fontSize=18px fontFamily=ionicons width=18px height=20px row
+--- reset
+<div> [200,64,1040,38] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) padding=12px 15px 0px width=1040px height=38px flex row alignItems=center gap=8px flex=0 0 auto
+  <div> [215,81,936,17] "Set your preferred settings once, every new chat you start will use them." | fontSize=12px fontFamily=-apple-system lineHeight=17px color=rgba(255, 255, 255, 0.6) width=935.578px height=17px row flex=1 1 0%
+  <button> [1159,76,66,26] | fontSize=13.3333px backgroundColor=rgba(255, 255, 255, 0.1) padding=5px 10px width=66.4219px height=26px flex row alignItems=center gap=4px borderRadius=15px textAlign=center flex=0 0 auto
+    <div> [1169,82,13,14] "[i]" | fontSize=13px fontFamily=ionicons width=13px height=14px row
+    <div> [1186,81,29,16] "Reset" | fontSize=12px fontWeight=500 fontFamily=-apple-system width=29.4219px height=16px row

@@ -1,20 +1,37 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const poppins = localFont({
+  src: [
+    { path: "../../public/sites/isekaizero-ai-0e4f18da/shared/fonts/Poppins-Regular.ttf", weight: "400", style: "normal" },
+    { path: "../../public/sites/isekaizero-ai-0e4f18da/shared/fonts/Poppins-Medium.ttf", weight: "500", style: "normal" },
+    { path: "../../public/sites/isekaizero-ai-0e4f18da/shared/fonts/Poppins-Bold.ttf", weight: "700", style: "normal" },
+  ],
+  variable: "--font-poppins",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const roboto = localFont({
+  src: [
+    { path: "../../public/sites/isekaizero-ai-0e4f18da/shared/fonts/Roboto-Regular.ttf", weight: "400", style: "normal" },
+    { path: "../../public/sites/isekaizero-ai-0e4f18da/shared/fonts/Roboto-Medium.ttf", weight: "500", style: "normal" },
+    { path: "../../public/sites/isekaizero-ai-0e4f18da/shared/fonts/Roboto-Bold.ttf", weight: "700", style: "normal" },
+  ],
+  variable: "--font-roboto",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Website Clone",
-  description: "Pixel-perfect website clone",
+  title: "ISEKAI ZERO - AI Roleplay & AI Story | Live Your Adventure",
+  description:
+    "Live the story, feel the thrill. Travel alongside your favorite characters in adventures that stir your soul.",
+  icons: { icon: "/sites/isekaizero-ai-0e4f18da/shared/images/favicon.ico" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#020920",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
@@ -23,11 +40,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className={`${poppins.variable} ${roboto.variable} dark h-full antialiased`}>
+      <body className="h-full overflow-hidden bg-[#020920] text-white">{children}</body>
     </html>
   );
 }

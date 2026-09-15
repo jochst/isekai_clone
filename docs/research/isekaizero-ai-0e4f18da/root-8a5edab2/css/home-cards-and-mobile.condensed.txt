@@ -1,0 +1,343 @@
+===== rowCard
+<div> [259,769,170,283] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) backgroundImage=linear-gradient(149.006deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=170px height=283.328px flex col borderRadius=16px flex=0 0 auto
+  <div> [259,769,1,1] | width=1px height=1px flex col position=absolute right=169px bottom=282.328px flex=0 0 auto
+  <div> [261,771,166,279] | backgroundColor=rgb(16, 18, 20) width=166px height=279.328px flex col borderRadius=16px overflow=hidden flex=0 0 auto
+    <div> [261,771,166,279] | backgroundColor=rgb(32, 34, 36) width=166px height=279.328px flex col flex=0 0 auto
+      <video> [261,771,166,223] | width=166px height=223.453px row overflow=clip position=absolute objectFit=cover
+      <div> [261,771,166,279] | backgroundImage=linear-gradient(rgba(0, 0, 0, 0) 30%, rgb(0, 0, 0) 80%, rgb(0, 0, 0) 100%) width=166px height=279.328px flex col position=absolute flex=0 0 auto
+      <div> [269,781,73,16] | width=73px height=16px flex row gap=3px position=absolute top=10px left=8px right=85px bottom=253.328px zIndex=3 flex=0 0 auto
+        <div> [269,781,16,16] | backgroundColor=rgb(76, 175, 80) width=16px height=16px flex col justifyContent=center alignItems=center borderRadius=3px flex=0 0 auto
+          <div> [272,784,10,11] "[i]" | fontSize=10px fontFamily=ionicons width=10px height=11px row
+        <div> [288,781,16,16] | backgroundColor=rgb(218, 165, 32) width=16px height=16px flex col justifyContent=center alignItems=center borderRadius=3px flex=0 0 auto
+          <div> [291,784,10,10] "[i]" | fontSize=10px fontFamily=material width=10px height=10px row
+        <div> [307,781,16,16] | backgroundColor=rgba(138, 43, 226, 0.8) width=16px height=16px flex col justifyContent=center alignItems=center borderRadius=3px flex=0 0 auto
+          <div> [310,784,10,10] "󰗚" | fontSize=10px fontFamily=material-community width=10px height=10px row
+        <div> [326,781,16,16] | backgroundColor=rgba(255, 152, 0, 0.8) width=16px height=16px flex col justifyContent=center alignItems=center borderRadius=3px flex=0 0 auto
+          <div> [329,784,10,10] "󱌼" | fontSize=10px fontFamily=material-community width=10px height=10px row
+      <div> [392,779,27,20] | backgroundColor=rgb(180, 83, 9) padding=0px 8px width=26.7656px height=20px flex col justifyContent=center alignItems=center borderRadius=16px border=1px solid rgb(180, 83, 9) position=absolute top=8px left=131.234px right=8px bottom=251.328px zIndex=3 flex=0 0 auto
+        <div> [401,783,9,13] "M" | fontSize=10px fontWeight=600 fontFamily=Roboto-Medium width=8.76562px height=13px row
+      <div> [261,914,166,136] | padding=40px 10px 10px width=166px height=136px flex col position=absolute top=143.328px zIndex=2 flex=0 0 auto
+        <h1> [271,954,146,18] "Sovereign Skies" | fontSize=14px fontWeight=700 fontFamily=Roboto-Bold lineHeight=18px margin=0px 0px 3px width=146px height=18px maxWidth=100% display=flow-root row overflow=clip WebkitLineClamp=2
+        <div> [271,975,146,45] "You're You, the ace pilot of the Astorian Federation. The sky is yours. 25 missi" | fontSize=12px fontFamily=Roboto-Regular lineHeight=15px color=rgb(224, 224, 224) margin=0px 0px 6px width=146px height=45px maxWidth=100% display=flow-root row overflow=clip opacity=0.9 WebkitLineClamp=3
+        <div> [271,1026,146,14] | width=146px height=14px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+          <div> [271,1027,100,13] | fontSize=11px fontFamily=Roboto-Regular width=99.8906px height=13px maxWidth=100% row overflow=hidden
+          <div> [379,1026,38,14] | width=38.1094px height=14px flex row alignItems=center gap=2px flex=0 0 auto
+            <div> [379,1026,12,14] "[i]" | fontSize=12px fontFamily=ionicons width=12px height=14px row
+            <div> [393,1027,24,13] "364k" | fontSize=11px fontFamily=Roboto-Regular width=24.1094px height=13px row
+===== heroCard
+<div> [702,105,108,167] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=120px height=185px flex col position=absolute left=540px right=540px zIndex=5 opacity=0.7 transform=matrix(0.9, 0, 0, 0.9, -84, 0) flex=0 0 auto
+  <button> [707,113,97,134] | fontSize=13.3333px width=120px height=165px flex col justifyContent=center alignItems=center opacity=0.7 transform=matrix(0.9, 0, 0, 0.9, 0, 0) textAlign=center flex=0 0 auto
+    <div> [707,113,97,134] | backgroundImage=linear-gradient(rgba(118, 118, 118, 0.2), rgba(255, 255, 255, 0.2), rgba(131, 131, 131, 0.2)) padding=6px width=120px height=165px flex col borderRadius=12px border=2px solid rgba(255, 152, 152, 0.4) textAlign=center flex=0 0 auto
+      <div> [714,119,84,121] | backgroundColor=rgba(200, 200, 220, 0.12) width=104px height=149px flex col justifyContent=center alignItems=center borderRadius=8px overflow=hidden textAlign=center flex=1 1 0%
+        <div> [714,119,84,121] | width=104px height=149px flex col overflow=hidden textAlign=center flex=0 0 auto
+          <img> [714,119,84,121] IMG=6a0b238c85c7a07eb2f2d9c9.webp | width=104px height=149px row overflow=clip position=absolute objectFit=cover textAlign=center
+===== recentGrid
+--- header
+<div> [240,-4390,1200,4145] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) margin=0px -12.5px width=1200px height=4145px flex col flex=0 0 auto
+  <div> [240,-4390,1200,292] | padding=20px 0px 10px width=1200px height=292px flex col overflow=hidden flex=0 0 auto
+    <div> [240,-4370,1200,46] | padding=0px 30px margin=0px 0px 20px width=1200px height=46px flex col alignItems=center flex=0 0 auto
+      <div> [270,-4370,1140,27] "Live the Story, Feel the Thrill" | fontSize=22px fontWeight=700 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(167, 185, 255), rgb(255, 168, 168)) width=1140px height=27px maxWidth=100% row overflow=clip textAlign=center WebkitLineClamp=2
+      <div> [628,-4343,425,19] "Travel alongside your favorite characters in adventures that stir your soul." | fontSize=14px fontWeight=300 fontFamily=-apple-system color=rgb(223, 223, 223) width=424.875px height=19px row opacity=0.9 textAlign=center
+    <div> [240,-4304,1200,196] | width=1200px height=196px flex col justifyContent=center alignItems=center flex=1 1 0%
+      <div> [240,-4304,1200,185] | width=1200px height=185px flex col overflow=hidden flex=0 0 auto
+        <div> [240,-4304,1200,185] (n=1) | width=1200px height=185px flex col flex=0 0 auto
+      <div> [700,-4119,280,6] (n=20) | margin=0px 0px 5px width=280px height=6px flex row justifyContent=center alignItems=center flex=0 0 auto
+        <div> [704,-4119,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [718,-4119,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [732,-4119,6,6] | backgroundColor=rgb(255, 168, 168) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [746,-4119,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [760,-4119,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [774,-4119,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [788,-4119,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [802,-4119,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [816,-4119,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [830,-4119,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [844,-4119,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [858,-4119,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [872,-4119,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [886,-4119,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [900,-4119,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [914,-4119,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+    <div> [240,-4390,1200,292] | backgroundImage=linear-gradient(rgba(0, 0, 0, 0), rgba(255, 255, 255, 0.06) 40%, rgba(255, 255, 255, 0.08) 100%) width=1200px height=292px flex col position=absolute zIndex=-1 flex=0 0 auto
+  <div> [255,-4098,1170,420] | padding=14px 0px 0px width=1170px height=420px flex col flex=0 0 auto
+    <div> [255,-4084,1170,380] | width=1170px height=380px flex row justifyContent=center alignItems=center flex=0 0 auto
+      <button> [255,-4084,64,380] | fontSize=13.3333px color=rgba(255, 255, 255, 0.3) backgroundColor=rgba(0, 0, 0, 0.2) width=64px height=380px flex col justifyContent=center alignItems=center borderRadius=18px 0px 0px 18px textAlign=center flex=0 0 auto
+        <div> [272,-3911,32,35] "[i]" | fontSize=32px fontFamily=ionicons width=32px height=35px row
+      <div> [319,-4084,1042,380] (n=1) | width=1042px height=380px flex col flex=0 0 auto
+      <button> [1361,-4084,64,380] | fontSize=13.3333px backgroundColor=rgba(0, 0, 0, 0.2) width=64px height=380px flex col justifyContent=center alignItems=center borderRadius=0px 18px 18px 0px textAlign=center flex=0 0 auto
+        <div> [1377,-3911,32,35] "[i]" | fontSize=32px fontFamily=ionicons width=32px height=35px row
+    <div> [717,-3691,246,6] (n=20) | width=246px height=6px flex row justifyContent=center alignItems=center gap=6px flex=0 0 auto
+      <div> [717,-3691,18,6] | backgroundColor=rgb(255, 168, 168) width=18px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [741,-3691,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [753,-3691,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [765,-3691,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [777,-3691,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [789,-3691,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [801,-3691,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [813,-3691,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [825,-3691,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [837,-3691,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [849,-3691,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [861,-3691,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [873,-3691,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [885,-3691,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [897,-3691,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [909,-3691,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+  <div> [240,-3678,1200,338] | padding=6px 0px 0px width=1200px height=338px flex col alignItems=flex-start flex=0 0 auto
+    <div> [240,-3672,1200,26] | padding=0px 15px margin=0px 0px 15px width=1200px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [255,-3671,936,25] (n=2) | width=936px height=25px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [1389,-3682,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [240,-3631,1200,291] | width=1200px height=291px flex col flex=0 0 auto
+      <div> [240,-3631,1200,291] (n=1) | width=1200px height=291px flex row overflow=auto hidden flex=1 1 auto
+      <div> [1392,-3513,44,44] (n=1) | margin=-22px 0px 0px width=44px height=44px flex col position=absolute top=139.672px left=1152px right=4px bottom=129.328px zIndex=10 flex=0 0 auto
+  <div> [240,-3334,1200,332] | margin=6px 0px 0px width=1200px height=332px flex col alignItems=flex-start flex=0 0 auto
+    <div> [240,-3334,1200,26] (n=2) | padding=0px 15px margin=0px 0px 15px width=1200px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+    <div> [240,-3293,1200,291] (n=2) | width=1200px height=291px flex col flex=0 0 auto
+  <div> [240,-2996,1200,332] | margin=6px 0px 0px width=1200px height=332px flex col alignItems=flex-start flex=0 0 auto
+    <div> [240,-2996,1200,26] | padding=0px 15px margin=0px 0px 15px width=1200px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [255,-2995,936,24] (n=2) | width=936px height=24px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [1389,-3006,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [240,-2955,1200,291] | width=1200px height=291px flex col flex=0 0 auto
+      <div> [240,-2955,1200,291] (n=1) | width=1200px height=291px flex row overflow=auto hidden flex=1 1 auto
+      <div> [1392,-2837,44,44] (n=1) | margin=-22px 0px 0px width=44px height=44px flex col position=absolute top=139.672px left=1152px right=4px bottom=129.328px zIndex=10 flex=0 0 auto
+  <div> [240,-2658,1200,332] | margin=6px 0px 0px width=1200px height=332px flex col alignItems=flex-start flex=0 0 auto
+    <div> [240,-2658,1200,26] | padding=0px 15px margin=0px 0px 15px width=1200px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [255,-2657,936,24] (n=2) | width=936px height=24px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [1389,-2668,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [240,-2617,1200,291] | width=1200px height=291px flex col flex=0 0 auto
+      <div> [240,-2617,1200,291] (n=1) | width=1200px height=291px flex row overflow=auto hidden flex=1 1 auto
+      <div> [1392,-2499,44,44] (n=1) | margin=-22px 0px 0px width=44px height=44px flex col position=absolute top=139.672px left=1152px right=4px bottom=129.328px zIndex=10 flex=0 0 auto
+  <div> [240,-2320,1200,332] | margin=6px 0px 0px width=1200px height=332px flex col alignItems=flex-start flex=0 0 auto
+    <div> [240,-2320,1200,26] | padding=0px 15px margin=0px 0px 15px width=1200px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [255,-2319,936,24] (n=2) | width=936px height=24px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [1389,-2330,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [240,-2279,1200,291] | width=1200px height=291px flex col flex=0 0 auto
+      <div> [240,-2279,1200,291] (n=1) | width=1200px height=291px flex row overflow=auto hidden flex=1 1 auto
+      <div> [1392,-2161,44,44] (n=1) | margin=-22px 0px 0px width=44px height=44px flex col position=absolute top=139.672px left=1152px right=4px bottom=129.328px zIndex=10 flex=0 0 auto
+  <div> [240,-1982,1200,332] | margin=6px 0px 0px width=1200px height=332px flex col alignItems=flex-start flex=0 0 auto
+    <div> [240,-1982,1200,26] | padding=0px 15px margin=0px 0px 15px width=1200px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [255,-1981,936,24] (n=2) | width=936px height=24px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [1389,-1992,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [240,-1941,1200,291] | width=1200px height=291px flex col flex=0 0 auto
+      <div> [240,-1941,1200,291] (n=1) | width=1200px height=291px flex row overflow=auto hidden flex=1 1 auto
+      <div> [1392,-1823,44,44] (n=1) | margin=-22px 0px 0px width=44px height=44px flex col position=absolute top=139.672px left=1152px right=4px bottom=129.328px zIndex=10 flex=0 0 auto
+  <div> [240,-1644,1200,332] | margin=6px 0px 0px width=1200px height=332px flex col alignItems=flex-start flex=0 0 auto
+    <div> [240,-1644,1200,26] | padding=0px 15px margin=0px 0px 15px width=1200px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [255,-1643,936,25] (n=2) | width=936px height=25px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [1389,-1654,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [240,-1603,1200,291] | width=1200px height=291px flex col flex=0 0 auto
+      <div> [240,-1603,1200,291] (n=1) | width=1200px height=291px flex row overflow=auto hidden flex=1 1 auto
+      <div> [1392,-1485,44,44] (n=1) | margin=-22px 0px 0px width=44px height=44px flex col position=absolute top=139.672px left=1152px right=4px bottom=129.328px zIndex=10 flex=0 0 auto
+  <div> [240,-1306,1200,332] | margin=6px 0px 0px width=1200px height=332px flex col alignItems=flex-start flex=0 0 auto
+    <div> [240,-1306,1200,26] | padding=0px 15px margin=0px 0px 15px width=1200px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [255,-1305,936,24] (n=2) | width=936px height=24px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [1389,-1316,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [240,-1265,1200,291] | width=1200px height=291px flex col flex=0 0 auto
+      <div> [240,-1265,1200,291] (n=1) | width=1200px height=291px flex row overflow=auto hidden flex=1 1 auto
+      <div> [1392,-1147,44,44] (n=1) | margin=-22px 0px 0px width=44px height=44px flex col position=absolute top=139.672px left=1152px right=4px bottom=129.328px zIndex=10 flex=0 0 auto
+  <div> [240,-968,1200,332] | margin=6px 0px 0px width=1200px height=332px flex col alignItems=flex-start flex=0 0 auto
+    <div> [240,-968,1200,26] | padding=0px 15px margin=0px 0px 15px width=1200px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [255,-967,936,24] (n=2) | width=936px height=24px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [1389,-978,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [240,-927,1200,291] | width=1200px height=291px flex col flex=0 0 auto
+      <div> [240,-927,1200,291] (n=1) | width=1200px height=291px flex row overflow=auto hidden flex=1 1 auto
+      <div> [1392,-809,44,44] (n=1) | margin=-22px 0px 0px width=44px height=44px flex col position=absolute top=139.672px left=1152px right=4px bottom=129.328px zIndex=10 flex=0 0 auto
+  <div> [240,-630,1200,332] | margin=6px 0px 0px width=1200px height=332px flex col alignItems=flex-start flex=0 0 auto
+    <div> [240,-630,1200,26] | padding=0px 15px margin=0px 0px 15px width=1200px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [255,-629,936,24] (n=2) | width=936px height=24px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [1389,-640,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [240,-589,1200,291] | width=1200px height=291px flex col flex=0 0 auto
+      <div> [240,-589,1200,291] (n=1) | width=1200px height=291px flex row overflow=auto hidden flex=1 1 auto
+      <div> [1392,-471,44,44] (n=1) | margin=-22px 0px 0px width=44px height=44px flex col position=absolute top=139.672px left=1152px right=4px bottom=129.328px zIndex=10 flex=0 0 auto
+  <div> [240,-286,1200,26] | padding=0px 15px margin=12px 0px 15px width=1200px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+    <div> [255,-283,157,20] | width=157.391px height=20px flex row alignItems=center gap=4px flex=0 0 auto
+      <div> [255,-283,20,20] | margin=0px 2px 0px 0px width=20px height=20px flex col overflow=hidden flex=0 0 auto
+        <div> [255,-283,20,0] (n=1) | width=20px row
+      <div> [281,-282,131,19] "Recently Released" | fontWeight=600 fontFamily=Roboto-Medium width=131.391px height=19px row
+    <div> [1413,-286,12,26] "[i]" | fontSize=24px fontFamily=FontAwesome6Free-Solid width=12px height=26px row
+--- gridWrap
+<div> [255,-3631,178,291] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=178px height=291px flex row flex=0 0 auto
+  <div> [259,-3631,170,283] (n=2) | backgroundImage=linear-gradient(149.006deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=170px height=283.328px flex col borderRadius=16px flex=0 0 auto
+--- card
+<div> [259,-3631,170,283] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) backgroundImage=linear-gradient(149.006deg, rgba(153, 153, 153, 0.3) 10%, rgb(40, 75, 207) 90%) padding=2px margin=0px 4px 8px width=170px height=283.328px flex col borderRadius=16px flex=0 0 auto
+  <div> [259,-3631,1,1] | width=1px height=1px flex col position=absolute right=169px bottom=282.328px flex=0 0 auto
+  <div> [261,-3629,166,279] | backgroundColor=rgb(16, 18, 20) width=166px height=279.328px flex col borderRadius=16px overflow=hidden flex=0 0 auto
+    <div> [261,-3629,166,279] | backgroundColor=rgb(32, 34, 36) width=166px height=279.328px flex col flex=0 0 auto
+      <div> [261,-3629,166,223] | backgroundColor=rgb(32, 34, 36) width=166px height=223.453px flex col position=absolute bottom=55.875px flex=0 0 auto
+      <div> [261,-3629,166,279] | backgroundImage=linear-gradient(rgba(0, 0, 0, 0) 30%, rgb(0, 0, 0) 80%, rgb(0, 0, 0) 100%) width=166px height=279.328px flex col position=absolute flex=0 0 auto
+      <div> [269,-3619,73,16] | width=73px height=16px flex row gap=3px position=absolute top=10px left=8px right=85px bottom=253.328px zIndex=3 flex=0 0 auto
+        <div> [269,-3619,16,16] | backgroundColor=rgb(76, 175, 80) width=16px height=16px flex col justifyContent=center alignItems=center borderRadius=3px flex=0 0 auto
+          <div> [272,-3616,10,11] "[i]" | fontSize=10px fontFamily=ionicons width=10px height=11px row
+        <div> [288,-3619,16,16] | backgroundColor=rgb(218, 165, 32) width=16px height=16px flex col justifyContent=center alignItems=center borderRadius=3px flex=0 0 auto
+          <div> [291,-3616,10,10] "[i]" | fontSize=10px fontFamily=material width=10px height=10px row
+        <div> [307,-3619,16,16] | backgroundColor=rgba(138, 43, 226, 0.8) width=16px height=16px flex col justifyContent=center alignItems=center borderRadius=3px flex=0 0 auto
+          <div> [310,-3616,10,10] "󰗚" | fontSize=10px fontFamily=material-community width=10px height=10px row
+        <div> [326,-3619,16,16] | backgroundColor=rgba(255, 152, 0, 0.8) width=16px height=16px flex col justifyContent=center alignItems=center borderRadius=3px flex=0 0 auto
+          <div> [329,-3616,10,10] "󱌼" | fontSize=10px fontFamily=material-community width=10px height=10px row
+      <div> [392,-3621,27,20] | backgroundColor=rgb(180, 83, 9) padding=0px 8px width=26.7656px height=20px flex col justifyContent=center alignItems=center borderRadius=16px border=1px solid rgb(180, 83, 9) position=absolute top=8px left=131.234px right=8px bottom=251.328px zIndex=3 flex=0 0 auto
+        <div> [401,-3617,9,13] "M" | fontSize=10px fontWeight=600 fontFamily=Roboto-Medium width=8.76562px height=13px row
+      <div> [261,-3486,166,136] | padding=40px 10px 10px width=166px height=136px flex col position=absolute top=143.328px zIndex=2 flex=0 0 auto
+        <h1> [271,-3446,146,18] "Sovereign Skies" | fontSize=14px fontWeight=700 fontFamily=Roboto-Bold lineHeight=18px margin=0px 0px 3px width=146px height=18px maxWidth=100% display=flow-root row overflow=clip WebkitLineClamp=2
+        <div> [271,-3425,146,45] "You're You, the ace pilot of the Astorian Federation. The sky is yours. 25 missi" | fontSize=12px fontFamily=Roboto-Regular lineHeight=15px color=rgb(224, 224, 224) margin=0px 0px 6px width=146px height=45px maxWidth=100% display=flow-root row overflow=clip opacity=0.9 WebkitLineClamp=3
+        <div> [271,-3374,146,14] | width=146px height=14px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+          <div> [271,-3373,100,13] | fontSize=11px fontFamily=Roboto-Regular width=99.8906px height=13px maxWidth=100% row overflow=hidden
+          <div> [379,-3374,38,14] | width=38.1094px height=14px flex row alignItems=center gap=2px flex=0 0 auto
+            <div> [379,-3374,12,14] "[i]" | fontSize=12px fontFamily=ionicons width=12px height=14px row
+            <div> [393,-3373,24,13] "364k" | fontSize=11px fontFamily=Roboto-Regular width=24.1094px height=13px row
+===== mobile
+--- header
+<div> [0,0,390,50] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) padding=0px 15px width=390px height=50px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+  <div> [15,12,140,27] | width=140px height=27px flex col overflow=hidden flex=0 0 auto
+    <img> [15,12,140,27] IMG=AlterworldLogoIcon.123c4cc271c2ae6748d8b57443332253.png | width=140px height=27px row overflow=clip position=absolute objectFit=cover
+  <div> [233,9,142,32] | width=141.812px height=32px flex row justifyContent=flex-end alignItems=center flex=0 0 auto
+    <button> [233,13,37,25] | fontSize=13.3333px backgroundColor=rgba(23, 23, 38, 0.8) padding=0px 18px 0px 10px margin=0px 16px 0px 0px width=36.9062px height=25px flex col justifyContent=center alignItems=center borderRadius=20px 0px 0px 20px border=1px solid rgba(128, 128, 255, 0.5) textAlign=center flex=0 0 auto
+      <div> [254,13,25,25] | width=25px height=25px flex col overflow=hidden position=absolute top=-1px left=19.9062px right=-10px bottom=-1px textAlign=center flex=0 0 auto
+        <img> [254,13,25,25] IMG=blueCrystal.c8a5c2ffe4cbdfed99bcb0604aa8447b.png | width=25px height=25px row overflow=clip position=absolute objectFit=cover textAlign=center
+      <div> [244,17,7,16] "0" | fontSize=12px fontWeight=700 fontFamily=-apple-system width=6.90625px height=16px row
+    <button> [286,13,37,25] | fontSize=13.3333px backgroundColor=rgba(23, 23, 38, 0.8) padding=0px 18px 0px 10px margin=0px 10px 0px 0px width=36.9062px height=25px flex col justifyContent=center alignItems=center borderRadius=20px 0px 0px 20px border=1px solid rgba(128, 128, 255, 0.5) textAlign=center flex=0 0 auto
+      <div> [307,13,25,25] | width=25px height=25px flex col overflow=hidden position=absolute top=-1px left=19.9062px right=-10px bottom=-1px textAlign=center flex=0 0 auto
+        <img> [307,13,25,25] IMG=purpleCrystal.f0eefb6b4fd6b38695600dd2f33ea3ee.png | width=25px height=25px row overflow=clip position=absolute objectFit=cover textAlign=center
+      <div> [297,17,7,16] "0" | fontSize=12px fontWeight=700 fontFamily=-apple-system width=6.90625px height=16px row
+    <div> [347,9,28,32] "[i]" | fontSize=28px fontFamily=ionicons width=28px height=32px row
+--- tabbar
+<div> [0,769,390,305] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) padding=6px 0px 0px width=390px height=305px flex col alignItems=flex-start flex=0 0 auto
+  <div> [0,775,390,26] | padding=0px 15px margin=0px 0px 15px width=390px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+    <div> [15,776,288,25] | width=288px height=25px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <div> [15,776,25,25] | margin=0px 4px 0px 0px width=25px height=25px flex col overflow=hidden flex=0 0 auto
+        <img> [15,776,25,25] IMG=fireFrame.f8ec26cac3339ee7dc94d3df309faa73.png | width=25px height=25px row overflow=clip position=absolute objectFit=contain
+      <div> [44,779,90,19] "Seen on Ads" | fontWeight=600 fontFamily=Roboto-Medium backgroundImage=linear-gradient(rgb(255, 215, 0), rgb(255, 165, 0)) width=89.6406px height=19px row
+    <button> [339,765,48,46] | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+      <div> [363,775,12,26] "[i]" | fontSize=24px fontFamily=FontAwesome6Free-Solid width=12px height=26px row
+  <div> [0,816,390,258] | width=390px height=258px flex row overflow=auto hidden flex=1 1 auto
+    <div> [0,816,978,258] | padding=0px 15px width=978px height=258px flex row flex=0 0 auto
+      <div> [15,816,158,258] (n=1) | width=158px height=258px flex col justifyContent=flex-start flex=0 0 auto
+      <div> [173,816,158,258] (n=1) | width=158px height=258px flex col justifyContent=flex-start flex=0 0 auto
+      <div> [331,816,158,258] (n=1) | width=158px height=258px flex col justifyContent=flex-start flex=0 0 auto
+      <div> [489,816,158,258] (n=1) | width=158px height=258px flex col justifyContent=flex-start flex=0 0 auto
+      <div> [647,816,158,258] (n=1) | width=158px height=258px flex col justifyContent=flex-start flex=0 0 auto
+      <div> [805,816,158,258] (n=1) | width=158px height=258px flex col justifyContent=flex-start flex=0 0 auto
+--- hero
+<div> [0,50,390,3822] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) margin=0px -12px width=390px height=3822px flex col flex=0 0 auto
+  <div> [0,50,390,311] | padding=20px 0px 10px width=390px height=311px flex col overflow=hidden flex=0 0 auto
+    <div> [0,70,390,65] | padding=0px 30px margin=0px 0px 20px width=390px height=65px flex col alignItems=center flex=0 0 auto
+      <div> [30,70,330,27] "Live the Story, Feel the Thrill" | fontSize=22px fontWeight=700 fontFamily=Roboto-Bold backgroundImage=linear-gradient(to right, rgb(167, 185, 255), rgb(255, 168, 168)) width=330px height=27px maxWidth=100% row overflow=clip textAlign=center WebkitLineClamp=2
+      <div> [30,97,330,38] "Travel alongside your favorite characters in adventures that stir your soul." | fontSize=14px fontWeight=300 fontFamily=-apple-system color=rgb(223, 223, 223) width=330px height=38px row opacity=0.9 textAlign=center
+    <div> [0,155,390,196] | width=390px height=196px flex col justifyContent=center alignItems=center flex=1 1 0%
+      <div> [0,155,390,185] | width=390px height=185px flex col overflow=hidden flex=0 0 auto
+        <div> [0,155,390,185] (n=1) | width=390px height=185px flex col flex=0 0 auto
+      <div> [55,340,280,6] (n=20) | margin=0px 0px 5px width=280px height=6px flex row justifyContent=center alignItems=center flex=0 0 auto
+        <div> [59,340,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [73,340,6,6] | backgroundColor=rgb(255, 168, 168) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [87,340,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [101,340,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [115,340,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [129,340,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [143,340,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [157,340,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [171,340,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [185,340,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [199,340,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [213,340,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [227,340,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [241,340,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [255,340,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [269,340,6,6] | backgroundColor=rgba(255, 255, 255, 0.5) margin=0px 4px width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+    <div> [0,50,390,311] | backgroundImage=linear-gradient(rgba(0, 0, 0, 0), rgba(255, 255, 255, 0.06) 40%, rgba(255, 255, 255, 0.08) 100%) width=390px height=311px flex col position=absolute zIndex=-1 flex=0 0 auto
+  <div> [0,361,390,408] | padding=14px 0px 0px width=390px height=408px flex col flex=0 0 auto
+    <div> [0,375,390,368] (n=1) | width=390px height=368px flex col flex=0 0 auto
+    <div> [0,749,390,20] | margin=6px 0px 0px width=390px height=20px flex row justifyContent=center alignItems=center flex=0 0 auto
+      <button> [15,749,14,20] | fontSize=13.3333px color=rgba(255, 255, 255, 0.3) width=14px height=20px flex col justifyContent=center position=absolute left=15px right=361px opacity=0.3 textAlign=center flex=0 0 auto
+        <div> [15,752,14,15] "[i]" | fontSize=14px fontFamily=ionicons color=rgba(255, 255, 255, 0.8) width=14px height=15px row
+      <div> [132,756,126,6] | width=126px height=6px flex row justifyContent=center alignItems=center gap=6px flex=0 0 auto
+        <div> [132,756,18,6] | backgroundColor=rgb(255, 168, 168) width=18px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [156,756,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [168,756,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [180,756,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [192,756,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [204,756,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [216,756,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [228,756,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [240,756,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+        <div> [252,756,6,6] | backgroundColor=rgba(255, 255, 255, 0.3) width=6px height=6px flex col borderRadius=3px flex=0 0 auto
+      <div> [361,752,14,15] "[i]" | fontSize=14px fontFamily=ionicons color=rgba(255, 255, 255, 0.8) width=14px height=15px row
+  <div> [0,769,390,305] | padding=6px 0px 0px width=390px height=305px flex col alignItems=flex-start flex=0 0 auto
+    <div> [0,775,390,26] | padding=0px 15px margin=0px 0px 15px width=390px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [15,776,288,25] (n=2) | width=288px height=25px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [339,765,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [0,816,390,258] (n=1) | width=390px height=258px flex row overflow=auto hidden flex=1 1 auto
+  <div> [0,1080,390,299] | margin=6px 0px 0px width=390px height=299px flex col alignItems=flex-start flex=0 0 auto
+    <div> [0,1080,390,26] (n=2) | padding=0px 15px margin=0px 0px 15px width=390px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+    <div> [0,1121,390,258] (n=1) | width=390px height=258px flex col flex=0 0 auto
+  <div> [0,1385,390,299] | margin=6px 0px 0px width=390px height=299px flex col alignItems=flex-start flex=0 0 auto
+    <div> [0,1385,390,26] | padding=0px 15px margin=0px 0px 15px width=390px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [15,1387,288,22] (n=2) | width=288px height=22px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [339,1375,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [0,1426,390,258] (n=1) | width=390px height=258px flex row overflow=auto hidden flex=1 1 auto
+  <div> [0,1690,390,299] | margin=6px 0px 0px width=390px height=299px flex col alignItems=flex-start flex=0 0 auto
+    <div> [0,1690,390,26] | padding=0px 15px margin=0px 0px 15px width=390px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [15,1692,288,22] (n=2) | width=288px height=22px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [339,1680,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [0,1731,390,258] (n=1) | width=390px height=258px flex row overflow=auto hidden flex=1 1 auto
+  <div> [0,1995,390,299] | margin=6px 0px 0px width=390px height=299px flex col alignItems=flex-start flex=0 0 auto
+    <div> [0,1995,390,26] | padding=0px 15px margin=0px 0px 15px width=390px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [15,1997,288,22] (n=2) | width=288px height=22px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [339,1985,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [0,2036,390,258] (n=1) | width=390px height=258px flex row overflow=auto hidden flex=1 1 auto
+  <div> [0,2300,390,299] | margin=6px 0px 0px width=390px height=299px flex col alignItems=flex-start flex=0 0 auto
+    <div> [0,2300,390,26] | padding=0px 15px margin=0px 0px 15px width=390px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [15,2302,288,23] (n=2) | width=288px height=23px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [339,2290,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [0,2341,390,258] (n=1) | width=390px height=258px flex row overflow=auto hidden flex=1 1 auto
+  <div> [0,2605,390,299] | margin=6px 0px 0px width=390px height=299px flex col alignItems=flex-start flex=0 0 auto
+    <div> [0,2605,390,26] | padding=0px 15px margin=0px 0px 15px width=390px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [15,2606,288,25] (n=2) | width=288px height=25px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [339,2595,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [0,2646,390,258] (n=1) | width=390px height=258px flex row overflow=auto hidden flex=1 1 auto
+  <div> [0,2910,390,299] | margin=6px 0px 0px width=390px height=299px flex col alignItems=flex-start flex=0 0 auto
+    <div> [0,2910,390,26] | padding=0px 15px margin=0px 0px 15px width=390px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [15,2913,288,21] (n=2) | width=288px height=21px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [339,2900,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [0,2951,390,258] (n=1) | width=390px height=258px flex row overflow=auto hidden flex=1 1 auto
+  <div> [0,3215,390,299] | margin=6px 0px 0px width=390px height=299px flex col alignItems=flex-start flex=0 0 auto
+    <div> [0,3215,390,26] | padding=0px 15px margin=0px 0px 15px width=390px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [15,3218,288,21] (n=2) | width=288px height=21px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [339,3205,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [0,3256,390,258] (n=1) | width=390px height=258px flex row overflow=auto hidden flex=1 1 auto
+  <div> [0,3520,390,299] | margin=6px 0px 0px width=390px height=299px flex col alignItems=flex-start flex=0 0 auto
+    <div> [0,3520,390,26] | padding=0px 15px margin=0px 0px 15px width=390px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+      <div> [15,3523,288,21] (n=2) | width=288px height=21px flex row justifyContent=flex-start alignItems=center flex=0 0 auto
+      <button> [339,3510,48,46] (n=1) | fontSize=13.3333px padding=10px 12px 10px 24px margin=-10px -12px -10px 0px width=48px height=46px flex col textAlign=center flex=0 0 auto
+    <div> [0,3561,390,258] (n=1) | width=390px height=258px flex row overflow=auto hidden flex=1 1 auto
+  <div> [0,3831,390,26] | padding=0px 15px margin=12px 0px 15px width=390px height=26px flex row justifyContent=space-between alignItems=center flex=0 0 auto
+    <div> [15,3834,157,20] | width=157.391px height=20px flex row alignItems=center gap=4px flex=0 0 auto
+      <div> [15,3834,20,20] | margin=0px 2px 0px 0px width=20px height=20px flex col overflow=hidden flex=0 0 auto
+        <div> [15,3834,20,0] (n=1) | width=20px row
+      <div> [41,3835,131,19] "Recently Released" | fontWeight=600 fontFamily=Roboto-Medium width=131.391px height=19px row
+    <div> [363,3831,12,26] "[i]" | fontSize=24px fontFamily=FontAwesome6Free-Solid width=12px height=26px row
+--- featured
+<div> [0,375,390,368] | fontSize=16px fontWeight=400 color=rgb(255, 255, 255) width=390px height=368px flex col position=absolute flex=0 0 auto
+  <div> [0,375,390,368] | padding=0px 15px width=390px height=368px flex col flex=0 0 auto
+    <div> [15,375,360,368] | backgroundColor=rgba(255, 255, 255, 0.06) width=360px height=368px flex col borderRadius=18px overflow=hidden flex=0 0 auto
+      <div> [15,375,360,203] | backgroundColor=rgb(0, 0, 0) width=360px height=203px flex col overflow=hidden flex=0 0 auto
+        <video> [15,375,360,203] | width=360px height=203px row overflow=clip objectFit=cover
+        <button> [25,385,98,24] | fontSize=13.3333px backgroundColor=rgba(0, 0, 0, 0.55) padding=4px 8px width=98.4062px height=24px flex row alignItems=center gap=5px borderRadius=999px border=1px solid rgba(255, 255, 255, 0.2) position=absolute top=10px left=10px right=251.594px bottom=169px textAlign=center flex=0 0 auto
+          <div> [34,390,13,14] "[i]" | fontSize=13px fontFamily=ionicons width=13px height=14px row
+          <div> [52,390,62,14] "Tap for sound" | fontSize=10px fontWeight=600 fontFamily=-apple-system width=62.4062px height=14px row
+        <div> [25,546,342,28] | width=342px height=28px flex row alignItems=center gap=8px position=absolute top=171px left=10px right=8px bottom=4px opacity=0 flex=0 0 auto
+          <div> [25,546,308,28] | width=308px height=28px flex col justifyContent=center flex=1 1 0%
+            <div> [25,558,308,4] (n=1) | backgroundColor=rgba(255, 255, 255, 0.3) width=308px height=4px flex col borderRadius=2px overflow=hidden flex=0 0 auto
+            <div> [41,554,12,12] | backgroundColor=rgb(255, 255, 255) margin=0px 0px 0px -6px width=12px height=12px flex col borderRadius=6px position=absolute top=8px left=22.2188px right=279.781px bottom=8px flex=0 0 auto
+          <button> [341,547,26,26] | fontSize=13.3333px backgroundColor=rgba(0, 0, 0, 0.6) width=26px height=26px flex col justifyContent=center alignItems=center borderRadius=13px textAlign=center flex=0 0 auto
+            <div> [347,553,14,15] "[i]" | fontSize=14px fontFamily=ionicons width=14px height=15px row
+      <div> [15,578,360,165] | padding=14px width=360px height=165px flex col gap=4px flex=1 1 0%
+        <div> [29,592,332,16] | fontSize=12px fontWeight=600 fontFamily=-apple-system color=rgb(255, 168, 168) width=332px height=16px maxWidth=100% row overflow=hidden
+        <div> [29,614,332,24] "Crash Into Sakura City" | fontSize=18px fontWeight=700 fontFamily=Roboto-Bold lineHeight=24px margin=2px 0px 0px width=332px height=24px maxWidth=100% row overflow=hidden
+        <div> [29,646,332,36] "Four heroes from another world crashed through your ceiling. Now you have to fig" | fontSize=13px fontFamily=-apple-system lineHeight=18px color=rgba(255, 255, 255, 0.7) margin=4px 0px 0px width=332px height=36px maxWidth=100% display=flow-root row overflow=clip WebkitLineClamp=2
+        <div> [29,699,332,30] | padding=8px 0px 0px margin=13px 0px 0px width=332px height=30px flex row alignItems=center gap=8px flex=0 0 auto
+          <div> [29,710,299,16] | width=299px height=16px flex row alignItems=center gap=14px flex=0 0 auto flexWrap=wrap
+            <div> [29,710,45,16] (n=2) | width=44.6094px height=16px flex row alignItems=center gap=4px flex=0 0 auto
+            <div> [88,710,41,16] (n=2) | width=40.5625px height=16px flex row alignItems=center gap=4px flex=0 0 auto
+            <div> [142,710,42,16] (n=2) | width=41.5625px height=16px flex row alignItems=center gap=4px flex=0 0 auto
+            <div> [198,710,42,16] (n=2) | width=41.5625px height=16px flex row alignItems=center gap=4px flex=0 0 auto
+          <button> [336,707,25,22] | fontSize=13.3333px backgroundColor=rgba(255, 255, 255, 0.08) padding=3px 5px width=25px height=22px flex row alignItems=center borderRadius=10px border=1px solid rgba(255, 255, 255, 0.3) textAlign=center flex=0 0 auto
+            <div> [342,711,13,14] "[i]" | fontSize=13px fontFamily=ionicons color=rgba(255, 255, 255, 0.7) width=13px height=14px row
