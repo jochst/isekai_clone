@@ -82,7 +82,7 @@ export async function GET(req: Request) {
   let images: ProviderImageModel[] = [];
   if (imageRes && !(imageRes instanceof Error) && imageRes.ok) {
     const imgJson = (await imageRes.json().catch(() => ({}))) as { data?: OpenAiModelRow[] };
-    const origin = new URL(ctx.baseUrl).origin;
+    const origin = new URL(imageCandidates[0]).origin;
     images = (imgJson.data ?? [])
       .filter((r) => r && typeof r.id === "string")
       .map((r) => normalizeImageModel(r, origin))
