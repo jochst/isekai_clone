@@ -1,21 +1,15 @@
 import { NextResponse } from "next/server";
 import { authHeaders, providerErrorMessage, readProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
+import { normalizeImageModel, type ProviderImageModel, type RawCatalogRow } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 
 export const runtime = "nodejs";
 
-interface OpenAiModelRow {
-  id: string;
-  name?: string;
-  description?: string;
-  owned_by?: string;
+export type { ProviderImageModel };
+
+interface OpenAiModelRow extends RawCatalogRow {
   context_length?: number;
   max_output_tokens?: number;
-  pricing?: { prompt?: number | string; completion?: number | string; currency?: string; unit?: string; image?: number | string; per_image?: number | string };
-  icon_url?: string;
-  capabilities?: Record<string, unknown> | string[];
-  supported_parameters?: string[];
-  tags?: string[];
-  category?: string;
+  pricing?: { prompt?: number | string; completion?: number | string; currency?: string; unit?: string; image?: number | string; per_image?: number | string | Record<string, number> };
 }
 
 export interface ProviderTextModel {
@@ -29,17 +23,6 @@ export interface ProviderTextModel {
   inputPerM?: number;
   outputPerM?: number;
   iconUrl?: string;
-}
-
-export interface ProviderImageModel {
-  id: string;
-  name: string;
-  description: string;
-  ownedBy: string;
-  /** USD per image when reported. */
-  costPerImage?: number;
-  iconUrl?: string;
-  tags?: string[];
 }
 
 function num(v: number | string | undefined): number | undefined {
@@ -99,22 +82,15 @@ export async function GET(req: Request) {
   let images: ProviderImageModel[] = [];
   if (imageRes && !(imageRes instanceof Error) && imageRes.ok) {
     const imgJson = (await imageRes.json().catch(() => ({}))) as { data?: OpenAiModelRow[] };
+    const origin = new URL(ctx.baseUrl).origin;
     images = (imgJson.data ?? [])
       .filter((r) => r && typeof r.id === "string")
-      .map((r) => ({
-        id: r.id,
-        name: r.name || r.id,
-        description: r.description || "",
-        ownedBy: r.owned_by || r.id.split("/")[0] || "",
-        costPerImage: num(r.pricing?.image ?? r.pricing?.per_image ?? r.pricing?.completion),
-        iconUrl: r.icon_url,
-        tags: r.tags,
-      }))
+      .map((r) => normalizeImageModel(r, origin))
       .sort((a, b) => a.name.localeCompare(b.name));
   } else if (ctx.preset === "openai") {
     images = rows
       .filter((r) => /image/i.test(r.id) || /dall-e/i.test(r.id))
-      .map((r) => ({ id: r.id, name: r.id, description: "OpenAI image model", ownedBy: "openai" }));
+      .map((r) => ({ id: r.id, name: r.id, description: "OpenAI image model", ownedBy: "openai", resolutions: [], nsfw: false, imageToImage: false, tags: [] }));
   }
 
   return NextResponse.json({ text, images, preset: ctx.preset, baseUrl: ctx.baseUrl });
