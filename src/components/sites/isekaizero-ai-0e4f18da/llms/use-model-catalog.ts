@@ -124,6 +124,8 @@ export function useModelCatalog(): ModelCatalogState {
       imageModel: "",
       autoIllustrate: false,
       imageSize: "",
+      videoModel: "",
+      videoParams: {},
     });
 
     fetch("/api/providers/models", { headers, signal: controller.signal, cache: "no-store" })

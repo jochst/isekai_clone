@@ -74,6 +74,8 @@ export const DEFAULT_PROVIDER_SETTINGS: ProviderSettings = {
   imageModel: PROVIDER_PRESETS[0].defaultImageModel,
   autoIllustrate: false,
   imageSize: "1024x1024",
+  videoModel: "",
+  videoParams: {},
 };
 
 const CHANGE_EVENT = "iz:provider-settings";

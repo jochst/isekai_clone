@@ -10,7 +10,7 @@
  */
 import { useCallback, useSyncExternalStore } from "react";
 
-import type { ChatMessage, ChatSession, ChatSettings, SceneImage, Storyline } from "@/types/isekaizero";
+import type { ChatMessage, ChatSession, ChatSettings, SceneImage, SceneVideo, Storyline } from "@/types/isekaizero";
 
 import { readProviderSettings } from "./provider-settings";
 
@@ -174,7 +174,10 @@ function stripLargeImages(list: ChatSession[]): ChatSession[] {
 const sessionsStore = createStore<ChatSession[]>({
   storageKey: CHATS_STORAGE_KEY,
   fallback: EMPTY_SESSIONS,
-  parse: (raw) => (Array.isArray(raw) ? sortSessions(raw.filter(isSession)) : EMPTY_SESSIONS),
+  parse: (raw) =>
+    Array.isArray(raw)
+      ? sortSessions(raw.filter(isSession).map((s) => ({ ...s, settings: { ...DEFAULT_CHAT_SETTINGS, ...s.settings } })))
+      : EMPTY_SESSIONS,
   serialize: stripLargeImages,
 });
 
@@ -186,6 +189,7 @@ export const DEFAULT_CHAT_SETTINGS: ChatSettings = {
   perspective: "2nd",
   autoIllustrate: false,
   illustrationModel: "default",
+  animationModel: "default",
   illustrationPerspective: "third",
 };
 
@@ -299,12 +303,31 @@ export function getSceneImageUrl(image: SceneImage): string {
   return image.url || volatileImageUrls.get(image.id) || "";
 }
 
+/* ------------------------------------------------------------------ scene videos */
+
+export function attachSceneVideo(sessionId: string, messageId: string, video: SceneVideo): void {
+  updateSession(sessionId, (s) => patchMessage(s, messageId, (m) => ({ ...m, videos: [...(m.videos ?? []), video] })));
+}
+
+export function updateSceneVideo(sessionId: string, messageId: string, videoId: string, patch: Partial<SceneVideo>): void {
+  updateSession(
+    sessionId,
+    (s) => patchMessage(s, messageId, (m) => ({ ...m, videos: (m.videos ?? []).map((v) => (v.id === videoId ? { ...v, ...patch } : v)) })),
+    { touch: false },
+  );
+}
+
+export function removeSceneVideo(sessionId: string, messageId: string, videoId: string): void {
+  updateSession(sessionId, (s) => patchMessage(s, messageId, (m) => ({ ...m, videos: (m.videos ?? []).filter((v) => v.id !== videoId) })));
+}
+
 /* ------------------------------------------------------------------ usage */
 
 export interface UsageTotals {
   tokensIn: number;
   tokensOut: number;
   images: number;
+  videos: number;
   /** USD, as reported by the provider (0 when unknown). */
   cost: number;
   messages: number;
@@ -313,7 +336,7 @@ export interface UsageTotals {
   updatedAt: number;
 }
 
-export const EMPTY_USAGE: UsageTotals = { tokensIn: 0, tokensOut: 0, images: 0, cost: 0, messages: 0, updatedAt: 0 };
+export const EMPTY_USAGE: UsageTotals = { tokensIn: 0, tokensOut: 0, images: 0, videos: 0, cost: 0, messages: 0, updatedAt: 0 };
 
 const usageStore = createStore<UsageTotals>({
   storageKey: USAGE_STORAGE_KEY,
@@ -325,6 +348,7 @@ export interface UsageDelta {
   tokensIn?: number;
   tokensOut?: number;
   images?: number;
+  videos?: number;
   cost?: number;
   messages?: number;
   remainingBalance?: number;
@@ -340,6 +364,7 @@ export function addUsage(delta: UsageDelta): void {
     tokensIn: u.tokensIn + (delta.tokensIn ?? 0),
     tokensOut: u.tokensOut + (delta.tokensOut ?? 0),
     images: u.images + (delta.images ?? 0),
+    videos: u.videos + (delta.videos ?? 0),
     cost: u.cost + (delta.cost ?? 0),
     messages: u.messages + (delta.messages ?? 0),
     remainingBalance: delta.remainingBalance ?? u.remainingBalance,

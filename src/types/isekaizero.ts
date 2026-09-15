@@ -153,6 +153,8 @@ export interface ImageSizePreset {
 
 export type ProviderPreset = "nano-gpt" | "openai" | "openrouter" | "custom";
 
+export type VideoParamValue = string | number | boolean;
+
 export interface ProviderSettings {
   preset: ProviderPreset;
   /** OpenAI-compatible base URL, e.g. https://nano-gpt.com/api/v1 */
@@ -167,6 +169,10 @@ export interface ProviderSettings {
   /** Whether scene images are generated automatically for every new AI message. */
   autoIllustrate: boolean;
   imageSize: string;
+  /** Selected video model id (NanoGPT only). "" when not chosen. */
+  videoModel: string;
+  /** Last-used parameter values for `videoModel` (keys from the model's parameter schema). */
+  videoParams: Record<string, VideoParamValue>;
 }
 
 /* ---------- Chat ---------- */
@@ -181,6 +187,23 @@ export interface SceneImage {
   error?: string;
 }
 
+export interface SceneVideo {
+  id: string;
+  status: "queued" | "generating" | "done" | "error";
+  /** Provider run id; kept so polling can resume after a reload or a timeout. */
+  runId?: string;
+  /** Remote video URL; "" until done. */
+  url: string;
+  prompt: string;
+  model: string;
+  /** SceneImage animated (image-to-video); absent for text-to-video. */
+  sourceImageId?: string;
+  params: Record<string, VideoParamValue>;
+  cost?: number;
+  createdAt: number;
+  error?: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant" | "system";
@@ -188,6 +211,7 @@ export interface ChatMessage {
   createdAt: number;
   streaming?: boolean;
   images?: SceneImage[];
+  videos?: SceneVideo[];
   /** Character speaking, when derivable. */
   speaker?: string;
 }
@@ -200,6 +224,7 @@ export interface ChatSettings {
   perspective: "1st" | "2nd" | "3rd";
   autoIllustrate: boolean;
   illustrationModel: string | "default";
+  animationModel: string | "default";
   illustrationPerspective: "pov" | "third";
 }
 
