@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Clapperboard, Download, ImagePlus, Loader2, Sparkles, X } from "lucide-react";
 
+import { VIDEO_UNSUPPORTED_REASON } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { PROVIDER_PRESETS, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import { cn } from "@/lib/utils";
 import type { VideoParamValue } from "@/types/isekaizero";
@@ -16,7 +17,6 @@ import { VideoParamsForm, paramSummary } from "./VideoParamsForm";
 
 const PROMPT_MAX = 3000;
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
-const VIDEO_UNSUPPORTED = "Video generation requires the NanoGPT preset.";
 
 interface SourceImage {
   url: string;
@@ -72,7 +72,8 @@ export function VideoGenerationPage({ className }: VideoGenerationPageProps) {
 
   const supportsImage = model?.imageToVideo ?? true;
   const needsImage = model !== undefined && !model.textToVideo && model.imageToVideo;
-  const generating = jobs.some((j) => j.status === "queued" || j.status === "generating");
+  const activeJob = jobs.find((j) => j.status === "queued" || j.status === "generating");
+  const generating = Boolean(activeJob);
   const current = (selectedId ? jobs.find((j) => j.id === selectedId) : undefined) ?? jobs[0] ?? null;
 
   const onSelectModel = useCallback(
@@ -134,7 +135,7 @@ export function VideoGenerationPage({ className }: VideoGenerationPageProps) {
             valueSub={<span>{model?.priceSummary ?? presetLabel}</span>}
             onClick={() => setSheetOpen(true)}
           />
-          {unsupported ? <p className="mt-1 text-[12px] leading-4 text-[#ffb4ab]">{catalog.videoReason ?? VIDEO_UNSUPPORTED}</p> : null}
+          {unsupported ? <p className="mt-1 text-[12px] leading-4 text-[#ffb4ab]">{catalog.videoReason ?? VIDEO_UNSUPPORTED_REASON}</p> : null}
 
           <div className="my-6 flex flex-col">
             <label htmlFor="iz-video-prompt" className="text-[18px] font-semibold leading-[22px] text-white">
@@ -220,8 +221,8 @@ export function VideoGenerationPage({ className }: VideoGenerationPageProps) {
               )}
             </span>
           </button>
-          {generating && current?.runId ? (
-            <button type="button" onClick={() => cancel(current.id)} className="mt-2 self-center text-[12px] text-white/60 hover:underline">
+          {activeJob?.runId ? (
+            <button type="button" onClick={() => cancel(activeJob.id)} className="mt-2 self-center text-[12px] text-white/60 hover:underline">
               Stop waiting
             </button>
           ) : null}

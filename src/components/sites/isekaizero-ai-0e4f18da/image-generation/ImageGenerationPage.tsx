@@ -174,7 +174,7 @@ export function ImageGenerationPage({ showHeader = true, className }: ImageGener
     <div className={cn("flex min-h-screen flex-col text-white", className)}>
       {showHeader ? <PageHeader title="Image Generation" /> : null}
 
-      <div className="flex flex-1 flex-col min-[900px]:h-[calc(100vh-64px)] min-[900px]:flex-row">
+      <div className={cn("flex flex-1 flex-col min-[900px]:flex-row", showHeader ? "min-[900px]:h-[calc(100vh-64px)]" : "min-[900px]:h-[calc(100vh-114px)]")}>
         {/* ---------------- Left form ---------------- */}
         <div className="flex w-full shrink-0 flex-col px-5 pb-8 pt-5 min-[900px]:w-[459px] min-[900px]:overflow-y-auto min-[900px]:border-r min-[900px]:border-[rgba(255,255,255,0.06)]">
           <SelectRow
