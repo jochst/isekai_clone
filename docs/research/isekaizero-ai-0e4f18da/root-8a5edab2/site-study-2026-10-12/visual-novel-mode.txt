@@ -1,0 +1,95 @@
+# Visual Novel Mode
+            What is Visual Novel Mode?
+Visual Novel Mode transforms your gameplay into an immersive, multimedia experience similar to Instagram Stories or visual novels. Instead of text-only responses, your story comes to life with:
+- Voice narration in each character's unique voice
+- Dynamic background images that match the scene
+- Character images with appropriate expressions and poses
+- Instagram Stories-style format for easy viewing and sharing
+Status: Experimental - Public Beta
+- Feature is actively being improved for stability, speed, and cost optimization
+- Share your feedback on Discord to help us enhance the experience
+Example: Watch Here
+Two Play Modes Available
+Narration Mode (Default)
+- Traditional text-based storytelling
+- Responses appear as text messages
+- No additional costs beyond LLM usage
+- Best for: Reading-focused players, budget-conscious play
+Visual Novel Mode
+- Multimedia storytelling with images and voice
+- Story displayed in visual novel/Instagram Stories format
+- Additional costs for image and voice generation
+- Best for: Immersive experience, content creators, sharing stories
+Switching Modes:
+- Go to Settings (⚙️) → Play Mode tab
+- Toggle between Narration Mode and Visual Novel Mode
+- Adjust settings as needed
+- Continue your story in the new format
+Visual Novel Mode Settings
+Narrator Voice
+- Select the voice for narration and character dialogue
+- Tap "Press to select voice" to browse available voices
+- Each character can have their own distinct voice
+Cost: 1-2 Mana/Arcane per full narration/voice generation
+Voice & Narration Enabled
+Toggle ON: Generate voice narration for each character in the story
+Toggle OFF: Visual Novel mode without voice (images only)
+What it does:
+- Creates unique voice audio for dialogue and narration
+- Matches character personality and tone
+- Plays automatically when viewing visual novel output
+Cost: 1-2 Mana/Arcane per full narration/voice generation
+Auto Create New Background
+Toggle ON: Automatically generate new background images when scenes change
+Toggle OFF: Use existing backgrounds or no background changes
+What it does:
+- Detects scene changes in the story (new location, time of day, etc.)
+- Generates appropriate background images to match the setting
+- Creates visual variety throughout your story
+Cost: 0.58-0.7 Mana/Arcane per image
+Example: Story moves from a tavern to a forest → New forest background generated automatically
+Auto Edit Existing Background
+Toggle ON: Modify existing backgrounds to match scene changes
+Toggle OFF: Keep backgrounds unchanged
+What it does:
+- Edits current background instead of creating new ones
+- Adjusts lighting, weather, or details to match story progression
+- More cost-intensive than creating new backgrounds
+Cost: 2 Mana/Arcane per image edit
+Example: Same tavern background, but now it's nighttime with dim lighting → Background edited to show evening atmosphere
+Auto Create New Characters
+Toggle ON: Automatically generate character images when new characters appear
+Toggle OFF: No automatic character image generation
+What it does:
+- Detects when new characters are introduced in the story
+- Creates character images based on descriptions
+- Adds visual representation to your cast
+Cost: 0.58-0.7 Mana/Arcane per image
+Example: A mysterious stranger enters the tavern → Character image generated automatically
+Auto Edit Existing Characters
+Toggle ON: Update character images to show expressions, poses, and changes
+Toggle OFF: Character images remain static
+What it does:
+- Generates new expressions (happy, angry, surprised, etc.)
+- Updates character poses and actions
+- Shows visual changes (injuries, costume changes, etc.)
+- Reflects what happens to characters in the story
+⚠️ Warning: This feature can get expensive as it generates multiple image variations per scene
+Cost: 2 Mana/Arcane per image edit
+Example: Your character gets injured in battle → Character image updated to show wounds and tired expression
+Auto Play on New Messages
+Toggle ON: Automatically play voice narration when new messages arrive
+Toggle OFF: Manual playback only
+What it does:
+- Voice narration starts automatically as soon as AI responds
+- No need to tap play button
+- Seamless storytelling experience
+We're Actively Improving This Feature!
+Visual Novel Mode is in public alpha, which means:
+- We're working on stability improvements
+- Speed optimizations are ongoing
+- Cost reductions are being implemented
+- Your feedback matters - join our Discord to share suggestions!
+Ready to Transform Your Story?
+Head to Settings → Play Mode → Visual Novel Mode and start creating your immersive adventure!
+    Enter section select mode

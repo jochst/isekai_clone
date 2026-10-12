@@ -1,0 +1,554 @@
+# Dungeon Mind (DM)
+## What is Dungeon Mind?
+Dungeon Mind is an AI game mechanics agent you can attach to your storylines. It handles dice rolls, stat tracking, inventory, skills, and rule enforcement — so your story AI focuses purely on narrative while the DM handles all the game logic behind the scenes.
+You configure:
+- Name — Your DM config name
+- Recommended DM Model — The AI model players should use. Complex rules need stronger models.
+- Player Guide — A short guide shown to players in chat settings. Supports markdown. Max 1000 characters.
+- Game Rules — Your custom ruleset (combat, leveling, death, etc.) — max 10,000 tokens
+- Game Rule Reminder — Critical rules appended at the end of every DM call — max 500 tokens
+- Instruction — Tells the story AI when to call the DM
+- Stat Schema — The stats every character has
+Everything else (the dice system, tool mechanics, stat tracking) works automatically.
+## How It Works
+When a player does something that needs a dice roll or stat change, the story AI calls the Dungeon Mind. The DM follows a strict process:
+- Check — is the action valid? If not, reject it. Need player input? Ask and wait.
+- Roll — roll d20 for each character that needs a check. One roll per character per action.
+- Submit — read the actual roll numbers, apply your game rules, calculate outcomes, and submit results with all stat changes.
+All stat changes (HP damage, MP cost, XP gain, condition changes) must go through the tools — the DM tracks everything mechanically. The story AI then writes the narrative. The UI shows the rolls and stat changes separately.
+### What the DM Reads
+Every time the DM is called, it receives:
+- System prompt — built from three parts:
+- Core prompt (auto-generated stat table from your schema)
+- Your Game Rules (combat, leveling, death, etc.)
+- Core tool mechanics (how to use roll_d20, submit_results, etc. — hardcoded)
+- Story & character context — storyline plot, character descriptions
+- Last 10 messages — recent story conversation for situational awareness
+- Current character data — all characters' stats, inventory, and skills
+- Game Rule Reminder — your critical rules, appended at the very end of the prompt so the DM sees them last (most recent = strongest influence on LLM behavior)
+The DM does NOT see the full chat history — only the last 10 messages. This keeps it fast and focused. Your game rules and reminder are the DM's primary source of truth for how to make decisions.
+### Flow Diagram
+Player sends message
+        │
+        ▼
+   ┌─────────┐
+   │ Story AI │ ── reads situation, decides if DM is needed
+   └────┬─────┘
+        │ calls engage_dungeon_mind()
+        ▼
+   ┌──────────────────────────────────────────────────────┐
+   │                  DUNGEON MIND (DM)                    │
+   │                                                       │
+   │  Step 0: Check & Prepare                              │
+   │  ┌─────────────────────────────────────────────┐      │
+   │  │ Invalid action? → reject_action (stop)      │      │
+   │  │ Need input?     → ask_player (stop)         │      │
+   │  │ New character?  → auto_create_character      │      │
+   │  │                   + create_stats + set_skills│      │
+   │  └─────────────────────────────────────────────┘      │
+   │                        │                              │
+   │  Step 1: Roll Dice     ▼                              │
+   │  ┌─────────────────────────────────────────────┐      │
+   │  │ roll_d20(Player, "STR attack vs Goblin")    │      │
+   │  │ roll_d20(Goblin, "DEX dodge")               │      │
+   │  │ roll_d20(Healer, "WIS heal spell")          │      │
+   │  └─────────────────────────────────────────────┘      │
+   │           │                                           │
+   │           │ sees actual roll numbers                   │
+   │           ▼                                           │
+   │  Step 2: Apply Results & Submit                       │
+   │  ┌─────────────────────────────────────────────┐      │
+   │  │ set_inventory(Player, +Goblin's Gold)       │      │
+   │  │ set_skills(Player, +New Ability)            │      │
+   │  │ submit_results([                            │      │
+   │  │   { Player rolled 18 ✓, stat_changes: [     │      │
+   │  │       Goblin HP -8 ] },                     │      │
+   │  │   { Goblin rolled 5 ✗, stat_changes: [] },  │      │
+   │  │   { Healer rolled 14 ✓, stat_changes: [     │      │
+   │  │       Player HP +6, Healer MP -10 ] }       │      │
+   │  │ ])                                          │      │
+   │  └─────────────────────────────────────────────┘      │
+   │                                                       │
+   └───────────────────────┬───────────────────────────────┘
+                           │ returns rolls, stat changes,
+                           │ skill/inventory changes, summary
+                           ▼
+   ┌─────────┐
+   │ Story AI │ ── writes narrative based on results
+   └────┬─────┘    (does NOT mention numbers)
+        │
+        ▼
+   ┌──────────────────────────────────────────┐
+   │              PLAYER SEES                  │
+   │                                           │
+   │  ┌─ Story text (narrative only) ────────┐ │
+   │  │ "Your blade cuts through the goblin's│ │
+   │  │ guard. It staggers back, wounded..."  │ │
+   │  └──────────────────────────────────────┘ │
+   │                                           │
+   │  ┌─ Roll bars (auto-displayed) ─────────┐ │
+   │  │ [Avatar] 18 ✓ Player                  │ │
+   │  │ STR attack. Roll 18+2=20 vs DEF 12.  │ │
+   │  │ Goblin HP: 40 → 32                   │ │
+   │  │                                       │ │
+   │  │ [Avatar] 5 ✗ Goblin                   │ │
+   │  │ DEX dodge. Roll 5+1=6 vs 14. Fail.   │ │
+   │  │                                       │ │
+   │  │ [Avatar] 14 ✓ Healer                  │ │
+   │  │ WIS heal. Roll 14+3=17 vs DC 12.     │ │
+   │  │ Player HP: 28 → 34, + New Ability    │ │
+   │  └───────────────────────────────────────┘ │
+   │                                           │
+   │  ┌─ Character sheet (tap to view) ──────┐ │
+   │  │ HP ████████░░ 34/50                   │ │
+   │  │ MP ██████████ 20/20                   │ │
+   │  └───────────────────────────────────────┘ │
+   └───────────────────────────────────────────┘
+### Question / Rejection Flow
+   ┌──────────────────────────────────────┐
+   │            DUNGEON MIND               │
+   │                                       │
+   │  Step 0: Player tries to resurrect    │
+   │          a dead character             │
+   │                                       │
+   │  ┌────────────────────────────────┐   │
+   │  │ reject_action(                 │   │
+   │  │   "Death is permanent.         │   │
+   │  │    Cannot resurrect."          │   │
+   │  │ )                              │   │
+   │  └────────────────────────────────┘   │
+   │                                       │
+   └───────────────┬───────────────────────┘
+                   │
+                   ▼ story AI STOPS
+   ┌───────────────────────────────────────┐
+   │  [Dungeon Mind (DM) Rejected]          │
+   │  "Death is permanent. Cannot resurrect."│
+   └───────────────────────────────────────┘
+   ┌──────────────────────────────────────┐
+   │            DUNGEON MIND               │
+   │                                       │
+   │  Step 0: Player levels up,            │
+   │          needs to choose stats        │
+   │                                       │
+   │  ┌────────────────────────────────┐   │
+   │  │ ask_player(                    │   │
+   │  │   "Level up! Choose 2 stats    │   │
+   │  │    to increase: STR, DEX,      │   │
+   │  │    or INT?"                    │   │
+   │  │ )                              │   │
+   │  └────────────────────────────────┘   │
+   │                                       │
+   └───────────────┬───────────────────────┘
+                   │
+                   ▼ story AI STOPS
+   ┌───────────────────────────────────────┐
+   │  [Dungeon Mind (DM) Asks]              │
+   │  "Level up! Choose 2 stats to          │
+   │   increase: STR, DEX, or INT?"         │
+   └───────────────────────────────────────┘
+         │
+         │ player answers "STR and INT"
+         ▼
+   DM called again → applies level up
+## Available Tools
+These are the tools the DM can use. You don't need to build these — they're built into the system. Your game rules tell the DM when and how to use them.
+### roll_d20
+Rolls a 20-sided die for a character. This is the core randomization tool.
+- character — who is rolling
+- reason — what the roll is for (e.g. "STR attack vs goblin")
+- advantage — roll 2d20, take the higher (optional)
+- disadvantage — roll 2d20, take the lower (optional)
+The actual roll is server-side and cannot be manipulated. Your game rules define what the roll means (attack vs defense, skill check vs DC, saving throw, etc.).
+### create_stats
+Sets up ALL stats for a new character. Called once when a character first appears.
+The parameters are generated from your stat schema. If your schema has HP, STR, and Condition — the tool will have HP_base, STR_base, and Condition_base fields.
+### set_stats
+Updates a character's stats. Only the changed stats need to be included.
+Each number stat has two fields:
+- base — the permanent base number (e.g. STR goes from 14 to 15 on level up)
+- modifier — a temporary change that stacks (e.g. -8 for damage, +5 for a buff)
+Enum stats only have base (no modifier) — the LLM picks from the allowed values.
+How modifiers work (number stats):
+The modifier is a delta — the system adds it to whatever the current modifier already is. You don't need to track the total. Just say "take 8 damage" as -8 and the system handles accumulation.
+What the DM sends
+Current modifier
+New modifier
+Meaning
+HP_modifier: -8
+-10
+-18
+Took 8 more damage
+HP_modifier: +5
+-18
+-13
+Healed 5
+HP_modifier: 0
+-13
+0
+Full heal (reset)
+### set_inventory
+Adds, removes, or updates items. Each item has a name, quantity, description, and equipped status.
+### set_skills
+Adds or removes abilities. Each skill has a name and description.
+### submit_results
+The final tool called after dice rolls. The DM stops after this — no more tools. Contains:
+- One result per roll with success/fail, detail text, and stat changes
+- A mechanical summary
+Stat changes go inside each result — this links them to the correct roll in the UI. For example, if Character A attacks Character B, the damage to B goes inside A's result entry. Every stat that changed (HP, MP, conditions, etc.) must be included — if a spell costs MP, the MP change goes here too.
+### ask_player
+Asks the player a question before continuing. The DM stops after this — no more tools. Use when the DM needs player input (e.g. "Which stats do you want to increase?"). The story stops and waits for the player to answer.
+### reject_action
+Rejects an invalid action. The DM stops after this — no more tools. Use when something violates your game rules (e.g. acting while dead, impossible stats). The story stops and explains why.
+### auto_create_character
+Creates a new character with an AI-generated portrait. Only used for genuinely new characters — not for transformations or form changes of existing characters.
+## Writing Game Rules
+The game rules prompt is the heart of your DM configuration. This is where you define how your game works. Max 10,000 tokens.
+### What to include
+Stat creation — How should the DM assign stats to new characters?
+Adapt stats to the character's role and background.
+A battle-hardened knight gets high STR and CON.
+A scholar gets high INT and WIS. Don't use generic balanced stats.
+Combat mechanics — How do attacks work? What stats are involved?
+Attacker rolls: d20 + STR bonus vs Defender's DEX defense (10 + DEX bonus)
+Damage = STR bonus + floor(roll / 4). Minimum 1.
+Difficulty checks — How hard are skill checks?
+d20 + stat bonus vs difficulty:
+- 8 easy, 12 medium, 16 hard, 20 very hard
+Critical rolls — What happens on natural 20 or natural 1?
+Natural 20 = ALWAYS SUCCESS. Double damage. Describe an epic moment.
+Natural 1 = ALWAYS FAILURE. Describe a dramatic failure.
+Advantage & disadvantage — When should the DM roll 2d20?
+Advantage: ally help, surprise, creative actions
+Disadvantage: blinded, exhausted, untrained
+Resources — How do HP, MP, or your custom resources work?
+Effective HP = base + modifier. HP <= 0 = dead.
+Spells cost MP. Deduct from modifier.
+Conditions — Status effects with duration
+Format: "Poisoned (3t)" where 3t = 3 turns remaining
+Each turn, decrement by 1. Remove at 0.
+Class restrictions — What can each class do?
+ONLY Healer class can cast healing spells.
+Non-healers recover HP from rest or potions ONLY.
+Progression — Leveling, XP, stat growth
+XP Thresholds: Level 2=100, Level 3=300, Level 4=600...
+Level Up: +1 to two stats, increase base HP, reset all modifiers
+Healing & rest — How do characters recover?
+Short rest: 25% HP recovery
+Full rest: full heal, clear conditions
+Healing ONLY from: rest, potions, or healer spells
+Death — What happens when HP reaches 0?
+HP <= 0 → set Alive to false, clear Condition.
+Death is PERMANENT. No resurrection. Dead characters cannot act.
+Anti-cheat — What should the DM reject vs allow?
+Reject: impossible stats, acting while dead, free self-healing,
+        non-healer classes casting healing spells
+Allow: all combat actions, risky decisions, creative solutions
+Key: resolve actions with consequences, don't prevent player choices
+### Tips for good game rules
+- Be specific with formulas. Show the math. "Damage = stat bonus + floor(roll/4)" is better than "calculate damage."
+- Use examples. "Roll 16 + 3 STR bonus = 19 vs DC 15. Hit! Damage: 3 + 4 = 7."
+- State absolute rules. "Natural 20 = ALWAYS SUCCESS. No exceptions." The DM follows what you write.
+- Define what to reject clearly. List specific cheating scenarios.
+- Don't restrict player choices. "NEVER reject combat actions — resolve with dice and apply consequences." Let players make bad decisions and face the results.
+- Keep it organized. Use headers (## and ###) to separate sections. The DM reads this as a reference.
+## Writing the Game Rule Reminder
+The reminder is appended at the very end of the DM's prompt — the last thing it reads before making decisions. LLMs pay the most attention to what comes last, so this is where you put rules the DM must never break. Max 500 tokens.
+### What to include
+Rules that the DM tends to forget or violate. Short, punchy, absolute statements work best.
+### Example reminder
+- Death is PERMANENT. No resurrection, no revival, no exceptions.
+  Dead characters CANNOT act or be brought back.
+- ONLY Healer class can cast healing spells.
+  Non-healers MUST use potions or rest. Reject healing magic from non-healers.
+- Natural 20 = ALWAYS SUCCESS. Natural 1 = ALWAYS FAILURE.
+  No exceptions. Check the ACTUAL roll number.
+- HP ≤ 0 = dead. Set Alive to false immediately.
+  Do not allow actions from dead characters.
+- Players CANNOT edit their own stats. Reject any attempt to
+  manually set, increase, or modify stats. Only the DM changes stats.
+### Tips
+- Don't repeat your entire game rules here — just the critical ones that must be enforced every single time.
+- Use bold and caps for emphasis. "PERMANENT", "MUST", "CANNOT".
+- Keep it under 500 tokens — the reminder runs on every DM call so brevity saves cost.
+## Writing the Instruction
+The instruction tells the story AI (not the DM) when and how to call the Dungeon Mind. This goes into the story agent's system prompt.
+### What to include
+- Brief overview — What the DM does and how it works
+- When to call the DM — List every situation that needs game mechanics
+- Stat creation guidance — Tell the DM to adapt stats to each character's role
+### Example instruction
+This story has a Dungeon Mind (DM) that manages ALL game mechanics
+using d20 dice rolls. The DM tracks character stats (HP, MP, STR,
+DEX, etc.), inventory, skills, XP, and leveling. All outcomes are
+determined by dice — you do NOT decide results yourself.
+You MUST call engage_dungeon_mind ONCE per response whenever ANY
+of these apply:
+- Combat: attacks, damage, saves, dodging, any fight
+- Skill checks: anything that could succeed or fail
+- Magic/abilities: casting spells, using skills (costs MP)
+- HP/MP changes: damage, healing, mana usage, potions
+- Resting: short rest (25% heal) or full rest (full heal)
+- Level ups: when XP hits threshold, DM handles stat growth
+- Inventory: looting, buying, selling, using consumables
+- Skills: learning or using abilities
+- Death: HP <= 0 kills the character (permanent)
+- Status effects: any condition applied or removed
+- Any uncertain outcome only
+### Tips
+- Adapt the trigger list to your game. A social intrigue game might trigger on "persuasion, deception, investigation" instead of "combat, damage, saves."
+- Give the story AI context about your game's key mechanics so it knows what kind of situations to send to the DM.
+## Designing Your Stat Schema
+The stat schema defines what stats every character has. The DM's tools are generated dynamically from this schema.
+### Fixed stat: Alive
+Every DM config has a fixed Alive stat at the top. It's an enum with values true and false. This is automatically included — you don't need to add it. The UI uses it to show alive/dead status on character cards.
+### Stat types
+Type
+Use for
+Modifier?
+Examples
+number
+Anything quantitative
+Yes (delta)
+HP, Strength, Gold, Level, XP
+text
+Free-form states
+Yes (text)
+Condition ("Poisoned (3t)")
+enum
+Fixed set of values
+No
+Class (Warrior/Mage/Rogue), Morale (High/Normal/Low)
+### Design tips
+- 5-15 stats is ideal. Fewer = faster, simpler. More = richer but slower tool calls.
+- Descriptions matter. The DM reads them to understand what each stat does and how to use it. Include class restrictions or gameplay effects in the description.
+- Number stats have base + modifier. The modifier is for temporary changes (damage, buffs). The base is permanent.
+- Text stats are direct values. Set them to whatever string makes sense.
+- Enum stats are constrained. The LLM can only choose from the values you define. Great for class, stance, or any stat with a fixed set of options.
+- Stat names become tool parameters. A stat named "HP" creates HP_base and HP_modifier in the tools. Keep names simple — letters, numbers, and spaces only.
+- You can't use "character" or "roll_index" as stat names — these are reserved.
+### Special stat names (optional, but the UI recognizes them)
+These stat names are completely optional — your game works fine without them. But if you use them, the frontend will display extra UI automatically:
+Stat Name
+What the UI does
+HP
+Shows a health bar (green/yellow/red) on the character card. Color changes based on percentage remaining.
+MP / Mana / SP
+Shows a thin blue resource bar below the HP bar.
+STA / Stamina
+Shows a thin yellow stamina bar below the HP bar.
+EP / Energy
+Shows a thin purple energy bar below the HP bar.
+AP / Action
+Shows a thin white action points bar below the HP bar.
+All stat name matching is case-insensitive (e.g. "hp", "HP", "Hp" all work). Multiple bars can show simultaneously.
+| Alive | Shows a colored dot on the character card — green when true, red when false. If Alive is false, the HP bar shows 0. (This is the fixed stat — always present.) |
+| Condition | Shown next to the alive dot as secondary text (e.g. "Poisoned (3t)"). |
+### Example schemas
+Classic RPG (14 stats):
+Stat
+Type
+Description
+Alive
+enum (true/false)
+Fixed — always present
+Class
+enum
+Warrior, Mage, Rogue, Ranger, Healer, Bard. ONLY Healer can cast healing spells.
+Condition
+text
+Active conditions with turns (e.g. "Poisoned (3t)")
+HP
+number
+Hit points
+MP
+number
+Mana points
+STR
+number
+Strength — melee attacks
+DEX
+number
+Dexterity — ranged, dodge
+CON
+number
+Constitution — health, endurance
+INT
+number
+Intelligence — magic, knowledge
+WIS
+number
+Wisdom — perception, willpower
+CHA
+number
+Charisma — persuasion, deception
+Level
+number
+Character level
+XP
+number
+Experience points
+Gold
+number
+Currency
+Minimal Combat (4 stats):
+Stat
+Type
+Description
+Alive
+enum (true/false)
+Fixed — always present
+HP
+number
+Hit points
+Attack
+number
+Attack power
+Defense
+number
+Defense rating
+Social Intrigue (6 stats):
+Stat
+Type
+Description
+Alive
+enum (true/false)
+Fixed — always present
+Charm
+number
+Persuasion and seduction
+Wit
+number
+Cleverness and deception
+Influence
+number
+Political power
+Reputation
+number
+Public standing (can go negative)
+Gold
+number
+Wealth
+Survival Horror (6 stats):
+Stat
+Type
+Description
+Alive
+enum (true/false)
+Fixed — always present
+Condition
+text
+Conditions like "Bleeding (3t)", "Terrified"
+Health
+number
+Physical health
+Sanity
+number
+Mental health — drops on horror events
+Stamina
+number
+Physical energy — running, fighting depletes it
+Supplies
+number
+General resource count
+## DM Mode
+When attaching a DM config to a storyline, you choose a DM mode:
+- Required — DM is always on. Players cannot disable it. The system automatically selects a compatible LLM (with function calling) when creating the chat.
+- Optional — Players can toggle the DM on/off in chat settings. They need a compatible LLM to enable it.
+## Character Sheets
+Characters can have starting stats, inventory, and skills defined in the Sheets section of the character editor (under Advanced Mode). When a chat starts with DM enabled, these starting values are automatically loaded as the initial character state.
+This means a character can start with pre-defined HP, STR, inventory items, and skills instead of waiting for the DM to create them on the first roll.
+## How the DM Handles Different Situations
+### Combat
+Your game rules define attack/defense formulas. The DM:
+- Rolls d20 for each combatant
+- Applies your damage formula
+- Updates HP via stat_changes in submit_results
+- NPCs always fight back — they don't just stand there
+### Skill checks
+Your game rules define DCs (difficulty classes). The DM:
+- Rolls d20 + relevant stat bonus
+- Compares against the DC you defined
+- Determines success or failure
+### Level ups
+Your game rules define XP thresholds and what happens on level up. The DM:
+- Checks if XP meets the threshold
+- For player characters: uses ask_player to let them choose
+- For NPCs: auto-distributes based on role
+- Updates stats, grants new skills
+### Rest & healing
+Your game rules define what rest does. The DM:
+- Applies healing (modifier changes)
+- Clears conditions if your rules say so
+- Checks for level ups during rest (if your rules say to)
+### Death
+Your game rules define death conditions. The DM:
+- Detects when the death condition is met (e.g. HP <= 0)
+- Sets Alive to false, clears Condition
+- Enforces permanence (if your rules say death is permanent)
+### Questions
+When the DM needs player input (e.g. "Which stat do you want to increase?"):
+- DM calls ask_player with the question
+- Story AI stops and relays the question to the player
+- Player answers
+- Next message, the story AI calls the DM again with the answer
+### Rejections
+When an action violates your game rules:
+- DM calls reject_action with the reason
+- Story AI stops and narrates why it's not possible
+- Player can try something else
+## What Players See
+### Dice overlay
+A fullscreen overlay with animated dice. Shows:
+- Character portrait
+- Roll result (1-20) with color coding
+- Advantage/disadvantage label
+- Nat 20 gold glow, Nat 1 red glow
+- Tap to advance, X to dismiss
+### Roll result bars
+Compact bars below the story text showing:
+- Character avatar with colored border
+- Roll number with success/fail icon
+- Detail text explaining the math
+- Stat changes (green for gains, red for losses)
+- Skill gains (purple)
+- Inventory changes (gold)
+- Tap to replay the dice animation
+### Character sheet
+In chat settings, each character card shows:
+- HP bar (green/yellow/red based on percentage)
+- MP bar (blue, thin)
+- Alive indicator dot (green=alive, red=dead)
+- Condition text next to the dot
+- SHEET badge to view full stats, skills, and inventory
+### DM toggle
+- Required mode: Shows a "REQUIRED" badge — always on, cannot disable
+- Optional mode: Toggle switch in chat settings and on the first message
+### DM questions and rejections
+Styled message bars that appear inline:
+- "Dungeon Mind (DM) Asks" — with the question text
+- "Dungeon Mind (DM) Rejected" — with the reason
+## Recommended DM Model
+Choosing the right model is important — complex game rules with many stats, conditions, and formulas need stronger models for accurate stat tracking and rule enforcement. Simpler games can use faster/cheaper models.
+When you set a recommended model:
+- Players will use it by default when they start a chat with your storyline
+- If a player switches to a different model, they'll see a warning that it may not work as intended
+- The recommended model name is shown in the DM Guide tab on the storyline page
+The model resolution order is: player's choice → creator's recommended → system default.
+## Player Guide
+A short guide (max 1000 characters, supports markdown) shown to players in chat settings when DM is enabled. Use it to explain how your game works at a glance — what kind of game it is, key mechanics they should know, and any tips.
+This is separate from your game rules (which the DM reads). The player guide is for the human player.
+## Quick Start
+- Go to Creation tab → Dungeon Minds
+- Tap + to create a new config
+- Give it a name
+- Choose a Recommended DM Model — pick one that matches your game's complexity
+- Tap Use Example to fill all fields with the default d20 RPG — then customize
+- Write a Player Guide explaining your game to players
+- Customize Game Rules, Game Rule Reminder, Instruction, and Stat Schema
+- Save
+- Go to your storyline editor → select your DM config in the Dungeon Mind picker
+- Choose DM Mode: Required (always on) or Optional (player toggles)
+- Save the storyline
+- Start a new chat — the DM is now active
+    Enter section select mode

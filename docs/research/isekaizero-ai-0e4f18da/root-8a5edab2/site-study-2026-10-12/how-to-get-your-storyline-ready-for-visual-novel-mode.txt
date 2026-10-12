@@ -1,0 +1,161 @@
+# How To Get Your Storyline Ready For Visual Novel Mode
+## Visual Novel Mode Settings
+### Auto Create New Background (Recommended)
+What it does: Automatically generates background images when the scene changes in the story
+Cost: ~0.58-0.7 Mana/Arcane per image
+When to use:
+- When the creator hasn't uploaded background images
+- For dynamic stories with many location changes
+- For the most immersive visual experience
+How it works:
+- AI reads the story context and scene description
+- Generates appropriate background (castle, forest, city, etc.)
+- Updates when the location changes in the narrative
+Tip: This is recommended for the best visual novel experience!
+### Auto Create New Characters (Recommended)
+What it does: Automatically generates character images when new characters appear in the story
+Cost: ~0.58-0.7 Mana/Arcane per image
+When to use:
+- When the creator hasn't uploaded character images
+- When new NPCs or characters appear
+- For complete visual representation
+How it works:
+- AI analyzes character descriptions from the story
+- Generates character appearance as a foreground image
+- Appears when that character is active in the scene
+Tip: This is recommended for full character visualization!
+### Voice & Narration Enabled (Optional)
+What it does: Generates voice narration for each character in the story
+Cost: ~1-2 Mana/Arcane per Full Narration/Voice Generation
+When to use:
+- If you want characters to have spoken dialogue
+- For a more immersive audio-visual experience
+- When you prefer listening to reading
+How it works:
+- AI generates voice audio for character dialogue
+- Each character can have a distinct voice (if creator set it up)
+- Narration plays automatically during the story
+Note: This is optional and uses additional credits. You can enjoy Visual Novel Mode without voice narration.
+### Auto Edit Existing Background (Optional)
+What it does: Automatically modifies existing background images to match scene changes
+Cost: ~2 Mana/Arcane per image edit
+When to use:
+- When the creator has uploaded backgrounds but they need adjustments
+- To adapt existing backgrounds to different lighting/mood
+- For scene variations (day to night, weather changes)
+How it works:
+- Takes the existing background image
+- Edits it based on story context (e.g., makes it darker for night scenes)
+- Applies changes dynamically
+Note: This is optional. Only enable if you want dynamic edits to creator-uploaded backgrounds.
+### Auto Edit Existing Characters (Optional)
+What it does: Automatically generates character expressions, poses, and reactions based on what happens in the scene
+Cost: ~2 Mana/Arcane per image edit
+When to use:
+- When the creator has uploaded character images
+- To see dynamic facial expressions and emotions
+- For characters reacting to story events
+How it works:
+- Analyzes the story dialogue and context
+- Modifies character images to show appropriate emotions
+- Updates expressions based on what's happening (happy, sad, angry, surprised, etc.)
+Example: If the story says "Elena smiles warmly," the character image updates to show a smiling expression.
+Note: This is optional. Only enable if the creator has uploaded character images and you want dynamic expressions.
+## How Creator Uploaded Images Work in Visual Novel Mode
+If a creator has uploaded Foreground (Character) Images and Background Images with proper Image Captions, Visual Novel Mode will use these images automatically!
+### Foreground Images (Characters):
+- PNG images with transparent backgrounds
+- Show characters, NPCs, or subjects
+- Appear in front of backgrounds
+### Background Images (Locations):
+- Environment and location images
+- Examples: rooms, forests, castles, streets
+- Set the scene atmosphere
+### Image Captions:
+Creators use captions to trigger the right images at the right time:
+Character Captions:
+- "Elena is happy"
+- "Marcus is angry"
+- "Lola is sad"
+Background Captions:
+- "in the throne room"
+- "at the forest campfire"
+- "during the battle"
+How it works:
+- AI reads the story context
+- Matches the situation to the caption
+- Displays the appropriate image automatically
+Example: If the story says "Elena smiles as she hands you a sword in the throne room," Visual Novel Mode will:
+- Show the "throne room" background
+- Display Elena's "happy" expression image
+## Tips for the Best Visual Novel Experience
+For Players:
+- Enable Recommended Settings First
+- Start with Auto Create Background + Characters
+- Add voice narration later if desired
+- Check Creator Content
+- Look for Storylines with uploaded images for better quality
+- Creators with image captions provide better visual matching
+- Manage Your Credits
+- Auto-generation uses credits per image
+- Turn off features you don't need to save credits
+- Voice narration is optional but enhances immersion
+- Beta Features
+- Visual Novel Mode is in Beta - improvements coming!
+- Report feedback on Discord
+- Expect faster, cheaper, more stable experience soon
+### For Creators:
+To optimize your Storylines for Visual Novel Mode:
+- Upload Quality Images
+- Foreground: PNG with transparent backgrounds
+- Background: High-quality environment images
+- Use Clear Image Captions
+- Character emotions: "Elena is happy", "Marcus is angry"
+- Location triggers: "in the castle", "at the campfire"
+- Add Voice Files (Optional)
+- Upload character voices for authentic narration
+- Each character can have a unique voice
+- Test Your Storyline
+- Play in Visual Novel Mode to see how images trigger
+- Adjust captions if images don't appear correctly
+### Troubleshooting
+Images Not Appearing:
+- Enable "Auto Create" features if creator hasn't uploaded images
+- Check if you have enough Mana/Arcane credits
+- Wait for images to generate (takes a few seconds)
+### Wrong Images Showing:
+- This depends on the creator's image captions
+- AI matches context to captions - may not always be perfect
+- Report issues to the creator or in Discord
+Voice Not Playing:
+- Ensure "Voice & Narration Enabled" is turned ON
+- Check your device volume
+- Verify you have enough credits for voice generation
+### High Credit Usage:
+- Turn off optional features (voice, auto-edit)
+- Disable auto-generation if creator has uploaded images
+- Monitor your credit balance
+## Current Status: Beta
+Visual Novel Mode is currently in Beta. This means:
+- Fully functional and available now
+- Still being improved and optimized
+- Pricing may change as features improve
+- Faster performance coming soon
+## FAQ
+Q: Is Visual Novel Mode available for all Storylines? 
+A: Yes! You can use Visual Novel Mode with any Storyline, but the experience is best with Storylines that have creator-uploaded images.
+Q: Do I need to enable all features? 
+A: No. Only "Auto Create Background" and "Auto Create Characters" are recommended. Others are optional based on your preference and budget.
+Q: Can I switch between Narration Mode and Visual Novel Mode? 
+A: Yes! You can toggle between modes at any time in the Play Mode tab.
+Q: How much do credits cost in total? 
+A: Approximately 1-3 Mana/Arcane per session with recommended settings. Additional features increase the cost.
+Q: What if I run out of credits mid-story? 
+A: Visual Novel features will stop generating new images/audio, but you can continue playing in regular Narration Mode.
+Q: Will Visual Novel Mode get cheaper? 
+A: Yes! The team is working on making it faster, cheaper, and more stable. Check Discord for updates!
+Ready to experience your stories in Visual Novel Mode?
+We're looking for feedback on Discord! Share your experience and help us improve.
+Toggle to Visual Novel Mode, configure your settings, and watch your adventure come to life!
+Need help? Ask in #ask-for-help on Discord or email contact@isekai.world
+    Enter section select mode

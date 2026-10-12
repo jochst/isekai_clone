@@ -1,0 +1,345 @@
+${O? : get
+/affiliate/program : get
+/ai-framework-handoff : post
+/auth/gifts : get
+/auth/sendEmailVerification : post
+/auth/sister-sso : post
+/auth/sister-sso/poll : post
+/auth/sister-sso/start : post
+/auth/track-referral : post
+/auth/track-utm : post
+/chats : get
+/chats/:id/messages : post
+/chats/:id/messages/:id/choices/:id/generate-video-scene : post
+/chats/:id/recap : post
+/chats/:id/trash/restore : post
+/chats/:id/video-scenes/:id : get
+/chats/trash : get
+/creator-stats/all-content : get
+/creator-stats/engagement-trends : get
+/creator-stats/profile : get
+/creator-stats/storyline-insights : get
+/dailyCheckin : get put
+/docs/pages/:id/markdown : get
+/earnings/convert-to-paid : post
+/earnings/user/chart?period=:id&type=affiliate : get
+/earnings/user/chart?period=:id&type=referral : get
+/earnings/user/chart?period=:id:id : get
+/galleries : get post
+/galleries/:id : get
+/gifts/pick : post
+/gifts/preview : get
+/image-generation/models : get
+/leaderboard/referral/monthly : get
+/leaderboard/total/monthly : get
+/media : get post put
+/media/:id : get
+/media/:id/star : post
+/media/:id/video-generation-input : get
+/media/delete : post
+/media/filter-options : get
+/media/info : put
+/music/models : get
+/music/tracks/from-upload : post
+/payout : post
+/payout-account : get post put
+/payout-account/:id : get
+/payout-account/bank/schema : get
+/payout-account/bank/schema?:id : get
+/payout-account/bank/schema?bankCountryCode=:id : get
+/payout/fx-preview?:id : get
+/payout/recent : get
+/products : get
+/purchases/revenue-monster/methods : get
+/search : get
+/search/related/:id : get
+/sister-sso/code : post
+/storylines/:id/engagement-status : get
+/storylines/:id/queue-position : get
+/storylines/promoted-hero : get
+/storylines/publish-quota : get
+/storylines/queue/count : get
+/tags/list : get
+/tips : get
+/tools/image/enhance-prompt : post
+/tts/models : get
+/upload/batch-signed-urls : post
+/upload/signed-url : post
+/userActivities : post
+/userActivities/feed-events : post
+/userComments : post
+/userComments/:id : delete put
+/userComments/:id/edit : put
+/userComments/:id/pin : put
+/userComments/:id/replies : get
+/userComments/:id/reply : post
+/userComments/:id/spoiler : put
+/userComments/:id/thread : get
+/userComments/:id/translate : post
+/userComments/own : get
+/userComments/sister : get
+/userComments/table : get
+/userComments/vote : post
+/users/affiliate/accept-terms : post
+/users/affiliate/application : get
+/users/affiliate/apply : post
+/users/affiliate/links : get post
+/users/affiliate/links/:id : delete
+/users/affiliate/overview?period=:id : get
+/users/affiliate/purchases?:id : get
+/users/affiliate/purchases?page=1&limit=:id : get
+/users/affiliate/referrals?page=1&limit=:id&sortBy=createdAt&order=desc : get
+/users/affiliate/status : get
+/users/referral : post
+/users/referral/list?page=1&limit=5&sortBy=createdAt&order=desc : get
+/users/referral/status : get
+/users/utm : post
+/video-generation/draft/:id/finalize-quote : get
+/video-generation/reference-audio : post
+:id/checkout : post
+:id/orders/:id : get
+:id?code=:id : get
+:id?page=:id&limit=20&pageSize=20 : get
+:ids/:id/mirror-visibility : put
+CMCD : delete get
+Content-Length : get
+__shaka_all_events__ : get
+admob/status : get
+age-verification/session : post
+age-verification/status : get
+ai-tools : get
+audio : get
+audio-generations/:id : delete patch
+audio-generations/generate/script : post
+audio-generations/my : get
+auth/acceptTerms : post
+auth/block : get
+auth/email : put
+auth/forgotPassword : post
+auth/linkEmail : post
+auth/login : post
+auth/mfa/passkey/:id : delete
+auth/mfa/passkey/options : post
+auth/mfa/passkey/register/confirm/abandon : post
+auth/mfa/passkey/register/confirm/options : post
+auth/mfa/passkey/register/confirm/verify : post
+auth/mfa/passkey/register/options : post
+auth/mfa/passkey/register/verify : post
+auth/mfa/passkey/verify : post
+auth/mfa/session : post
+auth/mfa/status : get
+auth/mfa/step-up : post
+auth/mfa/totp/activate : post
+auth/mfa/totp/disable : post
+auth/mfa/totp/setup : post
+auth/mfa/verify : post
+auth/notificationToken : delete put
+auth/password : put
+auth/profile : delete get put
+auth/providers : put
+auth/providers/:id : get
+auth/register : post
+auth/resetPassword : post
+auth/sendEmailChangeVerification : post
+auth/sendEmailVerification : post
+auth/token : post
+auth/unlink : post
+auth/verifyHuman : post
+characterId : delete
+characterName : delete
+characters : post
+characters/:id : delete get
+characters/:id/comments : put
+chats : post
+chats/:id : delete get put
+chats/:id/:id : get
+chats/:id/arcs : get post
+chats/:id/arcs/:id : delete put
+chats/:id/arcs/:id/regenerate : put
+chats/:id/arcs/:id/toggle : put
+chats/:id/assist : post
+chats/:id/branch : post
+chats/:id/chapters : get post
+chats/:id/chapters/:id : delete put
+chats/:id/chapters/:id/first-message : get
+chats/:id/chapters/:id/regenerate : put
+chats/:id/chapters/:id/source : get
+chats/:id/chapters/:id/toggle : put
+chats/:id/chapters/next : get
+chats/:id/characters : post
+chats/:id/characters/:id : delete get put
+chats/:id/characters/:id/active-appearance : put
+chats/:id/characters/:id/edit-media : post
+chats/:id/characters/:id/export : post
+chats/:id/characters/:id/generate-media : post
+chats/:id/characters/:id/sheet : put
+chats/:id/codex : get
+chats/:id/codex/:id : put
+chats/:id/gallery/collection : get
+chats/:id/histories : get
+chats/:id/histories/:id : delete put
+chats/:id/histories/:id/archive : post
+chats/:id/histories/:id/restore : post
+chats/:id/histories/:id/status : get
+chats/:id/histories/:id/trash/restore : post
+chats/:id/histories/:id?cancelSetup=true : delete
+chats/:id/histories/trash : get
+chats/:id/latest : put
+chats/:id/manga-scenes/:id : get
+chats/:id/message-choices/:id/character-state : put
+chats/:id/messages : get
+chats/:id/messages/:id : delete put
+chats/:id/messages/:id/choices/:id : delete put
+chats/:id/messages/:id/choices/:id/manga-scenes/:id/pages/:id/edit : post
+chats/:id/messages/:id/choices/:id/manga-scenes/:id/pages/:id/regenerate : post
+chats/:id/messages/:id/choices/:id/manga-scenes/:id/pages/:id/revert : post
+chats/:id/messages/:id/choices/:id/media/:id : delete
+chats/:id/messages/:id/choices/:id/media/:id/regenerate : post
+chats/:id/messages/:id/choices/:id/select-manga-scene : put
+chats/:id/messages/:id/choices/:id/select-video-scene : put
+chats/:id/messages/:id/choices/:id/stream/stop : put
+chats/:id/messages/:id/choices/:id/video-scenes/:id/beats/:id/edit : post
+chats/:id/messages/:id/choices/:id/video-scenes/:id/beats/:id/regenerate : post
+chats/:id/messages/:id/choices/:id/video-scenes/:id/beats/:id/revert : post
+chats/:id/messages/:id/save : delete post
+chats/:id/messages/first : get
+chats/:id/messages/saved : get
+chats/:id/messages/search : get
+chats/:id/multi-persona : put
+chats/:id/player-role : put
+chats/:id/reset-settings : post
+chats/:id/response-options : get
+chats/:id/start : post
+chats/:id/storyMedia : get
+chats/:id/storyMedia/:id : delete
+chats/:id/toggle-character : put
+chats/:id/toggle-extra : put
+chats/storyline/:id : get
+code : get
+cpx/surveys : get
+currentAd : get
+dailyCheckin : get
+dm-configs : get
+dm-configs/:id : delete get
+galleries : post put
+galleries/:id : delete
+galleries/reorder : put
+global : get
+klipy/gifs : get
+length : get
+lightnovel : delete
+llm-reviews : post
+llm-reviews/:id : delete get
+llm-reviews/:id/me : get
+llm-reviews/:id/translate : post
+llm-reviews/vote : post
+llms : get
+manga : delete
+media/:id : get
+media/:id/edit-replace : post
+media/delete : post
+message-choices/:id : get
+michiru/claim-status : get
+music/artists/discover : get
+music/genres : get
+music/home : get
+music/playlists : post
+music/playlists/:id : delete get patch
+music/playlists/:id/engagement-status : get
+music/playlists/:id/next-up : get
+music/playlists/:id/tracks : post
+music/playlists/:id/tracks/:id : delete
+music/playlists/:id/tracks/reorder : put
+music/playlists/discover : get
+music/playlists/my : get
+music/playlists/recent : get
+music/playlists/saved : get
+music/radio/next : get
+music/search : get
+music/tracks/:id : delete get patch
+music/tracks/:id/public : get
+music/tracks/discover : get
+music/tracks/my : get
+music/users/:id/playlists : get
+music/users/:id/tracks : get
+notifications : delete get post
+notifications/preferences : get put
+notifications/read/:id : put
+notifications/read/all : put
+notifications/read/general : put
+oauth/requests/:id : get
+oauth/requests/:id/:id : post
+orderId : get
+payout-account/:id : delete
+player : get
+products : get
+provider : get
+redeem : get
+screen : get
+search : get
+search/creators : get
+search/discovery/reset-seen : post
+search/tag : get
+search/users : get
+service-agents/:id/conversations : get
+service-agents/:id/conversations/:id : get
+set-cookie : get
+sister-import : get
+sister-import/items : get post
+sister-transfer : get
+sister-transfer/in : post
+state : get
+stats/me : get
+status : get
+storylines : post
+storylines/:id : delete get
+storylines/:id/appeal : post
+storylines/:id/characters/:id : get
+storylines/:id/comments : put
+storylines/:id/import-copy : post
+storylines/:id/reviewHistory : get
+storylines/:id/revision : delete
+storylines/cup-winners : get
+storylines/tools/media-picker-prompt : get
+storylines/tools/storyteller-prompt : get
+storylines/weekly-featured : get
+token : delete
+tools/characters/generate/tags : post
+tools/storylines/generate/tags : post
+tools/tts/voices/generate/sample/script : post
+torox/offers : get
+torox/progress : get
+torox/support : get
+tts/voices : get
+tts/voices/id/:id : delete get
+tts/voices/publish-design : post
+uri : get
+userActivities : post
+userFollowers : post
+userFollowers/unfollow : post
+userPosts : post
+userPosts/:id : delete get
+userPosts/:id/like : post
+userPosts/:id/pin : put
+userPosts/:id/vote : post
+userReservations : get
+userTransactions : get
+userTransactions/:id/usages : get
+users/:id : get
+users/:id/block : post
+users/:id/posts : get
+users/:id/unblock : put
+users/mcp-tokens : get post
+users/mcp-tokens/:id : delete
+users/mcp-tools : get
+utm_campaign : get
+utm_content : get
+utm_medium : get
+utm_source : get
+utm_term : get
+video : delete get
+visual-novel : delete
+visual-novel/:id : get
+visual-novel/:id/random/backgrounds?limit=10 : get
+visual-novel/:id/visibility : put
+window : get

@@ -1,0 +1,101 @@
+# Mana Credits and Arcane Credits
+## Isekai Zero Mana Credits
+Mana Credit is ISEKAI ZERO's free-to-earn currency for accessing affordable AI models and features.
+What Are Mana Credits?
+- Free virtual currency that can be earned through in-app activities
+- Used for standard/affordable AI models and basic features
+- Alternative to Arcane credits for budget-conscious users
+- Non-transferable between accounts
+- Credits don't expire (unless account is terminated)
+How to Earn Mana Credits
+1. Daily Check-In
+- Open ISEKAI ZERO app daily
+- Tap the check-in button at the profile section
+- Receive free Mana credits instantly
+- Consecutive check-ins may earn bonus credits
+2. Watch Ads
+- Navigate to Mana Credits section
+- Tap "Watch Ad" to earn credits
+- Watch a short video advertisement
+- Receive Mana credits after completion
+- Daily/hourly limits may apply
+What Can You Use Mana For?
+- Character Interactions - Chat with AI characters using standard models
+- Basic Content Generation - Generate text and images with affordable AI
+- Storyline Exploration - Engage with storylines using standard processing
+- General AI Features - Access core platform features
+Note: Premium AI features and advanced models require Arcane credits.
+Checking Your Mana Balance
+- View your current Mana balance in the app (displayed separately from Arcane)
+- Balance updates in real-time after earning or usage
+Earning Tips
+✓ Check in daily - Don't miss your daily bonus
+✓ Watch multiple ads - Earn more throughout the day
+✓ Consecutive logins - May unlock streak bonuses
+✓ Participate in events - Special events may offer bonus Mana
+Important Notes
+- Mana credits have no real-world monetary value
+- Cannot be purchased directly - only earned through activities
+- Cannot be converted to Arcane credits or vice versa
+- Cannot be transferred between accounts or exchanged for cash
+- May become inaccessible if account is terminated
+Credit Usage Priority
+When using AI features:
+- The some AI features will typically use Mana credits first (if available)
+- Arcane credits are used when Mana runs out or for premium features
+No Expiration
+- Earned Mana credits do not expire
+- Credits remain in your account indefinitely
+- Only become inaccessible if account is terminated for violations
+## Isekai Zero Arcane Credits
+Arcane is ISEKAI ZERO's virtual currency used to access premium AI computational resources and features.
+What Are Arcane Credits?
+- Virtual currency for AI-powered interactions and content generation
+- Used to chat with characters, generate content, and access AI features
+- No real-world monetary value - cannot be exchanged for cash
+- Non-transferable between accounts
+- Credits don't expire (unless account is terminated)
+How to Purchase
+Mobile App
+- Tap the Isekai Store in the app
+- Select an Arcane package
+- Complete purchase through Apple App Store or Google Play Store
+- Credits added instantly
+Website (Recommended)
+- Log in at isekai.world
+- Navigate to Isekai Store section
+- Choose an Arcane package
+- Complete payment accordingly
+Purchase Options
+One-Time Purchase
+- Buy credits as needed
+- Available in various package sizes
+- Credits added immediately
+Payment Methods
+We accept:
+- Credit/Debit cards (Visa, Mastercard, Amex)
+- Apple Pay (iOS)
+- Google Pay (Android)
+- Stripe (Website)
+Credit Usage
+- Different AI features consume different amounts of credits
+- Credit cost is displayed before you use any feature
+- Pricing is uniform regardless of content type (SFW/NSFW)
+Check your balance: Track usage in Profile → Credit History → Mana Credit History
+## Mana Credits and Arcane Credits (Summary)
+Feature
+Mana Credits
+Arcane Credits
+Cost
+Free (earned)
+Paid purchase
+LLM Models
+Affordable/Standard
+Premium/Advanced
+How to Get
+Daily check-ins, Ads
+Purchase only
+Best For
+Casual users
+Power users
+    Enter section select mode
