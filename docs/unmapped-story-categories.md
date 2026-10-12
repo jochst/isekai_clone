@@ -1,0 +1,1348 @@
+# Stories with categories the app does not filter yet
+
+These Isekai Zero stories use a category that has no entry in the app's category list (`categories` in `src/lib/imports/cards.ts`, styled by `CATEGORY_META`), so Explore shows and filters them as **Fantasy**.
+
+Snapshot of `dev.db` on 2026-10-12: **1300 of 5981** stories across **9** categories. The nightly update adds more, so regenerate this list after adding categories.
+
+**Categories the app already supports:** `fantasy`, `isekai`, `sciFi`, `mecha`, `horror`, `thriller`, `academy`, `romance`, `comedy`, `adventure`, `supernatural`, `sports`, `psychological`, `betrayal`
+
+## Summary
+
+| Isekai category | Stories |
+| --- | ---: |
+| `sliceOfLife` | 376 |
+| `action` | 269 |
+| `drama` | 254 |
+| `mystery` | 177 |
+| `historical` | 86 |
+| `cultivation` | 69 |
+| `romantasy` | 35 |
+| `martialArts` | 25 |
+| `(none)` | 9 |
+
+## `sliceOfLife` (376)
+
+- [Interspecies Living \[SFW\]](https://www.isekaizero.ai/storylines/69d3f4b0d47d860e34f02819) — @sunglassescat · `69d3f4b0d47d860e34f02819`
+- [\*\*“Become an Author of a VRMMO,”\*\*](https://www.isekaizero.ai/storylines/6a9bab23e477faa64056253c) — @lumigos · `6a9bab23e477faa64056253c`
+- [\*\*”Make Your Own Anime”\*\*](https://www.isekaizero.ai/storylines/6aa37ee46f40c02cd028200d) — @lumigos · `6aa37ee46f40c02cd028200d`
+- [A Borrowed Spring](https://www.isekaizero.ai/storylines/69f2c95bd8a5e2397e99629a) — @kroner · `69f2c95bd8a5e2397e99629a`
+- [A flower's destiny](https://www.isekaizero.ai/storylines/6a5031c85326e2f9965b4746) — @ltkola · `6a5031c85326e2f9965b4746`
+- [A Half-Baked Life](https://www.isekaizero.ai/storylines/6a353bdf0ed38c21c5c67cbb) — @rell · `6a353bdf0ed38c21c5c67cbb`
+- [A Hero's Hearth](https://www.isekaizero.ai/storylines/6aacbe22005eb80095dd81c5) — @shadowfireangel · `6aacbe22005eb80095dd81c5`
+- [A Home Between The Shelves](https://www.isekaizero.ai/storylines/6a6295201db50335774dbd8b) — @hemlock · `6a6295201db50335774dbd8b`
+- [A Latte of Anxiety](https://www.isekaizero.ai/storylines/6a062d4d526780e61b2d9200) — @anamei · `6a062d4d526780e61b2d9200`
+- [A Little Bit of Sunshine](https://www.isekaizero.ai/storylines/69694d8fe987960ad108c82f) — @pinkbottlecaps · `69694d8fe987960ad108c82f`
+- [A little Magic left behind](https://www.isekaizero.ai/storylines/6978c1d8dc24a995ee8a4e21) — @cyberzone678 · `6978c1d8dc24a995ee8a4e21`
+- [A New Life](https://www.isekaizero.ai/storylines/6a3d4b400ebf2c37f0044e49) — @comrade\_questions · `6a3d4b400ebf2c37f0044e49`
+- [A Quiet Life Beyond the Ending](https://www.isekaizero.ai/storylines/69cb402e89477da35e65eabd) — @rozeph · `69cb402e89477da35e65eabd`
+- [A Quiet Life in Another World](https://www.isekaizero.ai/storylines/695f7f8fce4eab5551ce6787) — @mazzy · `695f7f8fce4eab5551ce6787`
+- [A Quiet Life With My Family](https://www.isekaizero.ai/storylines/69b852a635758806c4a8471c) — @puxz · `69b852a635758806c4a8471c`
+- [A Second Chance In Kousei Academy](https://www.isekaizero.ai/storylines/6a4f3136903c4677530b40df) — @primekazuki · `6a4f3136903c4677530b40df`
+- [A Secret Between Glasses](https://www.isekaizero.ai/storylines/696a551145a370a6e5cd0b46) — @satsuki · `696a551145a370a6e5cd0b46`
+- [A Simple Life.](https://www.isekaizero.ai/storylines/6a88759a3e0532123823ef34) — @fray-myste · `6a88759a3e0532123823ef34`
+- [A Skeleton’s Guide to Making Friends](https://www.isekaizero.ai/storylines/6a76e1de3701c34a5e2bbe04) — @arcanesolutions · `6a76e1de3701c34a5e2bbe04`
+- [A Slice of Two Worlds](https://www.isekaizero.ai/storylines/69980b4a1f606aa985ecf144) — @g1itch · `69980b4a1f606aa985ecf144`
+- [A Song Yet To Be Written ★](https://www.isekaizero.ai/storylines/6ab9d3d3b71bdef50aa55d26) — @theblindqueen · `6ab9d3d3b71bdef50aa55d26`
+- [A Stitch Between Worlds](https://www.isekaizero.ai/storylines/6a5e715841243c568df8c843) — @sporklemcspork · `6a5e715841243c568df8c843`
+- [A summer under Starlight](https://www.isekaizero.ai/storylines/6a00b6e88bd1be53ee09b375) — @a1aurora · `6a00b6e88bd1be53ee09b375`
+- [Accurate Neko Adoption](https://www.isekaizero.ai/storylines/69aa524127775b78fab07ace) — @valpal · `69aa524127775b78fab07ace`
+- [Adopted Daughter of the Southern Duke](https://www.isekaizero.ai/storylines/69bc007b1804e4176673b0df) — @shadowlady · `69bc007b1804e4176673b0df`
+- [Adopted the Final Boss](https://www.isekaizero.ai/storylines/6a3d1c32e34cb6efb2907f5f) — @yaruna · `6a3d1c32e34cb6efb2907f5f`
+- [Adventuring Party in Your Apartment](https://www.isekaizero.ai/storylines/694e8d99b73aa210d312ffa5) — @soph\_k · `694e8d99b73aa210d312ffa5`
+- [All My Cats have Turned into Girls!!](https://www.isekaizero.ai/storylines/6a8dae223be48f540991e99d) — @turbyy · `6a8dae223be48f540991e99d`
+- [Amiya Hoshimura: A Slice of Life With A Quiet Girl](https://www.isekaizero.ai/storylines/6a42a082824407cd31116ddc) — @echo\_agent832 · `6a42a082824407cd31116ddc`
+- [An Island called Home](https://www.isekaizero.ai/storylines/6ab347a5f81ae9a0b41b6cec) — @smixx · `6ab347a5f81ae9a0b41b6cec`
+- [Apartment Building Isekai](https://www.isekaizero.ai/storylines/6a19ea41e214fe3c6610f131) — @parasitichivemind176 · `6a19ea41e214fe3c6610f131`
+- [Apparently My Roommates... Aren't Human](https://www.isekaizero.ai/storylines/6a97806fd0e540a340cbcce1) — @zevrax · `6a97806fd0e540a340cbcce1`
+- [Architects of the Apocalypse](https://www.isekaizero.ai/storylines/6a6082df62642955d013b821) — @dameloth · `6a6082df62642955d013b821`
+- [Ashen Hollow Orphanage](https://www.isekaizero.ai/storylines/6a15d0e2a4681668abfac2d5) — @orthosimeon128 · `6a15d0e2a4681668abfac2d5`
+- [At Home in Bramblewick](https://www.isekaizero.ai/storylines/6a36ff3a6597d22dde795e9e) — @hemlock · `6a36ff3a6597d22dde795e9e`
+- [Aurora](https://www.isekaizero.ai/storylines/6a54057b2524f79c18d89e14) — @golek · `6a54057b2524f79c18d89e14`
+- [Babysitting Legends](https://www.isekaizero.ai/storylines/69fe5df4f26fd056d4eabe97) — @tomato · `69fe5df4f26fd056d4eabe97`
+- [Bellavance Sugarcraft](https://www.isekaizero.ai/storylines/6a5285f8d327e5a5175a4a29) — @a1aurora · `6a5285f8d327e5a5175a4a29`
+- [Between Bells](https://www.isekaizero.ai/storylines/69f5e36063332915a172aa15) — @elandalla · `69f5e36063332915a172aa15`
+- [Between Wind and Will](https://www.isekaizero.ai/storylines/6974de3fbbdaf88fc9138684) — @satsuki · `6974de3fbbdaf88fc9138684`
+- [Blue Season Days](https://www.isekaizero.ai/storylines/6aaa91a1d5bf675d0b816189) — @beholdmybeer · `6aaa91a1d5bf675d0b816189`
+- [Born as a Sapling: I Must Grow](https://www.isekaizero.ai/storylines/69c381174ac41d640f107d72) — @rockyk · `69c381174ac41d640f107d72`
+- [Born into…the same world?!](https://www.isekaizero.ai/storylines/69a9bb790f8a1118a1c416d4) — @ak671 · `69a9bb790f8a1118a1c416d4`
+- [Borrowed Life: Hero where heroes aren’t needed](https://www.isekaizero.ai/storylines/6a116c99f2abb4c21c0888c4) — @comrade\_questions · `6a116c99f2abb4c21c0888c4`
+- [Borrower Between Us](https://www.isekaizero.ai/storylines/69c5bdc0cdb9a9090f0ff9bb) — @olliesalva · `69c5bdc0cdb9a9090f0ff9bb`
+- [Bunny Girl Exchange Program](https://www.isekaizero.ai/storylines/6a1a1e116820a6aaee86478d) — @ifrost · `6a1a1e116820a6aaee86478d`
+- [Business as Usual](https://www.isekaizero.ai/storylines/6a7e100697c65b894240e302) — @pstbcf31 · `6a7e100697c65b894240e302`
+- [Café Reborn](https://www.isekaizero.ai/storylines/6999da5c35879c88104f7375) — @cooki · `6999da5c35879c88104f7375`
+- [Calibration: Early Dating](https://www.isekaizero.ai/storylines/6955e2df3fe915020f60c6ba) — @sogencookie · `6955e2df3fe915020f60c6ba`
+- [Calibration: First Contact](https://www.isekaizero.ai/storylines/6955db6bdb7fe08142028942) — @sogencookie · `6955db6bdb7fe08142028942`
+- [Can I Take This Quest?](https://www.isekaizero.ai/storylines/6aa32957327ff756c14604e0) — @rockyk · `6aa32957327ff756c14604e0`
+- [Can you be my gentleman?](https://www.isekaizero.ai/storylines/6a3142b3d8155d1e8c1e2e02) — @it\_was\_an\_exaggerated\_smile · `6a3142b3d8155d1e8c1e2e02`
+- [Caretaker of ancient beasts](https://www.isekaizero.ai/storylines/69b9af351b2953cecf87127c) — @infinitybr · `69b9af351b2953cecf87127c`
+- [Carried by the Sky!](https://www.isekaizero.ai/storylines/697976e4c5ccc6007bc3e2f7) — @cyberzone678 · `697976e4c5ccc6007bc3e2f7`
+- [Catching Strays](https://www.isekaizero.ai/storylines/6a4ebc9dbae62d10e1057065) — @clandesite · `6a4ebc9dbae62d10e1057065`
+- [Caught in Cosplay Club](https://www.isekaizero.ai/storylines/6a7e34b30d34d901e4c3b6cc) — @matsuo · `6a7e34b30d34d901e4c3b6cc`
+- [Centro Aurora](https://www.isekaizero.ai/storylines/695e909e6a793b3cfd79a35f) — @proxycitizen727 · `695e909e6a793b3cfd79a35f`
+- [CHEAT: A SECOND CHANCE](https://www.isekaizero.ai/storylines/6abfe8066273c1bcdf87dd2b) — @black\_cat · `6abfe8066273c1bcdf87dd2b`
+- [Checkmate Me](https://www.isekaizero.ai/storylines/6a8665dddc35f8e50226664d) — @atlanteshellsing · `6a8665dddc35f8e50226664d`
+- [Circus of Burgers!](https://www.isekaizero.ai/storylines/6a36b0022771ed3f0f36c6f1) — @princessbowse · `6a36b0022771ed3f0f36c6f1`
+- [Clocking Out of the Main Quest](https://www.isekaizero.ai/storylines/6a10b1533af7bb2e5d7cf902) — @qtester892 · `6a10b1533af7bb2e5d7cf902`
+- [Co-parenting With A Villain](https://www.isekaizero.ai/storylines/6a5219cad38aa95381d4b248) — @masked\_case39 · `6a5219cad38aa95381d4b248`
+- [Cooking My Way Through Another World](https://www.isekaizero.ai/storylines/6aa8ebc52c1d91898a1dd4f9) — @gldmango · `6aa8ebc52c1d91898a1dd4f9`
+- [Copy & Paste (Fire & Frost)](https://www.isekaizero.ai/storylines/6a80744d4990de4764b4a057) — @luis · `6a80744d4990de4764b4a057`
+- [Coral and Chaos](https://www.isekaizero.ai/storylines/6ac060dcf58a2119ca41e5e0) — @gayboi · `6ac060dcf58a2119ca41e5e0`
+- [Cracks In Porcelain](https://www.isekaizero.ai/storylines/6a21417546c0d71e663da8c4) — @damoncross · `6a21417546c0d71e663da8c4`
+- [Crash Into Another Chat](https://www.isekaizero.ai/storylines/6a43d990760ee7d555416c2b) — @karazsteel · `6a43d990760ee7d555416c2b`
+- [Crash into.....babysitting??](https://www.isekaizero.ai/storylines/6a427d043dd3dafbb9542496) — @eggz-von-stein · `6a427d043dd3dafbb9542496`
+- [Crestmont University](https://www.isekaizero.ai/storylines/69f82845b00236e3c6fa967f) — @michal\_lifet · `69f82845b00236e3c6fa967f`
+- [Cuarentena en familia](https://www.isekaizero.ai/storylines/6a69a9f766c30feea7452f8d) — @wirecyborg7384 · `6a69a9f766c30feea7452f8d`
+- [Curious… Trapped in Pink Neko Café!](https://www.isekaizero.ai/storylines/69e544bec351192c42769c6b) — @echosafe · `69e544bec351192c42769c6b`
+- [CVU - Gender Reverse Campus Life](https://www.isekaizero.ai/storylines/6a49923cd94782fd5001f13b) — @martind · `6a49923cd94782fd5001f13b`
+- [Demi-Human Einsatzgruppe](https://www.isekaizero.ai/storylines/6a3c5578671cae7e0f807fb0) — @okami\_nishikino · `6a3c5578671cae7e0f807fb0`
+- [Demi-Human Klinik](https://www.isekaizero.ai/storylines/69bf209dc6af45c30a68a629) — @okami\_nishikino · `69bf209dc6af45c30a68a629`
+- [Demon Caretaker!](https://www.isekaizero.ai/storylines/69da2062896ff69513f9b645) — @anbee · `69da2062896ff69513f9b645`
+- [Después de la Libertad](https://www.isekaizero.ai/storylines/6a69156f7fd29e5825223749) — @fenrosk · `6a69156f7fd29e5825223749`
+- [Devil at my Door?!](https://www.isekaizero.ai/storylines/6aa2eb27a6b26e4c0bc4cffc) — @dondonburi · `6aa2eb27a6b26e4c0bc4cffc`
+- [Die Chaosagentur](https://www.isekaizero.ai/storylines/6a332800bdda7e956dbeb89a) — @kain · `6a332800bdda7e956dbeb89a`
+- [Die Chaosagentur V.2.0.](https://www.isekaizero.ai/storylines/6a9c9014ff94abbcb0ebd629) — @kain · `6a9c9014ff94abbcb0ebd629`
+- [Die Pension am Ende des Dungeons](https://www.isekaizero.ai/storylines/6a52cf14cae91d55582d0447) — @kain · `6a52cf14cae91d55582d0447`
+- [Don't Steal My Lunch!](https://www.isekaizero.ai/storylines/69678fd58f4abc87840fd052) — @randomly\_random · `69678fd58f4abc87840fd052`
+- [Echoes of memory](https://www.isekaizero.ai/storylines/6a4a374f9107fddcfd36c715) — @caramel\_macchiato · `6a4a374f9107fddcfd36c715`
+- [Echoes of the Horizon](https://www.isekaizero.ai/storylines/69b13e3f41e14218b0ef8d33) — @onlyheskuin · `69b13e3f41e14218b0ef8d33`
+- [Edenfall: Quiet Days Beyond the Gate](https://www.isekaizero.ai/storylines/69ca33c8ed33120e7478e23b) — @circuit\_mind303 · `69ca33c8ed33120e7478e23b`
+- [Eh?! Why are you in my bed?!](https://www.isekaizero.ai/storylines/6a6f10103beff51e455c2254) — @ummmm · `6a6f10103beff51e455c2254`
+- [El Auditor de Paradojas](https://www.isekaizero.ai/storylines/6ab30f951606cc31e68e9d9e) — @astronyto · `6ab30f951606cc31e68e9d9e`
+- [El eco del escudo roto](https://www.isekaizero.ai/storylines/69874e92834615a7ca27b13c) — @wormie007 · `69874e92834615a7ca27b13c`
+- [El prodigio sin familia : Vacaciones de verano](https://www.isekaizero.ai/storylines/6a93c59464f9c422d4f3e920) — @astronyto · `6a93c59464f9c422d4f3e920`
+- [Embers on the Phoenix](https://www.isekaizero.ai/storylines/699bbfb344b875dd2fe07a52) — @ataco · `699bbfb344b875dd2fe07a52`
+- [Entre os animais e os humanos](https://www.isekaizero.ai/storylines/6ab412b913215ad0da31f486) — @sonicmodel2616 · `6ab412b913215ad0da31f486`
+- [Fangs, Forms & Finals](https://www.isekaizero.ai/storylines/6a327eeb4e1057867db74c8d) — @originbreaker · `6a327eeb4e1057867db74c8d`
+- [Field of Carrots](https://www.isekaizero.ai/storylines/6a6c600b588f1c4b106b7907) — @mocapoka · `6a6c600b588f1c4b106b7907`
+- [Fisherman's Folly](https://www.isekaizero.ai/storylines/6a2e0585fb61dd4ab1f61eab) — @sporklemcspork · `6a2e0585fb61dd4ab1f61eab`
+- [Forced To Live With My Bully](https://www.isekaizero.ai/storylines/6ab6a824fca0abb24acd3e96) — @maeve12 · `6ab6a824fca0abb24acd3e96`
+- [Found in exile](https://www.isekaizero.ai/storylines/6a1c69c9d4771f54c97550f1) — @ambrose · `6a1c69c9d4771f54c97550f1`
+- [Fresh start out of London](https://www.isekaizero.ai/storylines/6a613a0b55dd5b941dc7c858) — @ashoregoth · `6a613a0b55dd5b941dc7c858`
+- [From Apprentice to Legend](https://www.isekaizero.ai/storylines/69ed5297362496ce4b844032) — @abyss · `69ed5297362496ce4b844032`
+- [FurEver Home!](https://www.isekaizero.ai/storylines/6a19a6067698b68d438dd9ae) — @elfpoles · `6a19a6067698b68d438dd9ae`
+- [Gals can’t like an otaku!](https://www.isekaizero.ai/storylines/6aa6dc36797f8b8f335174a5) — @exho · `6aa6dc36797f8b8f335174a5`
+- [Golden Spoons and Rusty Shovels](https://www.isekaizero.ai/storylines/69971d93ec79b7a9fed7b619) — @lilypadfly · `69971d93ec79b7a9fed7b619`
+- [Grace at the Truce Table](https://www.isekaizero.ai/storylines/6ab00db44566bd411116a402) — @meta\_core264 · `6ab00db44566bd411116a402`
+- [Grounds for Divinity](https://www.isekaizero.ai/storylines/6a6f2591ac83b99d67df6fa3) — @noruincarc · `6a6f2591ac83b99d67df6fa3`
+- [Hang out in VRMMO with the hardcore gamer girl](https://www.isekaizero.ai/storylines/6a0eaf7f15895a7ef415be10) — @fluffytime · `6a0eaf7f15895a7ef415be10`
+- [Harvest Festival in Fairford](https://www.isekaizero.ai/storylines/6a5a8181fa2af2dfc0d04733) — @pstbcf31 · `6a5a8181fa2af2dfc0d04733`
+- [Have You Eaten Yet, Sweetie?](https://www.isekaizero.ai/storylines/6a2ca5f2b8bbb3470e38efcd) — @poro · `6a2ca5f2b8bbb3470e38efcd`
+- [Hazy’s First Day in the City](https://www.isekaizero.ai/storylines/689af2b99e94d2471b9b8d44) — @magic\_world · `689af2b99e94d2471b9b8d44`
+- [Heartbrew Café](https://www.isekaizero.ai/storylines/6a47aa4721c752b819ca7328) — @eggz-von-stein · `6a47aa4721c752b819ca7328`
+- [HeartCare: Her Story](https://www.isekaizero.ai/storylines/6a62d7b20e9330d6853c0630) — @kaykyu · `6a62d7b20e9330d6853c0630`
+- [HeartCare: His Story](https://www.isekaizero.ai/storylines/6a62db80cd1ddf7d6b78e8fa) — @kaykyu · `6a62db80cd1ddf7d6b78e8fa`
+- [Hearthcross](https://www.isekaizero.ai/storylines/6a680a57ea785cc2431b0cb4) — @arcanesolutions · `6a680a57ea785cc2431b0cb4`
+- [Hearts of Iron](https://www.isekaizero.ai/storylines/6a9b7b1c18c7346719a691cc) — @titocv6 · `6a9b7b1c18c7346719a691cc`
+- [Hero returnee, with a demon queen](https://www.isekaizero.ai/storylines/699415488e206f8de4aff4ab) — @unknownauthor19 · `699415488e206f8de4aff4ab`
+- [Hoarding My Heart: A Dragon Princess Moved In?!](https://www.isekaizero.ai/storylines/6a3f476408f87e4a98a254c9) — @kroner · `6a3f476408f87e4a98a254c9`
+- [Home to Breathe (MalePov)](https://www.isekaizero.ai/storylines/6a1c2ad32dfff8654053cfbe) — @blazequest · `6a1c2ad32dfff8654053cfbe`
+- [How to be a father to a puppy girl](https://www.isekaizero.ai/storylines/69f773010fad22cd3611950c) — @ghostgrid168 · `69f773010fad22cd3611950c`
+- [How To Groom a Basilisk?](https://www.isekaizero.ai/storylines/697ce2dc7fc7979b0d50df6a) — @soph\_k · `697ce2dc7fc7979b0d50df6a`
+- [How To Groom a Basilisk? (v2)](https://www.isekaizero.ai/storylines/6a2c88ba96cd76f71fd873f8) — @soph\_k · `6a2c88ba96cd76f71fd873f8`
+- [Husband Does Not Dream Of Penguin Girl](https://www.isekaizero.ai/storylines/6a3ac481565e592ff79ffc23) — @it\_was\_an\_exaggerated\_smile · `6a3ac481565e592ff79ffc23`
+- [Husband for an Hour](https://www.isekaizero.ai/storylines/6a238370b517ba983a3f88ae) — @dulce-mochi · `6a238370b517ba983a3f88ae`
+- [I Accidentally Married My Enemy](https://www.isekaizero.ai/storylines/6a4b32e199792e35b310d589) — @erafona · `6a4b32e199792e35b310d589`
+- [I Became the Master of Catgirl Maids!](https://www.isekaizero.ai/storylines/697130695bb3411a54add8a8) — @davy16 · `697130695bb3411a54add8a8`
+- [I Bought a Kingdom from an Oni Who Can't Curtsy](https://www.isekaizero.ai/storylines/6a6202d4df50a8908ea9d0f8) — @surm · `6a6202d4df50a8908ea9d0f8`
+- [I Got Adopted By a Dragon](https://www.isekaizero.ai/storylines/6a55a601290d2df15bf43f41) — @mocapoka · `6a55a601290d2df15bf43f41`
+- [I Just Wanted Some Trading Cards…](https://www.isekaizero.ai/storylines/6a00d56d0805affa6d8ccbd1) — @urbanfiction · `6a00d56d0805affa6d8ccbd1`
+- [I Reincarnated with a Twin Sister???](https://www.isekaizero.ai/storylines/6ab3b76e77fefdf115e919f0) — @gayboi · `6ab3b76e77fefdf115e919f0`
+- [I Retired From the Road to Run a Tavern](https://www.isekaizero.ai/storylines/69f23018f971f286bff3bb45) — @vonthor · `69f23018f971f286bff3bb45`
+- [I Was Reborn as the Cat God’s Wife](https://www.isekaizero.ai/storylines/6a44898533f107c2763c82b0) — @goldenboicaska · `6a44898533f107c2763c82b0`
+- [I Went Back to Raise Myself](https://www.isekaizero.ai/storylines/6a247e7e032ad5ffa8b7dcb7) — @dulce-mochi · `6a247e7e032ad5ffa8b7dcb7`
+- [I woke up to a catgirl, now what?](https://www.isekaizero.ai/storylines/6a79edb41dea2ad5a4d90339) — @johnny\_the\_man · `6a79edb41dea2ad5a4d90339`
+- [I'm a Bartender in the Demon Lord's Fortress](https://www.isekaizero.ai/storylines/69a5e73f549f22535f0cdb24) — @noruincarc · `69a5e73f549f22535f0cdb24`
+- [I'm The New Landlord of a Supernatural Apartment?!](https://www.isekaizero.ai/storylines/6ab5544278343630e918407c) — @dobolk · `6ab5544278343630e918407c`
+- [Idol Maker - Girl Group](https://www.isekaizero.ai/storylines/6a516630d04ad8ab534f8637) — @smixx · `6a516630d04ad8ab534f8637`
+- [Idol Managing In Another World!](https://www.isekaizero.ai/storylines/69d57d3553b697824282ca7f) — @jorj-ito · `69d57d3553b697824282ca7f`
+- [If My Heart Was A House](https://www.isekaizero.ai/storylines/6a19402a88ceb5ee7502e51a) — @rigelvp · `6a19402a88ceb5ee7502e51a`
+- [Interspecies Living](https://www.isekaizero.ai/storylines/69d47a327abc4f98d6da9562) — @sunglassescat · `69d47a327abc4f98d6da9562`
+- [Isekai back home](https://www.isekaizero.ai/storylines/69e144589ed6a56aefababd5) — @simvisitor429 · `69e144589ed6a56aefababd5`
+- [Isekai Tails: Strays in a New World](https://www.isekaizero.ai/storylines/696f0a000af7db4addfdf305) — @g1itch · `696f0a000af7db4addfdf305`
+- [Isekai Zero: Your Homebase](https://www.isekaizero.ai/storylines/69665eceeb2a60dce6b99fb4) — @ilumi\_nation · `69665eceeb2a60dce6b99fb4`
+- [I’m Rich, Unemployed, and Surrounded by Heroines](https://www.isekaizero.ai/storylines/6a8d2ea531110206fb9a6af2) — @zlock112 · `6a8d2ea531110206fb9a6af2`
+- [Just a City](https://www.isekaizero.ai/storylines/6932e8e17f59d51989d58eb6) — @randomly\_random · `6932e8e17f59d51989d58eb6`
+- [Kaiju Cleanup](https://www.isekaizero.ai/storylines/6ab43ad5ae8bb297371306d3) — @rockyk · `6ab43ad5ae8bb297371306d3`
+- [La Locanda Delle Avventure Avventurose](https://www.isekaizero.ai/storylines/69ca8e746ffae0a1d84b526c) — @orichalcos · `69ca8e746ffae0a1d84b526c`
+- [La vida de Clark](https://www.isekaizero.ai/storylines/6a8f56708fd228e1f46eb710) — @dante11 · `6a8f56708fd228e1f46eb710`
+- [Laugh, Bomb, Repeat](https://www.isekaizero.ai/storylines/6aaa0b344277301035386d75) — @saghrath · `6aaa0b344277301035386d75`
+- [Learning Chinese in Shanghai!](https://www.isekaizero.ai/storylines/6a75ece4319845a725c8241a) — @mudkira · `6a75ece4319845a725c8241a`
+- [Learning French in Paris!](https://www.isekaizero.ai/storylines/6ab1b3444957673b3144bc9c) — @mudkira · `6ab1b3444957673b3144bc9c`
+- [Learning German in Berlin!](https://www.isekaizero.ai/storylines/6a825f9993e55b76901f5df1) — @mudkira · `6a825f9993e55b76901f5df1`
+- [Learning Japanese at Japan!](https://www.isekaizero.ai/storylines/6a6e70c1014d7d8513429ad6) — @mudkira · `6a6e70c1014d7d8513429ad6`
+- [Learning Spanish in Madrid!](https://www.isekaizero.ai/storylines/6a823023533cf408428cf354) — @mudkira · `6a823023533cf408428cf354`
+- [Leveling Life](https://www.isekaizero.ai/storylines/69c9ef8b0e7b4ed23e61e806) — @rockyk · `69c9ef8b0e7b4ed23e61e806`
+- [Life in Clover](https://www.isekaizero.ai/storylines/6a0148df7d6fb4b5b972d388) — @clandesite · `6a0148df7d6fb4b5b972d388`
+- [Life in Kashiwa High School](https://www.isekaizero.ai/storylines/6a8f967d6b7a1d62568d0f5b) — @veathree · `6a8f967d6b7a1d62568d0f5b`
+- [Little Sister Quartet — Our Everyday Miracle](https://www.isekaizero.ai/storylines/69fcb1e61d8c1aa7123ce7d3) — @shadow998 · `69fcb1e61d8c1aa7123ce7d3`
+- [Living Freely in Another World](https://www.isekaizero.ai/storylines/6a86e1f23065d7bc6f8154e6) — @fuurynx · `6a86e1f23065d7bc6f8154e6`
+- [Living Freely in Another World (SFW)](https://www.isekaizero.ai/storylines/6a8d7fbd3be48f5409779fa0) — @fuurynx · `6a8d7fbd3be48f5409779fa0`
+- [Living With Idol](https://www.isekaizero.ai/storylines/6a3fd80dfe7423bb87542452) — @unknownhand00 · `6a3fd80dfe7423bb87542452`
+- [Loud Enough](https://www.isekaizero.ai/storylines/69ccd728d95d80d792ef04fc) — @noruincarc · `69ccd728d95d80d792ef04fc`
+- [LUCENT: Echoes Between Us](https://www.isekaizero.ai/storylines/6a27ccb57ba9aab7c645356f) — @blinkgy · `6a27ccb57ba9aab7c645356f`
+- [Lucky Coin](https://www.isekaizero.ai/storylines/6a354a36927ebf39d7c62a8c) — @themightygnome · `6a354a36927ebf39d7c62a8c`
+- [Magical Idol Manager](https://www.isekaizero.ai/storylines/6a05033afce0519bf581e984) — @zzacckkk · `6a05033afce0519bf581e984`
+- [Marisol: Your Personal Chef & Cooking Tutor](https://www.isekaizero.ai/storylines/6a9c21606c29293432589081) — @nnevar · `6a9c21606c29293432589081`
+- [Married a Goth Vampire!](https://www.isekaizero.ai/storylines/6a93fae96d04ab96ff73e548) — @cooki · `6a93fae96d04ab96ff73e548`
+- [Married to the Mob’s Tomboy Princess](https://www.isekaizero.ai/storylines/6a77f77f3fb94274e0598f78) — @cooki · `6a77f77f3fb94274e0598f78`
+- [Mehr als eine Akte - Adoptiere einen Demi](https://www.isekaizero.ai/storylines/6aa2d659ad7b0da3a043fdfd) — @okami\_nishikino · `6aa2d659ad7b0da3a043fdfd`
+- [Meine Brieftauben sind Harpyien](https://www.isekaizero.ai/storylines/6a3a1462d74a3f0683211954) — @kain · `6a3a1462d74a3f0683211954`
+- [Mi Vida con el Niño Soldado que Cayó de Otro Mundo](https://www.isekaizero.ai/storylines/6a2234bc319b5b6e55fd59c5) — @gyules · `6a2234bc319b5b6e55fd59c5`
+- [Midnight Groceries](https://www.isekaizero.ai/storylines/69cbcb8ddcb0e90e3c4d1045) — @snoot\_juice · `69cbcb8ddcb0e90e3c4d1045`
+- [Monster Integration program](https://www.isekaizero.ai/storylines/6a15ceedcdc98717c08592a4) — @logan2231 · `6a15ceedcdc98717c08592a4`
+- [Morning Light in Willowbrook](https://www.isekaizero.ai/storylines/6a2ae2ab1ce201e376875139) — @blinkgy · `6a2ae2ab1ce201e376875139`
+- [Multiversal Shop](https://www.isekaizero.ai/storylines/699d0ab3e7da3cbe4c5fc9e0) — @secret\_files15 · `699d0ab3e7da3cbe4c5fc9e0`
+- [My "Normal" Warehouse job](https://www.isekaizero.ai/storylines/6a78cb0f7428a0f1071318ae) — @bupboi\_bored · `6a78cb0f7428a0f1071318ae`
+- [My adopted Cat is a Girl?!](https://www.isekaizero.ai/storylines/699097c865dfae787443306c) — @trixarella · `699097c865dfae787443306c`
+- [My AI chat bots became real?](https://www.isekaizero.ai/storylines/6a3986aec060ccf24a25fde5) — @knownaskak · `6a3986aec060ccf24a25fde5`
+- [My blind ex is my step sister??!](https://www.isekaizero.ai/storylines/6a77bf54463e6acada3334a8) — @simulatedentity8911 · `6a77bf54463e6acada3334a8`
+- [My Blind Wife Is a Tease](https://www.isekaizero.ai/storylines/6a14456c6a0a89272c7c6281) — @it\_was\_an\_exaggerated\_smile · `6a14456c6a0a89272c7c6281`
+- [My Boss Has Four Paws](https://www.isekaizero.ai/storylines/6a4ea6c4503cb832bf7deb9d) — @kaykyu · `6a4ea6c4503cb832bf7deb9d`
+- [My Bratty Daughter Is A Vampire Now?!](https://www.isekaizero.ai/storylines/697dd7c16ac9e9c03bc63214) — @cooks\_goose · `697dd7c16ac9e9c03bc63214`
+- [My Bully Now Makes My Bed](https://www.isekaizero.ai/storylines/6a50facae81a50681b3140f3) — @dracorina · `6a50facae81a50681b3140f3`
+- [My Café Worker has a Bodyguard?](https://www.isekaizero.ai/storylines/6a57c835a689d5ed806e1617) — @pstbcf31 · `6a57c835a689d5ed806e1617`
+- [My Carrier Harpies \[Improved AI\]](https://www.isekaizero.ai/storylines/6a6e32c1d55bd611bbe99a21) — @kain · `6a6e32c1d55bd611bbe99a21`
+- [My College Life is Funded by Another World?!](https://www.isekaizero.ai/storylines/69d6cae454b6d987cc16c1ba) — @innateflare · `69d6cae454b6d987cc16c1ba`
+- [My Erased Goddess Roommate](https://www.isekaizero.ai/storylines/6a675e3785f06f62ad21cbe2) — @cooki · `6a675e3785f06f62ad21cbe2`
+- [My girlfriend wants me to corrupt her (SFW)](https://www.isekaizero.ai/storylines/6a2315883180044acc0acdaa) — @henlet · `6a2315883180044acc0acdaa`
+- [My Houseplants guide to modern living](https://www.isekaizero.ai/storylines/6a99f6de9677dc74bd97887c) — @bryzha · `6a99f6de9677dc74bd97887c`
+- [My life among the clouds](https://www.isekaizero.ai/storylines/6a42e1f69d052fc817c64f73) — @gloom · `6a42e1f69d052fc817c64f73`
+- [My Life Among the Stars](https://www.isekaizero.ai/storylines/6a4a83d92c99b6ed43d649a6) — @gloom · `6a4a83d92c99b6ed43d649a6`
+- [My Life at the Centre of The Earth](https://www.isekaizero.ai/storylines/6a4eb0278c5e76f8ef5290b5) — @gloom · `6a4eb0278c5e76f8ef5290b5`
+- [My Life Beneath The Waves](https://www.isekaizero.ai/storylines/6a493a0308ad9815af2e47dd) — @gloom · `6a493a0308ad9815af2e47dd`
+- [My new life in Tokyo](https://www.isekaizero.ai/storylines/698c4a8de7f07240b140b394) — @memphis · `698c4a8de7f07240b140b394`
+- [My New Pet Is A Tiny Mimic?!](https://www.isekaizero.ai/storylines/697a7dd9a0491f22d82c807f) — @sauravisus · `697a7dd9a0491f22d82c807f`
+- [My Online Enemy Lives Next Door](https://www.isekaizero.ai/storylines/6a1bc2f23d69cd5dcbb2091e) — @erafona · `6a1bc2f23d69cd5dcbb2091e`
+- [My Ordinary Life with an Extraordinary Airhead](https://www.isekaizero.ai/storylines/6a6b8985e07dcefa5451689a) — @comrade\_questions · `6a6b8985e07dcefa5451689a`
+- [My Quiet Classmate is a Gothic Lolita!?!?!?](https://www.isekaizero.ai/storylines/6abbee7aab6c8f38f07be12e) — @darksun · `6abbee7aab6c8f38f07be12e`
+- [My Roommate Is A Bratty Drow Influencer?!](https://www.isekaizero.ai/storylines/6a21772846c0d71e6662ba5d) — @ambrose · `6a21772846c0d71e6662ba5d`
+- [My Roommates Are All Monster Girls](https://www.isekaizero.ai/storylines/6aa2e1789588ccbcd2805473) — @dan-namite · `6aa2e1789588ccbcd2805473`
+- [My Seinen Protagonist Now Lives With Me](https://www.isekaizero.ai/storylines/6a71028003f7cb5295969be3) — @melis · `6a71028003f7cb5295969be3`
+- [My Senpais Are Too Cute!](https://www.isekaizero.ai/storylines/6a044d9d84ea6f3834feaa1d) — @anbee · `6a044d9d84ea6f3834feaa1d`
+- [My Spore-ticus](https://www.isekaizero.ai/storylines/69d8c174f3793111379e9a13) — @nisse\_norn · `69d8c174f3793111379e9a13`
+- [My Supposedly Relaxing Isekai Life](https://www.isekaizero.ai/storylines/6960646f6e86522ef0102fa6) — @cooki · `6960646f6e86522ef0102fa6`
+- [My Supposedly Relaxing Isekai Life!](https://www.isekaizero.ai/storylines/69b50ebd2dc76067e185e949) — @cooki · `69b50ebd2dc76067e185e949`
+- [My Tiny Bully is super adorable!](https://www.isekaizero.ai/storylines/6a3ac2376be5cc7d9aa30087) — @ghostgrid168 · `6a3ac2376be5cc7d9aa30087`
+- [Neko in the making](https://www.isekaizero.ai/storylines/6953655765d5e2df2acda426) — @akii · `6953655765d5e2df2acda426`
+- [Neon Afterhours](https://www.isekaizero.ai/storylines/6a6da794d21326d55b1aa0eb) — @randomscreations · `6a6da794d21326d55b1aa0eb`
+- [Neon Nights: A Foreigner Meets Wild Gyaru Heart](https://www.isekaizero.ai/storylines/69a75d7c75ea66757df1768d) — @ragnarok700 · `69a75d7c75ea66757df1768d`
+- [New In The Scene](https://www.isekaizero.ai/storylines/6a282deb9e138206237ecfe1) — @kyrie\_black · `6a282deb9e138206237ecfe1`
+- [Next Door Gal Trouble!](https://www.isekaizero.ai/storylines/6a19cdc3ecc373ed7d2ef8d0) — @star\_master09 · `6a19cdc3ecc373ed7d2ef8d0`
+- [Night and Neon](https://www.isekaizero.ai/storylines/69c2952b68daa7f2fbb5a6a2) — @nikk · `69c2952b68daa7f2fbb5a6a2`
+- [No Experience Needed: A Monster Girl Inn](https://www.isekaizero.ai/storylines/69875df018ab9686eb054d51) — @luna · `69875df018ab9686eb054d51`
+- [No Hero Work, Just a Relaxed Life in Another World](https://www.isekaizero.ai/storylines/694a8381e619e17c0b972348) — @mixedadmin217 · `694a8381e619e17c0b972348`
+- [No La Devuelvas](https://www.isekaizero.ai/storylines/6a14ffda1900fd2b4680c0b7) — @metavisitor522 · `6a14ffda1900fd2b4680c0b7`
+- [Nythrion Re:Life: A New Life on Hard Mode](https://www.isekaizero.ai/storylines/6aa668e231dd61592af8b514) — @comrade\_arcanis\_lord-of-tacos · `6aa668e231dd61592af8b514`
+- [O Novo Garoto-Gato da Família Kotobuki!](https://www.isekaizero.ai/storylines/69e10d6f987f82f135c85041) — @sirlepsch · `69e10d6f987f82f135c85041`
+- [Offices and bosses : a monsters Dnd game](https://www.isekaizero.ai/storylines/694cc1f3d5c7be518c72fc6b) — @zen\_kyoski · `694cc1f3d5c7be518c72fc6b`
+- [On this side of the hallway](https://www.isekaizero.ai/storylines/6a57d481e93b37ceb64e3db6) — @luis · `6a57d481e93b37ceb64e3db6`
+- [Only I know my Boss is an Otaku](https://www.isekaizero.ai/storylines/6ab3f5f32b8e6f7cc7b1d244) — @beholdmybeer · `6ab3f5f32b8e6f7cc7b1d244`
+- [Oops... You're Mine Now♡](https://www.isekaizero.ai/storylines/6a818c66b3d2a35c286a2cd6) — @ummmm · `6a818c66b3d2a35c286a2cd6`
+- [Our Band Could Be Your Life](https://www.isekaizero.ai/storylines/6965fc2a0f88b7fa9995da69) — @callmeadog · `6965fc2a0f88b7fa9995da69`
+- [Our Final Year in Westwood High](https://www.isekaizero.ai/storylines/6a5ba370cd540ada1e9155e7) — @moonlightfairy · `6a5ba370cd540ada1e9155e7`
+- [Part Of Another World](https://www.isekaizero.ai/storylines/6977a3cbbbec4f493eb3bba1) — @ilumi\_nation · `6977a3cbbbec4f493eb3bba1`
+- [Please Be Our Game Master 👉👈](https://www.isekaizero.ai/storylines/69d825444e356ced8915d38d) — @callmeadog · `69d825444e356ced8915d38d`
+- [Please Stop Talking](https://www.isekaizero.ai/storylines/6a54f435ef842f3fc384d5d0) — @lu-lu · `6a54f435ef842f3fc384d5d0`
+- [Plenty of Problems](https://www.isekaizero.ai/storylines/6a9e3bcc0579158ae55a489e) — @sarapinto · `6a9e3bcc0579158ae55a489e`
+- [Popular Childhood Girls Hide Boyfriend In My Room](https://www.isekaizero.ai/storylines/6a268c609fce5545e89b8b16) — @mirushi · `6a268c609fce5545e89b8b16`
+- [Protagonist Next Door \[Male\]](https://www.isekaizero.ai/storylines/69dc3f6d2da83d82948215f6) — @valpal · `69dc3f6d2da83d82948215f6`
+- [Purrfect Chaos!](https://www.isekaizero.ai/storylines/6a170fead2409f141c86b9c0) — @star\_master09 · `6a170fead2409f141c86b9c0`
+- [Quiet Hours](https://www.isekaizero.ai/storylines/6a76091897fe918c58a04718) — @eichi · `6a76091897fe918c58a04718`
+- [Raise A Dragon](https://www.isekaizero.ai/storylines/6978f6f1db6537c80c8a23c9) — @manu · `6978f6f1db6537c80c8a23c9`
+- [Raising a Dragonkin Kid](https://www.isekaizero.ai/storylines/6a05f0c20702577df91e8a90) — @fluffytime · `6a05f0c20702577df91e8a90`
+- [Raising a Zombie Girl!](https://www.isekaizero.ai/storylines/6a9ff45d9472c8e77d53d08a) — @cooki · `6a9ff45d9472c8e77d53d08a`
+- [Raising Artificial Hearts](https://www.isekaizero.ai/storylines/6a4a59d8553ceabdaaf2bd3f) — @random\_jop · `6a4a59d8553ceabdaaf2bd3f`
+- [Reincarnated as an E-girl’s Pet?!?!](https://www.isekaizero.ai/storylines/69c05ab2638d9db586167c88) — @urbanfiction · `69c05ab2638d9db586167c88`
+- [Reincarnated as the God of Trash](https://www.isekaizero.ai/storylines/6a867040815834641c93dc28) — @noobganer · `6a867040815834641c93dc28`
+- [Reincarnated as the Tyrant's Favorite Child](https://www.isekaizero.ai/storylines/6a36808363d66148101b23e7) — @raiquia · `6a36808363d66148101b23e7`
+- [Reincarnation Intern](https://www.isekaizero.ai/storylines/6ab4312325571a938836f4b6) — @mr\_click · `6ab4312325571a938836f4b6`
+- [ReRe: My Supposedly Relaxing Isekai Life!](https://www.isekaizero.ai/storylines/6a98df52604d6d3eee37731a) — @cooki · `6a98df52604d6d3eee37731a`
+- [Retired Hero Settled Down as a Shop Owner](https://www.isekaizero.ai/storylines/698c1545b0537928785298c8) — @cosmic\_crew89 · `698c1545b0537928785298c8`
+- [Retired SS-Rank Hero Runs a Bakery](https://www.isekaizero.ai/storylines/6aa535e32d6975a28902fdc8) — @hafu · `6aa535e32d6975a28902fdc8`
+- [Seven Days of Maybe](https://www.isekaizero.ai/storylines/6a3573923e0215498be72260) — @yurito\_tempus14 · `6a3573923e0215498be72260`
+- [She Performed the Husband Ritual](https://www.isekaizero.ai/storylines/6a3eba2224396f36c650cd84) — @yaya · `6a3eba2224396f36c650cd84`
+- [She's Doing It Again](https://www.isekaizero.ai/storylines/6a1a02999aefc956926b7337) — @vincent · `6a1a02999aefc956926b7337`
+- [She's Going To Get You Killed](https://www.isekaizero.ai/storylines/6a5c793e4bff327ceef163c4) — @skovaux · `6a5c793e4bff327ceef163c4`
+- [SIGNAL & NOISE](https://www.isekaizero.ai/storylines/69dad15cfb4b8332c0acdafd) — @lysaet · `69dad15cfb4b8332c0acdafd`
+- [Slice of Demon Life](https://www.isekaizero.ai/storylines/69ded0a6cb59496af1265cb3) — @anbee · `69ded0a6cb59496af1265cb3`
+- [So I Got Promoted to Guild Master?!](https://www.isekaizero.ai/storylines/6a1ea8cffef9dd3701f6514a) — @devos · `6a1ea8cffef9dd3701f6514a`
+- [St. Mary-Anne’s: Healing with Sister Sophie](https://www.isekaizero.ai/storylines/695b3981a52a801bfb6d2b13) — @saika · `695b3981a52a801bfb6d2b13`
+- [Stamped: ENROLLED](https://www.isekaizero.ai/storylines/6a2750eb9669e66c1264f1aa) — @lilypadfly · `6a2750eb9669e66c1264f1aa`
+- [Starveil Valley](https://www.isekaizero.ai/storylines/699c1ab05bd8aaeed200622e) — @primekazuki · `699c1ab05bd8aaeed200622e`
+- [Status Window Simulator : Earth](https://www.isekaizero.ai/storylines/698fa5e45922fd7f53beecfd) — @code\_mind · `698fa5e45922fd7f53beecfd`
+- [Stranded scales](https://www.isekaizero.ai/storylines/6a064c2a1dedb7fd9f472fdf) — @henlet · `6a064c2a1dedb7fd9f472fdf`
+- [Streamer Simulator](https://www.isekaizero.ai/storylines/69c64b50da12d94a0a8a678c) — @dollification · `69c64b50da12d94a0a8a678c`
+- [Stuffed Love](https://www.isekaizero.ai/storylines/6a3c9cda0a1eb10832be21b0) — @dollification · `6a3c9cda0a1eb10832be21b0`
+- [Summit City: Glitch Life](https://www.isekaizero.ai/storylines/69e04c2f31831b85b98d7439) — @highdale · `69e04c2f31831b85b98d7439`
+- [Summoned by a Loser NEET Monster Girl?!](https://www.isekaizero.ai/storylines/69860aa008e3ab354d07b90c) — @theideasgirl · `69860aa008e3ab354d07b90c`
+- [Teaching Kobudō in the Modern Day](https://www.isekaizero.ai/storylines/6a1c66643f22096cbb2d59be) — @atlanteshellsing · `6a1c66643f22096cbb2d59be`
+- [That one time I turned into a Neko](https://www.isekaizero.ai/storylines/695d0d6b40d2b43bc3895939) — @soul\_eater · `695d0d6b40d2b43bc3895939`
+- [The #1 Monster University in the world.](https://www.isekaizero.ai/storylines/6a1dd66140bf7a9aa18d4ec4) — @mystic\_rogue3624 · `6a1dd66140bf7a9aa18d4ec4`
+- [The American Dream](https://www.isekaizero.ai/storylines/69bbecb90b013a8fc84f0cc6) — @programmedself · `69bbecb90b013a8fc84f0cc6`
+- [The Bakery of the Heart](https://www.isekaizero.ai/storylines/6a95d346cf7e8cd34cbe8419) — @fusionmodule391 · `6a95d346cf7e8cd34cbe8419`
+- [The Beastman's New Pet](https://www.isekaizero.ai/storylines/69e9246423a53c3bf17fd902) — @skarlenova · `69e9246423a53c3bf17fd902`
+- [The Beastwoman’s New Pet](https://www.isekaizero.ai/storylines/69e9d9f5a3f5cba3ed2a8abb) — @skarlenova · `69e9d9f5a3f5cba3ed2a8abb`
+- [The Billionaire’s Heir Household Redux](https://www.isekaizero.ai/storylines/6a8be56cb98c983b5a305ac3) — @dobolk · `6a8be56cb98c983b5a305ac3`
+- [The Bullied Artist With A Crush On You](https://www.isekaizero.ai/storylines/699c7c0944b875dd2f50dccc) — @j3r3myyy\_0k · `699c7c0944b875dd2f50dccc`
+- [The Cafe at the Edge of Everywhere](https://www.isekaizero.ai/storylines/6a903202f4408af174d6aaf0) — @kurumidown · `6a903202f4408af174d6aaf0`
+- [The Captured Princess Brat?!](https://www.isekaizero.ai/storylines/6a25989a646f4f362b91f65c) — @mirushi · `6a25989a646f4f362b91f65c`
+- [The Catboy Café](https://www.isekaizero.ai/storylines/696c9406567bf5bb5c88c797) — @skarlenova · `696c9406567bf5bb5c88c797`
+- [The Catgirl Café](https://www.isekaizero.ai/storylines/696f5a773a172ab5a970f772) — @skarlenova · `696f5a773a172ab5a970f772`
+- [The Child at your door](https://www.isekaizero.ai/storylines/698bc606a56b263d83a577b1) — @alaruthe · `698bc606a56b263d83a577b1`
+- [The cosplay convention](https://www.isekaizero.ai/storylines/6a38e913bc8ed92f864f62d5) — @hollow-moustache · `6a38e913bc8ed92f864f62d5`
+- [The Cutest Demon Became My Daughter](https://www.isekaizero.ai/storylines/6aa0f7fdedbcca400be68db2) — @gldmango · `6aa0f7fdedbcca400be68db2`
+- [The day I reincarnated. With a daughter???](https://www.isekaizero.ai/storylines/6a8b0a1b8baccdfb092a81f8) — @gayboi · `6a8b0a1b8baccdfb092a81f8`
+- [The Demon Lord Was Reincarnated as My Son?!](https://www.isekaizero.ai/storylines/6a9ca75ae148ceb98caa4c87) — @mrrabbit · `6a9ca75ae148ceb98caa4c87`
+- [The Dragon's Rest: Monster-Hunter Inn](https://www.isekaizero.ai/storylines/697565376ee1f4115e702d15) — @soul\_eater · `697565376ee1f4115e702d15`
+- [The Dungeon Tavern](https://www.isekaizero.ai/storylines/69c96afd95ae022825420a18) — @elf\_seeker · `69c96afd95ae022825420a18`
+- [The Elven Lord's New Pet](https://www.isekaizero.ai/storylines/69a7dc235849ebc975df292b) — @skarlenova · `69a7dc235849ebc975df292b`
+- [The First Human They Found](https://www.isekaizero.ai/storylines/6a74baad645bb6eced7d05b6) — @nvernot · `6a74baad645bb6eced7d05b6`
+- [The Forgotten Uncle](https://www.isekaizero.ai/storylines/6a367c255a892a8931846b11) — @shadow998 · `6a367c255a892a8931846b11`
+- [The Fox Who Waited](https://www.isekaizero.ai/storylines/6a2037ccbb0d83ab5085ad65) — @sauravisus · `6a2037ccbb0d83ab5085ad65`
+- [The Fujimoto Sisters Next Door](https://www.isekaizero.ai/storylines/6abbd6f22f8e0510621cba8c) — @beholdmybeer · `6abbd6f22f8e0510621cba8c`
+- [The Girl Who Hides Behind the Apron](https://www.isekaizero.ai/storylines/689adf7f9e94d2471b9b5df3) — @fayy · `689adf7f9e94d2471b9b5df3`
+- [The Grand Asteria (Under New Management)](https://www.isekaizero.ai/storylines/6a4c3b4a35b71e607ffc3151) — @lostxle9acy · `6a4c3b4a35b71e607ffc3151`
+- [The Grim World We Live In: Wait we Won?](https://www.isekaizero.ai/storylines/69f42794e48bc542d7d0db59) — @devils\_vigil · `69f42794e48bc542d7d0db59`
+- [The Hangman's Tavern](https://www.isekaizero.ai/storylines/69798dd71771badd1cf30133) — @cosmic\_crew89 · `69798dd71771badd1cf30133`
+- [The Healer of Six](https://www.isekaizero.ai/storylines/6a4eddbfa5ac6e029dc14663) — @comrade\_questions · `6a4eddbfa5ac6e029dc14663`
+- [The Hearth That Took Me In](https://www.isekaizero.ai/storylines/6a81b4a7431603455af6511b) — @mechseries8673 · `6a81b4a7431603455af6511b`
+- [The Hero's Hearth](https://www.isekaizero.ai/storylines/6939d4d925771eeeb91f3fd1) — @nikk · `6939d4d925771eeeb91f3fd1`
+- [The Hidden world](https://www.isekaizero.ai/storylines/6a636d2ea9dadaf475653190) — @s1lema · `6a636d2ea9dadaf475653190`
+- [The Horizon Program](https://www.isekaizero.ai/storylines/6a34055cdbe5fd0eb1959cd5) — @emberblade · `6a34055cdbe5fd0eb1959cd5`
+- [The House of Green Lightning](https://www.isekaizero.ai/storylines/6a138fc439a7de732ed6ee5e) — @a1aurora · `6a138fc439a7de732ed6ee5e`
+- [The Inn Between Rivals](https://www.isekaizero.ai/storylines/6a6cd0d7cf96e77d2f161ab0) — @yurito\_tempus14 · `6a6cd0d7cf96e77d2f161ab0`
+- [The Item Shop Chronicles: Accounts Unsettled](https://www.isekaizero.ai/storylines/69c75ffc633342f614908185) — @ascaloth · `69c75ffc633342f614908185`
+- [The kind lady from the bakery](https://www.isekaizero.ai/storylines/6a225f7d6c2c5dc18e729540) — @digitalghost · `6a225f7d6c2c5dc18e729540`
+- [The Kind Man from the Bakery](https://www.isekaizero.ai/storylines/6a2815f3a1eabcd3c2819884) — @digitalghost · `6a2815f3a1eabcd3c2819884`
+- [The Last Forge of Aethelgard](https://www.isekaizero.ai/storylines/6a6928497fbaef40b6833ebd) — @kain · `6a6928497fbaef40b6833ebd`
+- [The Maid Who Shouldn’t Have Fallen in Love](https://www.isekaizero.ai/storylines/689af0ba9e94d2471b9b8725) — @fayy · `689af0ba9e94d2471b9b8725`
+- [The Monster Girl Apartment](https://www.isekaizero.ai/storylines/696be273567bf5bb5c347ed4) — @dracorina · `696be273567bf5bb5c347ed4`
+- [The Mountain Inn](https://www.isekaizero.ai/storylines/69f2918235217f43a67b4988) — @mixedmatrix693 · `69f2918235217f43a67b4988`
+- [The Nameless Tavern](https://www.isekaizero.ai/storylines/6a06c342fe8436ff8d131e67) — @r0g3r · `6a06c342fe8436ff8d131e67`
+- [The Nexus Hearth: Owner Mode](https://www.isekaizero.ai/storylines/6a20685dd1892dfcf583eb33) — @kazuto\_walker · `6a20685dd1892dfcf583eb33`
+- [The Nook](https://www.isekaizero.ai/storylines/6a12c00d91666741c3dc15dd) — @damoncross · `6a12c00d91666741c3dc15dd`
+- [The otherworldly restaurant.](https://www.isekaizero.ai/storylines/69b08ab619bf81341bf4cc8e) — @shougozero · `69b08ab619bf81341bf4cc8e`
+- [The Photographer's Touch](https://www.isekaizero.ai/storylines/6a2c0eb442ba5756437bf5e3) — @code\_mind · `6a2c0eb442ba5756437bf5e3`
+- [The Princess Walked Into My Garden, What Do I Do?](https://www.isekaizero.ai/storylines/6a9ce700de20a3d4f285d2a6) — @fusionmodule391 · `6a9ce700de20a3d4f285d2a6`
+- [The Progenitor Beast Boy](https://www.isekaizero.ai/storylines/6a91a5759e0ee78d604dca4b) — @lumigos · `6a91a5759e0ee78d604dca4b`
+- [The Retired Demon Lord](https://www.isekaizero.ai/storylines/6995a23005e3a6d916f19f3f) — @cosmic\_crew89 · `6995a23005e3a6d916f19f3f`
+- [The Runaway Princess Works Part-Time at My Café](https://www.isekaizero.ai/storylines/6a0a337809e52717b923aaa6) — @henlet · `6a0a337809e52717b923aaa6`
+- [The Serenity of High School Days](https://www.isekaizero.ai/storylines/6a83ffed3001f4549fdceae4) — @seina · `6a83ffed3001f4549fdceae4`
+- [The Shut-In Next Door](https://www.isekaizero.ai/storylines/69ce63bcef2fa0932dfd4c73) — @zezriel · `69ce63bcef2fa0932dfd4c73`
+- [The Space Between Stars](https://www.isekaizero.ai/storylines/6a1a59c25d8f54194de9907a) — @phantomexplorer · `6a1a59c25d8f54194de9907a`
+- [The Steel Siren](https://www.isekaizero.ai/storylines/6a252f26c2236b4aa6a16637) — @skarlenova · `6a252f26c2236b4aa6a16637`
+- [The Steel Titan](https://www.isekaizero.ai/storylines/6a2524d53c64e508da871ecc) — @skarlenova · `6a2524d53c64e508da871ecc`
+- [The Strange Maid of Thornmere Manor](https://www.isekaizero.ai/storylines/69b1f4583ead1540ae40c43f) — @cosmic\_crew89 · `69b1f4583ead1540ae40c43f`
+- [The succubus who hates being a succubus](https://www.isekaizero.ai/storylines/69ec88f9d55646e4ae070148) — @ghostgrid168 · `69ec88f9d55646e4ae070148`
+- [The Summoned Hero is Bored?](https://www.isekaizero.ai/storylines/69e10b14a09c6b90bab7f034) — @alaruthe · `69e10b14a09c6b90bab7f034`
+- [The sunset calls you home](https://www.isekaizero.ai/storylines/6a2c4ffc21a32ea97838aa42) — @idekam · `6a2c4ffc21a32ea97838aa42`
+- [The Tavern Manager](https://www.isekaizero.ai/storylines/6a913083b5245f3a6db03a1f) — @dobolk · `6a913083b5245f3a6db03a1f`
+- [The Unchosen Path](https://www.isekaizero.ai/storylines/6a332ce23896046b4a3b523b) — @comrade\_questions · `6a332ce23896046b4a3b523b`
+- [The Vessel](https://www.isekaizero.ai/storylines/6a4b5b07237386b6361106e5) — @noruincarc · `6a4b5b07237386b6361106e5`
+- [The Villainesses Are Free!!](https://www.isekaizero.ai/storylines/69e4a94202c1c0e88691e5a0) — @aburakadabura · `69e4a94202c1c0e88691e5a0`
+- [The Weight of Our Walls](https://www.isekaizero.ai/storylines/69f0c4fe3504136787b19961) — @paperlantern · `69f0c4fe3504136787b19961`
+- [The Wong Place](https://www.isekaizero.ai/storylines/6a2ae6c7b2bb0c8e2db13f49) — @puzzle\_case · `6a2ae6c7b2bb0c8e2db13f49`
+- [Therapy Session with Dr. LuLu](https://www.isekaizero.ai/storylines/6a43e5e764d8a4865b06085c) — @student\_002 · `6a43e5e764d8a4865b06085c`
+- [These siblings are from 500 Years ago?!](https://www.isekaizero.ai/storylines/6aa48d7cb776fd172b53109f) — @beholdmybeer · `6aa48d7cb776fd172b53109f`
+- [This dungeon has a BAKERY?! I'M NOT LEAVING!](https://www.isekaizero.ai/storylines/6a028acdb8c96c19ea2d188d) — @elfpoles · `6a028acdb8c96c19ea2d188d`
+- [This Wasn't in the Script](https://www.isekaizero.ai/storylines/6ab7fe610ff6fb7656a583da) — @mateu · `6ab7fe610ff6fb7656a583da`
+- [Threads of a Borrowed Life](https://www.isekaizero.ai/storylines/698aac483b100610f0497435) — @chestnut · `698aac483b100610f0497435`
+- [Turning GPT Into Wife Material?!](https://www.isekaizero.ai/storylines/6a64b20afc58eb1da477bda1) — @cooki · `6a64b20afc58eb1da477bda1`
+- [Two Broken Arms](https://www.isekaizero.ai/storylines/6a2430ff54a8f5ffab369256) — @ace\_rasputin · `6a2430ff54a8f5ffab369256`
+- [Uma Arquimaga Caiu no Meu Apartamento?!](https://www.isekaizero.ai/storylines/6a1772a60fb714c31b2a0af8) — @senshi\_akai · `6a1772a60fb714c31b2a0af8`
+- [Uma Ladra Está Presa no meu Varal?!](https://www.isekaizero.ai/storylines/69e971fe3b6dad69bf1956a8) — @senshi\_akai · `69e971fe3b6dad69bf1956a8`
+- [Un profesionista en un mundo sin avances](https://www.isekaizero.ai/storylines/6aac16ba6a48c15dd891abba) — @boroni27 · `6aac16ba6a48c15dd891abba`
+- [Unwritten Outro](https://www.isekaizero.ai/storylines/6a85b744a8fff7d90efd8cda) — @maomao-meow · `6a85b744a8fff7d90efd8cda`
+- [Urban Legends?! Why Are They in My House?!](https://www.isekaizero.ai/storylines/696bc1d51385a2629a93e0a7) — @abyss · `696bc1d51385a2629a93e0a7`
+- [Valamore, Coast side Academy City](https://www.isekaizero.ai/storylines/69fcf6cc50253384f6a9c893) — @caramel\_macchiato · `69fcf6cc50253384f6a9c893`
+- [Vampirism Sucks](https://www.isekaizero.ai/storylines/69ea3b96f71f748df7e3bdbc) — @4ngelthreads · `69ea3b96f71f748df7e3bdbc`
+- [Vials & Velvet Vapors](https://www.isekaizero.ai/storylines/6a24ff07e64e3ae5b296bc13) — @leonine\_pride · `6a24ff07e64e3ae5b296bc13`
+- [Virelda: A Slice of Life in the Sylvan Expanse](https://www.isekaizero.ai/storylines/69b5f0f7a525c5c5addf90aa) — @dowado0814 · `69b5f0f7a525c5c5addf90aa`
+- [Waking Up and Raising a Daughter](https://www.isekaizero.ai/storylines/69c6cc49f27fe74df4c04e7d) — @network\_world39 · `69c6cc49f27fe74df4c04e7d`
+- [Wanderer's Claim](https://www.isekaizero.ai/storylines/6a2dbde11f9fa0e52c35c5cd) — @bruine\_koe · `6a2dbde11f9fa0e52c35c5cd`
+- [WCB: NIRA — Volume 02: First Human Days](https://www.isekaizero.ai/storylines/6a7d2bb3d69e2dba4b3dae09) — @rakasiwa · `6a7d2bb3d69e2dba4b3dae09`
+- [Welcome to Mugen-yu](https://www.isekaizero.ai/storylines/6a105de40a8a7df4c6977f3d) — @fullcross · `6a105de40a8a7df4c6977f3d`
+- [Welcome to Nyxhaven](https://www.isekaizero.ai/storylines/6a286c71ce79910b337f9549) — @pixelpugilist · `6a286c71ce79910b337f9549`
+- [Welcome to the Deus Ex Machina Delivery Service!](https://www.isekaizero.ai/storylines/6a0563b9eb6de621ab1f0dcd) — @actingapple · `6a0563b9eb6de621ab1f0dcd`
+- [What She Left Behind — A House That Isn't Empty](https://www.isekaizero.ai/storylines/6a60abf4218bbbb0794185ab) — @yuuu · `6a60abf4218bbbb0794185ab`
+- [When in Rome, Do as the Romans do](https://www.isekaizero.ai/storylines/6a23815b1875b4d4d4c63a50) — @lilypadfly · `6a23815b1875b4d4d4c63a50`
+- [When is it my turn, Truck-kun?](https://www.isekaizero.ai/storylines/6a6903f99f5c2618d9cfe164) — @gloom · `6a6903f99f5c2618d9cfe164`
+- [Where the Journey Began](https://www.isekaizero.ai/storylines/6a45a53743d28cca728f221a) — @anbee · `6a45a53743d28cca728f221a`
+- [While We Wait](https://www.isekaizero.ai/storylines/6a4ff348b80b0ce02a9835ed) — @devos · `6a4ff348b80b0ce02a9835ed`
+- [Whiskey and Warrants](https://www.isekaizero.ai/storylines/6a56e2e2c5ca403b026fc158) — @gnosisone · `6a56e2e2c5ca403b026fc158`
+- [Witch of the Whispering woods](https://www.isekaizero.ai/storylines/696fb03f80791cad492cdc40) — @themightygnome · `696fb03f80791cad492cdc40`
+- [Writer-san and assistants](https://www.isekaizero.ai/storylines/69f3176fbf328083431eb9c0) — @nekokiro · `69f3176fbf328083431eb9c0`
+- [XXX - Nepo Brat](https://www.isekaizero.ai/storylines/6a21622e8bd978b546dd81ee) — @yurify · `6a21622e8bd978b546dd81ee`
+- [You didn't hear? It's the end of the world](https://www.isekaizero.ai/storylines/6a63c18615de02f238e1466a) — @otherexamples · `6a63c18615de02f238e1466a`
+- [You, Him, and Me](https://www.isekaizero.ai/storylines/6a1e529811d1117c35e6f53c) — @jingjingia · `6a1e529811d1117c35e6f53c`
+- [Youkai Stories](https://www.isekaizero.ai/storylines/6979e28d667e89b661bf740f) — @luna\_tech42 · `6979e28d667e89b661bf740f`
+- [Your friend has a secret but you cant prove it](https://www.isekaizero.ai/storylines/6980ad959d8d5a625716281c) — @eye\_dot · `6980ad959d8d5a625716281c`
+- [Your last 7 days](https://www.isekaizero.ai/storylines/6a5be7da654f0fb77237513f) — @lutterbach · `6a5be7da654f0fb77237513f`
+- [Your New Home at Hearthwood Ranch.](https://www.isekaizero.ai/storylines/6abc05692e2de421b61cba0e) — @deluxe\_0 · `6abc05692e2de421b61cba0e`
+- [Your Own Slice Of Life](https://www.isekaizero.ai/storylines/69aa4a484bb9f78557ba96af) — @valpal · `69aa4a484bb9f78557ba96af`
+- [Yskae: Another Life](https://www.isekaizero.ai/storylines/696036a335b1f2f70f8ad1cb) — @clockmerchant72 · `696036a335b1f2f70f8ad1cb`
+- [Yui's Teaching Struggle](https://www.isekaizero.ai/storylines/6a742ca5f8ed5eb51b57b760) — @0sanityhorse · `6a742ca5f8ed5eb51b57b760`
+- [Yume Burendo](https://www.isekaizero.ai/storylines/6a44107c70c47729c1fb42f1) — @creatorfromhell · `6a44107c70c47729c1fb42f1`
+- [Zero Video: Rewind & Repeat](https://www.isekaizero.ai/storylines/6a524e1fdc55acaee95af6e1) — @evilfrank · `6a524e1fdc55acaee95af6e1`
+- [За гранью Небес](https://www.isekaizero.ai/storylines/6a778bfaf954bc3a07c2bf54) — @aoxiao · `6a778bfaf954bc3a07c2bf54`
+- [Кого не ждали.](https://www.isekaizero.ai/storylines/6ab78ab2902fc03432b8c808) — @cpt\_kira\_yamato · `6ab78ab2902fc03432b8c808`
+- [العيون القرمزية](https://www.isekaizero.ai/storylines/6a136ee7a0d33a3429a3de7e) — @sensormark4416 · `6a136ee7a0d33a3429a3de7e`
+- [ลูกสาวทั้ง5ของฉัน ในโลกคู่ขนาน](https://www.isekaizero.ai/storylines/6aabc170dd01c334e3a18e40) — @baby\_bear-007 · `6aabc170dd01c334e3a18e40`
+- [โลกใบเล็ก ในเกมวางแผนที่ฉันเล่น](https://www.isekaizero.ai/storylines/6aaa091142362fc9a38456f5) — @baby\_bear-007 · `6aaa091142362fc9a38456f5`
+- [‎I Came Home Because Mom Couldn't See Anymore](https://www.isekaizero.ai/storylines/6aa4ab78181e986f56dff78c) — @heaven · `6aa4ab78181e986f56dff78c`
+- [《卡楊軍》](https://www.isekaizero.ai/storylines/6a7aa8d1ea3c6ad08c179c2c) — @eternalwinterwarsong · `6a7aa8d1ea3c6ad08c179c2c`
+- [彼女はギャルそしてメイド](https://www.isekaizero.ai/storylines/69f2135960831c8a5a5b12e8) — @akiaki · `69f2135960831c8a5a5b12e8`
+- [我和我的丧尸王哥哥](https://www.isekaizero.ai/storylines/69af1b1d7eb21d33f6d2aa41) — @bunny888 · `69af1b1d7eb21d33f6d2aa41`
+- [盲目隻腕の剣士](https://www.isekaizero.ai/storylines/695e62bed5f5be8902c52f66) — @xenon\_explorer3 · `695e62bed5f5be8902c52f66`
+- [風鈴町的慢日子](https://www.isekaizero.ai/storylines/6aa690aeb776fd172ba6e02a) — @opticmachine779 · `6aa690aeb776fd172ba6e02a`
+- [魔女と暮らすスローライフ](https://www.isekaizero.ai/storylines/69bf40cc70d439c0bb4fb450) — @shuto015 · `69bf40cc70d439c0bb4fb450`
+- [魔王様はお子様です](https://www.isekaizero.ai/storylines/69ad59ad030557cc3990617e) — @boilerpilot45 · `69ad59ad030557cc3990617e`
+- [🏛️LÉGENDES DE LA GRÈCE ANTIQUE🏛️](https://www.isekaizero.ai/storylines/6a318f5fdc58bac010a3d9c0) — @kiyoshii · `6a318f5fdc58bac010a3d9c0`
+
+## `action` (269)
+
+- [What the Moon Casts Aside](https://www.isekaizero.ai/storylines/6a2732c0f43d7f5ce8164ba7) — @a1aurora · `6a2732c0f43d7f5ce8164ba7`
+- [168 Hours: Hiiro no Kage](https://www.isekaizero.ai/storylines/6a4f8658e0cb24411fbd3bbe) — @bblnb · `6a4f8658e0cb24411fbd3bbe`
+- [2141 Quantum Nitro Skyline](https://www.isekaizero.ai/storylines/6aaf1f06b1826f2a2f261b43) — @agatio · `6aaf1f06b1826f2a2f261b43`
+- [A Normal Superhero Story](https://www.isekaizero.ai/storylines/6a887eb74228cfda963a8d01) — @m42kh4ck3r1v · `6a887eb74228cfda963a8d01`
+- [A51 CONTAINMENT BREACH](https://www.isekaizero.ai/storylines/6a418e6f5c292fbc37a47c4d) — @logan2231 · `6a418e6f5c292fbc37a47c4d`
+- [Abîme Éternel (Roguelite story)](https://www.isekaizero.ai/storylines/6a6a3c276a2c7b971d5158da) — @myylz · `6a6a3c276a2c7b971d5158da`
+- [Academia de Ferro](https://www.isekaizero.ai/storylines/696708acd0682e56d5995428) — @sirlepsch · `696708acd0682e56d5995428`
+- [Acolytes: Maid for your Protection](https://www.isekaizero.ai/storylines/6aa78f6bd17fe984ab332064) — @kuletxcore · `6aa78f6bd17fe984ab332064`
+- [AFTERFALL : ASCENSION ERA](https://www.isekaizero.ai/storylines/6a3268bde0d5240c2114e888) — @raiquia · `6a3268bde0d5240c2114e888`
+- [American Hero Academy (Year 1)](https://www.isekaizero.ai/storylines/69acdb2da410b4285ada7499) — @sasquatch\_21 · `69acdb2da410b4285ada7499`
+- [American Hero Academy: The Rising Storm](https://www.isekaizero.ai/storylines/69d7f206334a1e6207a5db13) — @sasquatch\_21 · `69d7f206334a1e6207a5db13`
+- [American Hero Academy: Training Camp](https://www.isekaizero.ai/storylines/69ec0226e65e78326cf8d842) — @sasquatch\_21 · `69ec0226e65e78326cf8d842`
+- [Anthropos Prime](https://www.isekaizero.ai/storylines/6abc0c2c2e2de421b623e201) — @surm · `6abc0c2c2e2de421b623e201`
+- [Antihero Sentai: Saving the Rookie!](https://www.isekaizero.ai/storylines/69e0cd1dae08642914aca5f6) — @space-bandito · `69e0cd1dae08642914aca5f6`
+- [Apocalypse Maker](https://www.isekaizero.ai/storylines/6a6bd7efae1a0b445aa8fa71) — @glitch\_plane442 · `6a6bd7efae1a0b445aa8fa71`
+- [Apocalypse: I Have a Blind Box System](https://www.isekaizero.ai/storylines/6ab854b7dde61f4c9d8def6e) — @pixel\_phoenix69 · `6ab854b7dde61f4c9d8def6e`
+- [Ascendant Zero](https://www.isekaizero.ai/storylines/6a67e8604581a57e778a131b) — @arcanesolutions · `6a67e8604581a57e778a131b`
+- [Aurelia Online](https://www.isekaizero.ai/storylines/6a895fc7c48b7d0e013773b6) — @luffydmonkey · `6a895fc7c48b7d0e013773b6`
+- [Awakening: Superhuman](https://www.isekaizero.ai/storylines/6a7a129912c0c9d7b3f116aa) — @masked\_case39 · `6a7a129912c0c9d7b3f116aa`
+- [Bannerlord Of The Last March](https://www.isekaizero.ai/storylines/6a3bfcb7685978dcc55c488c) — @hemlock · `6a3bfcb7685978dcc55c488c`
+- [Battle Royale Isekai: Only One Hero](https://www.isekaizero.ai/storylines/696e1a5da53eaf896cac712b) — @soph\_k · `696e1a5da53eaf896cac712b`
+- [Battle Royale Isekai: Only One Hero (DM Version)](https://www.isekaizero.ai/storylines/69e1889984aa6f3e84584169) — @soph\_k · `69e1889984aa6f3e84584169`
+- [Beyond Limit](https://www.isekaizero.ai/storylines/69d2925c2510a2c17e3d2054) — @mars\_explorer25 · `69d2925c2510a2c17e3d2054`
+- [Blood and Ash at the Border](https://www.isekaizero.ai/storylines/6a774fcd1b22bb96cdac0658) — @dark\_apostle · `6a774fcd1b22bb96cdac0658`
+- [Blood Reckoning](https://www.isekaizero.ai/storylines/6a7b888f16c5e139f0dbbedc) — @goldw0lf · `6a7b888f16c5e139f0dbbedc`
+- [Brainstorm 1: Rise of Arachnid](https://www.isekaizero.ai/storylines/6a0da7a66dd0e2332a30ac2f) — @a1aurora · `6a0da7a66dd0e2332a30ac2f`
+- [Celestial Knights](https://www.isekaizero.ai/storylines/6a18e1b389c87be4d246b944) — @lady\_terra · `6a18e1b389c87be4d246b944`
+- [Chapter 2: Section 13 — Wings Over Britain](https://www.isekaizero.ai/storylines/69b260fa131ef7f0db7b76ca) — @circuit\_mind303 · `69b260fa131ef7f0db7b76ca`
+- [Chapter 6: Section 13 — The Last Seal](https://www.isekaizero.ai/storylines/69b29b3af02561bce84fded9) — @circuit\_mind303 · `69b29b3af02561bce84fded9`
+- [Choose Your Villains](https://www.isekaizero.ai/storylines/6a3930c74a9cda2218b2858f) — @yaruna · `6a3930c74a9cda2218b2858f`
+- [Chronicles of Rigel: War of the Four Emperors](https://www.isekaizero.ai/storylines/69c58d4ba3a843f99885faf6) — @knightartorias · `69c58d4ba3a843f99885faf6`
+- [Cinder & Cipher: Operation First Light](https://www.isekaizero.ai/storylines/69a4cf0593de38779e46163f) — @echovisitor384 · `69a4cf0593de38779e46163f`
+- [Clash of Power: Mages vs Super Heroes](https://www.isekaizero.ai/storylines/6a11346f5cb79798e46f15e0) — @nikk · `6a11346f5cb79798e46f15e0`
+- [Co-parenting With A Superhero](https://www.isekaizero.ai/storylines/6a3eb21e2009a6bbe330893c) — @masked\_case39 · `6a3eb21e2009a6bbe330893c`
+- [Cockroach](https://www.isekaizero.ai/storylines/6a3ba0fd8db6a6cc1df6ef12) — @parse\_part\_two · `6a3ba0fd8db6a6cc1df6ef12`
+- [Command Protocol: Earth Defense Response Force](https://www.isekaizero.ai/storylines/6ab98da667c0e357f75a96cf) — @ataco · `6ab98da667c0e357f75a96cf`
+- [Concordia: Superpowered](https://www.isekaizero.ai/storylines/6ab020a564935a54961ea169) — @peridot · `6ab020a564935a54961ea169`
+- [Controle da "Zone incredible" V2](https://www.isekaizero.ai/storylines/69b47c2b591c9fbbe84c8335) — @nicolaul · `69b47c2b591c9fbbe84c8335`
+- [Crash into a Broken World](https://www.isekaizero.ai/storylines/6a19076b5157506d2a1ba5ee) — @reaper2332 · `6a19076b5157506d2a1ba5ee`
+- [Crash? Into an Apocalyptic World](https://www.isekaizero.ai/storylines/6a4df34792d8d8cb44b7dca0) — @otomelucio · `6a4df34792d8d8cb44b7dca0`
+- [Crimson Knot: The Kamikakushi Maze](https://www.isekaizero.ai/storylines/6a4a34c2b83c1000f84c8aa7) — @mashmeow · `6a4a34c2b83c1000f84c8aa7`
+- [Crimson Sky: Wings of Alaria](https://www.isekaizero.ai/storylines/6a41fd512af998f69dde5ae2) — @cyberbunnyace · `6a41fd512af998f69dde5ae2`
+- [Crushed Into a Fatter World](https://www.isekaizero.ai/storylines/6a4cfebeed6798bf47f2a26b) — @elfpoles · `6a4cfebeed6798bf47f2a26b`
+- [D.H.I: Wardens of Vaelcrest](https://www.isekaizero.ai/storylines/6a2d6fc15a099203c64b5bd8) — @otomelucio · `6a2d6fc15a099203c64b5bd8`
+- [Dawn of the Age of Heroes](https://www.isekaizero.ai/storylines/6968afd1ba5fa53a66845ee5) — @emulated\_avatar · `6968afd1ba5fa53a66845ee5`
+- [Deadwave](https://www.isekaizero.ai/storylines/69e78dce10ff0e288c68eadb) — @vexed1 · `69e78dce10ff0e288c68eadb`
+- [Decaying Winter (WIP)](https://www.isekaizero.ai/storylines/69d25a1e22cbf7567579a8b0) — @code\_loop5736 · `69d25a1e22cbf7567579a8b0`
+- [DEMON HUNTER](https://www.isekaizero.ai/storylines/6a2d58922a7d95e84dc66056) — @xsrhanzox · `6a2d58922a7d95e84dc66056`
+- [Devil may cry, echos of sparda](https://www.isekaizero.ai/storylines/6a25baebf7bfa678ebb731a4) — @cordless\_cowboy · `6a25baebf7bfa678ebb731a4`
+- [Diagnóstico: Eclipse](https://www.isekaizero.ai/storylines/6a37725bba42eaff2637fffd) — @voloapenas · `6a37725bba42eaff2637fffd`
+- [Dive into Love Bomb](https://www.isekaizero.ai/storylines/6a63ae186255ddfe11ea39cb) — @dramdore · `6a63ae186255ddfe11ea39cb`
+- [Dogs of Fortune](https://www.isekaizero.ai/storylines/6a72bc8899a7f66107ae221a) — @horizonfoundry · `6a72bc8899a7f66107ae221a`
+- [Dragon Fire](https://www.isekaizero.ai/storylines/6a4c79b8a7f0da19850ea1bf) — @chestnut · `6a4c79b8a7f0da19850ea1bf`
+- [Dungeon 2099](https://www.isekaizero.ai/storylines/69bb4719a3a89bd7049f9481) — @shadow\_mind658 · `69bb4719a3a89bd7049f9481`
+- [Ecos del Réquiem.](https://www.isekaizero.ai/storylines/6ab19a4f1a942895aa6d103d) — @daisuke2905 · `6ab19a4f1a942895aa6d103d`
+- [Embers of the Dying Age (V3)](https://www.isekaizero.ai/storylines/69f65fc56b363b7e328b73a6) — @clockwright44 · `69f65fc56b363b7e328b73a6`
+- [Emblem Wars: Shadow of Three Nations](https://www.isekaizero.ai/storylines/6a3b6063983d922d55112e0d) — @momoyo · `6a3b6063983d922d55112e0d`
+- [Enchanting Eyes](https://www.isekaizero.ai/storylines/6a5fa005b934c32c08fa4c18) — @vincent · `6a5fa005b934c32c08fa4c18`
+- [Enough!](https://www.isekaizero.ai/storylines/6a277a0ed945c9c1f0562a44) — @sinbuilder · `6a277a0ed945c9c1f0562a44`
+- [EXODUS WorldBuilder](https://www.isekaizero.ai/storylines/69a4c22dd41f34d36719802f) — @valpal · `69a4c22dd41f34d36719802f`
+- [False Idols](https://www.isekaizero.ai/storylines/69a4fb7be93f82f10df7dec3) — @nikk · `69a4fb7be93f82f10df7dec3`
+- [Fightbringer](https://www.isekaizero.ai/storylines/6a25e95e157913f898cddf6e) — @vincent · `6a25e95e157913f898cddf6e`
+- [Fires of Tellus: Wings of Fire](https://www.isekaizero.ai/storylines/69abe5b44d9c8af740b5ca37) — @cyber\_plague · `69abe5b44d9c8af740b5ca37`
+- [Fireteam: Zeta of the U.S. Marine Corps](https://www.isekaizero.ai/storylines/6a3a10c1175aee21a47c91fa) — @eric\_sykes\_61 · `6a3a10c1175aee21a47c91fa`
+- [First Descent](https://www.isekaizero.ai/storylines/695c7c393b349f183d5e3f18) — @randomly\_random · `695c7c393b349f183d5e3f18`
+- [Fishing Combat](https://www.isekaizero.ai/storylines/6a919de56db8c20bec967e59) — @holoserver174 · `6a919de56db8c20bec967e59`
+- [Fratura Zero](https://www.isekaizero.ai/storylines/6a879070b3c6d59569f7ea8d) — @hyper\_core2196 · `6a879070b3c6d59569f7ea8d`
+- [From F-Rank Porter to God’s Chosen](https://www.isekaizero.ai/storylines/6a2af7f6ef5068e27d8e9cec) — @black\_cat · `6a2af7f6ef5068e27d8e9cec`
+- [Gate Crash](https://www.isekaizero.ai/storylines/699053e8dfc6404f46c25785) — @duck07747 · `699053e8dfc6404f46c25785`
+- [Gate Hunter](https://www.isekaizero.ai/storylines/6a510c8d7821512333917aa9) — @kingmaker · `6a510c8d7821512333917aa9`
+- [Glaszahn: Niemand kämpft allein](https://www.isekaizero.ai/storylines/6aa16e45327e907eccfd7e95) — @kain · `6aa16e45327e907eccfd7e95`
+- [Glutton For Alternative](https://www.isekaizero.ai/storylines/6a79922a45d0a4248c6a2408) — @surge\_striker · `6a79922a45d0a4248c6a2408`
+- [Godslayer](https://www.isekaizero.ai/storylines/6a32171840b445e9628ec3e8) — @iritachyon · `6a32171840b445e9628ec3e8`
+- [Graveyard Shift](https://www.isekaizero.ai/storylines/6a2b2a3e12571e57e92ad310) — @02give · `6a2b2a3e12571e57e92ad310`
+- [Gunmetal Gods](https://www.isekaizero.ai/storylines/6a2f115b1f314732d2e0253c) — @highdale · `6a2f115b1f314732d2e0253c`
+- [He Burnt Down Your House And Hurt Your Dog](https://www.isekaizero.ai/storylines/6a9c526ed9d87621bc1728cc) — @urbanfiction · `6a9c526ed9d87621bc1728cc`
+- [HELLCROWN: THE RED THRESHOLD](https://www.isekaizero.ai/storylines/6a99b702a73c99781415f430) — @havi · `6a99b702a73c99781415f430`
+- [Hero City](https://www.isekaizero.ai/storylines/6a6cf416ea2702571817816d) — @ac2105 · `6a6cf416ea2702571817816d`
+- [Hero's Eclipse](https://www.isekaizero.ai/storylines/6a450b43fe38bcfcd4c1d1f9) — @peerlessgem · `6a450b43fe38bcfcd4c1d1f9`
+- [Himitsu Pentai Cryptoger](https://www.isekaizero.ai/storylines/6a145b8cb87f23acabda3f31) — @itsanewdayyesitis · `6a145b8cb87f23acabda3f31`
+- [House of Light, Child of Dark](https://www.isekaizero.ai/storylines/6a9d7eb4aad381417c6d4bc8) — @goldw0lf · `6a9d7eb4aad381417c6d4bc8`
+- [Hunt Other Heroes](https://www.isekaizero.ai/storylines/69dc785b25c3d1dd4ab3bdfe) — @parse\_part\_two · `69dc785b25c3d1dd4ab3bdfe`
+- [I Didn’t Sign Up For This Game!](https://www.isekaizero.ai/storylines/69ea7a4c908e2c29f99642c5) — @vexed1 · `69ea7a4c908e2c29f99642c5`
+- [I Got an S-Rank Drow Bodyguard for Pocket Change](https://www.isekaizero.ai/storylines/69b8f283ee4e2b8277f8ec0c) — @nikk · `69b8f283ee4e2b8277f8ec0c`
+- [I Got Isekaied... With a Gun!!!](https://www.isekaizero.ai/storylines/6aa6b145e2c1c855acb86f68) — @ummmm · `6aa6b145e2c1c855acb86f68`
+- [I WAS A DEMON LORD](https://www.isekaizero.ai/storylines/6a85df8d875940155430c6c1) — @pureaffectiion · `6a85df8d875940155430c6c1`
+- [In-Six-Lines](https://www.isekaizero.ai/storylines/6a51502689432020229e9c83) — @vincent · `6a51502689432020229e9c83`
+- [Infiltrato: Operazione Diavoli Rossi](https://www.isekaizero.ai/storylines/6a15dfe12ac7131f1611717f) — @zack19600 · `6a15dfe12ac7131f1611717f`
+- [Infinite Boss Dungeon](https://www.isekaizero.ai/storylines/69afbc81e25932c086f53027) — @2manycooks · `69afbc81e25932c086f53027`
+- [Iron Kinetics: Smoke in the Air.](https://www.isekaizero.ai/storylines/6a1dfa3029f686c71a95694e) — @leonine\_pride · `6a1dfa3029f686c71a95694e`
+- [IRON PSALM: THE ABADDON WAR](https://www.isekaizero.ai/storylines/6a4f3e8b750bdcbac4c11201) — @havi · `6a4f3e8b750bdcbac4c11201`
+- [Isekai Exploitation Corporation](https://www.isekaizero.ai/storylines/69dc25d8eb4118dcd50d455b) — @zzacckkk · `69dc25d8eb4118dcd50d455b`
+- [Isekai Gladiator](https://www.isekaizero.ai/storylines/6973e33c993365f1258379aa) — @code\_layer5170 · `6973e33c993365f1258379aa`
+- [Isekai Zero to Hero](https://www.isekaizero.ai/storylines/6a73dfc59415dbf7cef7ce0b) — @storyteller · `6a73dfc59415dbf7cef7ce0b`
+- [Joint Operation: Universally Stranded](https://www.isekaizero.ai/storylines/6a38629b316b6caa0ef8e67e) — @reiter · `6a38629b316b6caa0ef8e67e`
+- [Just an E-Rank Delver](https://www.isekaizero.ai/storylines/6a8880f6c33c0e3758fe3959) — @scarlett\_47 · `6a8880f6c33c0e3758fe3959`
+- [Kamigami no chi: Ghosts of Kiri](https://www.isekaizero.ai/storylines/6aab76b3be0c1b0f10177349) — @psycho\_ghoul · `6aab76b3be0c1b0f10177349`
+- [Knights of The Silver Oath](https://www.isekaizero.ai/storylines/6a916d07bdde5ca0b73e6622) — @ferquai · `6a916d07bdde5ca0b73e6622`
+- [Last Light of Atraxus](https://www.isekaizero.ai/storylines/6a74ca58f3c98f1d693b1b16) — @themanaustin · `6a74ca58f3c98f1d693b1b16`
+- [LAST PICK](https://www.isekaizero.ai/storylines/6a1a9153bb8e14386d45f63a) — @surm · `6a1a9153bb8e14386d45f63a`
+- [Last Redoubt](https://www.isekaizero.ai/storylines/6999c27cd18496249e7f0b9b) — @anbee · `6999c27cd18496249e7f0b9b`
+- [Les Cendres et les Ombres](https://www.isekaizero.ai/storylines/6a675cc423eab9d6035e2562) — @tech\_bot765 · `6a675cc423eab9d6035e2562`
+- [Magnum's Hunt](https://www.isekaizero.ai/storylines/6aa9d6a59c0172a175edd6aa) — @goldw0lf · `6aa9d6a59c0172a175edd6aa`
+- [MECHA-KNIVES](https://www.isekaizero.ai/storylines/6a160ba1e48a3c3379468ce5) — @slasherus · `6a160ba1e48a3c3379468ce5`
+- [Meister & Weapon](https://www.isekaizero.ai/storylines/69b9a8b8255972a8e5d85da6) — @zzacckkk · `69b9a8b8255972a8e5d85da6`
+- [Midnight Runs](https://www.isekaizero.ai/storylines/699b3333753fd512ffc9b521) — @imeroth · `699b3333753fd512ffc9b521`
+- [MinMax: I Am What I Eat](https://www.isekaizero.ai/storylines/69d1c04dc65ee3ff92fde582) — @parse\_part\_two · `69d1c04dc65ee3ff92fde582`
+- [Mocked F-rank Necromancer](https://www.isekaizero.ai/storylines/6a7b79f2e99339108414492d) — @binary\_system628375 · `6a7b79f2e99339108414492d`
+- [Multiversal Tournament: Nexus Ascension](https://www.isekaizero.ai/storylines/6987c4b5ea396a79f1f0425b) — @masked\_case39 · `6987c4b5ea396a79f1f0425b`
+- [My Best Friend Turned Out to be a Supervillain](https://www.isekaizero.ai/storylines/6a3d9bac7ab037f0891102e6) — @luna · `6a3d9bac7ab037f0891102e6`
+- [Neokyo Bounty: Azure Hunt](https://www.isekaizero.ai/storylines/6a89e1a9d23836a8cd641760) — @kitdan89 · `6a89e1a9d23836a8cd641760`
+- [Neon Breach](https://www.isekaizero.ai/storylines/6a8fba793cf2c14772c0de65) — @psycho\_ghoul · `6a8fba793cf2c14772c0de65`
+- [Now I'm The Ruler of Hell?](https://www.isekaizero.ai/storylines/6a8d46d327c6979a3542116a) — @saghrath · `6a8d46d327c6979a3542116a`
+- [O imortal](https://www.isekaizero.ai/storylines/6a606d0c218bbbb0791ecb8c) — @weskel · `6a606d0c218bbbb0791ecb8c`
+- [O NOVO MUNDO CAÍDO](https://www.isekaizero.ai/storylines/6a1df0e4d4ae31be17766cee) — @voloapenas · `6a1df0e4d4ae31be17766cee`
+- [O recomeço](https://www.isekaizero.ai/storylines/69d080e6c9d18b6c54787b7b) — @nicolaul · `69d080e6c9d18b6c54787b7b`
+- [Oath of the Petals: The Continental War](https://www.isekaizero.ai/storylines/6a74c4dd108327223c4f3f3a) — @yurito\_tempus14 · `6a74c4dd108327223c4f3f3a`
+- [OPERATION DELTA](https://www.isekaizero.ai/storylines/695a18595f4fa1c5dd1d065d) — @shadow\_of\_the\_abyss\_00 · `695a18595f4fa1c5dd1d065d`
+- [Operation: Dead Frequency](https://www.isekaizero.ai/storylines/6a4fc3e6a64799daaed62a4b) — @yurito\_tempus14 · `6a4fc3e6a64799daaed62a4b`
+- [Opposed: 1944 \[Local Multiplayer\]](https://www.isekaizero.ai/storylines/6a7247978f45bfb9d70fb1cc) — @tech\_system470 · `6a7247978f45bfb9d70fb1cc`
+- [Orion fights Eagle-X](https://www.isekaizero.ai/storylines/69ccc631987489524d73f922) — @slasherus · `69ccc631987489524d73f922`
+- [Orion Vector](https://www.isekaizero.ai/storylines/69cc9e1c8d6a6c0210a71bab) — @slasherus · `69cc9e1c8d6a6c0210a71bab`
+- [Overfloow: Mercenary's Ledger](https://www.isekaizero.ai/storylines/69748a86226cb0102f4315e3) — @nisse\_norn · `69748a86226cb0102f4315e3`
+- [Patron Constellation System](https://www.isekaizero.ai/storylines/6a34dfdbd78faa01ce5750bd) — @zzacckkk · `6a34dfdbd78faa01ce5750bd`
+- [Planeta Enilda: Metropoli](https://www.isekaizero.ai/storylines/69e59fa2998d7d37cdfc3e38) — @metavisitor522 · `69e59fa2998d7d37cdfc3e38`
+- [Power Guardians: OBLIVION](https://www.isekaizero.ai/storylines/6a4033f2fe9717a2bd80d557) — @nikobloom · `6a4033f2fe9717a2bd80d557`
+- [Power Guardians: VENGEANCE](https://www.isekaizero.ai/storylines/6a4033f03bf5035b89e1afc7) — @noruincarc · `6a4033f03bf5035b89e1afc7`
+- [Powers That Be](https://www.isekaizero.ai/storylines/6aa477dd58846068b4dc8ecc) — @dowhatyoudo · `6aa477dd58846068b4dc8ecc`
+- [PRIME: Uncontained](https://www.isekaizero.ai/storylines/697f10cdd13b185aaf868e0e) — @plasma\_pilot37 · `697f10cdd13b185aaf868e0e`
+- [Project Apocalypse](https://www.isekaizero.ai/storylines/6a62b16f4038e2d48a54a2dc) — @salamander · `6a62b16f4038e2d48a54a2dc`
+- [Project: ICON](https://www.isekaizero.ai/storylines/69e9336db5f7f04555cce2e4) — @eggz-von-stein · `69e9336db5f7f04555cce2e4`
+- [Prove it](https://www.isekaizero.ai/storylines/6a70b7da35ec0a22e34b2a59) — @whisper\_operati6101 · `6a70b7da35ec0a22e34b2a59`
+- [Raised by the Iron Serpents](https://www.isekaizero.ai/storylines/6aa7a249bfaab04c0abdd1d0) — @metanetwork170 · `6aa7a249bfaab04c0abdd1d0`
+- [RAZE: Ink of Vengeance](https://www.isekaizero.ai/storylines/69ff0a6864d78b2c2a5db732) — @thebighossdog9 · `69ff0a6864d78b2c2a5db732`
+- [Realm Jumpers: Veteran of 1000 Jumps](https://www.isekaizero.ai/storylines/6a773805b5384a62b99669d9) — @kitdan89 · `6a773805b5384a62b99669d9`
+- [Reincarnated 𝑾𝒊𝒕𝒉 𝒂𝒏 𝑶𝑷 𝑺𝒌𝒊𝒍𝒍 𝟐](https://www.isekaizero.ai/storylines/6abd8c39813dd45ec04ec7e9) — @simserver248 · `6abd8c39813dd45ec04ec7e9`
+- [Relics Hunter](https://www.isekaizero.ai/storylines/6a7f051de48bc9532a1b0a31) — @farcraicraft · `6a7f051de48bc9532a1b0a31`
+- [Rhapsody of the Machine](https://www.isekaizero.ai/storylines/6999a8b05f16741d81a78107) — @soul\_eater · `6999a8b05f16741d81a78107`
+- [Rip and Reign](https://www.isekaizero.ai/storylines/6a44df636327882212d9f799) — @barakiel\_the\_wise · `6a44df636327882212d9f799`
+- [Roguelite Rogue’s Climb](https://www.isekaizero.ai/storylines/69e9d8de70537938240e58a5) — @anbee · `69e9d8de70537938240e58a5`
+- [Roll for Chaos: The Flux](https://www.isekaizero.ai/storylines/6a39091847533a9a24065b38) — @dinoduck · `6a39091847533a9a24065b38`
+- [RPG SIM](https://www.isekaizero.ai/storylines/69e08e6ef7bb5ba164dc3375) — @anbee · `69e08e6ef7bb5ba164dc3375`
+- [Rush Hard, City Cop](https://www.isekaizero.ai/storylines/69ddd0a9a0e7d5001a5b95d6) — @optimus-username · `69ddd0a9a0e7d5001a5b95d6`
+- [Seoul Brawl](https://www.isekaizero.ai/storylines/6a8ceb40b657d573ddcd98b3) — @viel\_oc · `6a8ceb40b657d573ddcd98b3`
+- [SHADOW beyond the rank](https://www.isekaizero.ai/storylines/6a892d5d4c07c74fc9134186) — @chipunit5453 · `6a892d5d4c07c74fc9134186`
+- [Shadow Moon - Spy Academy Stories](https://www.isekaizero.ai/storylines/69f1c1efece78478c3c6a2ae) — @pixel\_nexus647 · `69f1c1efece78478c3c6a2ae`
+- [Shattered Bond](https://www.isekaizero.ai/storylines/6a2b60657ea431035c7c282c) — @goldw0lf · `6a2b60657ea431035c7c282c`
+- [Shoot! Die! Respawn!](https://www.isekaizero.ai/storylines/6977214af136a9c85b23a786) — @astro\_engineer · `6977214af136a9c85b23a786`
+- [Slayer's Serenade: Isha's Rebellion](https://www.isekaizero.ai/storylines/6a186631b45304a4a2480c5a) — @voxelplayer499 · `6a186631b45304a4a2480c5a`
+- [Soul System Integrated](https://www.isekaizero.ai/storylines/6a508f78cd85f593322de607) — @crimzonnova510 · `6a508f78cd85f593322de607`
+- [Sovereign Skies](https://www.isekaizero.ai/storylines/6a33795cc595caba63beb76f) — @knightartorias · `6a33795cc595caba63beb76f`
+- [Spear](https://www.isekaizero.ai/storylines/6abacff8904a74872bd6091a) — @scriptboss · `6abacff8904a74872bd6091a`
+- [STARBOUND RENEGADES](https://www.isekaizero.ai/storylines/6a545d60fb023d3e17cc94c8) — @comrade\_questions · `6a545d60fb023d3e17cc94c8`
+- [Starfall Arena](https://www.isekaizero.ai/storylines/6aa9a71328226ea470da9540) — @kain · `6aa9a71328226ea470da9540`
+- [Starfall Arena](https://www.isekaizero.ai/storylines/6a442390fd59cf2a072b3964) — @kain · `6a442390fd59cf2a072b3964`
+- [Steampunk Souls](https://www.isekaizero.ai/storylines/699c50d1697bc9f617f1ecfd) — @anbee · `699c50d1697bc9f617f1ecfd`
+- [Stolen Glory](https://www.isekaizero.ai/storylines/6a9805b95c55e6903cf1cfec) — @metagrid623 · `6a9805b95c55e6903cf1cfec`
+- [Storm Over the Fallen World](https://www.isekaizero.ai/storylines/6a1c5b1280633e769a2c5564) — @chaotic-silver · `6a1c5b1280633e769a2c5564`
+- [Summoned by a Goddess to Become the Strongest?!](https://www.isekaizero.ai/storylines/6992ae76d1b9ea6fe3414bfa) — @storyteller · `6992ae76d1b9ea6fe3414bfa`
+- [Summoning 15 Warriors to a Sword Battle Royale!!!](https://www.isekaizero.ai/storylines/69721bca24243a55917be524) — @zrockhawaii · `69721bca24243a55917be524`
+- [Super Handler](https://www.isekaizero.ai/storylines/6a5f6d36b5cdfcd46b36efff) — @triplet · `6a5f6d36b5cdfcd46b36efff`
+- [Superhero Team: Valor Vanguard](https://www.isekaizero.ai/storylines/6a063bbe624bacec45bbc72e) — @masked\_case39 · `6a063bbe624bacec45bbc72e`
+- [Superhero world: Choose your destiny](https://www.isekaizero.ai/storylines/69a347d807722abe1d1a3284) — @faxx · `69a347d807722abe1d1a3284`
+- [Superpowers - Wer bist du?](https://www.isekaizero.ai/storylines/6a42e3e3ac3e5f241c9bb926) — @folti · `6a42e3e3ac3e5f241c9bb926`
+- [Supervillain Showdown](https://www.isekaizero.ai/storylines/6a4c6d564b157d99ffc33bc6) — @elfpoles · `6a4c6d564b157d99ffc33bc6`
+- [Swan Song](https://www.isekaizero.ai/storylines/6a84b9b1188be20a82bd3efd) — @surm · `6a84b9b1188be20a82bd3efd`
+- [System: Undead](https://www.isekaizero.ai/storylines/6abaced2b536aac0f690f2f4) — @metamatrix709 · `6abaced2b536aac0f690f2f4`
+- [The 15-Pound Predator](https://www.isekaizero.ai/storylines/6a265d2085e073f607a3d0c4) — @littlewolftactical · `6a265d2085e073f607a3d0c4`
+- [The 7-Day Lockdown](https://www.isekaizero.ai/storylines/6a6b6b5821f5b591fbc96c61) — @bluntmam · `6a6b6b5821f5b591fbc96c61`
+- [The ?-Rank Hero dipped for 12-years](https://www.isekaizero.ai/storylines/6ab60c2abc325807ec272fd2) — @edik · `6ab60c2abc325807ec272fd2`
+- [The Adversary](https://www.isekaizero.ai/storylines/6a9d4ef0003055370ca49709) — @inkmataverse2 · `6a9d4ef0003055370ca49709`
+- [The Breach](https://www.isekaizero.ai/storylines/69d84f8a5a779193c2bd6877) — @reiter · `69d84f8a5a779193c2bd6877`
+- [THE CARDS DON'T GIVE A FUCK](https://www.isekaizero.ai/storylines/6a8b0969ef3d3f6b1d317252) — @creatorfromhell · `6a8b0969ef3d3f6b1d317252`
+- [The Crew](https://www.isekaizero.ai/storylines/6a0370f210a936aba0cf622e) — @anamei · `6a0370f210a936aba0cf622e`
+- [The Crimson Blade of Vengeance](https://www.isekaizero.ai/storylines/6a3b1f4f6a6c3dbf54982d54) — @criminal\_love · `6a3b1f4f6a6c3dbf54982d54`
+- [The Crown Mage: Battle Royal](https://www.isekaizero.ai/storylines/6a79418aac3565898ee9f2c6) — @randomly\_random · `6a79418aac3565898ee9f2c6`
+- [The Day I Could No Longer Be Human](https://www.isekaizero.ai/storylines/6a9669276fe79e079c756f65) — @gldmango · `6a9669276fe79e079c756f65`
+- [The Defense](https://www.isekaizero.ai/storylines/69de3945bc1bfd5fdf891ab0) — @reiter · `69de3945bc1bfd5fdf891ab0`
+- [The Demon's Ascension](https://www.isekaizero.ai/storylines/6a7c08057ad7111841e8537b) — @potassium · `6a7c08057ad7111841e8537b`
+- [The Dragon Who Couldn't Be Tamed](https://www.isekaizero.ai/storylines/6a619583a6e792cc34979532) — @raiquia · `6a619583a6e792cc34979532`
+- [The Echo Hunter](https://www.isekaizero.ai/storylines/6a29a47a619cd0f1ea191890) — @comrade\_questions · `6a29a47a619cd0f1ea191890`
+- [The Eldritch Castaway](https://www.isekaizero.ai/storylines/6abbd8a4d3f4d1173c875331) — @neo\_loop8871 · `6abbd8a4d3f4d1173c875331`
+- [The Eternal Colosseum](https://www.isekaizero.ai/storylines/6a16094883a7c4532c67924d) — @da\_end · `6a16094883a7c4532c67924d`
+- [The Evolution Update](https://www.isekaizero.ai/storylines/6a5dda3e72193de6f40efe9d) — @ronaldgrand6969 · `6a5dda3e72193de6f40efe9d`
+- [The Fall of Hive Droskyn](https://www.isekaizero.ai/storylines/6949797ebc91041dd82fd7f3) — @onlyheskuin · `6949797ebc91041dd82fd7f3`
+- [The Forgotten Sovereign](https://www.isekaizero.ai/storylines/6a5d1439fedf5ff104c7e8d1) — @raiquia · `6a5d1439fedf5ff104c7e8d1`
+- [The foundation they ignored,I will rewrite](https://www.isekaizero.ai/storylines/6a03a18f74c22afe212a8ee3) — @izumi82282 · `6a03a18f74c22afe212a8ee3`
+- [The Fourteenth Throne](https://www.isekaizero.ai/storylines/6a74dddd33e6a25f49027c8b) — @galaxy\_scientis2246 · `6a74dddd33e6a25f49027c8b`
+- [The Goldroot Heist](https://www.isekaizero.ai/storylines/6a2d64270bf69491bb34d599) — @rockyk · `6a2d64270bf69491bb34d599`
+- [The Grim World We Live In: The Dominion Order](https://www.isekaizero.ai/storylines/6996a652812539939214dabf) — @devils\_vigil · `6996a652812539939214dabf`
+- [The Hell Arc](https://www.isekaizero.ai/storylines/6a8f09a726d3acc7bec5cd25) — @zeldarocks88 · `6a8f09a726d3acc7bec5cd25`
+- [The Hero Already Failed](https://www.isekaizero.ai/storylines/6a9a2c11054df3f06ab7854f) — @horizonfoundry · `6a9a2c11054df3f06ab7854f`
+- [The Hidden & The Helpless](https://www.isekaizero.ai/storylines/6aa4e71399393c196c3d91ca) — @obscurebackdrop · `6aa4e71399393c196c3d91ca`
+- [The Hound](https://www.isekaizero.ai/storylines/69d4c3714193dce8e32f67d8) — @vector\_fonran · `69d4c3714193dce8e32f67d8`
+- [The Hunter's Road](https://www.isekaizero.ai/storylines/6a55b8655c1db6a3316c1734) — @kroner · `6a55b8655c1db6a3316c1734`
+- [THE HYPER-SIMULATION BATTLE ENGINE](https://www.isekaizero.ai/storylines/69700ad35263181f403f5fa8) — @storyteller · `69700ad35263181f403f5fa8`
+- [The Irregular](https://www.isekaizero.ai/storylines/6a29984fb2226a9b5273adc4) — @comrade\_questions · `6a29984fb2226a9b5273adc4`
+- [The irregular Level 0](https://www.isekaizero.ai/storylines/6a97c3d2be3ed06d0e40f82d) — @crayzyllord · `6a97c3d2be3ed06d0e40f82d`
+- [The Island](https://www.isekaizero.ai/storylines/6a863fe67ad5db7e29162926) — @dungeonminer · `6a863fe67ad5db7e29162926`
+- [The Last Compiler](https://www.isekaizero.ai/storylines/6abc7d65ba02e3f582394462) — @algo\_agent564 · `6abc7d65ba02e3f582394462`
+- [THE LAST CONCORD](https://www.isekaizero.ai/storylines/6a5a723c0888fb8521c34824) — @havi · `6a5a723c0888fb8521c34824`
+- [THE LAST DITCH II: THE LAST STAND](https://www.isekaizero.ai/storylines/6a8573cdbd9a14692c2b9101) — @paganz · `6a8573cdbd9a14692c2b9101`
+- [The Last Level-One Hero](https://www.isekaizero.ai/storylines/6aa9e4b71a26ada0d0f91df8) — @chipsystem8978 · `6aa9e4b71a26ada0d0f91df8`
+- [The Phantom Agent](https://www.isekaizero.ai/storylines/6a5de041dedca90eb3be4084) — @raiquia · `6a5de041dedca90eb3be4084`
+- [The Pit Of Fall](https://www.isekaizero.ai/storylines/6a4adfaa9ffbc94a3be0a5a0) — @ember\_tale5385 · `6a4adfaa9ffbc94a3be0a5a0`
+- [The Proving](https://www.isekaizero.ai/storylines/6953b78846c535ddb1414641) — @ghostworld218 · `6953b78846c535ddb1414641`
+- [The Raven King: New Beginning](https://www.isekaizero.ai/storylines/69b2b05159921e51b43071b8) — @goldenstar · `69b2b05159921e51b43071b8`
+- [The Return of Zero](https://www.isekaizero.ai/storylines/69a70e5b20d3f1313a5db964) — @creatorfromhell · `69a70e5b20d3f1313a5db964`
+- [THE SABLE WRIT](https://www.isekaizero.ai/storylines/6a976abfab7d7fd3f40570eb) — @havi · `6a976abfab7d7fd3f40570eb`
+- [THE SEPULCHER FRONT](https://www.isekaizero.ai/storylines/6aa7f0ad1e9a4a6967c7d35b) — @havi · `6aa7f0ad1e9a4a6967c7d35b`
+- [The seven days: Arena Zero](https://www.isekaizero.ai/storylines/6a5d53cf8d25782125103996) — @luke1122 · `6a5d53cf8d25782125103996`
+- [The Siege of Morined](https://www.isekaizero.ai/storylines/6a33760f689167f93a88850f) — @limbo · `6a33760f689167f93a88850f`
+- [The Skill Reaper: He Who Takes All](https://www.isekaizero.ai/storylines/6a186ad44790032731ebe7db) — @davidsfatalfall · `6a186ad44790032731ebe7db`
+- [The Slave and Her Holy Knight](https://www.isekaizero.ai/storylines/696326a4ad9fb9e0a4e78f3a) — @storyteller · `696326a4ad9fb9e0a4e78f3a`
+- [The Spare Won't Stay Down](https://www.isekaizero.ai/storylines/6a9c38a1990258b6c9dc1587) — @kitdan89 · `6a9c38a1990258b6c9dc1587`
+- [The Spy at the Ball](https://www.isekaizero.ai/storylines/6a5fbce2d8e78ae7ed0c1df4) — @dondonburi · `6a5fbce2d8e78ae7ed0c1df4`
+- [The Strongest Were Never Meant to Survive](https://www.isekaizero.ai/storylines/6a6dc1063ac68f8ce6558f3f) — @creatorfromhell · `6a6dc1063ac68f8ce6558f3f`
+- [The System Chose the Weakest Hunter](https://www.isekaizero.ai/storylines/69f0ae1ca1c7858f56ca6aca) — @originbreaker · `69f0ae1ca1c7858f56ca6aca`
+- [The Temporary Guide](https://www.isekaizero.ai/storylines/6a5d3746c08777edeacc7dac) — @raiquia · `6a5d3746c08777edeacc7dac`
+- [The Thirteenth Descent](https://www.isekaizero.ai/storylines/6a45be0415e9c5805484a778) — @havi · `6a45be0415e9c5805484a778`
+- [The Tides of Troy](https://www.isekaizero.ai/storylines/6a4c27faa01ce5c26f96d77a) — @wildhunt-24 · `6a4c27faa01ce5c26f96d77a`
+- [The Tower of Fable](https://www.isekaizero.ai/storylines/6aa1df6e421040bd0daf8c31) — @system\_agent647 · `6aa1df6e421040bd0daf8c31`
+- [The Villainess Beat Her Bad End with Firepower!](https://www.isekaizero.ai/storylines/69a9152ed43fb19cb13a5bf9) — @headbiting · `69a9152ed43fb19cb13a5bf9`
+- [The Violet Rogues](https://www.isekaizero.ai/storylines/69bd50efcfe6b7ceb6b06912) — @noruincarc · `69bd50efcfe6b7ceb6b06912`
+- [The Wall Must Hold !](https://www.isekaizero.ai/storylines/69aef558c03faace595eff90) — @creatorfromhell · `69aef558c03faace595eff90`
+- [The White Tide](https://www.isekaizero.ai/storylines/6a5eaacb5ad3df0fcfed3ab1) — @domie · `6a5eaacb5ad3df0fcfed3ab1`
+- [The Wrong Hero](https://www.isekaizero.ai/storylines/6a6109730136383467f41ff7) — @sarapinto · `6a6109730136383467f41ff7`
+- [They killed her!!!](https://www.isekaizero.ai/storylines/6a3678c1995b41fc06620d4c) — @tkiks · `6a3678c1995b41fc06620d4c`
+- [They Were Wrong to Throw Me Away](https://www.isekaizero.ai/storylines/6a16a446784599d36c20b7a6) — @elfpoles · `6a16a446784599d36c20b7a6`
+- [Time Jump: Reflux (Roleplay Story)](https://www.isekaizero.ai/storylines/6a67b53799d4e34348e35c99) — @kurumidown · `6a67b53799d4e34348e35c99`
+- [To build a kingdom, or an empire.](https://www.isekaizero.ai/storylines/69a3b9b4987dda61c05e5917) — @neo\_agent5312 · `69a3b9b4987dda61c05e5917`
+- [To the top of the tower](https://www.isekaizero.ai/storylines/69643100480fc9a3919553ba) — @pixel\_phoenix69 · `69643100480fc9a3919553ba`
+- [Tower Of Unbound Ascent](https://www.isekaizero.ai/storylines/6a73bf01b00b1a23aa9c7e8c) — @hitousenshizen · `6a73bf01b00b1a23aa9c7e8c`
+- [Unsung Hero](https://www.isekaizero.ai/storylines/6a588ed3beadb1ce55ca65c0) — @vincent · `6a588ed3beadb1ce55ca65c0`
+- [Vae Victis: Kneel Before the Laurels](https://www.isekaizero.ai/storylines/6a6ff0e617f0ba3407c34b40) — @creatorfromhell · `6a6ff0e617f0ba3407c34b40`
+- [Vandalia under siege](https://www.isekaizero.ai/storylines/6a32a213ebf282f630350674) — @digital\_node598 · `6a32a213ebf282f630350674`
+- [Vangardian's Shadow](https://www.isekaizero.ai/storylines/6a445ec3bc78ec0afffe3242) — @primekazuki · `6a445ec3bc78ec0afffe3242`
+- [Vanguard: Beyond the Gate](https://www.isekaizero.ai/storylines/699c60d876eee77592921f79) — @lordcraneo2 · `699c60d876eee77592921f79`
+- [VANGUARD: CENIZA Y GLORIA](https://www.isekaizero.ai/storylines/6abd38289b4cfb15bd824b2a) — @ravenous · `6abd38289b4cfb15bd824b2a`
+- [Villain Team: The Outcasts](https://www.isekaizero.ai/storylines/6a21614deb33bbea55e3bbb7) — @masked\_case39 · `6a21614deb33bbea55e3bbb7`
+- [War Chronicles](https://www.isekaizero.ai/storylines/6aa6dbc7fda86ace504cd908) — @thistle · `6aa6dbc7fda86ace504cd908`
+- [War of Demon Succession](https://www.isekaizero.ai/storylines/69e045a19250b574ca39034e) — @anbee · `69e045a19250b574ca39034e`
+- [Warring Realms](https://www.isekaizero.ai/storylines/6955bbc5a7ff562794c3340f) — @storyteller · `6955bbc5a7ff562794c3340f`
+- [Warrior's Dynasty](https://www.isekaizero.ai/storylines/697f50d816b95055c453e142) — @mars\_explorer25 · `697f50d816b95055c453e142`
+- [We're HP Linked and I Want Out!](https://www.isekaizero.ai/storylines/6a5708a4ba04c97c3d4018f9) — @elfpoles · `6a5708a4ba04c97c3d4018f9`
+- [Weapons of the old world](https://www.isekaizero.ai/storylines/6a3dc5013a744cbf5fd5a3d9) — @last\_blights\_4969 · `6a3dc5013a744cbf5fd5a3d9`
+- [What Comes Easy](https://www.isekaizero.ai/storylines/6a4f53bd2086e3f31df6ea46) — @vincent · `6a4f53bd2086e3f31df6ea46`
+- [When Dawn Breaks](https://www.isekaizero.ai/storylines/69efb8fff9ed364332f49c6d) — @ekale · `69efb8fff9ed364332f49c6d`
+- [When Heroes Fail](https://www.isekaizero.ai/storylines/6a9d37e7fe4f53092b2906e4) — @kai\_zhen · `6a9d37e7fe4f53092b2906e4`
+- [When Stars Collide](https://www.isekaizero.ai/storylines/6a51b49533f7f4b3ade28a92) — @comrade\_questions · `6a51b49533f7f4b3ade28a92`
+- [Why don't you dance with me?!](https://www.isekaizero.ai/storylines/6a41ea37f3cad8910c454524) — @limbo · `6a41ea37f3cad8910c454524`
+- [With Great Power Comes Greater Profit](https://www.isekaizero.ai/storylines/6a26fe39fbc75c04aa9dac00) — @erafona · `6a26fe39fbc75c04aa9dac00`
+- [Womens in Tank](https://www.isekaizero.ai/storylines/6a665763ef229610a1faa851) — @guerra · `6a665763ef229610a1faa851`
+- [World Of Unbound Military](https://www.isekaizero.ai/storylines/6a94a7d0c7e4bed4da0fc751) — @hitousenshizen · `6a94a7d0c7e4bed4da0fc751`
+- [Worldfall](https://www.isekaizero.ai/storylines/6a37378b2d0a7dcdccee849b) — @imeroth · `6a37378b2d0a7dcdccee849b`
+- [YOU WERE #1](https://www.isekaizero.ai/storylines/6a3a00be2aa8ba620ea42028) — @elfpoles · `6a3a00be2aa8ba620ea42028`
+- [Your Ticket has been Escalated](https://www.isekaizero.ai/storylines/6abe7a51f415e664e8a10d05) — @cyber\_runner199 · `6abe7a51f415e664e8a10d05`
+- [ZERO CASUALTIES: THE HOLLOW CROWN AI PLOT BACKEND](https://www.isekaizero.ai/storylines/6ab2dc4a150f320b4d627cbf) — @havi · `6ab2dc4a150f320b4d627cbf`
+- [Zero Rank System](https://www.isekaizero.ai/storylines/698663f0c055ded21c500293) — @tabaluga · `698663f0c055ded21c500293`
+- [Грабить корованы](https://www.isekaizero.ai/storylines/6979917e7c7f9f057d893038) — @nate001 · `6979917e7c7f9f057d893038`
+- [Призрак: Мир за дверью](https://www.isekaizero.ai/storylines/6ab7da3b902fc034322e206f) — @exufun · `6ab7da3b902fc034322e206f`
+- [Сюжетная броня наоборот](https://www.isekaizero.ai/storylines/6aa9312b1e021aba257e4fe5) — @exufun · `6aa9312b1e021aba257e4fe5`
+- [ما وراء عرش العظماء](https://www.isekaizero.ai/storylines/6a93fffabc8ca68b69b1eb5f) — @vider\_skyrim · `6a93fffabc8ca68b69b1eb5f`
+- [​Le loup de Kurosame a une enfant à charge](https://www.isekaizero.ai/storylines/6aa86a26674fd6d2e51f8362) — @amerslam\_76 · `6aa86a26674fd6d2e51f8362`
+- [【ゲーム】宇宙戦闘（超現実世界の世界観）](https://www.isekaizero.ai/storylines/69a3157203c15be014b30c94) — @hatena · `69a3157203c15be014b30c94`
+- [この戦いが世界の命運を決める](https://www.isekaizero.ai/storylines/69fb6df038749264cd07b617) — @akiaki · `69fb6df038749264cd07b617`
+- [トイ・ウォーズ：二階建ての防衛線](https://www.isekaizero.ai/storylines/69aa46142973abb2112b7742) — @cyber\_system265 · `69aa46142973abb2112b7742`
+- [末日-我有盲盒系统](https://www.isekaizero.ai/storylines/697454e023df49017e6844a2) — @pixel\_phoenix69 · `697454e023df49017e6844a2`
+- [诸神荣耀 Divine Glory](https://www.isekaizero.ai/storylines/6a64e65c4621650fec1d702c) — @mechseries4054 · `6a64e65c4621650fec1d702c`
+
+## `drama` (254)
+
+- [14 Days to Save a Kingdom](https://www.isekaizero.ai/storylines/6a917c6f8eda92183fc21b32) — @flameonthewater · `6a917c6f8eda92183fc21b32`
+- [30 days with a stranger](https://www.isekaizero.ai/storylines/6aa1cc1efb8f10d4cec3dab6) — @pandarenus · `6aa1cc1efb8f10d4cec3dab6`
+- [7 Day Inheritance](https://www.isekaizero.ai/storylines/6a53e2540751f905ddf377e3) — @ronniebagels · `6a53e2540751f905ddf377e3`
+- [7 Days With You](https://www.isekaizero.ai/storylines/69a29e47591003a7d5b2d8e2) — @alaruthe · `69a29e47591003a7d5b2d8e2`
+- [7 Years Dead](https://www.isekaizero.ai/storylines/69df061f73589fd5fec8016c) — @thisguytri3d · `69df061f73589fd5fec8016c`
+- [A Jester's Devotion](https://www.isekaizero.ai/storylines/6a1c235c4c037cf9e6bc798a) — @ashenparty · `6a1c235c4c037cf9e6bc798a`
+- [A New Nation](https://www.isekaizero.ai/storylines/697db83bf1628a20135e1a16) — @emulated\_avatar · `697db83bf1628a20135e1a16`
+- [A Ribbon in the Mirror](https://www.isekaizero.ai/storylines/6a9574b9cf585c2cad4aae41) — @daisuku · `6a9574b9cf585c2cad4aae41`
+- [Absolute Police](https://www.isekaizero.ai/storylines/6968991a0c1ab072fb462afe) — @cooks\_goose · `6968991a0c1ab072fb462afe`
+- [Absolute President](https://www.isekaizero.ai/storylines/696453090d1353cc63141602) — @cooks\_goose · `696453090d1353cc63141602`
+- [Abusive Jester Boyfriend Dumps Me For Her](https://www.isekaizero.ai/storylines/6a146dcb4790c836f5305a20) — @mirushi · `6a146dcb4790c836f5305a20`
+- [Age of Equilibrium](https://www.isekaizero.ai/storylines/6aa745d1c590548c4e66cfbc) — @a1aurora · `6aa745d1c590548c4e66cfbc`
+- [Almost Real](https://www.isekaizero.ai/storylines/69febbb7c615832ea62e6559) — @thisguytri3d · `69febbb7c615832ea62e6559`
+- [Almost Us](https://www.isekaizero.ai/storylines/68a2886542e839ef6c76ac19) — @magic\_world · `68a2886542e839ef6c76ac19`
+- [Anti Genesis: God Burns the Scripture](https://www.isekaizero.ai/storylines/6a4ab51faaa8f4e053be0296) — @trixarella · `6a4ab51faaa8f4e053be0296`
+- [Are Bad Boys Best?](https://www.isekaizero.ai/storylines/69d2fd635c51860283bf68c7) — @stellar\_port26 · `69d2fd635c51860283bf68c7`
+- [Ashes from the Throne](https://www.isekaizero.ai/storylines/69fe2cd35ee9d0911dcc6d02) — @laserandroid730 · `69fe2cd35ee9d0911dcc6d02`
+- [Ayaka: Golden distance](https://www.isekaizero.ai/storylines/6972ee6c3ca04ccc66ee4931) — @marie-anne · `6972ee6c3ca04ccc66ee4931`
+- [Bajo el mismo techo](https://www.isekaizero.ai/storylines/6aaf00eb8bc32c3db37547ab) — @saiko\_sorera · `6aaf00eb8bc32c3db37547ab`
+- [Band Wars!](https://www.isekaizero.ai/storylines/69cee901fc04b3d8594adfad) — @melis · `69cee901fc04b3d8594adfad`
+- [Bar REVOLUT](https://www.isekaizero.ai/storylines/69c5e67f9bc7554724c51158) — @zzacckkk · `69c5e67f9bc7554724c51158`
+- [Bed of lies](https://www.isekaizero.ai/storylines/6a4fbb466b8a8d00b18ff4d5) — @silly\_baka\_mentaimayo · `6a4fbb466b8a8d00b18ff4d5`
+- [Before the Mountain Burns](https://www.isekaizero.ai/storylines/6a7e388fc3da4cd53b5f034e) — @gaboopa · `6a7e388fc3da4cd53b5f034e`
+- [Behold Your New Ruler](https://www.isekaizero.ai/storylines/689aebba9e94d2471b9b7bf1) — @magic\_world · `689aebba9e94d2471b9b7bf1`
+- [Being A Wage Slave For My Daughter](https://www.isekaizero.ai/storylines/69d822d94d88b4805263be0d) — @dotdotdot · `69d822d94d88b4805263be0d`
+- [Beyond The Astral Veil](https://www.isekaizero.ai/storylines/69e95c08a79d26909460f079) — @a1aurora · `69e95c08a79d26909460f079`
+- [Blooming in Silence](https://www.isekaizero.ai/storylines/6993f20d8d5c78024cad0cbb) — @theideasgirl · `6993f20d8d5c78024cad0cbb`
+- [Bound to the Vampire I Swore to Kill](https://www.isekaizero.ai/storylines/6a6a3b7d127489872cfd9111) — @tsukihana · `6a6a3b7d127489872cfd9111`
+- [Checkmate: Calla Fern's Gambit](https://www.isekaizero.ai/storylines/694ec3185b80dc1a90657b0d) — @lilypadfly · `694ec3185b80dc1a90657b0d`
+- [Checkmate: Ceasar Oak's Gambit](https://www.isekaizero.ai/storylines/694ebd24026e82a136419d69) — @lilypadfly · `694ebd24026e82a136419d69`
+- [Checkmate: Gilbert Vine's Gambit](https://www.isekaizero.ai/storylines/694ec77a8c1c9d14807933c8) — @lilypadfly · `694ec77a8c1c9d14807933c8`
+- [Checkmate: Khena Bloom's Gambit](https://www.isekaizero.ai/storylines/694ec5145b80dc1a90678142) — @lilypadfly · `694ec5145b80dc1a90678142`
+- [Checkmate: Main Route](https://www.isekaizero.ai/storylines/694eac15103e0d25c2da1f6c) — @lilypadfly · `694eac15103e0d25c2da1f6c`
+- [Checkmate: Michelle Rose's Gambit](https://www.isekaizero.ai/storylines/694ebad9cf08cc0f1e773611) — @lilypadfly · `694ebad9cf08cc0f1e773611`
+- [Checkmate: Pride Thron's Gambit](https://www.isekaizero.ai/storylines/694ec0b68c1c9d1480728808) — @lilypadfly · `694ec0b68c1c9d1480728808`
+- [Checkmate: Roland Moss's Gambit](https://www.isekaizero.ai/storylines/694ecbedb49b0b8152a8e011) — @lilypadfly · `694ecbedb49b0b8152a8e011`
+- [Checkmate: Sebastian Forest's Gambit](https://www.isekaizero.ai/storylines/694ec9bcaf580f86667d20fd) — @lilypadfly · `694ec9bcaf580f86667d20fd`
+- [Childhood Love Marries Your Childhood Friend](https://www.isekaizero.ai/storylines/6994ac6e28a9262a537e9213) — @tensor\_gpt797 · `6994ac6e28a9262a537e9213`
+- [Corporate Takeover](https://www.isekaizero.ai/storylines/6a7b592b394624e13a3e5ba9) — @galaxy\_scientis2246 · `6a7b592b394624e13a3e5ba9`
+- [Crowned By Wolves](https://www.isekaizero.ai/storylines/6a08d31c40b198c55356496d) — @phoenix\_blade2499 · `6a08d31c40b198c55356496d`
+- [Cœur Royal, Âme Brisée](https://www.isekaizero.ai/storylines/6a1df2e623105ac52ecb888c) — @tech\_bot765 · `6a1df2e623105ac52ecb888c`
+- [Deadly Nightshade](https://www.isekaizero.ai/storylines/69a1f85e485cd78d529f27f3) — @slasherus · `69a1f85e485cd78d529f27f3`
+- [Drakemire Crown Succession](https://www.isekaizero.ai/storylines/6a0983a7aee316c44c634065) — @axxeldraken · `6a0983a7aee316c44c634065`
+- [Drumroll](https://www.isekaizero.ai/storylines/6a2c6c09b5bc882aea13d986) — @whats-the-meta · `6a2c6c09b5bc882aea13d986`
+- [DSS: The Tragic Concubine's POV](https://www.isekaizero.ai/storylines/6a4ac8bcfef6404a1e4bdee7) — @paracetale · `6a4ac8bcfef6404a1e4bdee7`
+- [Eight Ambitious Women Want You](https://www.isekaizero.ai/storylines/69c458e1583066d8ed9ebad1) — @mifico · `69c458e1583066d8ed9ebad1`
+- [El Regreso](https://www.isekaizero.ai/storylines/6a42affc1caa4f9fd82a2f01) — @luis · `6a42affc1caa4f9fd82a2f01`
+- [Expiration Date](https://www.isekaizero.ai/storylines/6a68f6abd13f8f5d75c42b38) — @generic · `6a68f6abd13f8f5d75c42b38`
+- [Fault Lines](https://www.isekaizero.ai/storylines/69e296dafc64e6377d1008c8) — @dinoduck · `69e296dafc64e6377d1008c8`
+- [Fell For you, Fall For You](https://www.isekaizero.ai/storylines/6aa433acb5f46b07b82c4bdb) — @dan-namite · `6aa433acb5f46b07b82c4bdb`
+- [Fix Her \|\| Level Impossible](https://www.isekaizero.ai/storylines/69c60fa486057614ff5593ab) — @optimus-username · `69c60fa486057614ff5593ab`
+- [For you I'd remake the world](https://www.isekaizero.ai/storylines/6a131b8bd28916974f5f5019) — @comrade\_questions · `6a131b8bd28916974f5f5019`
+- [Four Disasters and a Dynasty](https://www.isekaizero.ai/storylines/69cf1ab868415b4bff741e47) — @dotdotdot · `69cf1ab868415b4bff741e47`
+- [Fractured Spotlight](https://www.isekaizero.ai/storylines/6ab8c6f64e38018d8ae413bb) — @uipzto · `6ab8c6f64e38018d8ae413bb`
+- [Ghost Shark DOWNPOUR](https://www.isekaizero.ai/storylines/6a2b3cafeb366c1f4a84674d) — @soul\_eater · `6a2b3cafeb366c1f4a84674d`
+- [Gifted to Princess as a Present!?](https://www.isekaizero.ai/storylines/6a1fd4b505a622738aaf10e2) — @mirushi · `6a1fd4b505a622738aaf10e2`
+- [God of Music](https://www.isekaizero.ai/storylines/699dedf4a34008a283102f9e) — @awoondight · `699dedf4a34008a283102f9e`
+- [Gone blind and mute then sent to a disabled home.](https://www.isekaizero.ai/storylines/6980c70aa21ba9906a6bb533) — @eye\_dot · `6980c70aa21ba9906a6bb533`
+- [Greatest Idol Manager](https://www.isekaizero.ai/storylines/6959e0181714f3e249751bb0) — @primekazuki · `6959e0181714f3e249751bb0`
+- [Halcyon Meridian: Silent Control](https://www.isekaizero.ai/storylines/69c31079cbffa3a9a62bf8f4) — @mvanderlugt · `69c31079cbffa3a9a62bf8f4`
+- [Half Home](https://www.isekaizero.ai/storylines/69dc7365464a9855ef89f6a4) — @creatorfromhell · `69dc7365464a9855ef89f6a4`
+- [Happy Birthday Princess!](https://www.isekaizero.ai/storylines/69312e0049128f237b303a49) — @slasherus · `69312e0049128f237b303a49`
+- [Healing on Moonveil](https://www.isekaizero.ai/storylines/6a01d333dccbc1ec92ded3ee) — @trough\_adventure\_777 · `6a01d333dccbc1ec92ded3ee`
+- [Hero Damage Claims Office](https://www.isekaizero.ai/storylines/6a286cd6521086f4d1d76c7b) — @melis · `6a286cd6521086f4d1d76c7b`
+- [Hold Me Steady](https://www.isekaizero.ai/storylines/693cf7466f66d71c97ee18e2) — @ibarra · `693cf7466f66d71c97ee18e2`
+- [How Did I Even End Up at Girls' Night?!](https://www.isekaizero.ai/storylines/6ac0d911aa230f44ce95b15a) — @tuah · `6ac0d911aa230f44ce95b15a`
+- [I Became an Advisor to a Queen with Anger Issues](https://www.isekaizero.ai/storylines/69e688f8fa294b59d61dd2dc) — @tech\_system470 · `69e688f8fa294b59d61dd2dc`
+- [I Don't Remember You](https://www.isekaizero.ai/storylines/6a0f5353ba3bf1b9549a0029) — @sinbuilder · `6a0f5353ba3bf1b9549a0029`
+- [I don't want an arranged marriage!](https://www.isekaizero.ai/storylines/69ce0cbe10f6f11d231248c9) — @fawkes · `69ce0cbe10f6f11d231248c9`
+- [I Inherited a Dying Agency and Six Dreams](https://www.isekaizero.ai/storylines/6a9ffc09edbcca400b0b8d54) — @zlock112 · `6a9ffc09edbcca400b0b8d54`
+- [I Inherited A House Full of Maids](https://www.isekaizero.ai/storylines/6a670d84a929291ebb3b0a10) — @trixarella · `6a670d84a929291ebb3b0a10`
+- [I Moved In With My Old Bully?!](https://www.isekaizero.ai/storylines/6a653b2c16c582ee35a26986) — @asxx · `6a653b2c16c582ee35a26986`
+- [I Reincarnated to Save My Daughter](https://www.isekaizero.ai/storylines/6a435bb74da0f2ab79260b21) — @tsukihana · `6a435bb74da0f2ab79260b21`
+- [IDOL MANAGEMENT: Catgirl ☆ Agency!](https://www.isekaizero.ai/storylines/69c6d613b2bf843e5755d7a1) — @soul\_eater · `69c6d613b2bf843e5755d7a1`
+- [Il Trono di Cenere e Ferro](https://www.isekaizero.ai/storylines/69d430ddeccd064e076c285a) — @zack19600 · `69d430ddeccd064e076c285a`
+- [Ilyras letzte Hoffnung](https://www.isekaizero.ai/storylines/6a984fa7b056a3a9f3f1a1c1) — @okami\_nishikino · `6a984fa7b056a3a9f3f1a1c1`
+- [Industry Standard](https://www.isekaizero.ai/storylines/6992bec23b0c77d10295dcd0) — @cyberbunnyace · `6992bec23b0c77d10295dcd0`
+- [Isekai Zero Mental Health Center](https://www.isekaizero.ai/storylines/6a0362d9e419a811bf5cdf8e) — @markat1 · `6a0362d9e419a811bf5cdf8e`
+- [Isekai'd into a Marriage Doomed to Fail.](https://www.isekaizero.ai/storylines/695e3ece4d48d56d567aceb0) — @silicon\_node881 · `695e3ece4d48d56d567aceb0`
+- [Kicked From the Hero’s Party](https://www.isekaizero.ai/storylines/6963b3ac92d2e4f04536ebb3) — @silicon\_node881 · `6963b3ac92d2e4f04536ebb3`
+- [La Principessa del Vuoto](https://www.isekaizero.ai/storylines/69c6e730c6dfd749742d91ba) — @lazarus · `69c6e730c6dfd749742d91ba`
+- [Last Light](https://www.isekaizero.ai/storylines/693b104b046f4ba0539c0184) — @ibarra · `693b104b046f4ba0539c0184`
+- [Last of Her tribe](https://www.isekaizero.ai/storylines/6a7c909e4c26802e33320a31) — @flameonthewater · `6a7c909e4c26802e33320a31`
+- [Leave Out All The Rest](https://www.isekaizero.ai/storylines/693f0f6a5f6cacd1a9b5724b) — @ibarra · `693f0f6a5f6cacd1a9b5724b`
+- [Left Behind by My Popular Childhood Friend](https://www.isekaizero.ai/storylines/689add9a9e94d2471b9b5947) — @magic\_world · `689add9a9e94d2471b9b5947`
+- [Let Me Be The One](https://www.isekaizero.ai/storylines/6939c89cfdf04bc55d3367a4) — @ibarra · `6939c89cfdf04bc55d3367a4`
+- [Life After: learning to live again after loss](https://www.isekaizero.ai/storylines/6a12d1b6b15fd90a18338692) — @comrade\_questions · `6a12d1b6b15fd90a18338692`
+- [Locked Out Of The Loop](https://www.isekaizero.ai/storylines/69cd31fecb344b541fab23df) — @ashenparty · `69cd31fecb344b541fab23df`
+- [Lord of Ashes: The Ballad of the Commoner Knight](https://www.isekaizero.ai/storylines/69d56478ccee675720bb8bc1) — @pixel\_nexus335 · `69d56478ccee675720bb8bc1`
+- [Love Me Gentle, Break Me Wild](https://www.isekaizero.ai/storylines/689af8479e94d2471b9b9f26) — @yolo · `689af8479e94d2471b9b9f26`
+- [Lunar Rising](https://www.isekaizero.ai/storylines/6a021f09969ae3d594a6e293) — @burchbob96 · `6a021f09969ae3d594a6e293`
+- [Mara Whitlock No Quiere Ser Salvada](https://www.isekaizero.ai/storylines/6a2a2d2ad9d69a0aa64b2609) — @gyules · `6a2a2d2ad9d69a0aa64b2609`
+- [Mauerblick](https://www.isekaizero.ai/storylines/6a601ec56de4d76c3713ff44) — @onlyheskuin · `6a601ec56de4d76c3713ff44`
+- [Molt: The First World Tour — Louder Than Goodbye](https://www.isekaizero.ai/storylines/6a40f09422338d08576606ff) — @meta\_agent5554 · `6a40f09422338d08576606ff`
+- [Murder's Exception](https://www.isekaizero.ai/storylines/69f74d704c1f6038576c453e) — @clandesite · `69f74d704c1f6038576c453e`
+- [My Best Friend Joined a Cult](https://www.isekaizero.ai/storylines/6a633f6c6652e06a41575cce) — @smixx · `6a633f6c6652e06a41575cce`
+- [My Boss Is Secretly a Catboy](https://www.isekaizero.ai/storylines/6a1a2e7ba994f98c71b48b2c) — @goldenboicaska · `6a1a2e7ba994f98c71b48b2c`
+- [My Boyfriend is a Girl??!](https://www.isekaizero.ai/storylines/6a946d9d31706b3f31104880) — @shrm · `6a946d9d31706b3f31104880`
+- [My Demihuman Maid in a Racist World.](https://www.isekaizero.ai/storylines/69d7ac560e281443bd1050e4) — @poladea · `69d7ac560e281443bd1050e4`
+- [My Father Left Me a Duchy, Debts, and a Border War](https://www.isekaizero.ai/storylines/6a4a652c9a642edf4457f90a) — @knightartorias · `6a4a652c9a642edf4457f90a`
+- [My First Reader Fell Into a Coma](https://www.isekaizero.ai/storylines/6a4dd4db236e6b8c0fc0c45d) — @paperlantern · `6a4dd4db236e6b8c0fc0c45d`
+- [My Friend Is Stuck In A Turkish Prison](https://www.isekaizero.ai/storylines/69ff6316fad135c66c98786e) — @urbanfiction · `69ff6316fad135c66c98786e`
+- [My Life as Bigfoot](https://www.isekaizero.ai/storylines/698453b549ac013f82cfba5c) — @space-bandito · `698453b549ac013f82cfba5c`
+- [My New Stepbrother is an A\*\*hole.](https://www.isekaizero.ai/storylines/6a5a95f965f08046a98df52a) — @salamander · `6a5a95f965f08046a98df52a`
+- [My Own Idol](https://www.isekaizero.ai/storylines/6925f8718b0fe0b7f82b06e5) — @vermillion · `6925f8718b0fe0b7f82b06e5`
+- [My Sh\*tty Boyfriend](https://www.isekaizero.ai/storylines/6a63ad0d6255ddfe11e97f4f) — @salamander · `6a63ad0d6255ddfe11e97f4f`
+- [No longer pampered: My new life as a Countess](https://www.isekaizero.ai/storylines/6a3181902b8e240761b26459) — @hin\_n07 · `6a3181902b8e240761b26459`
+- [No One Came To Her Birthday](https://www.isekaizero.ai/storylines/691f1e15b0fe7a2aef36a53c) — @nikk · `691f1e15b0fe7a2aef36a53c`
+- [Not Trash To Him](https://www.isekaizero.ai/storylines/6a46bcf6a32f394f823b5806) — @lu-lu · `6a46bcf6a32f394f823b5806`
+- [O Peso da Coroa](https://www.isekaizero.ai/storylines/69ee80f9ce94f308839f88a1) — @senshi\_akai · `69ee80f9ce94f308839f88a1`
+- [One Last Serenade](https://www.isekaizero.ai/storylines/6a4c79f61d8845ece872fe22) — @melis · `6a4c79f61d8845ece872fe22`
+- [One More Summer With You](https://www.isekaizero.ai/storylines/6abc903bf64841fb20958b0a) — @infinitys\_zhero · `6abc903bf64841fb20958b0a`
+- [Our Crown](https://www.isekaizero.ai/storylines/69d773955963af1b835e6065) — @generic · `69d773955963af1b835e6065`
+- [Our S-Ranked Party Nearly Wiped](https://www.isekaizero.ai/storylines/69defc2cc0215977cb69210a) — @atlanteshellsing · `69defc2cc0215977cb69210a`
+- [Our Wings Collide](https://www.isekaizero.ai/storylines/6a10541918f7647b95328df6) — @vincent · `6a10541918f7647b95328df6`
+- [Pahina (Pages)](https://www.isekaizero.ai/storylines/6965949efe85e463d23fa195) — @ibarra · `6965949efe85e463d23fa195`
+- [Papa ha vuelto a casa](https://www.isekaizero.ai/storylines/6a44e34e73ebd808af1ffbf8) — @luis · `6a44e34e73ebd808af1ffbf8`
+- [Perros de la ciudad](https://www.isekaizero.ai/storylines/69c599d4e5bbd71a85aa5c4d) — @jean · `69c599d4e5bbd71a85aa5c4d`
+- [Pink Noise](https://www.isekaizero.ai/storylines/6a0f3c5b8acebb197af36627) — @vincent · `6a0f3c5b8acebb197af36627`
+- [Please Help Me Take Care of My Step Daughter!](https://www.isekaizero.ai/storylines/69a5e17a5aa550cdcc97e593) — @storyteller · `69a5e17a5aa550cdcc97e593`
+- [Please Let Us Work for a Room](https://www.isekaizero.ai/storylines/6a67ec478baf7605935d3821) — @lu-lu · `6a67ec478baf7605935d3821`
+- [Please, Don’t Say I’m Here (Sweet Edition)](https://www.isekaizero.ai/storylines/6a6f92d29299730b23de2777) — @lu-lu · `6a6f92d29299730b23de2777`
+- [Point Halo](https://www.isekaizero.ai/storylines/6a5d096af749cfee73d59d54) — @onlyheskuin · `6a5d096af749cfee73d59d54`
+- [Projet 2045](https://www.isekaizero.ai/storylines/6aa34f6b024d1a1185155ce3) — @mohamedtaha · `6aa34f6b024d1a1185155ce3`
+- [Queued up with the Enemy](https://www.isekaizero.ai/storylines/6a522c27f532743f06fb87e4) — @dollification · `6a522c27f532743f06fb87e4`
+- [Quite Vincible](https://www.isekaizero.ai/storylines/69d1b0839ae343bfba1b8f1b) — @parallelworld60 · `69d1b0839ae343bfba1b8f1b`
+- [Re:Cycle Bin — Fading Together](https://www.isekaizero.ai/storylines/6aaa50284277301035a9f1f4) — @gayboi · `6aaa50284277301035a9f1f4`
+- [Returning home](https://www.isekaizero.ai/storylines/6a1bd10e7ac4f8aea8cdff55) — @michal\_lifet · `6a1bd10e7ac4f8aea8cdff55`
+- [Reverse Isekai: Battered Elf](https://www.isekaizero.ai/storylines/699d0abcab0ce35325bd41ee) — @generic · `699d0abcab0ce35325bd41ee`
+- [Save the Hero!](https://www.isekaizero.ai/storylines/69fe8dc69bcbb719bd3b1c0c) — @lutterbach · `69fe8dc69bcbb719bd3b1c0c`
+- [Scales of Deception](https://www.isekaizero.ai/storylines/69731ec06f5e1f7c0ef479e1) — @ibarra · `69731ec06f5e1f7c0ef479e1`
+- [Seven Days To Ruin](https://www.isekaizero.ai/storylines/6a282b578d653ad92043b522) — @hemlock · `6a282b578d653ad92043b522`
+- [Seven Days to Win the Villainess](https://www.isekaizero.ai/storylines/6a58b15d5216a37e18f1f9f5) — @yuuu · `6a58b15d5216a37e18f1f9f5`
+- [Shadows Between Blood](https://www.isekaizero.ai/storylines/69b8a335c88b1bccedf12ee3) — @circuit\_mind303 · `69b8a335c88b1bccedf12ee3`
+- [Shared Walls](https://www.isekaizero.ai/storylines/695dec0d13d05357220ccd74) — @star\_master09 · `695dec0d13d05357220ccd74`
+- [Shizuka: Still Water](https://www.isekaizero.ai/storylines/69758a4d85a5ecf77f24e4ae) — @marie-anne · `69758a4d85a5ecf77f24e4ae`
+- [Silent Bruises](https://www.isekaizero.ai/storylines/68d5e5852ff8f52c47dd90a4) — @king · `68d5e5852ff8f52c47dd90a4`
+- [Sining (Art)](https://www.isekaizero.ai/storylines/6988187e823c62bf7d1fc5ee) — @ibarra · `6988187e823c62bf7d1fc5ee`
+- [Soap Bubble](https://www.isekaizero.ai/storylines/69c3a4d4db4b6757aaca9d2b) — @parse\_part\_two · `69c3a4d4db4b6757aaca9d2b`
+- [Start Up Your Dream](https://www.isekaizero.ai/storylines/69a751f59993609066f42ed0) — @trixarella · `69a751f59993609066f42ed0`
+- [Still Here](https://www.isekaizero.ai/storylines/6a3b3bca7ccb26bb4d93b2d0) — @thisisdavid · `6a3b3bca7ccb26bb4d93b2d0`
+- [STYGIAN:ASHES BETWEEN US](https://www.isekaizero.ai/storylines/6997adfd61dda71e8fd508cd) — @the\_nameless\_king · `6997adfd61dda71e8fd508cd`
+- [Suddenly Becomes a Villainess Mother](https://www.isekaizero.ai/storylines/69e6f33b55811904e2a581aa) — @fishtea · `69e6f33b55811904e2a581aa`
+- [Superhero Family: Demigods](https://www.isekaizero.ai/storylines/69a89cb19285c88115ea93f8) — @masked\_case39 · `69a89cb19285c88115ea93f8`
+- [Superhero Family: Rehabilitation](https://www.isekaizero.ai/storylines/69504e7082a193dbd04e97c6) — @masked\_case39 · `69504e7082a193dbd04e97c6`
+- [Surviving my Roommates Harem](https://www.isekaizero.ai/storylines/6a612511ee57a126aca1e2e4) — @salamander · `6a612511ee57a126aca1e2e4`
+- [The 7-Day Protocol](https://www.isekaizero.ai/storylines/6a4c05cfedcb4c6b1f17c9ec) — @lostxle9acy · `6a4c05cfedcb4c6b1f17c9ec`
+- [The Ammunition of Affection](https://www.isekaizero.ai/storylines/6a68205eb844051078254cba) — @ashenparty · `6a68205eb844051078254cba`
+- [The Arrangement — One Month to Choose](https://www.isekaizero.ai/storylines/6a3690ac66b28eec58a07d7f) — @yuuu · `6a3690ac66b28eec58a07d7f`
+- [The Billionaire Heir’s Household](https://www.isekaizero.ai/storylines/6a15b75c0d9c194093048d17) — @dobolk · `6a15b75c0d9c194093048d17`
+- [The Booth](https://www.isekaizero.ai/storylines/6a39166b83e7422953d4a39e) — @plasma\_blaster · `6a39166b83e7422953d4a39e`
+- [The Color Of November](https://www.isekaizero.ai/storylines/6a17f5d4d69f07a4417f0cc9) — @it\_was\_an\_exaggerated\_smile · `6a17f5d4d69f07a4417f0cc9`
+- [The Corrupted Saint](https://www.isekaizero.ai/storylines/69c1e4bf69d113e8dbb1df1c) — @nekada0330 · `69c1e4bf69d113e8dbb1df1c`
+- [The Court is Filled with Villains](https://www.isekaizero.ai/storylines/6a831d3f9ac798601d8fe334) — @pinkplonk · `6a831d3f9ac798601d8fe334`
+- [The Court of Beautiful Accidents](https://www.isekaizero.ai/storylines/6962696578ce6043f7bf17ad) — @cooki · `6962696578ce6043f7bf17ad`
+- [The Crown and the Sword](https://www.isekaizero.ai/storylines/6a8e5b54aefeb5f1d67f93a2) — @dungeonminer · `6a8e5b54aefeb5f1d67f93a2`
+- [The Crown Between Us](https://www.isekaizero.ai/storylines/69ce9e5dfc04b3d859105b0c) — @surm · `69ce9e5dfc04b3d859105b0c`
+- [The Cup](https://www.isekaizero.ai/storylines/6a4ca90b8022427914d2d35e) — @onlyheskuin · `6a4ca90b8022427914d2d35e`
+- [The Cup 2](https://www.isekaizero.ai/storylines/6a4edfb6c96ffc7edca5470c) — @onlyheskuin · `6a4edfb6c96ffc7edca5470c`
+- [The Day I Gave the Demon Queen Her Eternal Rest](https://www.isekaizero.ai/storylines/6986585e396745dfe42175c2) — @ghostmatrix668 · `6986585e396745dfe42175c2`
+- [The Day The Toaster Laughted.](https://www.isekaizero.ai/storylines/6a0bcb00099bfbb7e799f09c) — @sasquatch\_21 · `6a0bcb00099bfbb7e799f09c`
+- [The Eisern Schlange](https://www.isekaizero.ai/storylines/6a5ed4b3ee67c1ba3310a16b) — @onlyheskuin · `6a5ed4b3ee67c1ba3310a16b`
+- [The Empty Thrones: Territory of Forged Kings](https://www.isekaizero.ai/storylines/69540deee4323f3b2609cd70) — @puzzle\_noir60 · `69540deee4323f3b2609cd70`
+- [The Fairy Godfather](https://www.isekaizero.ai/storylines/6a34e0f3a554829f81daefd6) — @cyber\_oracle230 · `6a34e0f3a554829f81daefd6`
+- [The false Hero's Party](https://www.isekaizero.ai/storylines/69a0215adcc1edfc8c562d98) — @meta\_agent5554 · `69a0215adcc1edfc8c562d98`
+- [The Forgotten Throne](https://www.isekaizero.ai/storylines/6a68c15f291329bea2a1d21f) — @paperlantern · `6a68c15f291329bea2a1d21f`
+- [The Fractured Orbit](https://www.isekaizero.ai/storylines/6a8e90a93c9534c215c028e3) — @nanachi · `6a8e90a93c9534c215c028e3`
+- [The Friend I Left Behind](https://www.isekaizero.ai/storylines/6a283782214e6ff7ca779ec7) — @blinkgy · `6a283782214e6ff7ca779ec7`
+- [The Frost is Frigid and my Wife Freezes](https://www.isekaizero.ai/storylines/69f4e24e5b75555b0bbdc6fe) — @edisonadmiral17 · `69f4e24e5b75555b0bbdc6fe`
+- [The Gambler's Gambit](https://www.isekaizero.ai/storylines/6a31c276c76b63d1aab4771b) — @pixelpugilist · `6a31c276c76b63d1aab4771b`
+- [The Ghost of Who She Was](https://www.isekaizero.ai/storylines/693f0d52e2cc27dfc3b62d8f) — @ibarra · `693f0d52e2cc27dfc3b62d8f`
+- [The Girl Who Made Me Hate Her](https://www.isekaizero.ai/storylines/6a4cfcca67a3d47bb323345e) — @creatorfromhell · `6a4cfcca67a3d47bb323345e`
+- [The Girl Who Used to Rule the Hallways](https://www.isekaizero.ai/storylines/689af0059e94d2471b9b85a6) — @magic\_world · `689af0059e94d2471b9b85a6`
+- [The gravity of command](https://www.isekaizero.ai/storylines/69f9ebcc2eae41177451739c) — @compute\_gen453 · `69f9ebcc2eae41177451739c`
+- [The Gremlin on the Clock](https://www.isekaizero.ai/storylines/6a51129ddf3e7841c066b08b) — @paperlantern · `6a51129ddf3e7841c066b08b`
+- [The Harem of Silent Knives](https://www.isekaizero.ai/storylines/694b2538781b4f7a3f7aa732) — @michelle\_kaiser · `694b2538781b4f7a3f7aa732`
+- [The Hero Is TOO Strong](https://www.isekaizero.ai/storylines/697168f172bbd435c4c58889) — @manu · `697168f172bbd435c4c58889`
+- [The Hours Below](https://www.isekaizero.ai/storylines/6a543e6a26b629d4820a0f1b) — @mechandroid2944 · `6a543e6a26b629d4820a0f1b`
+- [The Jester's Cruel Joke](https://www.isekaizero.ai/storylines/6a1558e08b1175c9fc5edae8) — @rockyk · `6a1558e08b1175c9fc5edae8`
+- [The Last Spring in Hoshizora](https://www.isekaizero.ai/storylines/69f81a901c9f088dae384524) — @flyingsparkz · `69f81a901c9f088dae384524`
+- [The Leash and the Lie](https://www.isekaizero.ai/storylines/6a518cf6c5b7e694fa8e4012) — @syahwhit · `6a518cf6c5b7e694fa8e4012`
+- [The Lost Valenti Son](https://www.isekaizero.ai/storylines/6a1c16de433e83498b779fd8) — @neural\_ghost576 · `6a1c16de433e83498b779fd8`
+- [The Lunchbox That Started a War](https://www.isekaizero.ai/storylines/689aff1f9e94d2471b9bb84a) — @fayy · `689aff1f9e94d2471b9bb84a`
+- [The Man You Left Behind](https://www.isekaizero.ai/storylines/6a23ddd8dcffce9e4dfd9dfd) — @jingjingia · `6a23ddd8dcffce9e4dfd9dfd`
+- [The Melody We Left Behind](https://www.isekaizero.ai/storylines/6a412c81237cc91d3196b3ed) — @paperlantern · `6a412c81237cc91d3196b3ed`
+- [The Milk](https://www.isekaizero.ai/storylines/6a73ef1f3007ee2af3da80b6) — @onlyheskuin · `6a73ef1f3007ee2af3da80b6`
+- [The Night You Were Found](https://www.isekaizero.ai/storylines/6a66e5c385f06f62ade82c41) — @voxeluser273 · `6a66e5c385f06f62ade82c41`
+- [The One Who Held the Rift](https://www.isekaizero.ai/storylines/6a4c146689523847cc05ab01) — @goldw0lf · `6a4c146689523847cc05ab01`
+- [The Perfect President's Breaking Point](https://www.isekaizero.ai/storylines/689c31b2a7178f25c09568da) — @magic\_world · `689c31b2a7178f25c09568da`
+- [The Power Queen: Reigning From the Shadows](https://www.isekaizero.ai/storylines/696d0a1595a97159459a854d) — @soph\_k · `696d0a1595a97159459a854d`
+- [The Princess and the Peasant](https://www.isekaizero.ai/storylines/6a2ce0a55b37d0effc59d6ad) — @sirlepsch · `6a2ce0a55b37d0effc59d6ad`
+- [The Promise Beneath the Iron Sky](https://www.isekaizero.ai/storylines/689ae1419e94d2471b9b6348) — @fayy · `689ae1419e94d2471b9b6348`
+- [The Queen and the Sea](https://www.isekaizero.ai/storylines/6a3f9f5abb4c5ac0011dec72) — @dracorina · `6a3f9f5abb4c5ac0011dec72`
+- [The Raven’s Bride](https://www.isekaizero.ai/storylines/69ed23c5c2b13baca38f967d) — @highdale · `69ed23c5c2b13baca38f967d`
+- [The Reluctant Vanguard](https://www.isekaizero.ai/storylines/69a0294aab1a32f52b05ddfe) — @barakiel\_the\_wise · `69a0294aab1a32f52b05ddfe`
+- [The Royal Jester](https://www.isekaizero.ai/storylines/6922d1c1d991dfe9cc130c03) — @nikk · `6922d1c1d991dfe9cc130c03`
+- [The Royal Matchmaker](https://www.isekaizero.ai/storylines/6955ec741a707f3af99e9639) — @ryu\_baka · `6955ec741a707f3af99e9639`
+- [The Schism](https://www.isekaizero.ai/storylines/6a12e8998bd072b0ec4b51ab) — @mashmeow · `6a12e8998bd072b0ec4b51ab`
+- [The Servant of the Crazed Lady](https://www.isekaizero.ai/storylines/696e63f52161c0fc80378b53) — @neural\_core841 · `696e63f52161c0fc80378b53`
+- [The Silenced Voice (FemPOV)](https://www.isekaizero.ai/storylines/6a5d292ae63efce26c2d424e) — @lu-lu · `6a5d292ae63efce26c2d424e`
+- [The Silenced Voice (MalePOV)](https://www.isekaizero.ai/storylines/6a5df0cf01c41c895ec95018) — @lu-lu · `6a5df0cf01c41c895ec95018`
+- [The Supplies Convoy](https://www.isekaizero.ai/storylines/693e9d276d8dea22857ea027) — @satsuki · `693e9d276d8dea22857ea027`
+- [The Syndicate's Amnesiac Boss](https://www.isekaizero.ai/storylines/6a6f7c6a578dff3f40bf6eac) — @kaykyu · `6a6f7c6a578dff3f40bf6eac`
+- [The Third Wheel](https://www.isekaizero.ai/storylines/699e702878254257535f155e) — @awoondight · `699e702878254257535f155e`
+- [The time we have left](https://www.isekaizero.ai/storylines/6a4a9ccbd1b8865cb5d60109) — @dracorina · `6a4a9ccbd1b8865cb5d60109`
+- [The Trash-Class Hero](https://www.isekaizero.ai/storylines/6a2828af3ac395d98c916436) — @comrade\_questions · `6a2828af3ac395d98c916436`
+- [The Understudy](https://www.isekaizero.ai/storylines/69e7afcd97e45857fcc39a45) — @nikobloom · `69e7afcd97e45857fcc39a45`
+- [The unexpected daughter](https://www.isekaizero.ai/storylines/6a2e02d6fb61dd4ab1f3fd26) — @azrael37 · `6a2e02d6fb61dd4ab1f3fd26`
+- [The Unknown Flower](https://www.isekaizero.ai/storylines/6ab418386f7884376801535f) — @alex273 · `6ab418386f7884376801535f`
+- [The Unstable Wish](https://www.isekaizero.ai/storylines/6a0c3d6c29cff357520ee908) — @goldw0lf · `6a0c3d6c29cff357520ee908`
+- [The Village Offered You to the Water](https://www.isekaizero.ai/storylines/69b5098742e5cb949d62d5b0) — @yaya · `69b5098742e5cb949d62d5b0`
+- [The Villainess Café - Reverse Isekai](https://www.isekaizero.ai/storylines/69902ec7c76d2b01fe89a82c) — @goblin-queen · `69902ec7c76d2b01fe89a82c`
+- [The Villainess Was Never Wrong](https://www.isekaizero.ai/storylines/6a3c323c67339d139a0d28fe) — @tsukihana · `6a3c323c67339d139a0d28fe`
+- [The Weight of Choice](https://www.isekaizero.ai/storylines/697d7203ccf15ce96f0d6b06) — @cosmic\_crew89 · `697d7203ccf15ce96f0d6b06`
+- [The Younger Sibling’s Monologue](https://www.isekaizero.ai/storylines/696ced0a2a2ac5a32dff438d) — @clockpilot48 · `696ced0a2a2ac5a32dff438d`
+- [They All Looked To You](https://www.isekaizero.ai/storylines/69d1c4efd010b87b405a2660) — @drums · `69d1c4efd010b87b405a2660`
+- [They Broke Klara](https://www.isekaizero.ai/storylines/6a5dd73e72193de6f40d005f) — @barakiel\_the\_wise · `6a5dd73e72193de6f40d005f`
+- [They Mocked Me. Now They Want Me.](https://www.isekaizero.ai/storylines/6a1f61573dada678fc496e5a) — @erafona · `6a1f61573dada678fc496e5a`
+- [Thiralyth Sisters — Balance of a Broken Kingdom](https://www.isekaizero.ai/storylines/69fe50ee4703a184940f0025) — @vortex\_punk4137 · `69fe50ee4703a184940f0025`
+- [This School Is Mine](https://www.isekaizero.ai/storylines/695ed7ded9ead8ec3f83e9d6) — @creatorfromhell · `695ed7ded9ead8ec3f83e9d6`
+- [Three Years Too Late](https://www.isekaizero.ai/storylines/69dc75e7eb4118dcd5450df4) — @thisguytri3d · `69dc75e7eb4118dcd5450df4`
+- [Through the Lines](https://www.isekaizero.ai/storylines/6a87537625a707bb794206e3) — @rlpsishere · `6a87537625a707bb794206e3`
+- [Till death do us part](https://www.isekaizero.ai/storylines/69bb356bd579f6914cd22d48) — @memphis · `69bb356bd579f6914cd22d48`
+- [To find a new home](https://www.isekaizero.ai/storylines/6a7240a8d6f68e39316196c6) — @tomato · `6a7240a8d6f68e39316196c6`
+- [To Fix A Bully](https://www.isekaizero.ai/storylines/696f19138658ab23e90f0955) — @iamake · `696f19138658ab23e90f0955`
+- [Trapped On An Island](https://www.isekaizero.ai/storylines/6a200a2c3a8444affa518d3b) — @ifrost · `6a200a2c3a8444affa518d3b`
+- [Triangulating Life](https://www.isekaizero.ai/storylines/6a8753a2a2abb5354f969646) — @sarapinto · `6a8753a2a2abb5354f969646`
+- [Uhm... Hi Dad (Daughter POV)](https://www.isekaizero.ai/storylines/6a3aebad18d2cf9cddac508d) — @lu-lu · `6a3aebad18d2cf9cddac508d`
+- [Uhm... Hi, Dad](https://www.isekaizero.ai/storylines/6a3932d6bf999d91d2b84640) — @lu-lu · `6a3932d6bf999d91d2b84640`
+- [Under the long sleeves](https://www.isekaizero.ai/storylines/6a6edfd8e178abd0754ea9d8) — @dracorina · `6a6edfd8e178abd0754ea9d8`
+- [University of Elites](https://www.isekaizero.ai/storylines/69b892d6fe5d7e2d5a02ca4c) — @primekazuki · `69b892d6fe5d7e2d5a02ca4c`
+- [Unknown Symphony](https://www.isekaizero.ai/storylines/6a7100f3f22683960d9e22fd) — @nikobloom · `6a7100f3f22683960d9e22fd`
+- [Until the Ivy Dries](https://www.isekaizero.ai/storylines/6a8443be7e5f53b5eeeb9c2f) — @luis · `6a8443be7e5f53b5eeeb9c2f`
+- [Valor Vanguard Archives: Firebrand](https://www.isekaizero.ai/storylines/6a5fafc61e983a3d591ad16e) — @masked\_case39 · `6a5fafc61e983a3d591ad16e`
+- [Week to Sunlight: A While the Sun Sleeps Story](https://www.isekaizero.ai/storylines/6a4dab7a492e5813a8cfa21a) — @parse\_part\_two · `6a4dab7a492e5813a8cfa21a`
+- [We’ll Pay You In Exposure](https://www.isekaizero.ai/storylines/6a135814a2536c303585e6dc) — @urbanfiction · `6a135814a2536c303585e6dc`
+- [What the Treaty Demands](https://www.isekaizero.ai/storylines/6a008d59a5f19b34316665f9) — @catnapper · `6a008d59a5f19b34316665f9`
+- [What Was Once Mine](https://www.isekaizero.ai/storylines/6a0e1d5e1c2c4d8886dd89d4) — @trixarella · `6a0e1d5e1c2c4d8886dd89d4`
+- [Whatever It Takes to Hear Yes](https://www.isekaizero.ai/storylines/6a59e90137c97fc1ffbe36b8) — @vonny · `6a59e90137c97fc1ffbe36b8`
+- [What’s Left Of You](https://www.isekaizero.ai/storylines/6a04106b1e8538140eab8719) — @pink\_bunnie · `6a04106b1e8538140eab8719`
+- [Where the Sirens Don’t Stop](https://www.isekaizero.ai/storylines/6a60369b8c78bbe717e2320c) — @ibarra · `6a60369b8c78bbe717e2320c`
+- [Work Drama: Office!](https://www.isekaizero.ai/storylines/69fe0fc075e248013149d42f) — @chaotic\_snorlax · `69fe0fc075e248013149d42f`
+- [Woven into the Weave](https://www.isekaizero.ai/storylines/6a15b1fbd412f3d12bd7acef) — @code\_process644 · `6a15b1fbd412f3d12bd7acef`
+- [Yes, my lord. (Legacy Version)](https://www.isekaizero.ai/storylines/69ac7b2e4951625a6c246e26) — @pixel\_core432 · `69ac7b2e4951625a6c246e26`
+- [Your Family](https://www.isekaizero.ai/storylines/69e1cef48570eaa42d6f7ff2) — @thisguytri3d · `69e1cef48570eaa42d6f7ff2`
+- [Дом у кипарисов.](https://www.isekaizero.ai/storylines/6a7384f5c847ddcf6f73dc39) — @titantitan4179 · `6a7384f5c847ddcf6f73dc39`
+- [Забвение короны](https://www.isekaizero.ai/storylines/6abc0649fa11702259108dcc) — @servomachine493 · `6abc0649fa11702259108dcc`
+- [Она стала странной. А потом...](https://www.isekaizero.ai/storylines/6a9002310bb7f0d35cbc09f6) — @ritsuko · `6a9002310bb7f0d35cbc09f6`
+- [الجنرال الذي لم يعد](https://www.isekaizero.ai/storylines/6a9798c15048c08f810406e7) — @vider\_skyrim · `6a9798c15048c08f810406e7`
+- [キャラクター作成アシスタントAI：イブ・ノベル](https://www.isekaizero.ai/storylines/6a6e05412e4772e296fb20a8) — @hatena · `6a6e05412e4772e296fb20a8`
+- [她的谎言](https://www.isekaizero.ai/storylines/69168c69bb64bfd542da8548) — @yolo · `69168c69bb64bfd542da8548`
+- [孤独な勇者](https://www.isekaizero.ai/storylines/6964415bcdda059a105b9e24) — @vector\_ai188 · `6964415bcdda059a105b9e24`
+- [我的妻子快30岁了还是魔法少女-前传](https://www.isekaizero.ai/storylines/6aa0eb0263881259f96b1540) — @pixel\_phoenix69 · `6aa0eb0263881259f96b1540`
+- [郁金香与纸做的船](https://www.isekaizero.ai/storylines/6aacca6995bcb6ce01c9deb8) — @hanxing\_0816 · `6aacca6995bcb6ce01c9deb8`
+
+## `mystery` (177)
+
+- [The Unseen Patient](https://www.isekaizero.ai/storylines/6a42850f56720928e74ace3a) — @dracorina · `6a42850f56720928e74ace3a`
+- [11:17 THE FENCE](https://www.isekaizero.ai/storylines/6ab40fd5283702b935479102) — @undraz · `6ab40fd5283702b935479102`
+- [A Chave de Kamus](https://www.isekaizero.ai/storylines/6a90ab0335b5bc9d11481b43) — @g\_sanchez · `6a90ab0335b5bc9d11481b43`
+- [A City of Rust and Runes](https://www.isekaizero.ai/storylines/6937f6eafb13a42712606ad2) — @neural\_entity45 · `6937f6eafb13a42712606ad2`
+- [A Cold Case, A Colder Grave](https://www.isekaizero.ai/storylines/6a49c449c386cb178ba90a2a) — @vonthor · `6a49c449c386cb178ba90a2a`
+- [A Haunted House](https://www.isekaizero.ai/storylines/698bc38582db5d63f340680a) — @goblin-queen · `698bc38582db5d63f340680a`
+- [A Heartbeat in the Clock](https://www.isekaizero.ai/storylines/6a176d5202abc80c134643e9) — @otherexamples · `6a176d5202abc80c134643e9`
+- [A Liminal Odyssey](https://www.isekaizero.ai/storylines/6a6bf00ab921020f8c1eba32) — @mirrorrealm · `6a6bf00ab921020f8c1eba32`
+- [A Próxima Ferida](https://www.isekaizero.ai/storylines/6abbde55f831e3554fb0b4a9) — @er4or · `6abbde55f831e3554fb0b4a9`
+- [A Truth in blood.](https://www.isekaizero.ai/storylines/6a7ece51d255f68388d91ec5) — @mesh\_core2796 · `6a7ece51d255f68388d91ec5`
+- [A wife too perfect.](https://www.isekaizero.ai/storylines/6a4300bfeb07561e1061c6cb) — @azrael37 · `6a4300bfeb07561e1061c6cb`
+- [A Última Festa](https://www.isekaizero.ai/storylines/6a78ce819475e7ac2a1d61ac) — @isjc · `6a78ce819475e7ac2a1d61ac`
+- [AfterLife Online](https://www.isekaizero.ai/storylines/6956d34df588da3bb2129d79) — @sinisinmyname · `6956d34df588da3bb2129d79`
+- [Alice in Wonderland](https://www.isekaizero.ai/storylines/69bb0aaf8732b27c50429d4a) — @misora · `69bb0aaf8732b27c50429d4a`
+- [All Eyes on Stonebridge](https://www.isekaizero.ai/storylines/6ab0279c31f654846f7efb0d) — @reapir75 · `6ab0279c31f654846f7efb0d`
+- [Amongst the Crew](https://www.isekaizero.ai/storylines/6a405cecd9a367c4fd8103ae) — @generic · `6a405cecd9a367c4fd8103ae`
+- [Arcana's Gambit](https://www.isekaizero.ai/storylines/6a2965ce5f6455fd0d4304ee) — @sporklemcspork · `6a2965ce5f6455fd0d4304ee`
+- [Asesinato en la mansión Falkenberg](https://www.isekaizero.ai/storylines/6a76c436d2eb25f3912db51f) — @wirecyborg7384 · `6a76c436d2eb25f3912db51f`
+- [Ashes of Black Hollow: Detective Agency](https://www.isekaizero.ai/storylines/6a5d7919c08777edeaedf388) — @papallama · `6a5d7919c08777edeaedf388`
+- [Asterfall Guild: Questboard Secrets](https://www.isekaizero.ai/storylines/69875ebce3a3e9990099b250) — @meistrbleiz · `69875ebce3a3e9990099b250`
+- [Aurevyn: Signaturen der Stille](https://www.isekaizero.ai/storylines/6a3f035b0411600c0a64067f) — @kain · `6a3f035b0411600c0a64067f`
+- [Außenstelle Dreizehn: Neuanfang](https://www.isekaizero.ai/storylines/6a4aacfa047fd3b2c9247cc9) — @kain · `6a4aacfa047fd3b2c9247cc9`
+- [Become A Professor At The Academy](https://www.isekaizero.ai/storylines/69fcbd37d8db76c525ec8961) — @echo\_agent832 · `69fcbd37d8db76c525ec8961`
+- [Before the Hollow Crown](https://www.isekaizero.ai/storylines/6a5434d64d9a6cb2dd3b3d72) — @comrade\_questions · `6a5434d64d9a6cb2dd3b3d72`
+- [Before the Silence](https://www.isekaizero.ai/storylines/6a80a2359b3d174317a4fc12) — @wisper · `6a80a2359b3d174317a4fc12`
+- [Blossom High!](https://www.isekaizero.ai/storylines/69c2ec46166df7282da2f09d) — @meatman · `69c2ec46166df7282da2f09d`
+- [Blossom University!](https://www.isekaizero.ai/storylines/69c4603d5853ea5824580d71) — @meatman · `69c4603d5853ea5824580d71`
+- [Cabo Ceniza](https://www.isekaizero.ai/storylines/6a815225e222689f3ed0c052) — @ramm · `6a815225e222689f3ed0c052`
+- [Case Zero](https://www.isekaizero.ai/storylines/6a9287f3314004636471fc91) — @chipmark6605 · `6a9287f3314004636471fc91`
+- [Ces vacances de trop...](https://www.isekaizero.ai/storylines/6a81e89eb11b374e066c173c) — @myylz · `6a81e89eb11b374e066c173c`
+- [Crafting and conquest](https://www.isekaizero.ai/storylines/69e8b2a5e229013740734c22) — @ninjanakki · `69e8b2a5e229013740734c22`
+- [Descending Floors](https://www.isekaizero.ai/storylines/694e54d4788848d7a1e043c2) — @igotbaked · `694e54d4788848d7a1e043c2`
+- [Detective Doughty - Case of the Ghost Truck](https://www.isekaizero.ai/storylines/6ac09ba5b697c8bb2b1b7a0b) — @renshithenarrator · `6ac09ba5b697c8bb2b1b7a0b`
+- [Dropped Between Light and Shadow](https://www.isekaizero.ai/storylines/6a276bf82b31ca919369d303) — @ambrose · `6a276bf82b31ca919369d303`
+- [Earth After Rapture (AR)](https://www.isekaizero.ai/storylines/69a68ea42ef57e57da73b6c9) — @bananabro · `69a68ea42ef57e57da73b6c9`
+- [Echoes Beneath the Crown](https://www.isekaizero.ai/storylines/6947e6c3a3d55f0d3e202777) — @crynidemth · `6947e6c3a3d55f0d3e202777`
+- [Empire Beneath Falling Stars: Hunger Beyond Heaven](https://www.isekaizero.ai/storylines/6a3ce68a5f13eb377a0847a9) — @themanaustin · `6a3ce68a5f13eb377a0847a9`
+- [ESP: Origin](https://www.isekaizero.ai/storylines/6a1d3807d5614fc0fd2c9b29) — @plasma\_pilot37 · `6a1d3807d5614fc0fd2c9b29`
+- [Every Light Casts Two Shadows](https://www.isekaizero.ai/storylines/6a208cec5997b4146c0e8326) — @cherry\_chariot · `6a208cec5997b4146c0e8326`
+- [Expedientes de Nharveth](https://www.isekaizero.ai/storylines/6a78d4a1e9c2182348647231) — @fenrosk · `6a78d4a1e9c2182348647231`
+- [Flesh and Bone](https://www.isekaizero.ai/storylines/697ff3107bfc07f4c1d8027e) — @theideasgirl · `697ff3107bfc07f4c1d8027e`
+- [Froggie On A Lil Journey](https://www.isekaizero.ai/storylines/6a3fdbca59f97d9e4fa081a0) — @echosafe · `6a3fdbca59f97d9e4fa081a0`
+- [Guild of Thieves: Spicy Encounter](https://www.isekaizero.ai/storylines/693e6b67878082c158cdf6fa) — @slasherus · `693e6b67878082c158cdf6fa`
+- [HAKU: Day One](https://www.isekaizero.ai/storylines/6a094fb2f1fce97711f5e20f) — @freakyahhmf · `6a094fb2f1fce97711f5e20f`
+- [Her Guild](https://www.isekaizero.ai/storylines/6a9944dbaf8e5c87d5f245cc) — @aburakadabura · `6a9944dbaf8e5c87d5f245cc`
+- [Her Mask, My Verdict](https://www.isekaizero.ai/storylines/6a60be4b7155e3cf483e4649) — @cooki · `6a60be4b7155e3cf483e4649`
+- [Hollow Roots Neuanfang](https://www.isekaizero.ai/storylines/6a4acbdae31823e108b63494) — @kain · `6a4acbdae31823e108b63494`
+- [I Run a Broke Supernatural Detective Agency](https://www.isekaizero.ai/storylines/6abe01b21987ac1618be72dc) — @wyndmagyk · `6abe01b21987ac1618be72dc`
+- [I wish I had Her Life](https://www.isekaizero.ai/storylines/697c66f6cf8479bb234bfabe) — @lilypadfly · `697c66f6cf8479bb234bfabe`
+- [Idol in Freefall](https://www.isekaizero.ai/storylines/69c5fbe35039389671b31b1e) — @melis · `69c5fbe35039389671b31b1e`
+- [Imperial Magistrates: Death Aboard the Vermilion](https://www.isekaizero.ai/storylines/6a0a2b74094d3e16a40e20af) — @yaya · `6a0a2b74094d3e16a40e20af`
+- [Imperial Magistrates: The Azure Nightbloom Murders](https://www.isekaizero.ai/storylines/69f71d584ff3691a37e84cfe) — @yaya · `69f71d584ff3691a37e84cfe`
+- [Imperial Magistrates: the Dawnreach Inquiry](https://www.isekaizero.ai/storylines/6962b9b86cc61dc5d81a1dca) — @yaya · `6962b9b86cc61dc5d81a1dca`
+- [Is My Girlfriend the Serial Killer???](https://www.isekaizero.ai/storylines/698a789c7822c6a00c1e6569) — @soph\_k · `698a789c7822c6a00c1e6569`
+- [KILL SWITCH](https://www.isekaizero.ai/storylines/6a6a880bdbe73eaa3cff114c) — @kyokyo · `6a6a880bdbe73eaa3cff114c`
+- [Kingdom of Kalayaan](https://www.isekaizero.ai/storylines/6940d41b7d4986a4f0064cdc) — @ibarra · `6940d41b7d4986a4f0064cdc`
+- [Kurotsume: The Black Claw](https://www.isekaizero.ai/storylines/69f29e1e19f59da11d0f4736) — @goldw0lf · `69f29e1e19f59da11d0f4736`
+- [La cita con el chico ideal...](https://www.isekaizero.ai/storylines/6ab334378445eb303f68457b) — @dante11 · `6ab334378445eb303f68457b`
+- [Last Verdict on the Judgment Train](https://www.isekaizero.ai/storylines/6a5458ed46219de734d62fbf) — @abyss · `6a5458ed46219de734d62fbf`
+- [Le mari parfait](https://www.isekaizero.ai/storylines/6a456a983de4c751ab23db2c) — @tech\_bot765 · `6a456a983de4c751ab23db2c`
+- [LIVE // UNKNOWN](https://www.isekaizero.ai/storylines/6ab970a7aa5ab77ecaf677d7) — @rhythnix · `6ab970a7aa5ab77ecaf677d7`
+- [Memories of the Forgotten](https://www.isekaizero.ai/storylines/6a33ec08e44ac069b29cfe3d) — @vyking · `6a33ec08e44ac069b29cfe3d`
+- [Mirror of Madness](https://www.isekaizero.ai/storylines/6aa1f229c35e3ac27f34e036) — @lexel · `6aa1f229c35e3ac27f34e036`
+- [Mnemonic: The Memory Thief](https://www.isekaizero.ai/storylines/692fda38bc859bf9865926b2) — @nikk · `692fda38bc859bf9865926b2`
+- [Murmures oubliés](https://www.isekaizero.ai/storylines/6983a8690c9f94513e0ff770) — @oxonium · `6983a8690c9f94513e0ff770`
+- [My Avatar survived me](https://www.isekaizero.ai/storylines/6a13fe9e63e1cf36a73a9f5c) — @erafona · `6a13fe9e63e1cf36a73a9f5c`
+- [My Girlfriend Was Isekai’d While I Was Arrested](https://www.isekaizero.ai/storylines/6a920b77ecbaf32e70d9e08c) — @urbanfiction · `6a920b77ecbaf32e70d9e08c`
+- [My Missing Best Friend](https://www.isekaizero.ai/storylines/6a4d3bc403622cf97662d076) — @salamander · `6a4d3bc403622cf97662d076`
+- [My Neighbor Is a Crazy Conspiracy Theorist](https://www.isekaizero.ai/storylines/6a4dbe95492e5813a8d2cb6b) — @mashmeow · `6a4dbe95492e5813a8d2cb6b`
+- [My Tenants Are Reincarnators?!](https://www.isekaizero.ai/storylines/69e4b10014e60eb31a35515b) — @smoogivampi · `69e4b10014e60eb31a35515b`
+- [My Touch Reveals the Truth. My Team Buried Theirs](https://www.isekaizero.ai/storylines/6a7f76163bb8abb394b9d155) — @paperlantern · `6a7f76163bb8abb394b9d155`
+- [Mystery Express](https://www.isekaizero.ai/storylines/69e8fe3f67e1a2f9f9be5c4f) — @vexed1 · `69e8fe3f67e1a2f9f9be5c4f`
+- [Mystic Midnight Murder Party](https://www.isekaizero.ai/storylines/6a3ee3f98edfd376ff04fa13) — @gloom · `6a3ee3f98edfd376ff04fa13`
+- [Mystical Creature Detective](https://www.isekaizero.ai/storylines/69f880f778fd43eb827a3c08) — @arvydas · `69f880f778fd43eb827a3c08`
+- [New Coridian's Last Light](https://www.isekaizero.ai/storylines/69954789d10eefffa30b6b99) — @headbiting · `69954789d10eefffa30b6b99`
+- [No Screams in Space.](https://www.isekaizero.ai/storylines/69aed9a6cf5d70d84f7c3644) — @blywulf · `69aed9a6cf5d70d84f7c3644`
+- [NTL: NEVER TRUST LURKERS](https://www.isekaizero.ai/storylines/6a2afce2dac0284df882feb9) — @abyss · `6a2afce2dac0284df882feb9`
+- [NTR: NEVER TRUST REVIEWERS](https://www.isekaizero.ai/storylines/6a33f87e84f6d437d3aff11a) — @rigelvp · `6a33f87e84f6d437d3aff11a`
+- [O Apartamento 1907](https://www.isekaizero.ai/storylines/6ab53df6acbad712f00a00c3) — @hack\_byte5557 · `6ab53df6acbad712f00a00c3`
+- [O Sétimo Voto](https://www.isekaizero.ai/storylines/698d5c90878e1545a10901ff) — @sirlepsch · `698d5c90878e1545a10901ff`
+- [One W̶e̶a̶k̶ Week Alibi](https://www.isekaizero.ai/storylines/6a568e1627ffddbb3e502622) — @somerandomchicken · `6a568e1627ffddbb3e502622`
+- [OPI: Myth & Murder](https://www.isekaizero.ai/storylines/6a951dea49fd840d6d492f47) — @seaslugshion · `6a951dea49fd840d6d492f47`
+- [Os Casos de William Grisly](https://www.isekaizero.ai/storylines/6a90eb3470ad0ef54b09cb56) — @g\_sanchez · `6a90eb3470ad0ef54b09cb56`
+- [Peppercorn](https://www.isekaizero.ai/storylines/6a7a7061694a4c63b34a36be) — @metagrid623 · `6a7a7061694a4c63b34a36be`
+- [Platform 0](https://www.isekaizero.ai/storylines/69716f625564f90959fae7c0) — @lightknight1603 · `69716f625564f90959fae7c0`
+- [Please Don't Murder Me!](https://www.isekaizero.ai/storylines/6a04268c443ba72067b22acc) — @parse\_part\_two · `6a04268c443ba72067b22acc`
+- [Project K: Rayburne](https://www.isekaizero.ai/storylines/6a1e3a75be6306ceea420c73) — @leonine\_pride · `6a1e3a75be6306ceea420c73`
+- [Reborn As A Kid Detective](https://www.isekaizero.ai/storylines/6a08e6406122b252ebf57ac5) — @pievendingmachine · `6a08e6406122b252ebf57ac5`
+- [Reborn As A Rail Worker, I Store More Than Luggage](https://www.isekaizero.ai/storylines/699f040fbd907cf5fcc2f8b2) — @noruincarc · `699f040fbd907cf5fcc2f8b2`
+- [Reina Sombre: A necromantic Murder Mystery](https://www.isekaizero.ai/storylines/698b282870918ee8c4f5ed27) — @a1aurora · `698b282870918ee8c4f5ed27`
+- [Save Her](https://www.isekaizero.ai/storylines/69e6327e390207dc047368ab) — @markat1 · `69e6327e390207dc047368ab`
+- [Scrap Magic & Broken Secrets](https://www.isekaizero.ai/storylines/6a980d5739fe382e7f9a666c) — @tokumeiko · `6a980d5739fe382e7f9a666c`
+- [Shadows of another world.](https://www.isekaizero.ai/storylines/69eec3663b4b14cb99e075af) — @kapat · `69eec3663b4b14cb99e075af`
+- [Shadows of the Four Towers](https://www.isekaizero.ai/storylines/69a09773adf6a497cbce32c1) — @akii · `69a09773adf6a497cbce32c1`
+- [Shadows of the Hollow Crown](https://www.isekaizero.ai/storylines/69f651007b88aaf2b37b6447) — @shadowlady · `69f651007b88aaf2b37b6447`
+- [SINCLAIR: Death at Mabel Manor](https://www.isekaizero.ai/storylines/6a07738eb008d33c94f9f1e6) — @clandesite · `6a07738eb008d33c94f9f1e6`
+- [SINCLAIR: The Aldenmere Grand](https://www.isekaizero.ai/storylines/6a199aa0aa0b95652ff80f28) — @clandesite · `6a199aa0aa0b95652ff80f28`
+- [SINCLAIR: The Hargrove Phantom](https://www.isekaizero.ai/storylines/6a52936259dc8df10591a912) — @clandesite · `6a52936259dc8df10591a912`
+- [SINCLAIR: The Harrowgate Monster](https://www.isekaizero.ai/storylines/6a04a4090377a4299deb4513) — @clandesite · `6a04a4090377a4299deb4513`
+- [Solo Soy Un Bibliotecario, No Un Ser Supremo](https://www.isekaizero.ai/storylines/6a9db049632869088aaa7e02) — @eljefry0 · `6a9db049632869088aaa7e02`
+- [Special Homicide Operation Cell](https://www.isekaizero.ai/storylines/6966e32f5e9825974905f949) — @cyberbunnyace · `6966e32f5e9825974905f949`
+- [Stillmere Valley](https://www.isekaizero.ai/storylines/6a0b9b0b024bfcaaf9edcfe7) — @pievendingmachine · `6a0b9b0b024bfcaaf9edcfe7`
+- [Stuck at Level 1 in a new world?!](https://www.isekaizero.ai/storylines/699686c56266c324f08694fc) — @qtester892 · `699686c56266c324f08694fc`
+- [The Affair of the Second Cup](https://www.isekaizero.ai/storylines/6963db4a39cc881b97565edf) — @mesh\_reality · `6963db4a39cc881b97565edf`
+- [The Archive of Endless Worlds](https://www.isekaizero.ai/storylines/69af82a3fd66146b2deee716) — @aflictogaming · `69af82a3fd66146b2deee716`
+- [The Assassin's Bride](https://www.isekaizero.ai/storylines/6a06b1a38c66c955092583b1) — @stellar\_mech85 · `6a06b1a38c66c955092583b1`
+- [The Black Lantern Archive](https://www.isekaizero.ai/storylines/6a7c7d8bb4b952c8ada940c1) — @shissaku · `6a7c7d8bb4b952c8ada940c1`
+- [The Chair](https://www.isekaizero.ai/storylines/698990050d93839a28e02d49) — @solare · `698990050d93839a28e02d49`
+- [The Death Files](https://www.isekaizero.ai/storylines/6a1fb1b1edc2765b8c43da73) — @lady\_terra · `6a1fb1b1edc2765b8c43da73`
+- [The Demon King's Academic Life❗️](https://www.isekaizero.ai/storylines/69ff283a6205c279f9591271) — @goldw0lf · `69ff283a6205c279f9591271`
+- [The Draykes Legacy](https://www.isekaizero.ai/storylines/6a12c044f0b5448ae6e2fb77) — @goldw0lf · `6a12c044f0b5448ae6e2fb77`
+- [The Extra Who Survives Every Bad Ending](https://www.isekaizero.ai/storylines/69c5e907e6af5f23fa789432) — @rockyk · `69c5e907e6af5f23fa789432`
+- [The Final Curtain](https://www.isekaizero.ai/storylines/6a73ff6699246186eada5f0f) — @onlyheskuin · `6a73ff6699246186eada5f0f`
+- [The Further House](https://www.isekaizero.ai/storylines/6a6b6502702aaa0dbacaef07) — @mirushi · `6a6b6502702aaa0dbacaef07`
+- [The God Behind the Game](https://www.isekaizero.ai/storylines/6a9b3cb574c7eac36654ae5b) — @comrade\_arcanis\_lord-of-tacos · `6a9b3cb574c7eac36654ae5b`
+- [The heart and the Hollow](https://www.isekaizero.ai/storylines/6a327d1c2b463c517900e040) — @rell · `6a327d1c2b463c517900e040`
+- [The Heroine Keeps Killing Me!](https://www.isekaizero.ai/storylines/6ab5f6215d9a5f4254746abe) — @wehateorion · `6ab5f6215d9a5f4254746abe`
+- [The Hollow Heart](https://www.isekaizero.ai/storylines/6a67d0bafbeb655ffa187211) — @hemlock · `6a67d0bafbeb655ffa187211`
+- [The Hollow Moon](https://www.isekaizero.ai/storylines/6a544143fb023d3e17ba9850) — @comrade\_questions · `6a544143fb023d3e17ba9850`
+- [The Hunter And The Prey](https://www.isekaizero.ai/storylines/6a3eafc017b47b6019791d5f) — @goldw0lf · `6a3eafc017b47b6019791d5f`
+- [The infinite library](https://www.isekaizero.ai/storylines/6a4939bad76c64f6ae483c60) — @echoworld459 · `6a4939bad76c64f6ae483c60`
+- [THE INHERITANCE](https://www.isekaizero.ai/storylines/6a66b4a215ec24af292dea3b) — @tech\_core327 · `6a66b4a215ec24af292dea3b`
+- [The Judgment Train Remembers](https://www.isekaizero.ai/storylines/6a547e5e181ac974dad45977) — @abyss · `6a547e5e181ac974dad45977`
+- [The last case of Edward Law](https://www.isekaizero.ai/storylines/6a5b753e668bfba9f0746790) — @horoan · `6a5b753e668bfba9f0746790`
+- [The Last Echo](https://www.isekaizero.ai/storylines/6a7a4c1312f82051031f3305) — @kain · `6a7a4c1312f82051031f3305`
+- [The Last Train Out of Hollow City](https://www.isekaizero.ai/storylines/69aabf87dfce33f23c43fb3d) — @tech\_sim410 · `69aabf87dfce33f23c43fb3d`
+- [The Lost Forest](https://www.isekaizero.ai/storylines/6aa3af4b815f2d83ce27202b) — @mixedspace652 · `6aa3af4b815f2d83ce27202b`
+- [The Lost Hour](https://www.isekaizero.ai/storylines/69eeaae4a58a6d31716f4c01) — @kroner · `69eeaae4a58a6d31716f4c01`
+- [The Lost Scholar](https://www.isekaizero.ai/storylines/696fd1e24b597a1febf1f3ee) — @skye · `696fd1e24b597a1febf1f3ee`
+- [The Manor of Lost Memories](https://www.isekaizero.ai/storylines/69c8aa6a3e65b5ead6796af7) — @theyrahcaz · `69c8aa6a3e65b5ead6796af7`
+- [The Mansion Where Time Stopped](https://www.isekaizero.ai/storylines/6990029eead63568af6aa1e0) — @satsuki · `6990029eead63568af6aa1e0`
+- [The Marionette](https://www.isekaizero.ai/storylines/69ba70d81da5e98b7798ea36) — @anbee · `69ba70d81da5e98b7798ea36`
+- [The Murder of My Childhood Friend](https://www.isekaizero.ai/storylines/6a6033cb45fa0c2135f68d1d) — @script\_agent501 · `6a6033cb45fa0c2135f68d1d`
+- [The Mysterious Passenger](https://www.isekaizero.ai/storylines/6a4aae341573b94e8524c3de) — @akii · `6a4aae341573b94e8524c3de`
+- [The Mystery Files](https://www.isekaizero.ai/storylines/6a3279bb0ca3e1c112607e73) — @highsun · `6a3279bb0ca3e1c112607e73`
+- [The Pale Court: Who Is the Hollow?](https://www.isekaizero.ai/storylines/6a8295e120160f1ac9e75477) — @macaroni · `6a8295e120160f1ac9e75477`
+- [The Problem Solver](https://www.isekaizero.ai/storylines/699acc830a03fdd3ee3b6562) — @cosmic\_crew89 · `699acc830a03fdd3ee3b6562`
+- [The problems solver](https://www.isekaizero.ai/storylines/695bf5b95f3d903c018bfd65) — @ultimatevigilan · `695bf5b95f3d903c018bfd65`
+- [The Red Affliction](https://www.isekaizero.ai/storylines/69e724147664b9d4b04c42b4) — @burntbramble · `69e724147664b9d4b04c42b4`
+- [The S-Rank Healer Without Memories](https://www.isekaizero.ai/storylines/6ab00dd39e5f37cd38dbed9e) — @morrodin · `6ab00dd39e5f37cd38dbed9e`
+- [The Stillwater Project](https://www.isekaizero.ai/storylines/6a461ee4b2aa4405b27ab00b) — @cyberbunnyace · `6a461ee4b2aa4405b27ab00b`
+- [The Stranger in Your Bed](https://www.isekaizero.ai/storylines/6aba4543fd371f84ed0c0260) — @damoncross · `6aba4543fd371f84ed0c0260`
+- [The Town That Dies at Midnight](https://www.isekaizero.ai/storylines/6aabd9fb4f617625a2187ecb) — @franckth3kid · `6aabd9fb4f617625a2187ecb`
+- [The Traveling Cursed Shop](https://www.isekaizero.ai/storylines/6a596c2735f4e5b44c389af4) — @02give · `6a596c2735f4e5b44c389af4`
+- [The Understudy Queen](https://www.isekaizero.ai/storylines/6a3900dc60653bf03684896b) — @catty · `6a3900dc60653bf03684896b`
+- [The Unwritten Tomorrow](https://www.isekaizero.ai/storylines/6a8eb60cf9b5f1c744e5f3d0) — @scarlett\_47 · `6a8eb60cf9b5f1c744e5f3d0`
+- [The vein](https://www.isekaizero.ai/storylines/69ba0b09ec839077bcbd5138) — @lostfox · `69ba0b09ec839077bcbd5138`
+- [The Vein Bleeds](https://www.isekaizero.ai/storylines/69e81d92fd74139228a93948) — @highdale · `69e81d92fd74139228a93948`
+- [The Velvet Veil](https://www.isekaizero.ai/storylines/6983c326f00697f03bfe483b) — @qtester892 · `6983c326f00697f03bfe483b`
+- [The Wayfarer's Rest](https://www.isekaizero.ai/storylines/6a9452980dedc0adbce7e388) — @binary\_system628375 · `6a9452980dedc0adbce7e388`
+- [The Weight of Gold](https://www.isekaizero.ai/storylines/6a9e67a52dca1fb6fcd18df8) — @thisguytri3d · `6a9e67a52dca1fb6fcd18df8`
+- [The Wrong Redemption](https://www.isekaizero.ai/storylines/6a5fc3fe011be7ba3d2884fe) — @sarapinto · `6a5fc3fe011be7ba3d2884fe`
+- [The Wrong Soul Woke Up](https://www.isekaizero.ai/storylines/6a0e2d7f42f438a914f10af6) — @rockyk · `6a0e2d7f42f438a914f10af6`
+- [Under the Common Veil](https://www.isekaizero.ai/storylines/696c539e614feb11524716c9) — @randomly\_random · `696c539e614feb11524716c9`
+- [Veil of Secrets](https://www.isekaizero.ai/storylines/6a45bd088fd471f7fb9d2d01) — @annxo7 · `6a45bd088fd471f7fb9d2d01`
+- [Voices](https://www.isekaizero.ai/storylines/69d2211afc7f95681b29f581) — @darksavage · `69d2211afc7f95681b29f581`
+- [Welcome to Echelon Academy](https://www.isekaizero.ai/storylines/692d58daf1844d4337f06839) — @prxsper · `692d58daf1844d4337f06839`
+- [Werewolves on the Moooooon!](https://www.isekaizero.ai/storylines/69c347915373baf3d540bc17) — @parse\_part\_two · `69c347915373baf3d540bc17`
+- [WHAT !? i transmigrated into a criminal !?](https://www.isekaizero.ai/storylines/69ee57f7ce94f30883800f00) — @neon\_nexus556 · `69ee57f7ce94f30883800f00`
+- [When the Stars Go Missing](https://www.isekaizero.ai/storylines/6a77c34eda1359c3c3e0a520) — @star-child · `6a77c34eda1359c3c3e0a520`
+- [Where Holy Things Rot](https://www.isekaizero.ai/storylines/69ab3d1a6030e822f9ef7b43) — @dinoduck · `69ab3d1a6030e822f9ef7b43`
+- [Where the Veil Fell](https://www.isekaizero.ai/storylines/69ed138b4b12f631dca7d17c) — @mdeltac · `69ed138b4b12f631dca7d17c`
+- [Why Am I Always the Villain?](https://www.isekaizero.ai/storylines/6aa5760a31dd61592a2d138f) — @alieen · `6aa5760a31dd61592a2d138f`
+- [Wishes](https://www.isekaizero.ai/storylines/6ab0d495a3e5e74eddcf87c1) — @jalousie · `6ab0d495a3e5e74eddcf87c1`
+- [Witch Trial](https://www.isekaizero.ai/storylines/699c642e3b8e52d9b3e47325) — @digital\_warrior · `699c642e3b8e52d9b3e47325`
+- [You Are Not Him](https://www.isekaizero.ai/storylines/69f7e222961168ac8119e67c) — @freakyahhmf · `69f7e222961168ac8119e67c`
+- [You Were Victim. You Are Suspect](https://www.isekaizero.ai/storylines/699b2223e3db9fd074add9c1) — @atsuko · `699b2223e3db9fd074add9c1`
+- [История Юно: скрытые воспоминания](https://www.isekaizero.ai/storylines/6a8b180730163826f3978ee3) — @ritsuko · `6a8b180730163826f3978ee3`
+- [Петля подписей](https://www.isekaizero.ai/storylines/6a6a366b4e3658d030d425b7) — @mystic\_nexus588 · `6a6a366b4e3658d030d425b7`
+- [من التي قتلتني!!!](https://www.isekaizero.ai/storylines/69bb276f19459cc47d58939f) — @kisaki\_sumire · `69bb276f19459cc47d58939f`
+- [“The Devil Behind Her Smile”](https://www.isekaizero.ai/storylines/6ab40d0369394c3a72683118) — @algo\_agent564 · `6ab40d0369394c3a72683118`
+- [发现你的秘密](https://www.isekaizero.ai/storylines/68f1c6b527ba9cf0d5fbd34e) — @yolo · `68f1c6b527ba9cf0d5fbd34e`
+- [彼女はまだ問いの中にいる](https://www.isekaizero.ai/storylines/6972133b6606ba8a96e7357c) — @mysterynut · `6972133b6606ba8a96e7357c`
+- [書記官はあなたの記録を返さない](https://www.isekaizero.ai/storylines/69b972d3c949d3cc4dfb02b5) — @hyper\_core5606 · `69b972d3c949d3cc4dfb02b5`
+- [西域诡案之共感之蛊](https://www.isekaizero.ai/storylines/693e99c0e244c437d679a7db) — @secret\_human88 · `693e99c0e244c437d679a7db`
+- [豊穣の毒](https://www.isekaizero.ai/storylines/6a169c9a5eca3706f1b38a4c) — @shiba22223 · `6a169c9a5eca3706f1b38a4c`
+- [［一八］鬼车](https://www.isekaizero.ai/storylines/68c38476b887e0ca2a12dc4f) — @secret\_human88 · `68c38476b887e0ca2a12dc4f`
+
+## `historical` (86)
+
+- [THERMOPYLAE — THE LAST STAND](https://www.isekaizero.ai/storylines/6a92752d5a8e352d3c4c2898) — @limbo · `6a92752d5a8e352d3c4c2898`
+- [A Debt of Salt and Soil](https://www.isekaizero.ai/storylines/6a39a44e29a93f1ba3fddaa7) — @dracorina · `6a39a44e29a93f1ba3fddaa7`
+- [A realistic Isekai](https://www.isekaizero.ai/storylines/697cc612fce787ecefb442de) — @ghostgrid168 · `697cc612fce787ecefb442de`
+- [A Taverna Lâmina de Fogo](https://www.isekaizero.ai/storylines/6a78c7e751432b64e29d0e40) — @bloodywolt · `6a78c7e751432b64e29d0e40`
+- [AEVARETH Continent - Every Choice Changes History](https://www.isekaizero.ai/storylines/6a9525b1e2a1a146fa4fff69) — @zlock112 · `6a9525b1e2a1a146fa4fff69`
+- [Aye Aye Captain!](https://www.isekaizero.ai/storylines/699c131dbabbcc29c11a8968) — @darksavage · `699c131dbabbcc29c11a8968`
+- [Before the fall of the villainess](https://www.isekaizero.ai/storylines/6a5fb08bf380650177947152) — @s1lema · `6a5fb08bf380650177947152`
+- [Blood of the Ice](https://www.isekaizero.ai/storylines/6a10b91069e23a987891f9ac) — @echocreator449 · `6a10b91069e23a987891f9ac`
+- [BURN THE WITCH?!?](https://www.isekaizero.ai/storylines/69eafeeeef9cd1f69a9bcd38) — @urbanfiction · `69eafeeeef9cd1f69a9bcd38`
+- [Castle Caretaker](https://www.isekaizero.ai/storylines/6967ff0d6cbb2739009385e1) — @chaotic\_snorlax · `6967ff0d6cbb2739009385e1`
+- [CLAVES REGNI CAELORUM](https://www.isekaizero.ai/storylines/69a5ea54692fd49569a4f197) — @darksavage · `69a5ea54692fd49569a4f197`
+- [Der Ruf jenseits der Nebel - eine Wikinger Sage](https://www.isekaizero.ai/storylines/6a8b47f00de1ccc2bbea0352) — @nior · `6a8b47f00de1ccc2bbea0352`
+- [Duty and Desire: The Count of Wadden](https://www.isekaizero.ai/storylines/6a366712cb67c411255616b9) — @mcphatman · `6a366712cb67c411255616b9`
+- [Earth Online \| Infinite Life Simulator](https://www.isekaizero.ai/storylines/6947bf6b775e2a549917cd52) — @saika · `6947bf6b775e2a549917cd52`
+- [El despertar del Aldeano](https://www.isekaizero.ai/storylines/694aaade1862b14956f3b83a) — @proxycitizen727 · `694aaade1862b14956f3b83a`
+- [El nuevo señor de Valdeceniza](https://www.isekaizero.ai/storylines/696de8966faeacab48945660) — @luis · `696de8966faeacab48945660`
+- [Fall of Yggdrasil](https://www.isekaizero.ai/storylines/69d8a53c16ff388aa2dc61e0) — @anbee · `69d8a53c16ff388aa2dc61e0`
+- [First Crusade](https://www.isekaizero.ai/storylines/69e0344e80cad8cf8380ea07) — @wildhunt-24 · `69e0344e80cad8cf8380ea07`
+- [Five Crowns Need Your Tongue](https://www.isekaizero.ai/storylines/6aa650f9db7d2a53548a9439) — @creatorfromhell · `6aa650f9db7d2a53548a9439`
+- [For the Glory of a New History](https://www.isekaizero.ai/storylines/6a9ef42e3c43324c8ccc291c) — @limbo · `6a9ef42e3c43324c8ccc291c`
+- [Fractured Timeline](https://www.isekaizero.ai/storylines/6987e10f53c93e5aa4cf3462) — @gambit · `6987e10f53c93e5aa4cf3462`
+- [Goyong: The Boy General](https://www.isekaizero.ai/storylines/697eeaf0967a71d9f63cd94d) — @ibarra · `697eeaf0967a71d9f63cd94d`
+- [HISTORICAL SANDBOX VOL.1. PIRATE LIFE](https://www.isekaizero.ai/storylines/695b18213631fe0f568308da) — @theianev · `695b18213631fe0f568308da`
+- [House Valemont](https://www.isekaizero.ai/storylines/6a28c9d0acb2c117d9b3e6ea) — @yaruna · `6a28c9d0acb2c117d9b3e6ea`
+- [Inside Her Medieval Mind](https://www.isekaizero.ai/storylines/6a61d401cbaa878f145c42c7) — @john\_the\_fourth · `6a61d401cbaa878f145c42c7`
+- [Intramuros: Blood and Stone](https://www.isekaizero.ai/storylines/69748a3ae1c671d1b92b35ce) — @ibarra · `69748a3ae1c671d1b92b35ce`
+- [Isekai into Ancient China](https://www.isekaizero.ai/storylines/69aa11cf01dc3705b33b9ee7) — @shareef · `69aa11cf01dc3705b33b9ee7`
+- [La fenice Romana](https://www.isekaizero.ai/storylines/69d50060d666d07c73c377a8) — @vlad123 · `69d50060d666d07c73c377a8`
+- [Life Under the Red Flag](https://www.isekaizero.ai/storylines/6a55ceee415a48d71e47dde9) — @smixx · `6a55ceee415a48d71e47dde9`
+- [Mandate of Heaven](https://www.isekaizero.ai/storylines/69a97ec30f8a1118a1a36dbd) — @darksavage · `69a97ec30f8a1118a1a36dbd`
+- [Medieval Isekai: The 1356 Anomaly](https://www.isekaizero.ai/storylines/6962589ef0fd4d1419264349) — @kouu · `6962589ef0fd4d1419264349`
+- [Medieval peasant simulator](https://www.isekaizero.ai/storylines/69aecb00cd269bc7cdf1e83c) — @memphis · `69aecb00cd269bc7cdf1e83c`
+- [Mission Twenty](https://www.isekaizero.ai/storylines/69b34a337c6bc069b4cdcab7) — @darksavage · `69b34a337c6bc069b4cdcab7`
+- [My Dead Husband and Son](https://www.isekaizero.ai/storylines/6a33845ddc7f4579169ff57f) — @yaruna · `6a33845ddc7f4579169ff57f`
+- [No one mourns a Palace Maid](https://www.isekaizero.ai/storylines/69fbd6532de0f0c425822357) — @dollification · `69fbd6532de0f0c425822357`
+- [Property of Rome](https://www.isekaizero.ai/storylines/6a2d08d9d4f6a92be43f1b97) — @millennium · `6a2d08d9d4f6a92be43f1b97`
+- [PUNKS ARE DEAD](https://www.isekaizero.ai/storylines/6a3077e455b2ec8414d17dc3) — @soul\_eater · `6a3077e455b2ec8414d17dc3`
+- [Queen Maker](https://www.isekaizero.ai/storylines/6a31d4736794145027c9222d) — @re\_mind · `6a31d4736794145027c9222d`
+- [Queen Maker: Ashen Daughter](https://www.isekaizero.ai/storylines/6a386b74ac7d8b8b6dfc1ab9) — @re\_mind · `6a386b74ac7d8b8b6dfc1ab9`
+- [Redneck Isekai: Beer, Buckshot & Barons](https://www.isekaizero.ai/storylines/6a0b984265376f9dad4593fe) — @highdale · `6a0b984265376f9dad4593fe`
+- [Saving Princess Anastasia](https://www.isekaizero.ai/storylines/6a59ef540705d5e0d1d47b21) — @elderpaladin · `6a59ef540705d5e0d1d47b21`
+- [Sengoku 1560 Okehazama Battle](https://www.isekaizero.ai/storylines/6a4ae2beb8e6cdc45f0e704d) — @sharif · `6a4ae2beb8e6cdc45f0e704d`
+- [Shadows of Sekigahara](https://www.isekaizero.ai/storylines/69eb77329412e601ed381611) — @cabanozzi · `69eb77329412e601ed381611`
+- [Smoke Over Tenochtitlan](https://www.isekaizero.ai/storylines/6a0ec9bf6659d7d254d36e99) — @yaya · `6a0ec9bf6659d7d254d36e99`
+- [Steel and Honor: A son of Rome](https://www.isekaizero.ai/storylines/6a285e3d3c0b2afe034954b1) — @steel\_and\_honor\_series · `6a285e3d3c0b2afe034954b1`
+- [Steel and Honor: Anointed in Time](https://www.isekaizero.ai/storylines/69c3baef9b0b8bf613490d76) — @steel\_and\_honor\_series · `69c3baef9b0b8bf613490d76`
+- [Steel and Honor: William Marshal. The Young Knight](https://www.isekaizero.ai/storylines/6a54a3700ea5f1160b6ca012) — @steel\_and\_honor\_series · `6a54a3700ea5f1160b6ca012`
+- [Stranger in Bakufu Lands](https://www.isekaizero.ai/storylines/6a126dd74a206562330ee205) — @brassengineer · `6a126dd74a206562330ee205`
+- [Stronghold: Burden of Power](https://www.isekaizero.ai/storylines/698cca545689e978784611d2) — @darksavage · `698cca545689e978784611d2`
+- [Terra Convergens: Leaders of the Middle Ages](https://www.isekaizero.ai/storylines/69b16b698d9e87072ddb3431) — @g1itch · `69b16b698d9e87072ddb3431`
+- [The Captain’s Price: Prisoner at Sea](https://www.isekaizero.ai/storylines/6a3a853f976dd8fd4b8776a5) — @dracorina · `6a3a853f976dd8fd4b8776a5`
+- [The Cradle of Legends](https://www.isekaizero.ai/storylines/6a20b69850603b2615f59e73) — @orthosimeon128 · `6a20b69850603b2615f59e73`
+- [The Cross beneath the Eagle](https://www.isekaizero.ai/storylines/6a0c4b6fa286260604b54ce7) — @wildhunt-24 · `6a0c4b6fa286260604b54ce7`
+- [The Geometry of Revolution](https://www.isekaizero.ai/storylines/69658c9b68daa0a03860b291) — @carl\_von\_clausewitz · `69658c9b68daa0a03860b291`
+- [The Hawk and the Blade](https://www.isekaizero.ai/storylines/6a45243dba20ea23c7a169bc) — @meta\_avatar8986 · `6a45243dba20ea23c7a169bc`
+- [The Iron Turtle & the Jade Moon](https://www.isekaizero.ai/storylines/6a841f31ef5c45195decf431) — @onlyheskuin · `6a841f31ef5c45195decf431`
+- [The Iron Vow](https://www.isekaizero.ai/storylines/6a514a87bf8c0361ec6d219b) — @hakari · `6a514a87bf8c0361ec6d219b`
+- [The Last Roman Emperor](https://www.isekaizero.ai/storylines/6aab1f08b6cb680184281968) — @holoserver174 · `6aab1f08b6cb680184281968`
+- [The Lord of Ash](https://www.isekaizero.ai/storylines/69cc2e6ed6282725daea410b) — @kawaii · `69cc2e6ed6282725daea410b`
+- [The Man Who Refuses to Die](https://www.isekaizero.ai/storylines/6a8d1353b67766725dcd8883) — @domie · `6a8d1353b67766725dcd8883`
+- [The Man Who Taught My Heart To Hate](https://www.isekaizero.ai/storylines/6a4f350aa732d0e025f03a91) — @creatorfromhell · `6a4f350aa732d0e025f03a91`
+- [The One Beyond Prophecy](https://www.isekaizero.ai/storylines/6a01c13e28ce26203351d482) — @sethvanosvit · `6a01c13e28ce26203351d482`
+- [The Reborn Empress Dowager](https://www.isekaizero.ai/storylines/6a50a3158aa1b2f79807c3eb) — @pilotman · `6a50a3158aa1b2f79807c3eb`
+- [The Ring Behind the Crown](https://www.isekaizero.ai/storylines/6a3e765782d9635009d5f424) — @erafona · `6a3e765782d9635009d5f424`
+- [The Siege of Alesia](https://www.isekaizero.ai/storylines/6a4fd3fc57a60b48632db24a) — @limbo · `6a4fd3fc57a60b48632db24a`
+- [The Underground Gentleman](https://www.isekaizero.ai/storylines/6abf8c8e4176fd6f9830d6ca) — @wintergarden · `6abf8c8e4176fd6f9830d6ca`
+- [The Valleys That Resisted](https://www.isekaizero.ai/storylines/6a7e432eca3b5738201f5487) — @lusewa · `6a7e432eca3b5738201f5487`
+- [The War After Freedom](https://www.isekaizero.ai/storylines/69ada9b91e82dcc9de2f64a1) — @theideasgirl · `69ada9b91e82dcc9de2f64a1`
+- [The War for Paradise](https://www.isekaizero.ai/storylines/69abe2d1e4251fb2e705b5b8) — @darksavage · `69abe2d1e4251fb2e705b5b8`
+- [THE WATER CLOCK OF AMSTERDAM](https://www.isekaizero.ai/storylines/6a35bacc05e8b198a4047932) — @itsanewdayyesitis · `6a35bacc05e8b198a4047932`
+- [The Way of a Samurai](https://www.isekaizero.ai/storylines/69a22fcdbb90a12be586767d) — @darksavage · `69a22fcdbb90a12be586767d`
+- [The Wild Wild West](https://www.isekaizero.ai/storylines/6a00f8412ef978b9a7ef8924) — @urbanfiction · `6a00f8412ef978b9a7ef8924`
+- [To Serve The Lioness: A Gladiator Romance](https://www.isekaizero.ai/storylines/6a3be633af6d2a06967c218e) — @dracorina · `6a3be633af6d2a06967c218e`
+- [To Serve The Valkyrie: A Viking Romance](https://www.isekaizero.ai/storylines/6a37f380b302b1860b7f75a4) — @dracorina · `6a37f380b302b1860b7f75a4`
+- [We Wish To Lay Siege. Open Up Kind Sir.](https://www.isekaizero.ai/storylines/6a7790080d86fa962c6ede30) — @urbanfiction · `6a7790080d86fa962c6ede30`
+- [Wizards Said I'm Trash](https://www.isekaizero.ai/storylines/6a6373bc3ee86b9f4534e9f0) — @ashenparty · `6a6373bc3ee86b9f4534e9f0`
+- [Король мертв! Да здравствует король!](https://www.isekaizero.ai/storylines/6aafbe1bb1826f2a2fe64b6a) — @viera\_imperarum · `6aafbe1bb1826f2a2fe64b6a`
+- [صدى الإمبراطورية: الجندي والقدر](https://www.isekaizero.ai/storylines/69db58f5e0d4e880eefec4bf) — @sensormark4416 · `69db58f5e0d4e880eefec4bf`
+- [ضائعة في روما](https://www.isekaizero.ai/storylines/69ec844d2f36369d3a1cc9ba) — @sensormark4416 · `69ec844d2f36369d3a1cc9ba`
+- [ظلال العمامات الصفراء: عهد الرماد](https://www.isekaizero.ai/storylines/69e27e5221658c24e4411228) — @sensormark4416 · `69e27e5221658c24e4411228`
+- [غريب في دار الخلافة](https://www.isekaizero.ai/storylines/69d141ebdbf76aa5cfeb382b) — @sensormark4416 · `69d141ebdbf76aa5cfeb382b`
+- [مستكشف العصور: مُصلح الزمان في أرض الجاهلية.](https://www.isekaizero.ai/storylines/69cea6913245a8e8b3d5190b) — @sensormark4416 · `69cea6913245a8e8b3d5190b`
+- [​ظل الكسوف فوق آماصيا](https://www.isekaizero.ai/storylines/69e5b9a0df59f5e7888ccade) — @sensormark4416 · `69e5b9a0df59f5e7888ccade`
+- [【ゲーム】文明誕生](https://www.isekaizero.ai/storylines/69a245bc1766adc6536fd7c8) — @hatena · `69a245bc1766adc6536fd7c8`
+- [帝王模拟器](https://www.isekaizero.ai/storylines/6a5dd858c4900d79450113c3) — @stellar\_droid85 · `6a5dd858c4900d79450113c3`
+- [𝒮𝒽𝒾𝓃𝓈ℯ𝒾: 𝒯𝒽ℯ ℬ𝓇ℴ𝓀ℯ𝓃 𝑅ℯ𝒶𝓁𝓂](https://www.isekaizero.ai/storylines/69fddd4361a022b16c9ac504) — @sethvanosvit · `69fddd4361a022b16c9ac504`
+
+## `cultivation` (69)
+
+- [A Bullet Through the Mandate of Heaven](https://www.isekaizero.ai/storylines/69921805e1248166bb6d958b) — @matrix\_dev795 · `69921805e1248166bb6d958b`
+- [A Cultivator in a Wrong World](https://www.isekaizero.ai/storylines/6ab8367cd59e4e25cc05dac7) — @beholdmybeer · `6ab8367cd59e4e25cc05dac7`
+- [A Dynasty Across Lives](https://www.isekaizero.ai/storylines/6a21bd79e63b1dfff1545b85) — @erafona · `6a21bd79e63b1dfff1545b85`
+- [A Martial World: God's Gambit](https://www.isekaizero.ai/storylines/6940b91ae6cb6aa85b935b82) — @solar\_captain44 · `6940b91ae6cb6aa85b935b82`
+- [A Peak of My Own](https://www.isekaizero.ai/storylines/6a0cbb2c1f64e136c76753ff) — @draymien\_77 · `6a0cbb2c1f64e136c76753ff`
+- [Ascending through the five heavens](https://www.isekaizero.ai/storylines/6a06beaa1483656fcba18185) — @erafona · `6a06beaa1483656fcba18185`
+- [Ascension of the Fallen Shadow](https://www.isekaizero.ai/storylines/698bb4973fff4d06d0c24c53) — @code\_mind · `698bb4973fff4d06d0c24c53`
+- [ASHEN VOW](https://www.isekaizero.ai/storylines/6aa9e9d5eefb6d53e8afffc7) — @havi · `6aa9e9d5eefb6d53e8afffc7`
+- [Awaken In Murim World](https://www.isekaizero.ai/storylines/69b22afac96f232445d66dee) — @creatorfromhell · `69b22afac96f232445d66dee`
+- [Awakened into Betrayal](https://www.isekaizero.ai/storylines/6a8d85cd0eef5a7862ae7fe4) — @matsuo · `6a8d85cd0eef5a7862ae7fe4`
+- [Awoken as a Sect Master](https://www.isekaizero.ai/storylines/696c76b76fd211dcb9d30c00) — @mixedadmin217 · `696c76b76fd211dcb9d30c00`
+- [Beneath the Scales of Heaven](https://www.isekaizero.ai/storylines/6986838493c6e616dbe87417) — @warp\_tech53 · `6986838493c6e616dbe87417`
+- [Courting Death](https://www.isekaizero.ai/storylines/6a7dda0ec5978c4dea990aa1) — @houas224 · `6a7dda0ec5978c4dea990aa1`
+- [Cultivation World: Reincarnated as a Trash](https://www.isekaizero.ai/storylines/69edb54513978a7f784e3a99) — @fishtea · `69edb54513978a7f784e3a99`
+- [Echo Frontier](https://www.isekaizero.ai/storylines/6a42c554443e4bc5ae719c6a) — @re\_mind · `6a42c554443e4bc5ae719c6a`
+- [Edict of Creation](https://www.isekaizero.ai/storylines/69a877023426483530f787c8) — @aonly9470 · `69a877023426483530f787c8`
+- [Epic Xianxia Immortal Cultivation Adventure](https://www.isekaizero.ai/storylines/6a067678c0bd4320f6fb5c8e) — @lord\_vehemoth · `6a067678c0bd4320f6fb5c8e`
+- [Ghost marriage](https://www.isekaizero.ai/storylines/69fa4627ebd3f40bf2f0236a) — @lostfox · `69fa4627ebd3f40bf2f0236a`
+- [Gusak's Revenge](https://www.isekaizero.ai/storylines/69b38a77935cad346bacb3a9) — @vector\_fonran · `69b38a77935cad346bacb3a9`
+- [Heaven's Flaw](https://www.isekaizero.ai/storylines/69ee4e3b86776b7e5c46b26d) — @nikobloom · `69ee4e3b86776b7e5c46b26d`
+- [Heavenly Archive: The Spirit Beast System](https://www.isekaizero.ai/storylines/696968297bda153f2e54fe66) — @raine · `696968297bda153f2e54fe66`
+- [Heavenly Dao of The Con Artist](https://www.isekaizero.ai/storylines/69706ce957873794220e0ed1) — @ramz3y · `69706ce957873794220e0ed1`
+- [I'm Really Not the Husband from Your Dream!](https://www.isekaizero.ai/storylines/68cbaae1203549b550486102) — @lacia · `68cbaae1203549b550486102`
+- [Leader of the Nameless Sect. Management System.](https://www.isekaizero.ai/storylines/69e2cc8a25e1ffadc18ac361) — @nhana · `69e2cc8a25e1ffadc18ac361`
+- [LEGENDS OF MURIM](https://www.isekaizero.ai/storylines/694c55f0db8455d70add1cfb) — @shadow\_of\_the\_abyss\_00 · `694c55f0db8455d70add1cfb`
+- [Murim](https://www.isekaizero.ai/storylines/6a6dee6fbd4e693aff441349) — @golek · `6a6dee6fbd4e693aff441349`
+- [Murim: The Heaven Defier](https://www.isekaizero.ai/storylines/699240736cd505c3f6fa6339) — @lutterbach · `699240736cd505c3f6fa6339`
+- [My Grandfather Left Me a Cultivation Restaurant](https://www.isekaizero.ai/storylines/6a66c86bba4a5bb32825d54c) — @mocapoka · `6a66c86bba4a5bb32825d54c`
+- [Not The Reincarnation I Ordered](https://www.isekaizero.ai/storylines/6a193110ae8a64437d2e65fd) — @cooki · `6a193110ae8a64437d2e65fd`
+- [Ordinance of Ascension](https://www.isekaizero.ai/storylines/69a41319165a8a0543dea0dc) — @saga · `69a41319165a8a0543dea0dc`
+- [RE: Echo Frontier (Functions)](https://www.isekaizero.ai/storylines/6a8bf3f26b725161af654034) — @re\_mind · `6a8bf3f26b725161af654034`
+- [RE: Rising of The Demonic Living Sword](https://www.isekaizero.ai/storylines/6a41cbb590734577c8c39013) — @esperio · `6a41cbb590734577c8c39013`
+- [Reborn as the Background Extra Fated to Die](https://www.isekaizero.ai/storylines/6a0d64bc309d940c9d18b5d5) — @erafona · `6a0d64bc309d940c9d18b5d5`
+- [Reborn as the Hero’s Worst Nightmare](https://www.isekaizero.ai/storylines/6a6a3b3332b00e420b853c65) — @erafona · `6a6a3b3332b00e420b853c65`
+- [Reborn as the Side Character: I'm the WHAT Now?!](https://www.isekaizero.ai/storylines/69ec6a46504458ec7ae3c43b) — @creatorfromhell · `69ec6a46504458ec7ae3c43b`
+- [Record of Cultivation World 444](https://www.isekaizero.ai/storylines/6aa53b1631dd61592afb5b53) — @zonyeq222 · `6aa53b1631dd61592afb5b53`
+- [Red Light](https://www.isekaizero.ai/storylines/6a8035e97dc2a08c83a7a525) — @enojid · `6a8035e97dc2a08c83a7a525`
+- [Reencarnação em um mundo wuixan](https://www.isekaizero.ai/storylines/6a0dc90498f7f42c6c2e35ef) — @nicolaul · `6a0dc90498f7f42c6c2e35ef`
+- [Reincarnated as a Sword. Xianxia](https://www.isekaizero.ai/storylines/69ecd1a2286c527c0a0297ab) — @nhana · `69ecd1a2286c527c0a0297ab`
+- [Reincarnated as the Villain's Harem Keeper](https://www.isekaizero.ai/storylines/69b5974198416fff9bc1a50b) — @creatorfromhell · `69b5974198416fff9bc1a50b`
+- [Reincarnated: Rebuilding a Forgotten Sect](https://www.isekaizero.ai/storylines/6a8b1fa2a91b977813bf0406) — @jirix34 · `6a8b1fa2a91b977813bf0406`
+- [Saga of the Immortals](https://www.isekaizero.ai/storylines/69825dfd59ad06642366d2bd) — @emulated\_avatar · `69825dfd59ad06642366d2bd`
+- [Save the Sect](https://www.isekaizero.ai/storylines/6aa10a55a2bac6e96b860119) — @matteodabergamo · `6aa10a55a2bac6e96b860119`
+- [Seventh-rate Immortal](https://www.isekaizero.ai/storylines/6a50bc26aafb188cca485409) — @ashenparty · `6a50bc26aafb188cca485409`
+- [She stole my cultivation pet and left me to die](https://www.isekaizero.ai/storylines/699f6049a11e93bab08248ba) — @alpha\_excalibur · `699f6049a11e93bab08248ba`
+- [Six Masters Won't Leave Me Alone?!](https://www.isekaizero.ai/storylines/6a78f767bdf2c8a0ee5ca544) — @kroner · `6a78f767bdf2c8a0ee5ca544`
+- [Super Generic Power Fantasy Life System!](https://www.isekaizero.ai/storylines/6a8573990d13502677bd38d5) — @aburakadabura · `6a8573990d13502677bd38d5`
+- [The Azure Mountain Sect](https://www.isekaizero.ai/storylines/6a77f480bc57f6c8a95b58ce) — @whisper\_spy · `6a77f480bc57f6c8a95b58ce`
+- [The Dao of Humanity](https://www.isekaizero.ai/storylines/69c964c6a0a6abfd88f78ecf) — @aonly9470 · `69c964c6a0a6abfd88f78ecf`
+- [The Devouring Path](https://www.isekaizero.ai/storylines/6a75fd1fec62c5b2d649cb17) — @eichi · `6a75fd1fec62c5b2d649cb17`
+- [THE FOUR HEARTS OF GUIYUN](https://www.isekaizero.ai/storylines/69dc4c84b99f323e570dfd08) — @elfpoles · `69dc4c84b99f323e570dfd08`
+- [The Monk Who Beats Protagonists With a Frying Pan](https://www.isekaizero.ai/storylines/6a7ab0e701647ab491726315) — @lusewa · `6a7ab0e701647ab491726315`
+- [The Myriad Card Dao](https://www.isekaizero.ai/storylines/6a5d816c241804e0635deef5) — @erafona · `6a5d816c241804e0635deef5`
+- [The second coming](https://www.isekaizero.ai/storylines/69c1caf5380cf079dbbe29f1) — @the\_nameless\_king · `69c1caf5380cf079dbbe29f1`
+- [The Soulbound Path](https://www.isekaizero.ai/storylines/6ab7337d21f1a015287c5303) — @pandoriel · `6ab7337d21f1a015287c5303`
+- [The Sovereign in the Broken Ring](https://www.isekaizero.ai/storylines/6a12d61022dd1745bf6ba0b7) — @erafona · `6a12d61022dd1745bf6ba0b7`
+- [The Spirits of Xiān Jiǔ Guǎn](https://www.isekaizero.ai/storylines/68a52fd279eac32f29401b20) — @magic\_world · `68a52fd279eac32f29401b20`
+- [The System That Only Counts Survival](https://www.isekaizero.ai/storylines/69785e72fe46238131116ace) — @saga · `69785e72fe46238131116ace`
+- [The Women’s Sect Adopted Heaven’s Parasite](https://www.isekaizero.ai/storylines/6a2ed5a7111ac44c3e2737fd) — @creatorfromhell · `6a2ed5a7111ac44c3e2737fd`
+- [Trapped in a Xianxia Story!](https://www.isekaizero.ai/storylines/698e11a21f1b07d111d4f771) — @peridot · `698e11a21f1b07d111d4f771`
+- [Wheel of Immortal Fate](https://www.isekaizero.ai/storylines/6a458b4fc6cdd15d40585fe6) — @potassium · `6a458b4fc6cdd15d40585fe6`
+- [Xianxia Tales: Cultivation Path of Immortality](https://www.isekaizero.ai/storylines/69c28cbca77158c062dc8d99) — @primekazuki · `69c28cbca77158c062dc8d99`
+- [Xianxia Tales: The Celestial Archipelago](https://www.isekaizero.ai/storylines/6a1aa3407b95a1678979a629) — @abyss · `6a1aa3407b95a1678979a629`
+- [Ying Dynasty Clash](https://www.isekaizero.ai/storylines/6952138d3b0fdff9247c7d4b) — @sinisinmyname · `6952138d3b0fdff9247c7d4b`
+- [Падший Бог Культивації](https://www.isekaizero.ai/storylines/6a6d03b54bb2a3646436f7ae) — @eldermonk6518 · `6a6d03b54bb2a3646436f7ae`
+- [Реинкарнация Небесного Демона](https://www.isekaizero.ai/storylines/69f20cbf7d82ec6854d7ea43) — @inspectorcat · `69f20cbf7d82ec6854d7ea43`
+- [طريق التطور: من أنقاض 2702 إلى خيوط 2001](https://www.isekaizero.ai/storylines/69cb5182de2f3546d14eb506) — @sensormark4416 · `69cb5182de2f3546d14eb506`
+- [“Bound No More: Path of the Demon Blade”](https://www.isekaizero.ai/storylines/69fa6a2d05b787d1c88e50ef) — @magnol234 · `69fa6a2d05b787d1c88e50ef`
+- [“The Great Sage’s Descendant”](https://www.isekaizero.ai/storylines/6a065144582333b80c76918b) — @magnol234 · `6a065144582333b80c76918b`
+
+## `romantasy` (35)
+
+- [A Covenant of Queers](https://www.isekaizero.ai/storylines/69b31c11cecc1d255a48fd70) — @mararrort · `69b31c11cecc1d255a48fd70`
+- [A Dragon's Grief](https://www.isekaizero.ai/storylines/6a4e00f092d8d8cb44bd9f3b) — @necro · `6a4e00f092d8d8cb44bd9f3b`
+- [Adopted By Tyrants](https://www.isekaizero.ai/storylines/6a0397540684db6e56fc61da) — @aburakadabura · `6a0397540684db6e56fc61da`
+- [Aerion's Little Game](https://www.isekaizero.ai/storylines/6a9cd932b5148ec07fd15b1c) — @pureaffectiion · `6a9cd932b5148ec07fd15b1c`
+- [Aria for the fallen hero](https://www.isekaizero.ai/storylines/69a2227ee00b7e2464ab733b) — @lostfox · `69a2227ee00b7e2464ab733b`
+- [As The Seasons Change](https://www.isekaizero.ai/storylines/6aa8379d24dfdbf2281e471b) — @matteodabergamo · `6aa8379d24dfdbf2281e471b`
+- [Ashveil Academy: Year 1](https://www.isekaizero.ai/storylines/6a9c906ab4f9a3402c398237) — @jalousie · `6a9c906ab4f9a3402c398237`
+- [Beneath the Unseelie Hill](https://www.isekaizero.ai/storylines/6977f0d92d5c167243bc1009) — @lostfox · `6977f0d92d5c167243bc1009`
+- [Betrothed to the Demon King](https://www.isekaizero.ai/storylines/6ab7e9ea6bb4967415c1d52a) — @cosmic\_crew89 · `6ab7e9ea6bb4967415c1d52a`
+- [Blood Bag: Universal Donor](https://www.isekaizero.ai/storylines/6a6f4e2f0f77c201c0368532) — @elfpoles · `6a6f4e2f0f77c201c0368532`
+- [Fangs and blossoms](https://www.isekaizero.ai/storylines/6a8efd336a2a820ccd46784b) — @viola\_luna · `6a8efd336a2a820ccd46784b`
+- [Ferro of Fire: Rewriting the Villainess’s Fate](https://www.isekaizero.ai/storylines/6a99a955f1be59f0f83e36d8) — @jalousie · `6a99a955f1be59f0f83e36d8`
+- [I Became the Tyrant’s Contract Bride](https://www.isekaizero.ai/storylines/6ab4c39700cd22dd28cdeb71) — @instanceverse448795 · `6ab4c39700cd22dd28cdeb71`
+- [Ice Queen](https://www.isekaizero.ai/storylines/6ab4fe7f2b6982a11574107f) — @puzzle\_case · `6ab4fe7f2b6982a11574107f`
+- [La Embajadora del Pacto](https://www.isekaizero.ai/storylines/6ab2be3a3457f8a87701a3a1) — @mephalaexotic · `6ab2be3a3457f8a87701a3a1`
+- [May this Dance Never End](https://www.isekaizero.ai/storylines/6ab95807748298884abbe0d0) — @lostfox · `6ab95807748298884abbe0d0`
+- [Princess Gambit](https://www.isekaizero.ai/storylines/6abbc0e7530a7ae2d33ff68d) — @holoserver174 · `6abbc0e7530a7ae2d33ff68d`
+- [Reset: The Villainess Remembers Everything](https://www.isekaizero.ai/storylines/699f9945163da04ec9e03c3f) — @echo\_pilot720 · `699f9945163da04ec9e03c3f`
+- [Somebody has to do it](https://www.isekaizero.ai/storylines/6aaae55abe0c1b0f1035c51d) — @jalousie · `6aaae55abe0c1b0f1035c51d`
+- [The bond between us](https://www.isekaizero.ai/storylines/6a63ac8b2d3e2bfaa3c3ede0) — @lostfox · `6a63ac8b2d3e2bfaa3c3ede0`
+- [The Crown In My Fingers](https://www.isekaizero.ai/storylines/6ab7faf9e68724731e1017d9) — @smixx · `6ab7faf9e68724731e1017d9`
+- [The Cruel Bargain](https://www.isekaizero.ai/storylines/6aa75dfdd17fe984ab0701ec) — @jalousie · `6aa75dfdd17fe984ab0701ec`
+- [The Frozen Tithe](https://www.isekaizero.ai/storylines/6ab5a6b0afa23cbf861a6098) — @pixelpugilist · `6ab5a6b0afa23cbf861a6098`
+- [The Gods Refuse to Let Me Go](https://www.isekaizero.ai/storylines/6a51a77f20ea59cdbd8743a9) — @kaykyu · `6a51a77f20ea59cdbd8743a9`
+- [The Prince Who Doesn't Know How to Date](https://www.isekaizero.ai/storylines/6aac79a09b355299e4f1e370) — @kaykyu · `6aac79a09b355299e4f1e370`
+- [The Princes of Pandemonium](https://www.isekaizero.ai/storylines/6a727e61832ffb7cbb97cfa7) — @elfpoles · `6a727e61832ffb7cbb97cfa7`
+- [The Shinagami prince who loves me too much](https://www.isekaizero.ai/storylines/6abec4e97da4a83b70a9d2eb) — @slasherus · `6abec4e97da4a83b70a9d2eb`
+- [The Vampire Class](https://www.isekaizero.ai/storylines/69e98b499cb1ce72ff59364d) — @poro · `69e98b499cb1ce72ff59364d`
+- [The villainess who doesn't want to be saved](https://www.isekaizero.ai/storylines/6a999b3fef94d59a6827c699) — @wofomye\_bwc0208 · `6a999b3fef94d59a6827c699`
+- [The Willow's Sorrow](https://www.isekaizero.ai/storylines/6a8b82620b02a0b2d48930e8) — @lostfox · `6a8b82620b02a0b2d48930e8`
+- [To Understand a Rose](https://www.isekaizero.ai/storylines/69ace418342b9e1635d29e65) — @lostfox · `69ace418342b9e1635d29e65`
+- [Tragedy of Yuri Villainess With a Straight System](https://www.isekaizero.ai/storylines/69b35b3c89b41dc8eb9c6e1f) — @soph\_k · `69b35b3c89b41dc8eb9c6e1f`
+- [Transgressed As The Duke of The Norths Wife](https://www.isekaizero.ai/storylines/6a6217441700f3bc2b2ae4d5) — @snail · `6a6217441700f3bc2b2ae4d5`
+- [Unwritten Academy](https://www.isekaizero.ai/storylines/6a4d0b4223e1c910f64cec92) — @nikobloom · `6a4d0b4223e1c910f64cec92`
+- [¿La Emperatriz? ¿Yo?](https://www.isekaizero.ai/storylines/6aaafcf7e069a43df766dfc4) — @jennilu\_arte · `6aaafcf7e069a43df766dfc4`
+
+## `martialArts` (25)
+
+- [A Disgrace to the Dragon House](https://www.isekaizero.ai/storylines/6aa944c5433dc8700acbc876) — @inkmataverse2 · `6aa944c5433dc8700acbc876`
+- [Dance of the dragons](https://www.isekaizero.ai/storylines/69a88647f1ae519383710723) — @kiran1007 · `69a88647f1ae519383710723`
+- [Gacha Murim](https://www.isekaizero.ai/storylines/6932224fef6f401df3888c4f) — @iguinlegal · `6932224fef6f401df3888c4f`
+- [I Became the Heavenly Demon?!](https://www.isekaizero.ai/storylines/6a612e7b23edb53ae5d71f62) — @peridot · `6a612e7b23edb53ae5d71f62`
+- [Jasmine Shade](https://www.isekaizero.ai/storylines/6a97673f65458870d7285ba1) — @sarapinto · `6a97673f65458870d7285ba1`
+- [Jobless Martial Artist have a job in Apocalypse](https://www.isekaizero.ai/storylines/699855511c11738826120518) — @willknight · `699855511c11738826120518`
+- [Martial Nexus: Rise of the Hollow Fist](https://www.isekaizero.ai/storylines/6a00abc9429deae0e0ccfb5f) — @black\_cat · `6a00abc9429deae0e0ccfb5f`
+- [Memoir: The Red Rose Serpent Yoru Fukabu](https://www.isekaizero.ai/storylines/6a44c089681f293106aa5409) — @echo\_agent832 · `6a44c089681f293106aa5409`
+- [No Mana, Only Hands](https://www.isekaizero.ai/storylines/6a1aba4fa994f98c71ec97bf) — @rockyk · `6a1aba4fa994f98c71ec97bf`
+- [Poison, Embers and Her](https://www.isekaizero.ai/storylines/6a48a8b08a2a2600df2fbfae) — @yaya · `6a48a8b08a2a2600df2fbfae`
+- [Tale of Knights](https://www.isekaizero.ai/storylines/6a8fc5fed4c63644839a309f) — @dinoshepherd94 · `6a8fc5fed4c63644839a309f`
+- [Tales of Jianghu: The A.I Soul Sutra](https://www.isekaizero.ai/storylines/696d386e7af13ccb8eb04569) — @valegon · `696d386e7af13ccb8eb04569`
+- [The Disowned](https://www.isekaizero.ai/storylines/6a019fe49df31150d15233c3) — @goldw0lf · `6a019fe49df31150d15233c3`
+- [The Greatest Warrior in the World](https://www.isekaizero.ai/storylines/6a3ee598f91159a9452f111e) — @limbo · `6a3ee598f91159a9452f111e`
+- [The Outlaw's Incomplete Manual](https://www.isekaizero.ai/storylines/6ab031c73da104d3d65daf10) — @beholdmybeer · `6ab031c73da104d3d65daf10`
+- [The Path Of The Wolf](https://www.isekaizero.ai/storylines/6a1b05de630ebeaa40215d4f) — @goldw0lf · `6a1b05de630ebeaa40215d4f`
+- [THE SCARLET DECREE: Battle of Blades](https://www.isekaizero.ai/storylines/6a20473ed0849b718a747916) — @elfpoles · `6a20473ed0849b718a747916`
+- [The Sect That Trains Villains](https://www.isekaizero.ai/storylines/6a9840da52d4d089a7a1a212) — @sweetpotato · `6a9840da52d4d089a7a1a212`
+- [The Villainess Goes All Out!!](https://www.isekaizero.ai/storylines/6977f07afe46238131c7902e) — @aburakadabura · `6977f07afe46238131c7902e`
+- [Wuxia Tales: Path To Legend](https://www.isekaizero.ai/storylines/697eea4d9bebfe4540e166e2) — @primekazuki · `697eea4d9bebfe4540e166e2`
+- [Wuxia Tales: The Land of Jianghu](https://www.isekaizero.ai/storylines/6a2bae71105b110639a7481d) — @primekazuki · `6a2bae71105b110639a7481d`
+- [Турнир Каменного цветка](https://www.isekaizero.ai/storylines/6a358c0e302794821a4b6ed9) — @diro2k5 · `6a358c0e302794821a4b6ed9`
+- [نهضة ملك الحلبة: قبضة النظام](https://www.isekaizero.ai/storylines/69e706e7dcf910827bd3dc4a) — @sensormark4416 · `69e706e7dcf910827bd3dc4a`
+- [復興城: The Revival City](https://www.isekaizero.ai/storylines/6a3160c4318ed17bc7500ee2) — @itsanewdayyesitis · `6a3160c4318ed17bc7500ee2`
+- [江湖：霜刃風雲錄](https://www.isekaizero.ai/storylines/6ab4ff857adb2c4544abf28b) — @stealth\_witness9902 · `6ab4ff857adb2c4544abf28b`
+
+## `(none)` (9)
+
+- [Dungeon Masters](https://www.isekaizero.ai/storylines/69cbacc0556de546bed539b2) — @ant\_1 · `69cbacc0556de546bed539b2`
+- [Freedom Failed The Moment My Sisters Found Me](https://www.isekaizero.ai/storylines/6a0f1a738c5b485e7c51f5a7) — @shadow998 · `6a0f1a738c5b485e7c51f5a7`
+- [I Bought a Demihuman Sanctuary](https://www.isekaizero.ai/storylines/6a0f392bc7822a444b9c0c25) — @vonthor · `6a0f392bc7822a444b9c0c25`
+- [Le problème d’Yggdrasil](https://www.isekaizero.ai/storylines/69a439d1ce282db551e453d9) — @fae\_sage7532 · `69a439d1ce282db551e453d9`
+- [Stargaze City: A Cyberpunk Story](https://www.isekaizero.ai/storylines/6a1fec84a759c34d1760b0d2) — @christmas2631 · `6a1fec84a759c34d1760b0d2`
+- [The Fabulous World Of Hitmen!](https://www.isekaizero.ai/storylines/6a19518fb4baa58311dd9efe) — @christmas2631 · `6a19518fb4baa58311dd9efe`
+- [The Gentle Accord](https://www.isekaizero.ai/storylines/69862e527b85ac4ffe436db9) — @luna · `69862e527b85ac4ffe436db9`
+- [The Last Dark Lord](https://www.isekaizero.ai/storylines/6a20fbfe71981e1d964cb4ff) — @02give · `6a20fbfe71981e1d964cb4ff`
+- [The Tyrant Claims His True Queen](https://www.isekaizero.ai/storylines/6a169bb76538a31d0c1dcd4c) — @elfpoles · `6a169bb76538a31d0c1dcd4c`
