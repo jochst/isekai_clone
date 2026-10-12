@@ -154,6 +154,7 @@ Media files go on disk under `data/media/` and are served through a route. Provi
 | Story LLM, summarizer, Media Picker, Assist, Michiru | Many (Gemini, Claude, DeepSeek…) | NanoGPT `/api/v1/chat/completions` (OpenAI-compatible), with a model per role |
 | Tool calling (DM v2) | Native function calling | NanoGPT `tools`. **Verify per model**; add a fallback that parses a JSON block from the text for models without tool support |
 | Images (illustration, portraits, backgrounds, edit, remove-bg) | Seedream / BytePlus etc. | NanoGPT `/v1/images/generations` (already wired). Edit and remove-bg via NanoGPT img2img models where available |
+| Image model per job (decided 2026-10-12) | — | Scene illustrations: Seedream 5.0 Pro (`bytedance/seedream-v5.0-pro`, credits; its `/edit` variant for `continuePrevious`). High-volume automatic images (character portraits, VN backgrounds): a subscription model, `hidream-o1-image-dev` by default (the distilled faster O1; `hidream-o1-image` when quality matters). Built in Phase 1 as a per-job model setting |
 | Video (scenes, loop covers) | Seedance, Hailuo, Wan | NanoGPT `generate-video` + `video/status` (already built on the branch) |
 | TTS (narration, Drama, Audiobook) | Inworld, Seed Audio | ElevenLabs TTS. Drama mode means a voice per character; **verify** ElevenLabs' multi-speaker dialogue endpoint for a single-call Drama mode |
 | Voice design / cloning | Inworld | ElevenLabs Voice Design and Instant Voice Cloning (**verify** current endpoints) |
