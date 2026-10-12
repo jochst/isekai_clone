@@ -3,11 +3,16 @@
 import { useEffect, useState } from "react";
 import type { Storyline } from "@/types/isekaizero";
 
+/** Personal imports (`import-…`) and dev.db catalog stories (24-hex Isekai ids) load from the server. */
+function isServerStoryline(id?: string): id is string {
+  return !!id && (id.startsWith("import-") || /^[a-f0-9]{24}$/.test(id));
+}
+
 export function useImportedStoryline(id?: string) {
   const [result, setResult] = useState<{ id: string; storyline?: Storyline; error?: string }>();
-  const imported = id?.startsWith("import-");
+  const imported = isServerStoryline(id);
   useEffect(() => {
-    if (!id?.startsWith("import-")) return;
+    if (!isServerStoryline(id)) return;
     const controller = new AbortController();
     fetch(`/api/imports/${encodeURIComponent(id)}`, { signal: controller.signal, cache: "no-store" })
       .then(async response => {

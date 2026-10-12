@@ -78,6 +78,12 @@ export interface Storyline {
   tokens: { storyline: number; characters: number; scenario: number };
 }
 
+/** The slice of a storyline that cards and Explore filtering read; lets large catalogs skip prompts and casts. */
+export type StoryCardData = Pick<
+  Storyline,
+  "id" | "title" | "tagline" | "description" | "category" | "tags" | "creator" | "stats" | "flags" | "cover" | "publishedAt"
+> & { imported?: Pick<NonNullable<Storyline["imported"]>, "kind"> };
+
 export interface StoryRow {
   id: string;
   title: string;

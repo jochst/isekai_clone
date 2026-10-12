@@ -33,6 +33,15 @@ mkdirSync(outputDir, { recursive: true });
 const importedStoryIds = await readJsonlIds(paths.storylines, "id");
 const importedStoryCharacterIds = await readJsonlIds(paths.storyCharacters, "id");
 
+// Stories already in SQLite count as imported, so incremental runs only fetch details for new ones.
+if (args.knownDatabaseUrl) {
+  const { default: Database } = await import("better-sqlite3");
+  const known = new Database(String(args.knownDatabaseUrl).replace(/^file:/, ""), { readonly: true, fileMustExist: true });
+  for (const { id } of known.prepare("SELECT id FROM Story").iterate()) importedStoryIds.add(id);
+  for (const { id } of known.prepare("SELECT id FROM StoryCharacter").iterate()) importedStoryCharacterIds.add(id);
+  known.close();
+}
+
 const storylineStream = createWriteStream(paths.storylines, { flags: "a" });
 const storyCharacterStream = createWriteStream(paths.storyCharacters, { flags: "a" });
 

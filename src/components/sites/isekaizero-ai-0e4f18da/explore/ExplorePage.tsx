@@ -17,14 +17,14 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { StoryCategory, Storyline } from "@/types/isekaizero";
+import type { StoryCardData, StoryCategory } from "@/types/isekaizero";
 import { StoryCard } from "../shared/StoryCard";
 import { CATEGORY_META, categoryIcon } from "../shared/category-meta";
 
 /* ---------- Types & constants ---------- */
 
 export interface ExplorePageProps {
-  storylines: Storyline[];
+  storylines: StoryCardData[];
 }
 
 type ContentType = "storyline" | "character" | "music" | "manga";
@@ -74,6 +74,9 @@ const CATEGORY_BG: Record<StoryCategory, string> = {
 };
 
 type Popover = "sort" | "tags" | null;
+
+/** Cards rendered per "Show more" step; the dev.db catalog alone has ~6k storylines. */
+const PAGE_SIZE = 60;
 
 type Audience = "men" | "all" | "women";
 
@@ -134,7 +137,7 @@ function writeAudience(value: string): void {
 
 /* ---------- Filtering & sorting ---------- */
 
-function matchesQuery(storyline: Storyline, rawQuery: string): boolean {
+function matchesQuery(storyline: StoryCardData, rawQuery: string): boolean {
   const query = rawQuery.trim().toLowerCase();
   if (query === "") return true;
   if (query.startsWith("@")) {
@@ -148,7 +151,7 @@ function matchesQuery(storyline: Storyline, rawQuery: string): boolean {
   );
 }
 
-function sortStorylines(list: Storyline[], sort: SortKey): Storyline[] {
+function sortStorylines(list: StoryCardData[], sort: SortKey): StoryCardData[] {
   if (sort === "discovery") return list;
   const sorted = [...list];
   switch (sort) {
@@ -273,6 +276,7 @@ export function ExplorePage({ storylines }: ExplorePageProps) {
   const [sort, setSort] = useState<SortKey>("discovery");
   const [categories, setCategories] = useState<StoryCategory[]>([]);
   const [popover, setPopover] = useState<Popover>(null);
+  const [shown, setShown] = useState(PAGE_SIZE);
 
   const storedAudience = useSyncExternalStore(subscribeAudience, readAudience, readAudienceServer);
   const showAudienceModal = storedAudience === null;
@@ -466,7 +470,7 @@ export function ExplorePage({ storylines }: ExplorePageProps) {
       {/* Grid */}
       {(contentType === "storyline" || contentType === "character") && visible.length > 0 ? (
         <div className="mx-[12px] mt-[16px] grid grid-cols-2 gap-[14px] sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {visible.map((storyline) => (
+          {visible.slice(0, shown).map((storyline) => (
             <StoryCard key={storyline.id} storyline={storyline} variant="grid" />
           ))}
         </div>
@@ -476,7 +480,19 @@ export function ExplorePage({ storylines }: ExplorePageProps) {
         </p>
       )}
 
-      {showAudienceModal ? <AudienceModal onConfirm={(selected) => writeAudience(JSON.stringify(selected))} /> : null}
+      {(contentType === "storyline" || contentType === "character") && visible.length > shown ? (
+        <div className="mx-[12px] mt-[20px] mb-[24px] flex justify-center">
+          <button
+            type="button"
+            onClick={() => setShown((n) => n + PAGE_SIZE)}
+            className={cn(PILL_BASE, "h-[32px] hover:bg-[rgba(255,255,255,0.1)] hover:text-white")}
+          >
+            Show more ({visible.length - shown} left)
+          </button>
+        </div>
+      ) : null}
+
+      {showAudienceModal ?<AudienceModal onConfirm={(selected) => writeAudience(JSON.stringify(selected))} /> : null}
     </div>
   );
 }
