@@ -19,12 +19,12 @@ function initials(name: string): string {
 
 /**
  * Gradient portrait tile with a centered glyph, a soft top highlight and the character's initials.
- * Fills its parent (`absolute inset-0`). No external images.
+ * Fills its parent (`absolute inset-0`). Real portrait art (imported or dev.db) replaces it.
  */
 export function CharacterPortrait({ character, className, showName = false }: CharacterPortraitProps) {
-  if (character.imageUrl?.startsWith("/api/imports/assets/")) {
+  if (character.imageUrl) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={character.imageUrl} alt={character.name} className={cn("absolute inset-0 h-full w-full object-cover", className)} />;
+    return <img src={character.imageUrl} alt={character.name} loading="lazy" referrerPolicy="no-referrer" className={cn("absolute inset-0 h-full w-full object-cover", className)} />;
   }
   const [g0, g1] = character.gradient;
 

@@ -44,12 +44,12 @@ export interface StoryCoverProps {
 
 /**
  * Locally generated cover art: a 3-stop gradient, a CSS pattern layer, a centered emoji glyph,
- * a bottom vignette and an optional faded title watermark. No external images.
+ * a bottom vignette and an optional faded title watermark. Real cover art (imported or dev.db) replaces it.
  */
 export function StoryCover({ cover, title, className, mode = "portrait", watermark = true }: StoryCoverProps) {
-  if (cover.imageUrl?.startsWith("/api/imports/assets/")) {
+  if (cover.imageUrl) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={cover.imageUrl} alt="" className={cn("absolute inset-0 h-full w-full object-cover", className)} />;
+    return <img src={cover.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" className={cn("absolute inset-0 h-full w-full object-cover", className)} />;
   }
   const [g0, g1, g2] = cover.gradient;
 

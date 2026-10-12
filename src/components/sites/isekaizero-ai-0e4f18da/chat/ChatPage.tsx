@@ -92,7 +92,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const listRef = useRef<HTMLDivElement>(null);
   const stickToBottomRef = useRef(true);
 
-  const imported = useImportedStoryline(session?.storylineId);
+  const imported = useImportedStoryline(session && !getStoryline(session.storylineId) ? session.storylineId : undefined);
   const storyline = useMemo(() => (session ? getStoryline(session.storylineId) ?? imported.storyline : undefined), [session, imported.storyline]);
   const configured = isProviderConfigured(provider);
   const model = useMemo(() => resolveTextModel(session?.settings ?? DEFAULT_CHAT_SETTINGS, provider), [session?.settings, provider]);

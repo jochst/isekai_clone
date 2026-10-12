@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Activity, Check, Cpu, Eye, EyeOff, KeyRound, Loader2, Pause, Play, RotateCcw, Search, Volume2 } from "lucide-react";
 
 import type { ProviderImageModel, ProviderTextModel } from "@/app/api/providers/models/route";
@@ -737,7 +737,7 @@ function VoiceTab({ settings, update }: VoiceTabProps) {
           })}
         </div>
 
-        <Field label="Voice ID / Voice Name" hint="ID passed to the TTS provider (e.g. nova, af_bella, or an ElevenLabs voice ID)">
+        <Field label="Voice ID / Voice Name" helper="ID passed to the TTS provider (e.g. nova, af_bella, or an ElevenLabs voice ID)">
           <TextInput
             value={settings.voiceId || ""}
             onChange={(voiceId) => update({ voiceId })}
@@ -745,7 +745,7 @@ function VoiceTab({ settings, update }: VoiceTabProps) {
           />
         </Field>
 
-        <Field label="Voice Model" hint="Model name passed to the TTS provider">
+        <Field label="Voice Model" helper="Model name passed to the TTS provider">
           <TextInput
             value={settings.voiceModel || ""}
             onChange={(voiceModel) => update({ voiceModel })}
@@ -770,7 +770,7 @@ function VoiceTab({ settings, update }: VoiceTabProps) {
         <SettingCard title="Endpoint & Credentials">
           <Field
             label="TTS Base URL"
-            hint={
+            helper={
               provider === "local"
                 ? "Local OpenAI-compatible speech endpoint (e.g. http://localhost:8880/v1 for Kokoro)"
                 : provider === "elevenlabs"
@@ -787,7 +787,7 @@ function VoiceTab({ settings, update }: VoiceTabProps) {
 
           <Field
             label="Dedicated Voice API Key"
-            hint={provider === "elevenlabs" ? "Your ElevenLabs API key (xi-api-key)" : "Optional. Leave blank to reuse main API Key."}
+            helper={provider === "elevenlabs" ? "Your ElevenLabs API key (xi-api-key)" : "Optional. Leave blank to reuse main API Key."}
           >
             <div className="relative">
               <input

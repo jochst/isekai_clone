@@ -1,19 +1,19 @@
 import Link from "next/link";
 import { BookOpen, DollarSign, Globe, MessageCircle, MessagesSquare, Star, Swords, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Storyline } from "@/types/isekaizero";
+import type { StoryCardData } from "@/types/isekaizero";
 import { StoryCover } from "./StoryCover";
 import { formatCountLower } from "./format";
 
 export interface StoryCardProps {
-  storyline: Storyline;
+  storyline: StoryCardData;
   /** `row`: fixed 170×283 card for horizontal scrollers. `grid`: fluid card with `aspect-ratio: 170/283`. */
   variant?: "row" | "grid";
   className?: string;
 }
 
 interface Badge {
-  key: keyof Storyline["flags"];
+  key: keyof StoryCardData["flags"];
   Icon: LucideIcon;
   /** Tailwind background utility. */
   bg: string;
@@ -29,7 +29,7 @@ const BADGES: Badge[] = [
   { key: "monetized", Icon: DollarSign, bg: "bg-[rgba(34,197,94,0.8)]", label: "Monetized" },
 ];
 
-function BadgeStrip({ flags }: { flags: Storyline["flags"] }) {
+function BadgeStrip({ flags }: { flags: StoryCardData["flags"] }) {
   const active = BADGES.filter((badge) => flags[badge.key]);
   if (active.length === 0) return null;
   return (

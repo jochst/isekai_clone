@@ -50,3 +50,10 @@ temp/
 
 # Personal import database and cached artwork
 data/
+
+# Local database (dev.db.gz is kept locally, not in git)
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.db.gz

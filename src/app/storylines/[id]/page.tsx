@@ -4,11 +4,12 @@ import { AppShell } from "@/components/sites/isekaizero-ai-0e4f18da/shared";
 import { StorylinePage } from "@/components/sites/isekaizero-ai-0e4f18da/storyline";
 import { STORYLINES, getStoryline, relatedStorylines } from "@/lib/sites/isekaizero-ai-0e4f18da/mock-data";
 import { getEntry, withImportDb } from "@/lib/imports/database";
+import { getDbStoryline } from "@/lib/story-db";
 
 export const dynamic = "force-dynamic";
 
-function findStoryline(id: string) {
-  return getStoryline(id) ?? withImportDb(db => getEntry(db, id)?.storyline);
+async function findStoryline(id: string) {
+  return getStoryline(id) ?? withImportDb(db => getEntry(db, id)?.storyline) ?? await getDbStoryline(id);
 }
 
 type Params = { params: Promise<{ id: string }> };
@@ -19,13 +20,13 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
-  const s = findStoryline(id);
+  const s = await findStoryline(id);
   return { title: s ? `${s.title} - ISEKAI ZERO` : "Storyline - ISEKAI ZERO", description: s?.tagline };
 }
 
 export default async function StorylineRoute({ params }: Params) {
   const { id } = await params;
-  const storyline = findStoryline(id);
+  const storyline = await findStoryline(id);
   if (!storyline) notFound();
   return (
     <AppShell nav="topbar" backdrop>

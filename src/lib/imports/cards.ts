@@ -96,7 +96,7 @@ function character(value: unknown, index: number): Character {
   };
 }
 
-const categories: StoryCategory[] = ["fantasy", "isekai", "sciFi", "mecha", "horror", "thriller", "academy", "romance", "comedy", "adventure", "supernatural", "sports", "psychological", "betrayal"];
+export const categories: StoryCategory[] = ["fantasy", "isekai", "sciFi", "mecha", "horror", "thriller", "academy", "romance", "comedy", "adventure", "supernatural", "sports", "psychological", "betrayal"];
 
 export function normalizeImport(raw: unknown, origin: { source?: ImportSource; url?: string; kind?: "character" | "story" } = {}): ImportedEntry {
   const root = record(raw);
