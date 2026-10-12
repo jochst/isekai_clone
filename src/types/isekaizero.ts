@@ -294,6 +294,9 @@ export interface ChatSettings {
   imageGenPerspective?: "pov" | "3rd-person";
 }
 
+/** Hidden user turn sent by the Composer's "Continue" action. */
+export const CONTINUE_SENTINEL = "(continue the scene)";
+
 export interface ChatSession {
   storylineCover?: Storyline["cover"];
   id: string;
@@ -305,3 +308,6 @@ export interface ChatSession {
   settings: ChatSettings;
   playerName: string;
 }
+
+/** A chat as listed on /chats: everything but the messages. */
+export type ChatSummary = Omit<ChatSession, "messages"> & { messageCount: number; preview: string };

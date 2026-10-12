@@ -12,8 +12,7 @@ import { defaultResolution } from "./provider-catalog";
 import type { VideoParamValue } from "@/types/isekaizero";
 import { toolFunction, toolInstruction } from "./ai-tools";
 
-/** Hidden user turn sent by the Composer's "Continue" action. */
-export const CONTINUE_SENTINEL = "(continue the scene)";
+export { CONTINUE_SENTINEL } from "@/types/isekaizero";
 
 export const TEMPERATURE_MAP: Record<ChatSettings["temperature"], number> = { low: 0.5, medium: 0.9, high: 1.1, max: 1.3 };
 export const MAX_TOKENS_MAP: Record<ChatSettings["responseLength"], number> = { short: 220, medium: 450, long: 800 };
