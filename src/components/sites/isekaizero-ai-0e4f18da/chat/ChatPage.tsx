@@ -9,11 +9,13 @@ import {
   DEFAULT_CHAT_SETTINGS,
   addUsage,
   attachSceneImage,
+  attachSceneVideo,
   branchSession,
   getChatSession,
   getSceneImageUrl,
   newId,
   updateSceneImage,
+  updateSceneVideo,
   useChatSession,
   useHydrated,
   useUsage,
@@ -27,8 +29,8 @@ import {
   ILLUSTRATE_SCENE_TOOL,
   MAX_TOKENS_MAP,
   TEMPERATURE_MAP,
-  buildAppearanceEditPrompt,
-  buildNewCharacterPortraitPrompt,
+  buildIllustrationBriefPrompt,
+  buildMotionPrompt,
   buildScenePrompt,
   buildSystemPrompt,
   importedPostHistory,
@@ -36,13 +38,19 @@ import {
   estimateTokens,
   generateSceneImage,
   resolveImageModel,
+  resolveImageSize,
   resolveTextModel,
+  resolveVideoModel,
   streamChat,
   suggestDestinies,
   toApiMessages,
 } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
+import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { isProviderConfigured, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatMessage, SceneImage as SceneImageModel } from "@/types/isekaizero";
+import type { ChatMessage, SceneImage as SceneImageModel, SceneVideo as SceneVideoModel } from "@/types/isekaizero";
+
+import { useProviderCatalog } from "../image-generation/use-provider-catalog";
+import { useVideoGeneration, type VideoJob } from "../video-generation/use-video-generation";
 
 import { ChatHeader, MemorySheet } from "./ChatHeader";
 import { ChatSettingsSheet } from "./ChatSettingsSheet";
@@ -70,6 +78,9 @@ function errorMessage(e: unknown, fallback: string): string {
   return e instanceof Error && e.message ? e.message : fallback;
 }
 
+/** `submit` resolves to `null` without touching the job when it rejects the request up front. */
+const VIDEO_START_FAILED = "Video generation could not start. Check your provider settings.";
+
 export interface ChatPageProps {
   sessionId: string;
 }
@@ -81,6 +92,27 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const [provider] = useProviderSettings();
   const usage = useUsage();
   const { toast, showToast } = useToast();
+
+  const catalog = useProviderCatalog();
+  /* Destructured so the callbacks below depend on stable primitives/arrays, not the per-render catalog object. */
+  const { status: catalogStatus, videoSupported, videoReason, videos: videoCatalog, imageById } = catalog;
+  const videoLocations = useRef(new Map<string, string>()); // video id → message id
+  const onVideoJob = useCallback(
+    (job: VideoJob) => {
+      const messageId = videoLocations.current.get(job.id);
+      if (!messageId) return;
+      updateSceneVideo(sessionId, messageId, job.id, {
+        status: job.status === "canceled" ? "error" : job.status,
+        runId: job.runId,
+        url: job.url,
+        cost: job.cost,
+        error: job.status === "canceled" ? "Canceled" : job.error,
+      });
+    },
+    [sessionId],
+  );
+  /* Destructured: the hook's result object is new every render, its callbacks are stable. */
+  const { submit: submitVideo, resume: resumeVideo } = useVideoGeneration(provider, onVideoJob);
 
   const [streaming, setStreaming] = useState(false);
   const [takeTurn, setTakeTurn] = useState(false);
@@ -150,7 +182,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           settings: provider,
           model: image.model,
           prompt: image.prompt,
-          size: provider.imageSize,
+          size: resolveImageSize(imageById(image.model), provider),
           referenceImages: refs.length > 0 ? refs : undefined,
         });
         updateSceneImage(sessionId, messageId, image.id, { url: result.url, prompt: result.prompt, status: "done", error: undefined });
@@ -159,7 +191,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         updateSceneImage(sessionId, messageId, image.id, { status: "error", error: errorMessage(e, "Image generation failed.") });
       }
     },
-    [provider, sessionId, collectReferenceImages],
+    [provider, sessionId, collectReferenceImages, imageById],
   );
 
   const illustrate = useCallback(
@@ -178,7 +210,6 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         buildScenePrompt(storyline, current.messages.slice(0, index + 1), {
           perspective: current.settings.imageGenPerspective || current.settings.illustrationPerspective,
           defaultInstructions: current.settings.lightNovelPromptInstructions,
-          modelId: imageModel,
         });
       const image: SceneImageModel = { id: newId(), url: "", prompt, model: imageModel, createdAt: Date.now(), status: "generating" };
       attachSceneImage(sessionId, messageId, image);
@@ -216,45 +247,149 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         /* malformed json arguments from model */
       }
 
+      // Argument names follow Isekai Zero's real tool schemas (ai-tools.json).
       const name = toolCall.function.name;
-      if (name === "illustrate_scene") {
-        const perspective =
-          (args.perspective as "pov" | "3rd-person") ||
-          current.settings.imageGenPerspective ||
-          (current.settings.illustrationPerspective === "pov" ? "pov" : "3rd-person");
-        const prompt = buildScenePrompt(storyline, recentMessages, {
-          perspective,
-          defaultInstructions: current.settings.lightNovelPromptInstructions,
-          modelId: imageModel,
-        });
+      const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+      const draw = (prompt: string) => {
         const image: SceneImageModel = { id: newId(), url: "", prompt, model: imageModel, createdAt: Date.now(), status: "generating" };
         attachSceneImage(sessionId, messageId, image);
         void runImage(messageId, image);
+      };
+      if (name === "illustrate_scene") {
+        const perspective =
+          args.perspective === "pov" || args.perspective === "third-person"
+            ? args.perspective === "pov" ? "pov" : "3rd-person"
+            : current.settings.imageGenPerspective || (current.settings.illustrationPerspective === "pov" ? "pov" : "3rd-person");
+        const opts = { perspective, defaultInstructions: current.settings.lightNovelPromptInstructions } as const;
+        const brief = str(args.description);
+        const characters = Array.isArray(args.characters) ? args.characters.filter((c): c is string => typeof c === "string") : [];
+        draw(brief ? buildIllustrationBriefPrompt(storyline, brief, characters, opts) : buildScenePrompt(storyline, recentMessages, opts));
       } else if (name === "create_character" && current.settings.autoCreateCharacter) {
-        const charName = String(args.name || "Unknown");
-        const appearance = String(args.appearance || "");
-        const role = args.role ? String(args.role) : undefined;
-        if (appearance) {
-          const prompt = buildNewCharacterPortraitPrompt({ name: charName, appearance, role }, storyline, current.settings.lightNovelPromptInstructions);
-          const image: SceneImageModel = { id: newId(), url: "", prompt, model: imageModel, createdAt: Date.now(), status: "generating" };
-          attachSceneImage(sessionId, messageId, image);
-          void runImage(messageId, image);
-        }
+        const prompt = str(args.imagePrompt) || str(args.imageDescription);
+        if (prompt) draw(prompt);
       } else if (name === "edit_character" && current.settings.autoEditCharacter) {
-        const charName = String(args.name || "Unknown");
-        const appearance = String(args.appearance || "");
-        const lastMsg = recentMessages[recentMessages.length - 1]?.content || "";
-        if (appearance) {
-          const baseChar = storyline.characters.find((c) => c.name.toLowerCase() === charName.toLowerCase());
-          const prompt = buildAppearanceEditPrompt({ name: charName, appearance: baseChar?.appearance }, appearance, lastMsg, current.settings.lightNovelPromptInstructions);
-          const image: SceneImageModel = { id: newId(), url: "", prompt, model: imageModel, createdAt: Date.now(), status: "generating" };
-          attachSceneImage(sessionId, messageId, image);
-          void runImage(messageId, image);
-        }
+        // ponytail: rename/note is only announced; a chat-local cast to store it lands with ADR Phase 3.
+        const from = str(args.characterName);
+        const to = str(args.newName);
+        if (from) showToast(to && to !== from ? `${from} is now known as ${to}` : `${from}'s character note was updated`);
       }
     },
-    [sessionId, storyline, provider, runImage],
+    [sessionId, storyline, provider, runImage, showToast],
   );
+
+  /* ---------------------------------------------------------------- videos */
+
+  const animate = useCallback(
+    (messageId: string, imageId?: string) => {
+      const current = getChatSession(sessionId);
+      if (!current || !storyline) return;
+      if (!provider.baseUrl || !provider.apiKey) {
+        showToast("Connect a provider first");
+        return;
+      }
+      if (catalogStatus === "ready" && !videoSupported) {
+        showToast(videoReason ?? VIDEO_UNSUPPORTED_REASON);
+        return;
+      }
+      const model = resolveVideoModel(current.settings, provider, videoCatalog);
+      if (!model.id) {
+        showToast("Pick a video model in Chat Settings → Scene Videos first");
+        return;
+      }
+      const index = current.messages.findIndex((m) => m.id === messageId);
+      if (index === -1) return;
+      const message = current.messages[index];
+      const source = imageId
+        ? message.images?.find((img) => img.id === imageId)
+        : [...(message.images ?? [])].reverse().find((img) => img.status === "done" && getSceneImageUrl(img));
+      const sourceUrl = source ? getSceneImageUrl(source) : "";
+      const fromImage = Boolean(sourceUrl);
+      if (fromImage && model.imageToVideo === false) {
+        showToast("Pick a video model that supports image-to-video in Chat Settings");
+        return;
+      }
+      if (!fromImage && model.textToVideo === false) {
+        showToast("This video model needs a scene image. Illustrate the message first.");
+        return;
+      }
+      const prompt = buildMotionPrompt(storyline, current.messages.slice(0, index + 1), current.settings.illustrationPerspective, { fromImage });
+      const params = effectiveVideoParams(model.params ?? [], model.defaults ?? {}, provider.videoParams);
+      const video: SceneVideoModel = {
+        id: newId(),
+        status: "queued",
+        url: "",
+        prompt,
+        model: model.id,
+        sourceImageId: fromImage ? source?.id : undefined,
+        params,
+        createdAt: Date.now(),
+      };
+      attachSceneVideo(sessionId, messageId, video);
+      videoLocations.current.set(video.id, messageId);
+      void submitVideo({ id: video.id, model: video.model, prompt, params, imageUrl: fromImage ? sourceUrl : undefined }).then((job) => {
+        if (!job) updateSceneVideo(sessionId, messageId, video.id, { status: "error", error: VIDEO_START_FAILED });
+      });
+    },
+    [sessionId, storyline, provider, catalogStatus, videoSupported, videoReason, videoCatalog, showToast, submitVideo],
+  );
+
+  const regenerateVideo = useCallback(
+    (messageId: string, videoId: string) => {
+      const current = getChatSession(sessionId);
+      const message = current?.messages.find((m) => m.id === messageId);
+      const video = message?.videos?.find((v) => v.id === videoId);
+      if (!video) return;
+      if (!provider.baseUrl || !provider.apiKey) {
+        showToast("Connect a provider first");
+        return;
+      }
+      const source = video.sourceImageId ? message?.images?.find((img) => img.id === video.sourceImageId) : undefined;
+      const sourceUrl = source ? getSceneImageUrl(source) : "";
+      if (video.sourceImageId && !sourceUrl) {
+        showToast("Regenerate the scene image, then animate it again.");
+        return;
+      }
+      updateSceneVideo(sessionId, messageId, videoId, { status: "queued", error: undefined, url: "", runId: undefined });
+      videoLocations.current.set(videoId, messageId);
+      void submitVideo({ id: videoId, model: video.model, prompt: video.prompt, params: video.params, imageUrl: sourceUrl || undefined }).then((job) => {
+        if (!job) updateSceneVideo(sessionId, messageId, videoId, { status: "error", error: VIDEO_START_FAILED });
+      });
+    },
+    [sessionId, provider.baseUrl, provider.apiKey, showToast, submitVideo],
+  );
+
+  const checkVideo = useCallback(
+    (messageId: string, videoId: string) => {
+      const video = getChatSession(sessionId)
+        ?.messages.find((m) => m.id === messageId)
+        ?.videos?.find((v) => v.id === videoId);
+      if (!video?.runId) return;
+      updateSceneVideo(sessionId, messageId, videoId, { status: "generating", error: undefined });
+      videoLocations.current.set(videoId, messageId);
+      resumeVideo({ id: videoId, runId: video.runId, model: video.model, prompt: video.prompt, params: video.params, cost: video.cost, createdAt: video.createdAt });
+    },
+    [sessionId, resumeVideo],
+  );
+
+  /*
+   * Resume polling for videos that were still running when the page was last closed. Keyed on the session
+   * id, not a boolean: this component is reused across sessions (Branch, back/forward), and each one has
+   * to resume once. Locations from the previous session are dropped so its pollers can't write here.
+   */
+  const resumedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (resumedRef.current === sessionId || !hydrated || !session || !provider.apiKey) return;
+    resumedRef.current = sessionId;
+    videoLocations.current.clear();
+    for (const message of session.messages) {
+      for (const video of message.videos ?? []) {
+        if (video.runId && (video.status === "queued" || video.status === "generating")) {
+          videoLocations.current.set(video.id, message.id);
+          resumeVideo({ id: video.id, runId: video.runId, model: video.model, prompt: video.prompt, params: video.params, cost: video.cost, createdAt: video.createdAt });
+        }
+      }
+    }
+  }, [sessionId, hydrated, session, provider.apiKey, resumeVideo]);
 
   /* ---------------------------------------------------------------- completions */
 
@@ -406,11 +541,14 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         case "illustration":
           illustrate(message.id);
           return;
+        case "animate":
+          animate(message.id);
+          return;
         default:
           return;
       }
     },
-    [sessionId, update, router, showToast, illustrate],
+    [sessionId, update, router, showToast, illustrate, animate],
   );
 
   /* ---------------------------------------------------------------- render */
@@ -473,6 +611,10 @@ export function ChatPage({ sessionId }: ChatPageProps) {
               onRetry={retry}
               onNarrate={() => showToast("Voice narration failed. Check Settings → Providers → Voice (TTS)")}
               onRegenerateImage={(imageId) => regenerateImage(message.id, imageId)}
+              onAnimate={() => animate(message.id)}
+              onAnimateImage={(imageId) => animate(message.id, imageId)}
+              onRegenerateVideo={(videoId) => regenerateVideo(message.id, videoId)}
+              onCheckVideo={(videoId) => checkVideo(message.id, videoId)}
               onEdit={(content) => editMessage(message.id, content)}
               onAction={(action) => messageAction(message, action)}
             />

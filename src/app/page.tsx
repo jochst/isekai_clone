@@ -3,29 +3,30 @@ import { HomeHero } from "@/components/sites/isekaizero-ai-0e4f18da/root-8a5edab
 import { FeaturedCarousel } from "@/components/sites/isekaizero-ai-0e4f18da/root-8a5edab2/FeaturedCarousel";
 import { StoryRow } from "@/components/sites/isekaizero-ai-0e4f18da/root-8a5edab2/StoryRow";
 import { StoryGrid } from "@/components/sites/isekaizero-ai-0e4f18da/root-8a5edab2/StoryGrid";
-import { FEATURED_IDS, HERO_IDS, STORYLINES, STORY_ROWS, getStoryline } from "@/lib/sites/isekaizero-ai-0e4f18da/mock-data";
+import { buildHomeFeed } from "@/lib/sites/isekaizero-ai-0e4f18da/home-feed";
+import { getDbStoryline, listStoryCards } from "@/lib/story-db";
 import type { Storyline } from "@/types/isekaizero";
 
-function pick(ids: string[]): Storyline[] {
-  return ids.map((id) => getStoryline(id)).filter((s): s is Storyline => Boolean(s));
-}
+export const dynamic = "force-dynamic";
 
-export default function HomePage() {
-  const hero = pick(HERO_IDS).map((s) => ({ id: s.id, title: s.title, cover: s.cover }));
-  const featured = pick(FEATURED_IDS);
-  const rows = STORY_ROWS.filter((r) => r.id !== "recently-released");
-  const recent = STORY_ROWS.find((r) => r.id === "recently-released");
-  const recentStories = recent ? pick(recent.storylineIds) : STORYLINES;
+export default async function HomePage() {
+  const feed = buildHomeFeed(await listStoryCards());
+  const featured = (await Promise.all(feed.featuredIds.map((id) => getDbStoryline(id)))).filter((s): s is Storyline => Boolean(s));
 
   return (
     <AppShell nav="sidebar" active="home" backdrop>
       <div className="mx-auto w-full max-w-[1200px]">
-        <HomeHero items={hero} />
-        <FeaturedCarousel items={featured} />
-        {rows.map((row) => (
-          <StoryRow key={row.id} row={row} storylines={pick(row.storylineIds)} />
+        {feed.recent.length === 0 ? (
+          <p className="px-4 py-24 text-center text-[rgba(255,255,255,0.6)]">
+            No stories yet. Restore the catalog with <code>npm run db:restore</code>.
+          </p>
+        ) : null}
+        <HomeHero items={feed.hero.map((s) => ({ id: s.id, title: s.title, cover: s.cover }))} />
+        {featured.length > 0 ? <FeaturedCarousel items={featured} /> : null}
+        {feed.rows.map(({ row, storylines }) => (
+          <StoryRow key={row.id} row={row} storylines={storylines} />
         ))}
-        <StoryGrid title={recent?.title ?? "Recently Released"} storylines={recentStories} />
+        <StoryGrid title="Recently Released" storylines={feed.recent} />
         <div className="h-16" />
       </div>
     </AppShell>

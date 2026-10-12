@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { ChevronRight, TrendingUp } from "lucide-react";
-import type { Storyline } from "@/types/isekaizero";
+import type { StoryCardData } from "@/types/isekaizero";
 import { StoryCard } from "../shared/StoryCard";
 
 export interface StoryGridProps {
   title: string;
-  storylines: Storyline[];
+  storylines: StoryCardData[];
 }
 
 /** "Recently Released" responsive grid of grid-variant cards (5 / 4 / 3 / 2 columns). */

@@ -1,5 +1,12 @@
 import {
   BookOpen,
+  Coffee,
+  Drama,
+  Flower2,
+  Landmark,
+  Mountain,
+  Search,
+  Shield,
   Bot,
   Brain,
   ChevronRight,
@@ -49,6 +56,14 @@ export const CATEGORY_META: Record<StoryCategory, CategoryMeta> = {
   sports: { label: "Sports", color: "#4bb543", icon: "trophy" },
   psychological: { label: "Psychological", color: "#a78bfa", icon: "brain" },
   betrayal: { label: "Betrayal", color: "#ef4444", icon: "heart-crack" },
+  action: { label: "Action", color: "#ea580c", icon: "swords" },
+  romantasy: { label: "Romantasy", color: "#c026d3", icon: "flower-2" },
+  drama: { label: "Drama", color: "#9333ea", icon: "drama" },
+  mystery: { label: "Mystery", color: "#4f46e5", icon: "search" },
+  sliceOfLife: { label: "Slice of Life", color: "#16a34a", icon: "coffee" },
+  martialArts: { label: "Martial Arts", color: "#b45309", icon: "shield" },
+  cultivation: { label: "Cultivation", color: "#0d9488", icon: "mountain" },
+  historical: { label: "Historical", color: "#a16207", icon: "landmark" },
 };
 
 /** Kebab-case icon name → lucide component. */
@@ -77,6 +92,13 @@ export const ICON_BY_NAME: Record<string, LucideIcon> = {
   "book-open": BookOpen,
   swords: Swords,
   "dollar-sign": DollarSign,
+  coffee: Coffee,
+  drama: Drama,
+  "flower-2": Flower2,
+  landmark: Landmark,
+  mountain: Mountain,
+  search: Search,
+  shield: Shield,
 };
 
 export function iconByName(name: string): LucideIcon | undefined {

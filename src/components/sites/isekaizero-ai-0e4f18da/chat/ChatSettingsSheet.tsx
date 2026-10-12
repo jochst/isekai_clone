@@ -2,11 +2,16 @@
 
 import { ChevronRight, Play, Wand2 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { ImageModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/image-generation/ImageModelPicker";
-import { resolveImageModel, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
-import type { ChatSession, ChatSettings, ProviderSettings } from "@/types/isekaizero";
+import { useProviderCatalog } from "@/components/sites/isekaizero-ai-0e4f18da/image-generation/use-provider-catalog";
+import { VideoModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoModelPicker";
+import { VideoParamsForm, paramSummary } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoParamsForm";
+import { resolveImageModel, resolveVideoModel, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
+import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
+import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
+import type { ChatSession, ChatSettings, ProviderSettings, VideoParamValue } from "@/types/isekaizero";
 
 import { AccordionCard, SegmentedControl, SettingRow, SideSheet, Toggle } from "./primitives";
 
@@ -24,6 +29,14 @@ export interface ChatSettingsSheetProps {
 export function ChatSettingsSheet({ open, onClose, session, provider, model, tokenEstimate, onChange, onToast }: ChatSettingsSheetProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const { settings } = session;
+  const [, updateProvider] = useProviderSettings();
+  const catalog = useProviderCatalog();
+  const [videoPickerOpen, setVideoPickerOpen] = useState(false);
+  const videoModel = resolveVideoModel(settings, provider, catalog.videos);
+  const videoValues = useMemo<Record<string, VideoParamValue>>(
+    () => effectiveVideoParams(videoModel.params ?? [], videoModel.defaults ?? {}, provider.videoParams),
+    [videoModel.params, videoModel.defaults, provider.videoParams],
+  );
   const imageModel = resolveImageModel(settings, provider);
   const image = {
     name: imageModel.name || "Not set",
@@ -178,6 +191,41 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, tok
             </p>
           </AccordionCard>
 
+          <AccordionCard title="Scene Videos" description="Animate scene images with a video model">
+            <button type="button" onClick={() => setVideoPickerOpen(true)} className="flex h-[49px] w-full items-center justify-between gap-3 text-left">
+              <span className="min-w-0">
+                <span className="block text-[18px] font-semibold">Video Model</span>
+                <span className="block text-[14px] text-white/50">Used by Animate</span>
+              </span>
+              <span className="flex min-w-0 items-center gap-1">
+                <span className="min-w-0 text-right">
+                  <span className="block truncate text-[16px] text-[#a0a0a0]">{videoModel.name}</span>
+                  {settings.animationModel === "default" ? <span className="block text-[12px] text-white/40">Provider default</span> : null}
+                </span>
+                <ChevronRight size={20} className="shrink-0" />
+              </span>
+            </button>
+            {catalog.status === "ready" && !catalog.videoSupported ? (
+              <p className="mt-1 text-[12px] leading-4 text-[#ffb4ab]">{catalog.videoReason ?? VIDEO_UNSUPPORTED_REASON}</p>
+            ) : null}
+            {videoModel.params ? (
+              <>
+                <p className="mt-2 text-[12px] text-white/55">{paramSummary(videoModel.params, videoValues) || "Model defaults"}</p>
+                <VideoParamsForm
+                  className="mt-1"
+                  specs={videoModel.params}
+                  values={videoValues}
+                  defaults={videoModel.defaults ?? {}}
+                  onChange={(videoParams) => updateProvider({ videoParams })}
+                />
+              </>
+            ) : null}
+            <p className="mt-3 text-[12px] text-white/55">Price: {videoModel.priceSummary ?? "provider pricing"}</p>
+            <p className="mt-1 text-[11px] leading-4 text-[#ffa8a8]">
+              This feature is in Alpha, expect bugs and issues. Generation may consume Arcane without producing results.
+            </p>
+          </AccordionCard>
+
           <AccordionCard title="Memory" description="Chapters and arcs">
             <p className="text-[13px] leading-[18px] text-white/70">Condense your story into chapters and arcs to save tokens while keeping continuity</p>
             <button
@@ -195,7 +243,17 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, tok
         open={pickerOpen}
         onClose={() => setPickerOpen(false)}
         value={settings.illustrationModel === "default" ? provider.imageModel : settings.illustrationModel}
-        onSelect={(id) => onChange({ illustrationModel: id })}
+        onSelect={(m) => onChange({ illustrationModel: m.id })}
+      />
+
+      <VideoModelPicker
+        open={videoPickerOpen}
+        onClose={() => setVideoPickerOpen(false)}
+        value={videoModel.id}
+        onSelect={(m) => {
+          onChange({ animationModel: m.id });
+          updateProvider(provider.videoModel ? { videoParams: m.defaults } : { videoModel: m.id, videoParams: m.defaults });
+        }}
       />
     </>
   );

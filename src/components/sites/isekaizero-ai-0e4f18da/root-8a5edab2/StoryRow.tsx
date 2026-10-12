@@ -4,14 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronRight, Flame, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { StoryRow as StoryRowData, Storyline } from "@/types/isekaizero";
+import type { StoryRow as StoryRowData, StoryCardData } from "@/types/isekaizero";
 import { StoryCard } from "../shared/StoryCard";
 import { createElement } from "react";
 import { iconByName } from "../shared/category-meta";
 
 export interface StoryRowProps {
   row: StoryRowData;
-  storylines: Storyline[];
+  storylines: StoryCardData[];
 }
 
 function RowTitle({ titleStyle, title }: { titleStyle: StoryRowData["titleStyle"]; title: string }) {
@@ -47,7 +47,7 @@ export function StoryRow({ row, storylines }: StoryRowProps) {
   const [atEnd, setAtEnd] = useState(false);
 
   const byId = new Map(storylines.map((s) => [s.id, s]));
-  const ordered = row.storylineIds.map((id) => byId.get(id)).filter((s): s is Storyline => s !== undefined);
+  const ordered = row.storylineIds.map((id) => byId.get(id)).filter((s): s is StoryCardData => s !== undefined);
   const items = ordered.length > 0 ? ordered : storylines;
 
   const updateEnd = useCallback(() => {

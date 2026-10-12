@@ -16,4 +16,5 @@ export {
 export { TopBar, MobileHeader, type TopBarProps, type MobileHeaderProps } from "./TopBar";
 export { MobileTabBar, type MobileTabBarProps } from "./MobileTabBar";
 export { PageHeader, type PageHeaderProps } from "./PageHeader";
+export { CreationTabs } from "./CreationTabs";
 export { BalancePills, type BalancePillsProps, type BalancePillsVariant } from "./BalancePills";

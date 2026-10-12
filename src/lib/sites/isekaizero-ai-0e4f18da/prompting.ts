@@ -7,6 +7,10 @@ import type { ChatMessage, ChatSession, ChatSettings, ProviderSettings, Storylin
 import { IMAGE_CATALOG, LLM_CATALOG } from "./catalog";
 import { providerHeaders } from "./provider-settings";
 import { importedPrompt, replaceCardMacros } from "@/lib/imports/prompt";
+import type { ProviderImageModel, ProviderVideoModel, VideoParamSpec, VideoStatusResult } from "./provider-catalog";
+import { defaultResolution } from "./provider-catalog";
+import type { VideoParamValue } from "@/types/isekaizero";
+import { toolFunction, toolInstruction } from "./ai-tools";
 
 /** Hidden user turn sent by the Composer's "Continue" action. */
 export const CONTINUE_SENTINEL = "(continue the scene)";
@@ -79,6 +83,34 @@ export function resolveImageModel(settings: ChatSettings, provider: ProviderSett
   return { id: row?.model ?? selected, name: row?.name ?? selected, costPerImage: row?.costPerImage };
 }
 
+/** Size sent with a scene image: the configured size when the model accepts it (or lists none), else the model's default. */
+export function resolveImageSize(model: ProviderImageModel | undefined, provider: ProviderSettings): string {
+  const configured = provider.imageSize || "1024x1024";
+  if (!model || model.resolutions.length === 0 || model.resolutions.includes(configured)) return configured;
+  return defaultResolution(model.resolutions) ?? configured;
+}
+
+export interface ResolvedVideoModel {
+  /** Provider-facing model id ("" when nothing is configured). */
+  id: string;
+  name: string;
+  textToVideo?: boolean;
+  imageToVideo?: boolean;
+  priceSummary?: string;
+  params?: VideoParamSpec[];
+  defaults?: Record<string, VideoParamValue>;
+}
+
+/** `"default"` → `ProviderSettings.videoModel`; enriched with capabilities when the catalog row is known. */
+export function resolveVideoModel(settings: ChatSettings, provider: ProviderSettings, catalog?: ProviderVideoModel[]): ResolvedVideoModel {
+  const selected = !settings.animationModel || settings.animationModel === "default" ? provider.videoModel : settings.animationModel;
+  const row = catalog?.find((m) => m.id === selected);
+  if (row) {
+    return { id: row.id, name: row.name, textToVideo: row.textToVideo, imageToVideo: row.imageToVideo, priceSummary: row.priceSummary, params: row.params, defaults: row.defaults };
+  }
+  return { id: selected, name: selected || "Not set" };
+}
+
 /* ------------------------------------------------------------------ prompts */
 
 export const PERSPECTIVE_PROMPT_MAP: Record<ChatSettings["perspective"], string> = {
@@ -86,9 +118,6 @@ export const PERSPECTIVE_PROMPT_MAP: Record<ChatSettings["perspective"], string>
   "2nd": 'Always write in second person perspective. Always use "you" and "your" when referring to {{user}}. {{user}} is "You".',
   "3rd": 'Always write in third person perspective. Always refer to {{user}} by name and use "he/she/they" for {{user}}\'s actions and dialogue.',
 };
-
-export const CODEX_KNOWLEDGE_BASE_INSTRUCTION =
-  "The codex is the story's knowledge base. The index lists each entry with a one-line description: that description tells you what the entry covers and when to read it. Whenever the story is about to touch what a description mentions, never contradict or invent details a codex entry defines. Update and create only on real story developments.";
 
 export interface SystemPromptOptions {
   /** When on, the player controls a listed character rather than an unnamed protagonist. */
@@ -126,22 +155,13 @@ export function buildSystemPrompt(storyline: Storyline, session: ChatSession, op
             ? "When continuing a scene, advance the environment and NPC actions without taking control of {{user}}'s actions."
             : "When continuing a scene, you may describe {{user}}'s natural reactions alongside world events.",
           "Never assume, reveal, or act upon meta knowledge that non-player characters would not realistically possess.",
-          "Messages enclosed in triple backticks as (OOC: ...) are out-of-character directorial instructions to you as the narrator/GM. Obey these instructions without treating them as in-universe dialogue spoken by {{user}}.",
-          "Messages prefixed with '> 🪄' are guided narrative suggestions. Seamlessly weave the suggestion into the unfolding scene.",
         ].join(" ")
       : "Never speak or act for the player.",
     "Stay in character; keep dialogue in quotes and actions in italics using *asterisks*.",
     "End each reply at a moment that invites the player to act.",
-    // Visual and character generation directives
-    settings.autoIllustrate
-      ? "At visually dramatic, romantic, or climactic moments, frame the scene with vivid sensory and environmental details suitable for scene illustration."
-      : "",
-    settings.autoCreateCharacter
-      ? "When a new person, creature, or NPC enters the story with real presence, introduce them with a clear visual description of their appearance (face, hair, eyes, outfit, physique)."
-      : "",
-    settings.autoEditCharacter
-      ? "When any character's appearance changes (new clothing, armor, battle marks, wet hair, or emotional expression), explicitly describe their updated appearance in the narrative."
-      : "",
+    // Real Isekai Zero tool instructions, sent alongside the matching functions (see toolsForSettings).
+    settings.autoIllustrate ? toolInstruction("scene-illustrator") : "",
+    settings.autoCreateCharacter || settings.autoEditCharacter ? toolInstruction("character-manager") : "",
     settings.guidancePrompt?.trim() ? `\n[Guidance Prompt]\n${settings.guidancePrompt.trim()}` : "",
     importedPrompt(storyline, session),
   ];
@@ -164,148 +184,80 @@ function mentions(text: string, character: Storyline["characters"][number]): boo
 export interface BuildScenePromptOptions {
   perspective?: ChatSettings["illustrationPerspective"] | ChatSettings["imageGenPerspective"];
   defaultInstructions?: string;
-  modelId?: string;
 }
 
-/**
- * Builds an anime scene illustration prompt matching Isekai Zero's Light Novel illustration engine.
- * Supports POV vs 3rd Person camera shot framing, character visual identifiers, model-specific
- * guidance (e.g. Seedream 5 Pro / Grok Imagine), and user default instructions.
- */
-export function buildScenePrompt(
-  storyline: Storyline,
-  lastMessages: ChatMessage[],
-  perspectiveOrOpts: ChatSettings["illustrationPerspective"] | BuildScenePromptOptions = "third",
-): string {
-  const opts: BuildScenePromptOptions =
-    typeof perspectiveOrOpts === "object"
-      ? perspectiveOrOpts
-      : { perspective: perspectiveOrOpts };
+interface SceneParts {
+  scene: string;
+  cast: string;
+  shot: string;
+}
 
+function sceneParts(storyline: Storyline, lastMessages: ChatMessage[], perspective: ChatSettings["illustrationPerspective"]): SceneParts {
   const lastAssistant = [...lastMessages].reverse().find((m) => m.role === "assistant" && m.content.trim());
   const scene = (lastAssistant?.content ?? storyline.opening).replace(/\s+/g, " ").trim().slice(0, 600);
   const recent = lastMessages.slice(-3).map((m) => m.content).join("\n");
   const present = storyline.characters.filter((c) => mentions(recent, c));
   const cast = present.length > 0 ? present.map((c) => `${c.name}: ${c.appearance}`).join("; ") : "none in particular";
+  const shot = perspective === "pov" ? "first-person POV of the player" : "cinematic third-person shot";
+  return { scene, cast, shot };
+}
 
-  const isPov = opts.perspective === "pov";
-  const shot = isPov
-    ? "first-person POV of the player (looking directly through the protagonist's eyes; characters visible in the shot make eye contact or look towards camera/viewer)"
-    : "cinematic third-person shot showing the entire scene, setting, and all participating characters";
-
-  const defaultInst = opts.defaultInstructions?.trim() ? ` Additional guidance: ${opts.defaultInstructions.trim()}.` : "";
-  const isSeedream = opts.modelId?.toLowerCase().includes("seedream");
-  const modelStyle = isSeedream
-    ? " Style: Seedream 5 Pro ultra-detailed anime key visual, 8k resolution, cinematic lighting, sharp focus, rich colors, masterwork composition, no watermark, no text, no signatures."
-    : " Style: detailed anime key visual, dramatic lighting, high quality, no text, no watermark.";
-
-  return `Anime illustration, ${shot}, of the following scene from "${storyline.title}": ${scene}. Characters present: ${cast}.${defaultInst}${modelStyle}`;
+/** Anime scene illustration prompt; POV vs 3rd-person framing plus the chat's light-novel instructions. */
+export function buildScenePrompt(
+  storyline: Storyline,
+  lastMessages: ChatMessage[],
+  perspectiveOrOpts: ChatSettings["illustrationPerspective"] | BuildScenePromptOptions = "third",
+): string {
+  const opts: BuildScenePromptOptions = typeof perspectiveOrOpts === "object" ? perspectiveOrOpts : { perspective: perspectiveOrOpts };
+  const { scene, cast, shot } = sceneParts(storyline, lastMessages, opts.perspective === "pov" ? "pov" : "third");
+  const extra = opts.defaultInstructions?.trim() ? ` Additional guidance: ${opts.defaultInstructions.trim()}.` : "";
+  return `Anime illustration, ${shot}, of the following scene from "${storyline.title}": ${scene}. Characters present: ${cast}.${extra} Style: detailed anime key visual, dramatic lighting, high quality, no text, no watermark.`;
 }
 
 /**
- * Builds a prompt to generate a character portrait when a new character is introduced (autoCreateCharacter).
+ * Prompt for an `illustrate_scene` call. The story AI's brief IS the picture (per the real tool contract);
+ * we only add the framing, the named characters' looks and the chat's light-novel instructions.
  */
-export function buildNewCharacterPortraitPrompt(
-  character: { name: string; appearance: string; role?: string },
-  storyline?: Storyline,
-  defaultInstructions = "",
+export function buildIllustrationBriefPrompt(
+  storyline: Storyline,
+  brief: string,
+  characterNames: string[],
+  opts: BuildScenePromptOptions = {},
 ): string {
-  const storyCtx = storyline ? ` from "${storyline.title}"` : "";
-  const extra = defaultInstructions.trim() ? ` ${defaultInstructions.trim()}.` : "";
-  return `Anime character portrait and key visual of ${character.name}${character.role ? ` (${character.role})` : ""}${storyCtx}. Appearance details: ${character.appearance}.${extra} Style: detailed anime character art, clean outlines, masterwork, studio lighting, solo character focus, simple aesthetic background, high quality, no text.`;
-}
-
-/**
- * Builds an image prompt to edit or update an existing character's visual appearance (autoEditCharacter / autoCreateAppearances).
- */
-export function buildAppearanceEditPrompt(
-  character: { name: string; appearance?: string },
-  newAppearanceOrEdit: string,
-  sceneContext = "",
-  defaultInstructions = "",
-): string {
-  const ctx = sceneContext.trim() ? ` Scene context: ${sceneContext.trim().slice(0, 300)}.` : "";
-  const extra = defaultInstructions.trim() ? ` ${defaultInstructions.trim()}.` : "";
-  return `Anime character appearance variation for ${character.name}. Updated look and outfit: ${newAppearanceOrEdit}.${character.appearance ? ` Base character features to preserve: ${character.appearance}.` : ""}${ctx}${extra} Style: consistent anime character key visual, precise outfit and expression rendering, high quality anime art, no text.`;
-}
-
-/**
- * Builds a scenery background prompt without characters (autoCreateBackground / autoEditBackground in Visual Novel mode).
- */
-export function buildBackgroundPrompt(
-  location: string,
-  timeOfDay = "daytime",
-  weather = "clear skies",
-  defaultInstructions = "",
-): string {
-  const extra = defaultInstructions.trim() ? ` ${defaultInstructions.trim()}.` : "";
-  return `Anime background scenery of ${location}. Lighting/time of day: ${timeOfDay}. Atmosphere/weather: ${weather}.${extra} Style: Makoto Shinkai inspired scenery, highly detailed anime environment, scenic background art, vibrant colors, environmental lighting, zero characters, no humans, no text, wallpaper quality.`;
+  const shot = opts.perspective === "pov" ? "first-person POV of the player (the player is not drawn)" : "cinematic third-person shot";
+  const looks = characterNames
+    .map((name) => storyline.characters.find((c) => c.name.toLowerCase() === name.toLowerCase()))
+    .filter((c) => c !== undefined)
+    .map((c) => `${c.name}: ${c.appearance}`)
+    .join("; ");
+  const extra = opts.defaultInstructions?.trim() ? ` Additional guidance: ${opts.defaultInstructions.trim()}.` : "";
+  return `Anime illustration, ${shot}. ${brief.trim()}${looks ? ` Character looks: ${looks}.` : ""}${extra} Style: detailed anime key visual, high quality, no text, no watermark.`;
 }
 
 /* ------------------------------------------------------------------ Tool definitions for LLM Function Calling */
 
-export const ILLUSTRATE_SCENE_TOOL = {
-  type: "function" as const,
-  function: {
-    name: "illustrate_scene",
-    description: "Call illustrate_scene to generate an anime scene illustration for an image model (e.g. Seedream 5 Pro) when a dramatic, emotional, or visually noteworthy moment occurs.",
-    parameters: {
-      type: "object",
-      properties: {
-        description: {
-          type: "string",
-          description: "Detailed visual description of the scene, actions, poses, lighting, and environment.",
-        },
-        perspective: {
-          type: "string",
-          enum: ["pov", "3rd-person"],
-          description: "Perspective: 'pov' for first-person through player's eyes, '3rd-person' for cinematic camera.",
-        },
-        characters: {
-          type: "array",
-          items: { type: "string" },
-          description: "Names of characters present and visible in the scene.",
-        },
-      },
-      required: ["description"],
-    },
-  },
-};
+export const ILLUSTRATE_SCENE_TOOL = toolFunction("illustrate_scene");
+export const CREATE_CHARACTER_TOOL = toolFunction("create_character");
+export const EDIT_CHARACTER_TOOL = toolFunction("edit_character");
 
-export const CREATE_CHARACTER_TOOL = {
-  type: "function" as const,
-  function: {
-    name: "create_character",
-    description: "Call create_character for EVERY being that enters the scene with presence: allies, villains, NPCs, monsters, beasts, spirits. Describe faces, style, and visual appearance.",
-    parameters: {
-      type: "object",
-      properties: {
-        name: { type: "string", description: "Character name or descriptor (e.g. 'Goblin raider', 'Yuki')" },
-        role: { type: "string", description: "Role in the story (e.g. 'Knight', 'Merchant', 'Monster')" },
-        appearance: { type: "string", description: "Detailed visual appearance: hair, eyes, clothing, physique, distinctive marks" },
-        persona: { type: "string", description: "Personality traits and motivations" },
-      },
-      required: ["name", "appearance"],
-    },
-  },
-};
+const MOTION_PROMPT_MAX = 1500;
 
-export const EDIT_CHARACTER_TOOL = {
-  type: "function" as const,
-  function: {
-    name: "edit_character",
-    description: "Call edit_character when a character's true name is revealed or their look meaningfully changes (new outfit, scars, battle marks, transformation).",
-    parameters: {
-      type: "object",
-      properties: {
-        name: { type: "string", description: "Name of the character being edited" },
-        appearance: { type: "string", description: "Updated appearance description (e.g. 'Festival yukata', 'Battle-torn armor')" },
-        notes: { type: "string", description: "Lasting changes, debts, oaths, or status effects" },
-      },
-      required: ["name", "appearance"],
-    },
-  },
-};
+/**
+ * Prompt for a scene video. With `fromImage` the text describes motion and camera only, so an image-to-video
+ * model keeps the illustration as drawn; otherwise it is a full text-to-video scene description.
+ */
+export function buildMotionPrompt(
+  storyline: Storyline,
+  lastMessages: ChatMessage[],
+  perspective: ChatSettings["illustrationPerspective"],
+  opts: { fromImage: boolean },
+): string {
+  const { scene, cast, shot } = sceneParts(storyline, lastMessages, perspective);
+  const text = opts.fromImage
+    ? `Animate this illustration from "${storyline.title}": ${scene}. Keep the characters and composition exactly as drawn; add subtle natural motion — breathing, blinking, hair and cloth moving in the air, ambient light flicker — with a slow cinematic push-in. Characters present: ${cast}. No text, no watermark.`
+    : `Anime-style video, ${shot}, of the following scene from "${storyline.title}": ${scene}. Characters present: ${cast}. Smooth natural motion, slow cinematic camera movement, dramatic lighting, high quality, no text, no watermark.`;
+  return text.slice(0, MOTION_PROMPT_MAX);
+}
 
 /* ------------------------------------------------------------------ API messages */
 
@@ -689,4 +641,54 @@ export async function generateSceneImage(opts: GenerateImageOptions): Promise<Ge
   const first = json.images?.[0];
   if (!first?.url) throw new ChatApiError("Provider returned no image data", 502);
   return { url: first.url, prompt: first.prompt || opts.prompt, model: json.model ?? opts.model, cost: json.cost, remainingBalance: json.remainingBalance };
+}
+
+/* ------------------------------------------------------------------ videos */
+
+export interface SubmitVideoOptions {
+  settings: ProviderSettings;
+  model: string;
+  prompt: string;
+  params: Record<string, VideoParamValue>;
+  /** http(s) or data:image URL of the frame to animate. */
+  imageUrl?: string;
+  signal?: AbortSignal;
+}
+
+export interface SubmittedVideo {
+  runId: string;
+  model: string;
+  cost?: number;
+  remainingBalance?: number;
+}
+
+interface SubmitResponse extends Partial<SubmittedVideo> {
+  error?: unknown;
+}
+
+export async function submitSceneVideo(opts: SubmitVideoOptions): Promise<SubmittedVideo> {
+  const res = await fetch("/api/videos/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...providerHeaders(opts.settings) },
+    body: JSON.stringify({ model: opts.model, prompt: opts.prompt, params: opts.params, image: opts.imageUrl ? { url: opts.imageUrl } : undefined }),
+    signal: opts.signal,
+  });
+  if (!res.ok) await readErrorResponse(res);
+  const json = (await res.json()) as SubmitResponse;
+  if (json.error !== undefined) throw new ChatApiError(errorText(json.error, "Video provider error"), 502);
+  if (!json.runId) throw new ChatApiError("Provider did not return a run id", 502);
+  return { runId: json.runId, model: json.model ?? opts.model, cost: json.cost, remainingBalance: json.remainingBalance };
+}
+
+export async function pollSceneVideo(settings: ProviderSettings, runId: string, signal?: AbortSignal): Promise<VideoStatusResult> {
+  // Per-request timeout so a hung upstream request can't stall a single poll forever; combined with the
+  // caller's signal (cancel, unmount) so either one aborts the fetch. The poller treats a thrown abort as
+  // a transient failure unless its own controller (the caller's `signal`) is the one that fired.
+  const timeout = AbortSignal.timeout(30_000);
+  const combined = signal ? AbortSignal.any([signal, timeout]) : timeout;
+  const res = await fetch(`/api/videos/status?requestId=${encodeURIComponent(runId)}`, { headers: providerHeaders(settings), cache: "no-store", signal: combined });
+  if (!res.ok) await readErrorResponse(res);
+  const json = (await res.json()) as Partial<VideoStatusResult> & { error?: unknown };
+  if (!json.status) throw new ChatApiError(errorText(json.error, "Video status error"), 502);
+  return json as VideoStatusResult;
 }

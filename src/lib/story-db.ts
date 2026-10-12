@@ -22,7 +22,7 @@ function db(): PrismaClient | null {
 
 const cardSelect = {
   id: true, title: true, plotSummary: true, category: true, tagsJson: true, creatorUsername: true, contentRating: true,
-  visibility: true, visualNovelReady: true, coverJson: true, engagementJson: true, publishedAt: true, importedAt: true,
+  visibility: true, visualNovelReady: true, dmV2Ready: true, coverJson: true, engagementJson: true, publishedAt: true, importedAt: true,
 } satisfies Prisma.StorySelect;
 
 export type StoryCardRow = Prisma.StoryGetPayload<{ select: typeof cardSelect }>;
@@ -43,7 +43,7 @@ export function toStoryCard(row: StoryCardRow): StoryCardData {
     tags: strings(row.tagsJson),
     creator: { handle: row.creatorUsername || "Unknown creator", bio: "", followers: 0, gradient: ["#423a70", "#182441"] },
     stats: engagementStats(row.engagementJson),
-    flags: { public: row.visibility === "public", sfw, mature: !sfw, monetized: false, featured: false, visualNovelReady: row.visualNovelReady, dungeonMind: false },
+    flags: { public: row.visibility === "public", sfw, mature: !sfw, monetized: false, featured: false, visualNovelReady: row.visualNovelReady, dungeonMind: row.dmV2Ready },
     publishedAt: (row.publishedAt ?? row.importedAt).toISOString(),
     cover: { gradient: ["#423a70", "#233354", "#09172e"], glyph: "✧", pattern: "stars", imageUrl: safeImageUrl(record(row.coverJson).url) },
     imported: { kind: "story" },

@@ -33,6 +33,7 @@ A reusable template for reverse-engineering any website into a clean, modern Nex
 - `npm run lint` — ESLint check
 - `npm run typecheck` — TypeScript check
 - `npm run check` — Run lint + typecheck + build
+- `node scripts/mock-provider.mjs` — Local fake NanoGPT (port 3999) for testing image/video generation without spending credits
 
 ## Code Style
 - TypeScript strict mode, no `any`
