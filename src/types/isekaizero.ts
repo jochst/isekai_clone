@@ -165,6 +165,7 @@ export interface ImageSizePreset {
 /* ---------- BYOK / provider settings ---------- */
 
 export type ProviderPreset = "nano-gpt" | "openai" | "openrouter" | "custom";
+export type VoiceProvider = "openai-compatible" | "elevenlabs" | "local" | "browser";
 
 export interface ProviderSettings {
   preset: ProviderPreset;
@@ -180,6 +181,18 @@ export interface ProviderSettings {
   /** Whether scene images are generated automatically for every new AI message. */
   autoIllustrate: boolean;
   imageSize: string;
+  /** Voice / TTS Provider */
+  voiceProvider?: VoiceProvider;
+  /** Base URL for TTS API, e.g. https://api.openai.com/v1 or http://localhost:8880/v1 for Kokoro */
+  voiceBaseUrl?: string;
+  /** Dedicated TTS API Key (e.g. for ElevenLabs) */
+  voiceApiKey?: string;
+  /** Selected voice model, e.g. tts-1, eleven_multilingual_v2, kokoro */
+  voiceModel?: string;
+  /** Voice identifier, e.g. nova, alloy, 21m00Tcm4TlvDq8ikWAM, af_bella */
+  voiceId?: string;
+  /** Speech speed multiplier (0.5 to 2.0, default 1.0) */
+  voiceSpeed?: number;
 }
 
 /* ---------- Chat ---------- */
@@ -214,6 +227,32 @@ export interface ChatSettings {
   autoIllustrate: boolean;
   illustrationModel: string | "default";
   illustrationPerspective: "pov" | "third";
+  /** Prompt architecture version: 1 = flexible legacy, 2 = strict controlled RP */
+  promptVersion?: 1 | 2;
+  /** Whether the AI may write for or control the player character */
+  aiControlBehavior?: "control" | "no-control";
+  /** Whether the AI may write for or control the player character during continue */
+  continueBehavior?: "control" | "no-control";
+  /** Maximum token limit: capped (~220/450/800), high, max */
+  responseTokenLimit?: "capped" | "high" | "max";
+  /** Custom instructions included in the system prompt to guide AI responses (up to 10k tokens) */
+  guidancePrompt?: string;
+  /** AI Output Reminder appended to every user message (up to 500 characters) */
+  userInputPrompt?: string;
+  /** Custom user instructions included in every message */
+  userPrompt?: string;
+  /** Default instructions for scene illustration / light novel adaptations */
+  lightNovelPromptInstructions?: string;
+  /** Automatically generate portraits when new characters enter the scene */
+  autoCreateCharacter?: boolean;
+  /** Automatically edit character appearances when their look changes */
+  autoEditCharacter?: boolean;
+  /** Automatically generate background illustrations when scene changes */
+  autoCreateBackground?: boolean;
+  /** Automatically edit background illustrations */
+  autoEditBackground?: boolean;
+  /** Image generation perspective: pov or 3rd-person */
+  imageGenPerspective?: "pov" | "3rd-person";
 }
 
 export interface ChatSession {

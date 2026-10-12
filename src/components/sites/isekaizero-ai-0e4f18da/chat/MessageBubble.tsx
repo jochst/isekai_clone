@@ -1,10 +1,12 @@
 "use client";
 
-import { Image as ImageIcon, MoreHorizontal, RefreshCw, Volume2 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { Image as ImageIcon, Loader2, MoreHorizontal, Pause, Play, RefreshCw, Volume2 } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+import { generateSpeech, stopBrowserSpeech } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { estimateTokens } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
+import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import type { ChatMessage } from "@/types/isekaizero";
 
 import { MessagePopover, type MessageAction } from "./MessagePopover";
@@ -18,7 +20,7 @@ export interface MessageBubbleProps {
   modelName: string;
   onIllustrate: () => void;
   onRetry: () => void;
-  onNarrate: () => void;
+  onNarrate?: () => void;
   onRegenerateImage: (imageId: string) => void;
   onEdit: (content: string) => void;
   /** Popover actions other than Info/Edit (handled inline) and Illustration (→ onIllustrate). */
@@ -61,6 +63,59 @@ export function MessageBubble({ message, index, canRetry, modelName, onIllustrat
   const [showInfo, setShowInfo] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
+  const [audioState, setAudioState] = useState<"idle" | "loading" | "playing" | "paused">("idle");
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [provider] = useProviderSettings();
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+      }
+      stopBrowserSpeech();
+    };
+  }, []);
+
+  const toggleNarrate = async () => {
+    if (audioState === "loading") return;
+
+    if (audioState === "playing") {
+      if (audioRef.current) audioRef.current.pause();
+      stopBrowserSpeech();
+      setAudioState("paused");
+      return;
+    }
+
+    if (audioState === "paused" && audioRef.current) {
+      void audioRef.current.play();
+      setAudioState("playing");
+      return;
+    }
+
+    try {
+      setAudioState("loading");
+      const result = await generateSpeech({ text: message.content, settings: provider });
+      if (result.isBrowserApi) {
+        setAudioState("playing");
+        return;
+      }
+      if (result.audioUrl) {
+        if (!audioRef.current) {
+          audioRef.current = new Audio(result.audioUrl);
+          audioRef.current.onended = () => setAudioState("idle");
+          audioRef.current.onerror = () => setAudioState("idle");
+        } else {
+          audioRef.current.src = result.audioUrl;
+        }
+        await audioRef.current.play();
+        setAudioState("playing");
+      }
+    } catch {
+      setAudioState("idle");
+      onNarrate?.();
+    }
+  };
 
   const handleAction = (action: MessageAction) => {
     if (action === "info") {
@@ -178,8 +233,41 @@ export function MessageBubble({ message, index, canRetry, modelName, onIllustrat
         <button type="button" onClick={onIllustrate} disabled={streaming} className={PILL}>
           <ImageIcon size={14} /> Illustration
         </button>
-        <button type="button" onClick={onNarrate} className={PILL}>
-          <Volume2 size={14} /> Narrate
+        <button
+          type="button"
+          onClick={toggleNarrate}
+          disabled={streaming}
+          className={cn(
+            PILL,
+            audioState === "playing" && "border-[#a7b9ff]/60 bg-[#284bcf]/30 text-[#a7b9ff]",
+          )}
+        >
+          {audioState === "loading" ? (
+            <>
+              <Loader2 size={14} className="animate-spin text-[#a7b9ff]" />
+              <span>Loading...</span>
+            </>
+          ) : audioState === "playing" ? (
+            <>
+              <Pause size={14} className="text-[#a7b9ff]" />
+              <span className="flex items-center gap-[2px]">
+                <span className="inline-block h-2 w-[2px] animate-pulse bg-[#a7b9ff]" />
+                <span className="inline-block h-3.5 w-[2px] animate-pulse bg-[#a7b9ff] [animation-delay:150ms]" />
+                <span className="inline-block h-2.5 w-[2px] animate-pulse bg-[#a7b9ff] [animation-delay:300ms]" />
+                <span className="ml-1">Playing</span>
+              </span>
+            </>
+          ) : audioState === "paused" ? (
+            <>
+              <Play size={14} />
+              <span>Resume</span>
+            </>
+          ) : (
+            <>
+              <Volume2 size={14} />
+              <span>Narrate</span>
+            </>
+          )}
         </button>
         {canRetry ? (
           <button type="button" onClick={onRetry} disabled={streaming} className={PILL}>

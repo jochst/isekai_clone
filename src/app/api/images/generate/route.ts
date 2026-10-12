@@ -11,6 +11,7 @@ interface ImageRequestBody {
   n?: number;
   /** "url" (default) or "b64_json" */
   responseFormat?: "url" | "b64_json";
+  referenceImages?: string[];
 }
 
 interface OpenAiImageResponse {
@@ -48,6 +49,12 @@ export async function POST(req: Request) {
     size: body.size || "1024x1024",
     response_format: responseFormat,
   };
+
+  if (Array.isArray(body.referenceImages) && body.referenceImages.length > 0) {
+    // Pass references in standard formats supported by Seedream 5 Pro / BytePlus / NanoGPT
+    payload.reference_images = body.referenceImages.slice(0, 10);
+    payload.image_urls = body.referenceImages.slice(0, 10);
+  }
 
   let upstream: Response;
   try {

@@ -10,6 +10,8 @@ interface ChatRequestBody {
   max_tokens?: number;
   reasoning?: boolean;
   stream?: boolean;
+  tools?: unknown[];
+  tool_choice?: unknown;
 }
 
 /**
@@ -40,6 +42,10 @@ export async function POST(req: Request) {
     temperature: body.temperature ?? 0.9,
     max_tokens: body.max_tokens ?? 700,
   };
+  if (Array.isArray(body.tools) && body.tools.length > 0) {
+    payload.tools = body.tools;
+    if (body.tool_choice) payload.tool_choice = body.tool_choice;
+  }
   if (body.reasoning === false && ctx.preset === "openrouter") payload.reasoning = { enabled: false };
 
   let upstream: Response;

@@ -1,214 +1,120 @@
-<div align="center">
+# ISEKAI ZERO (AI Light Novel & Roleplay Platform Clone)
 
-# AI Website Cloner Template
+A modern, high-fidelity reverse-engineered clone of **[isekaizero.ai](https://www.isekaizero.ai)** — an interactive anime roleplay and storytelling platform featuring dynamic light novel scene illustrations, AI character generation, voice narration, and deep narrative control.
 
-### Clone any website with one command
-
-Give your AI coding agent a URL and watch it recreate the website as a clean Next.js app.
-
-**Best results with [Claude Code](https://docs.anthropic.com/en/docs/claude-code) + Opus 5. Works with Codex, Cursor, Gemini, and more.**
-
-[![Use this template](https://img.shields.io/badge/Use_this_template-Create_your_copy-2ea44f?style=for-the-badge&logo=github&logoColor=white)](https://github.com/JCodesMore/ai-website-cloner-template/generate) [![Discord](https://img.shields.io/badge/Join_the_community-Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/hrTSX5yTpB)
-
-[Quick Start](#quick-start) · [Watch Demo](#demo) · [Supported Platforms](#supported-platforms)
-
-<a href="https://github.com/JCodesMore/ai-website-cloner-template/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" /></a> <a href="https://github.com/JCodesMore/ai-website-cloner-template"><img src="https://img.shields.io/github/stars/JCodesMore/ai-website-cloner-template?style=flat" alt="Stars" /></a> <img src="https://img.shields.io/endpoint?url=https://gittokens.rsamf.com/badge/JCodesMore/ai-website-cloner-template" alt="tokens" />
-
-  <a href="https://trendshift.io/repositories/24302?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-24302" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/24302" alt="JCodesMore%2Fai-website-cloner-template | Trendshift" width="250" height="55" /></a> <a href="https://www.star-history.com/jcodesmore/ai-website-cloner-template/"><picture><source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=JCodesMore/ai-website-cloner-template&amp;theme=dark" /><source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=JCodesMore/ai-website-cloner-template" /><img alt="Star History Global Rank" src="https://api.star-history.com/badge?repo=JCodesMore/ai-website-cloner-template" width="216" height="55" /></picture></a>
-
-<br />
-<sub><strong>SPONSORED BY</strong></sub>
-<br /><br />
-<a href="https://www.rapidproxy.io/?ref=JCM"><img src="docs/assets/sponsors/rapidproxy-banner.png" alt="RapidProxy residential proxy service" width="680" /></a>
-<br />
-<sub>Power your scraping and automation with 90M+ residential IPs, 500MB free traffic, and non-expiring bandwidth. <a href="https://www.rapidproxy.io/?ref=JCM">Explore RapidProxy →</a></sub>
-<br /><br />
-<a href="https://www.atlascloud.ai/?utm_source=github&amp;utm_medium=sponsor&amp;utm_campaign=ai-website-cloner-template">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/sponsors/atlas-cloud-logo-white.svg" />
-    <source media="(prefers-color-scheme: light)" srcset="docs/assets/sponsors/atlas-cloud-logo.svg" />
-    <img src="docs/assets/sponsors/atlas-cloud-logo.svg" alt="Atlas Cloud" width="240" />
-  </picture>
-</a>
-<br />
-<sub>Generate AI images, video, audio, and 3D assets through one API. <a href="https://www.atlascloud.ai/?utm_source=github&amp;utm_medium=sponsor&amp;utm_campaign=ai-website-cloner-template">Explore Atlas Cloud →</a></sub>
-
-</div>
+Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript (Strict Mode)**, **Tailwind CSS v4**, and **shadcn/ui**.
 
 ---
 
-## Demo
+## Features & Implemented Subsystems
 
-[![Watch the demo](docs/design-references/comparison.png)](https://youtu.be/O669pVZ_qr0)
+### 1. Interactive Roleplay Engine
+- **Dual-Version Prompt Architecture (V1 / V2)**:
+  - **V1**: Legacy flexible roleplay instructions.
+  - **V2**: Strict narrative boundary enforcement prohibiting the LLM from speaking or acting for the player (`{{user}}`), supporting OOC directorial commands (`(OOC: ...)`), guided narrative injections (`> 🪄`), and meta-knowledge guardrails.
+- **Narrative Perspective Support**: First Person (`1st`), Second Person (`2nd`), and Third Person (`3rd`).
+- **Response Lengths & Token Limits**: Short (~80 words / 220 tokens), Medium (~180 words / 450 tokens), Long (~320 words / 800 tokens).
+- **Custom Directives**:
+  - `guidancePrompt`: Injected directorial guidelines (up to 10k tokens).
+  - `userInputPrompt`: Sticky output reminder appended to every user turn.
+  - `lightNovelPromptInstructions`: Persistent art style guidelines applied to all visual adaptations.
 
-> Click the image above to watch the full demo on YouTube.
+### 2. Scene & Character Illustration Engine
+- **Turn-by-Turn Scene Prompt Construction (`buildScenePrompt`)**:
+  - **POV Perspective**: First-person shot through the protagonist's eyes with characters making direct eye contact with the camera/player.
+  - **3rd Person Perspective**: Cinematic third-person establishing shot framing the full environment and cast.
+  - **Model-Specific Styling**: Rich lighting, composition, and negative prompt filtering optimized for **Seedream 5 Pro (BytePlus)** and **Grok Imagine**.
+- **Auto-Generate Characters (`create_character`)**: Generates standalone portrait visuals whenever a new NPC, creature, or ally enters the scene.
+- **Auto-Create Appearances (`edit_character`)**: Generates appearance and costume variations while preserving the character's base physical identifiers.
+- **Scenery Backgrounds (`buildBackgroundPrompt`)**: Generates zero-character environmental backdrops for visual novel scenery.
+- **Multi-Image Reference Chaining**:
+  - Traverses preceding messages to collect prior scene image URLs (up to 5–10 reference images) and passes them into the upstream generation payload, preserving visual character and outfit consistency across chat turns.
+- **LLM Function Calling & Tool Dispatch**:
+  - Live Server-Sent Events (SSE) tool stream parser that reconstructs partial JSON chunks in real time and automatically dispatches `illustrate_scene`, `create_character`, or `edit_character` upon turn completion.
 
-## Quick Start
+### 3. Multi-Provider Voice Narration (TTS Engine)
+- **Backend Speech Proxy (`/api/audio/speech`)**:
+  - **OpenAI-Compatible**: Drop-in support for OpenAI (`tts-1`, `tts-1-hd`), NanoGPT, LocalAI, and vLLM.
+  - **ElevenLabs**: Deep integration with ElevenLabs voice synthesis (`eleven_multilingual_v2`, `eleven_turbo_v2_5`) with voice stability and similarity boost tuning.
+  - **Local Open-Source Models**: Out-of-the-box compatibility with local self-hosted speech servers (**Kokoro-82M**, **OpenedAI-Speech**, **Piper**) running on `http://localhost:8880/v1` or `http://localhost:8000/v1`.
+  - **Browser Native Fallback**: Zero-setup client-side Web Speech API fallback requiring no API keys or local downloads.
+- **Curated Voice Presets (`VOICE_CATALOG`)**:
+  - Anime Heroines (Nova, Shimmer, Rachel, Kokoro Bella/Sarah)
+  - Anime Heroes & Knights (Echo, Antoni, Josh, Kokoro Adam)
+  - Grand Narrators & Lore Keepers (Alloy, Fable, Kokoro George)
+  - Villains & Commanding Warriors (Onyx)
+- **Interactive Message Player**:
+  - Seamless inline player in message bubbles with loading spinner, pause/play toggles, and animated audio equalizer waveform bars.
+  - Audio blob URL caching to prevent redundant API calls when re-listening.
 
-> **Important:** Start by making your own copy with GitHub's **Use this template** button. Do not clone this template repository directly for your website project, and do not open pull requests here with your generated website.
+### 4. BYOK (Bring Your Own Key) Security & Settings
+- **Zero Server-Side Key Persistence**:
+  - All API keys, base URLs, and model preferences stay in the user's browser localStorage (`iz.provider-settings.v1`).
+  - Credentials travel securely per-request via custom HTTP headers (`x-iz-api-key`, `x-iz-base-url`, `x-iz-voice-api-key`, etc.).
+- **Provider Settings UI (`/settings/providers`)**:
+  - Dedicated tabs for **API Provider**, **Models**, **Voice (TTS)**, and **Usage**.
+  - In-app setup instructions with copyable Docker commands for running local Kokoro-82M or OpenedAI-Speech.
 
-1. **Create your own repository from this template**
+---
 
-   On the GitHub page for this project, click **Use this template**, then click **Create a new repository**.
+## Getting Started
 
-   Give your new repository a name, choose whether it should be public or private, then click **Create repository**. If GitHub shows an **Include all branches** option, you can leave it off.
+### Prerequisites
+- **Node.js**: `>= 20` (Node 24 recommended)
+- **Package Manager**: `npm`
 
-   This gives you your own separate project to work in, so your website changes stay in your account instead of coming back to the main template.
-
-2. **Open your new repository on your computer**
-
-   After GitHub creates your copy, open that new repository. Click **Code** and open or clone your new repository with your preferred coding tool.
-
-   If you use the terminal, the command will look like this:
-
-   ```bash
-   git clone https://github.com/YOUR-USERNAME/YOUR-NEW-REPOSITORY.git
-   cd YOUR-NEW-REPOSITORY
-   ```
-
-3. **Install dependencies**
-   ```bash
-   npm install
-   ```
-4. **Start your AI agent** — Claude Code recommended:
-   ```bash
-   claude --chrome
-   ```
-5. **Run the skill**:
-   ```
-   /clone-website <target-url1> [<target-url2> ...]
-   ```
-6. **Customize** (optional) — after the base clone is built, modify as needed
-
-> Most supported clients expose `/clone-website` directly. If your client activates skills from natural-language requests, enter `Clone <target-url> using the clone-website workflow`. Project instructions are in `AGENTS.md`.
-
-## Supported Platforms
-
-| Agent                                                         | Status                     |
-| ------------------------------------------------------------- | -------------------------- |
-| [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | **Recommended** — Opus 5   |
-| [Codex CLI](https://github.com/openai/codex)                  | Supported                  |
-| [OpenCode](https://opencode.ai/)                              | Supported                  |
-| [GitHub Copilot](https://github.com/features/copilot)         | Supported                  |
-| [Kiro](https://kiro.dev/)                                    | Supported                  |
-| [Cursor](https://cursor.com/)                                 | Supported                  |
-| [Windsurf](https://codeium.com/windsurf)                      | Supported                  |
-| [Gemini CLI](https://github.com/google-gemini/gemini-cli)     | Supported                  |
-| [Cline](https://github.com/cline/cline)                       | Supported                  |
-| [Roo Code](https://github.com/RooCodeInc/Roo-Code)            | Supported                  |
-| [Continue](https://continue.dev/)                             | Supported                  |
-| [Amazon Q](https://aws.amazon.com/q/developer/)               | Supported                  |
-| [Augment Code](https://www.augmentcode.com/)                  | Supported                  |
-
-## Prerequisites
-
-- [Node.js](https://nodejs.org/) 24+
-- An AI coding agent (see [Supported Platforms](#supported-platforms))
-
-## Tech Stack
-
-- **Next.js 16** — App Router, React 19, TypeScript strict
-- **shadcn/ui** — Radix primitives + Tailwind CSS v4
-- **Tailwind CSS v4** — oklch design tokens
-- **Lucide React** — default icons (replaced by extracted SVGs during cloning)
-
-## How It Works
-
-The `/clone-website` skill runs a multi-phase pipeline:
-
-```mermaid
-flowchart LR
-    P1["1. Reconnaissance"] --> P2["2. Foundation"]
-    P2 --> P3["3. Component Specs"]
-    P3 --> P4["4. Parallel Build"]
-    P4 --> P5["5. Assembly and QA"]
+### Installation
+```bash
+git clone https://github.com/jochst/isekai_clone.git
+cd isekai_clone
+npm install
 ```
 
-1. **Reconnaissance** — screenshots, design token extraction, interaction sweep (scroll, click, hover, responsive)
-2. **Foundation** — updates fonts, colors, globals, downloads all assets
-3. **Component Specs** — writes detailed spec files (`docs/research/components/`) with exact computed CSS values, states, behaviors, and content
-4. **Parallel Build** — dispatches builder agents in git worktrees, one per section/component
-5. **Assembly & QA** — merges worktrees, wires up the page, runs visual diff against the original
+---
 
-Each builder agent receives the full component specification inline — exact `getComputedStyle()` values, interaction models, multi-state content, responsive breakpoints, and asset paths. No guessing.
+## Available NPM Commands
 
-## Use Cases
+| Command | Description |
+| :--- | :--- |
+| `npm run dev` | Starts the Next.js development server at `http://localhost:3000` with hot-reloading |
+| `npm run build` | Compiles the production build |
+| `npm run start` | Starts the production server using the compiled build |
+| `npm run lint` | Runs ESLint across the codebase |
+| `npm run typecheck` | Runs the TypeScript compiler (`tsc --noEmit`) to verify type safety |
+| `npm run check` | Runs linting, typechecking, and build verification sequentially |
+| `npm run imports:worker` | Runs the background worker script for character card imports |
+| `npm run imports:test` | Runs test suites for imported character card parsing |
 
-- **Platform migration** — rebuild a site you own from WordPress/Webflow/Squarespace into a modern Next.js codebase
-- **Lost source code** — your site is live but the repo is gone, the developer left, or the stack is legacy. Get the code back in a modern format
-- **Learning** — deconstruct how production sites achieve specific layouts, animations, and responsive behavior by working with real code
+---
 
-## Not Intended For
+## Local Development & Open-Source TTS Setup
 
-- **Phishing or impersonation** — this project must not be used for deceptive purposes, impersonation, or any activity that breaks the law.
-- **Passing off someone's design as your own** — logos, brand assets, and original copy belong to their owners.
-- **Violating terms of service** — some sites explicitly prohibit scraping or reproduction. Check first.
-
-## Project Structure
-
-```
-src/
-  app/              # Next.js routes
-  components/       # React components
-    ui/             # shadcn/ui primitives
-    icons.tsx       # Extracted SVG icons
-  lib/utils.ts      # cn() utility
-  types/            # TypeScript interfaces
-  hooks/            # Custom React hooks
-public/
-  images/           # Downloaded images from target
-  videos/           # Downloaded videos from target
-  seo/              # Favicons, OG images
-docs/
-  research/         # Extraction output & component specs
-  design-references/ # Screenshots
-scripts/
-  sync-agent-rules.sh  # Regenerate agent instruction files
-  sync-skills.mjs      # Regenerate /clone-website for all platforms
-.kiro/skills/          # Generated Kiro workspace skill
-.cline/skills/         # Generated Cline workspace skill
-.roo/skills/           # Generated Roo Code workspace skill
-.roo/commands/         # Generated Roo Code slash command
-AGENTS.md           # Agent instructions (single source of truth)
-CLAUDE.md           # Claude Code config (imports AGENTS.md)
-GEMINI.md           # Gemini CLI config (imports AGENTS.md)
-```
-
-## Commands
+### Running Local Open-Source Voice Narration (Kokoro-82M)
+You can run the Kokoro-82M speech server locally with a single Docker command:
 
 ```bash
-npm run dev    # Start dev server
-npm run build  # Production build
-npm run lint   # ESLint check
-npm run typecheck # TypeScript check
-npm run check  # Run lint + typecheck + build
+# Kokoro-82M OpenAI-compatible FastAPI server (Port 8880)
+docker run -d -p 8880:8880 --gpus all ghcr.io/remsky/kokoro-fastapi-gpu:latest
+
+# Or CPU mode:
+docker run -d -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-cpu:latest
 ```
 
-### If using docker
+In the app, navigate to **Settings → Providers → Voice (TTS)**, choose **Local / Kokoro**, set Base URL to `http://localhost:8880/v1`, and select any voice preset (e.g. `af_bella`, `af_sarah`, `am_adam`).
 
-```bash
-docker compose up app --build # build and run the app
-docker compose up dev --build # run the app in dev mode on port 3001
-```
+---
 
-## Updating for Other Platforms
+## Where We Left Off & Remaining Roadmap
 
-Two source-of-truth files power all platform support. Edit the source, then run the sync script:
+The core interactive roleplay engine, image generation prompting pipeline, and multi-provider voice narration are complete and verified. The remaining features for 100% parity with `isekaizero.ai` include:
 
-| What                   | Source of truth                         | Sync command                       |
-| ---------------------- | --------------------------------------- | ---------------------------------- |
-| Project instructions   | `AGENTS.md`                             | `bash scripts/sync-agent-rules.sh` |
-| `/clone-website` skill | `.claude/skills/clone-website/SKILL.md` | `node scripts/sync-skills.mjs`     |
-
-Each script regenerates the platform-specific copies automatically. Agents that read the source files natively need no regeneration.
-
-
-## Star History
-
-![Star History Chart](docs/assets/star-history.png)
-
-## License
-
-MIT
-
-<sub>Translations: <a href="README.ja.md">日本語</a> · <a href="README.zh-CN.md">Simplified Chinese</a></sub>
+1. **Visual Novel (VN) Viewer Mode**:
+   - Full-screen dialogue presentation with character portrait sprites positioned on the left/right over generated environmental scenery.
+2. **Manga Adaptation Mode**:
+   - Multi-panel sequential comic page renderer (1–2 pages) with dialogue bubbles extracted from roleplay turns.
+3. **Codex Long-Term Memory & Chapter Summarizer**:
+   - Automated condensation of 15–30 turns into structured chapter recaps in [`MemorySheet`](src/components/sites/isekaizero-ai-0e4f18da/chat/ChatHeader.tsx) to compact context token usage while maintaining story continuity.
+4. **Interactive "Choose Your Destiny" Chips**:
+   - Displaying the 3 suggested action destinies ([`suggestDestinies`](src/lib/sites/isekaizero-ai-0e4f18da/prompting.ts)) directly beneath the latest assistant turn for instant one-click continuation.
+5. **Story Music & Dynamic Ambient Audio Engine (`storyMusic`)**:
+   - Mood-based background music and ambient soundtracks matched to narrative beats.

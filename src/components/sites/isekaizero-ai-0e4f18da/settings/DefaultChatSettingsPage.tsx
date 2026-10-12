@@ -218,6 +218,52 @@ export function DefaultChatSettingsPage() {
               onChange={(continueBehavior) => update({ continueBehavior })}
             />
           </SettingCard>
+
+          <SettingCard
+            title="Image Perspective"
+            description="Camera perspective used when generating scene illustrations"
+          >
+            <SegmentedControl
+              label="Image Perspective"
+              options={[
+                { value: "pov", label: "POV" },
+                { value: "3rd-person", label: "3rd Person" },
+              ]}
+              value={settings.imageGenPerspective ?? "3rd-person"}
+              onChange={(imageGenPerspective) => update({ imageGenPerspective })}
+            />
+          </SettingCard>
+
+          <SettingCard title="Character & Visual Adaptations">
+            <div className="divide-y divide-[rgba(255,255,255,0.08)]">
+              <SettingRow
+                title="Auto-Generate Characters"
+                description="Automatically generate portraits when new characters enter the scene"
+                checked={Boolean(settings.autoCreateCharacter)}
+                onChange={(autoCreateCharacter) => update({ autoCreateCharacter })}
+                className="pt-0"
+              />
+              <SettingRow
+                title="Auto-Create Appearances"
+                description="Automatically create new looks when character outfits or appearances change"
+                checked={Boolean(settings.autoEditCharacter)}
+                onChange={(autoEditCharacter) => update({ autoEditCharacter })}
+              />
+            </div>
+          </SettingCard>
+
+          <SettingCard
+            title="Default Illustration Instructions"
+            description="Optional guidance applied every time scene or character illustration runs in this chat"
+          >
+            <textarea
+              value={settings.lightNovelPromptInstructions ?? ""}
+              onChange={(e) => update({ lightNovelPromptInstructions: e.target.value })}
+              placeholder="e.g. Makoto Shinkai style, cinematic lighting, 8k anime art, highly detailed"
+              spellCheck={false}
+              className="mt-3 block min-h-[90px] w-full resize-y rounded-[12px] border border-[rgba(167,185,255,0.5)] bg-[rgb(47,51,80)] p-3 text-[14px] leading-5 text-white outline-none placeholder:text-[rgba(255,255,255,0.35)] focus:border-[rgb(167,185,255)]"
+            />
+          </SettingCard>
         </>
       ) : null}
 

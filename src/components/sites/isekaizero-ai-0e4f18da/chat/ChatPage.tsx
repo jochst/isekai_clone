@@ -11,6 +11,7 @@ import {
   attachSceneImage,
   branchSession,
   getChatSession,
+  getSceneImageUrl,
   newId,
   updateSceneImage,
   useChatSession,
@@ -21,8 +22,13 @@ import { getStoryline } from "@/lib/sites/isekaizero-ai-0e4f18da/mock-data";
 import { useImportedStoryline } from "@/lib/imports/use-imported-storyline";
 import {
   CONTINUE_SENTINEL,
+  CREATE_CHARACTER_TOOL,
+  EDIT_CHARACTER_TOOL,
+  ILLUSTRATE_SCENE_TOOL,
   MAX_TOKENS_MAP,
   TEMPERATURE_MAP,
+  buildAppearanceEditPrompt,
+  buildNewCharacterPortraitPrompt,
   buildScenePrompt,
   buildSystemPrompt,
   importedPostHistory,
@@ -115,21 +121,49 @@ export function ChatPage({ sessionId }: ChatPageProps) {
 
   /* ---------------------------------------------------------------- images */
 
+  /** Gathers previous generated image URLs from chat history for Seedream multi-image reference consistency */
+  const collectReferenceImages = useCallback((messages: ChatMessage[], targetMessageId?: string, max = 5): string[] => {
+    const urls: string[] = [];
+    const targetIdx = targetMessageId ? messages.findIndex((m) => m.id === targetMessageId) : -1;
+    const limit = targetIdx >= 0 ? targetIdx : messages.length;
+    for (let i = limit - 1; i >= 0; i--) {
+      const msg = messages[i];
+      if (msg.images) {
+        for (const img of msg.images) {
+          const url = getSceneImageUrl(img);
+          if (url && (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:image/"))) {
+            urls.push(url);
+            if (urls.length >= max) return urls.reverse();
+          }
+        }
+      }
+    }
+    return urls.reverse();
+  }, []);
+
   const runImage = useCallback(
-    async (messageId: string, image: SceneImageModel) => {
+    async (messageId: string, image: SceneImageModel, customReferenceImages?: string[]) => {
       try {
-        const result = await generateSceneImage({ settings: provider, model: image.model, prompt: image.prompt, size: provider.imageSize });
+        const current = getChatSession(sessionId);
+        const refs = customReferenceImages ?? (current ? collectReferenceImages(current.messages, messageId) : []);
+        const result = await generateSceneImage({
+          settings: provider,
+          model: image.model,
+          prompt: image.prompt,
+          size: provider.imageSize,
+          referenceImages: refs.length > 0 ? refs : undefined,
+        });
         updateSceneImage(sessionId, messageId, image.id, { url: result.url, prompt: result.prompt, status: "done", error: undefined });
         addUsage({ images: 1, cost: result.cost ?? 0, remainingBalance: result.remainingBalance });
       } catch (e) {
         updateSceneImage(sessionId, messageId, image.id, { status: "error", error: errorMessage(e, "Image generation failed.") });
       }
     },
-    [provider, sessionId],
+    [provider, sessionId, collectReferenceImages],
   );
 
   const illustrate = useCallback(
-    (messageId: string) => {
+    (messageId: string, customPrompt?: string) => {
       const current = getChatSession(sessionId);
       if (!current || !storyline) return;
       const imageModel = resolveImageModel(current.settings, provider).id;
@@ -139,7 +173,13 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       }
       const index = current.messages.findIndex((m) => m.id === messageId);
       if (index === -1) return;
-      const prompt = buildScenePrompt(storyline, current.messages.slice(0, index + 1), current.settings.illustrationPerspective);
+      const prompt =
+        customPrompt ||
+        buildScenePrompt(storyline, current.messages.slice(0, index + 1), {
+          perspective: current.settings.imageGenPerspective || current.settings.illustrationPerspective,
+          defaultInstructions: current.settings.lightNovelPromptInstructions,
+          modelId: imageModel,
+        });
       const image: SceneImageModel = { id: newId(), url: "", prompt, model: imageModel, createdAt: Date.now(), status: "generating" };
       attachSceneImage(sessionId, messageId, image);
       void runImage(messageId, image);
@@ -162,6 +202,60 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     [sessionId, provider.apiKey, showToast, runImage],
   );
 
+  const dispatchToolCall = useCallback(
+    (messageId: string, toolCall: { function: { name: string; arguments: string } }, recentMessages: ChatMessage[]) => {
+      const current = getChatSession(sessionId);
+      if (!current || !storyline) return;
+      const imageModel = resolveImageModel(current.settings, provider).id;
+      if (!provider.apiKey || !imageModel) return;
+
+      let args: Record<string, unknown> = {};
+      try {
+        args = JSON.parse(toolCall.function.arguments) as Record<string, unknown>;
+      } catch {
+        /* malformed json arguments from model */
+      }
+
+      const name = toolCall.function.name;
+      if (name === "illustrate_scene") {
+        const perspective =
+          (args.perspective as "pov" | "3rd-person") ||
+          current.settings.imageGenPerspective ||
+          (current.settings.illustrationPerspective === "pov" ? "pov" : "3rd-person");
+        const prompt = buildScenePrompt(storyline, recentMessages, {
+          perspective,
+          defaultInstructions: current.settings.lightNovelPromptInstructions,
+          modelId: imageModel,
+        });
+        const image: SceneImageModel = { id: newId(), url: "", prompt, model: imageModel, createdAt: Date.now(), status: "generating" };
+        attachSceneImage(sessionId, messageId, image);
+        void runImage(messageId, image);
+      } else if (name === "create_character" && current.settings.autoCreateCharacter) {
+        const charName = String(args.name || "Unknown");
+        const appearance = String(args.appearance || "");
+        const role = args.role ? String(args.role) : undefined;
+        if (appearance) {
+          const prompt = buildNewCharacterPortraitPrompt({ name: charName, appearance, role }, storyline, current.settings.lightNovelPromptInstructions);
+          const image: SceneImageModel = { id: newId(), url: "", prompt, model: imageModel, createdAt: Date.now(), status: "generating" };
+          attachSceneImage(sessionId, messageId, image);
+          void runImage(messageId, image);
+        }
+      } else if (name === "edit_character" && current.settings.autoEditCharacter) {
+        const charName = String(args.name || "Unknown");
+        const appearance = String(args.appearance || "");
+        const lastMsg = recentMessages[recentMessages.length - 1]?.content || "";
+        if (appearance) {
+          const baseChar = storyline.characters.find((c) => c.name.toLowerCase() === charName.toLowerCase());
+          const prompt = buildAppearanceEditPrompt({ name: charName, appearance: baseChar?.appearance }, appearance, lastMsg, current.settings.lightNovelPromptInstructions);
+          const image: SceneImageModel = { id: newId(), url: "", prompt, model: imageModel, createdAt: Date.now(), status: "generating" };
+          attachSceneImage(sessionId, messageId, image);
+          void runImage(messageId, image);
+        }
+      }
+    },
+    [sessionId, storyline, provider, runImage],
+  );
+
   /* ---------------------------------------------------------------- completions */
 
   const runAssistantTurn = useCallback(
@@ -181,8 +275,13 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       update({ messages: [...base, placeholder] });
 
       const system = buildSystemPrompt(storyline, { ...current, messages: base }, { takeTurn });
-      const apiMessages = toApiMessages(system, base, importedPostHistory(storyline, current));
+      const apiMessages = toApiMessages(system, base, importedPostHistory(storyline, current), current.settings.userInputPrompt);
       const { settings } = current;
+
+      const tools: unknown[] = [];
+      if (settings.autoIllustrate) tools.push(ILLUSTRATE_SCENE_TOOL);
+      if (settings.autoCreateCharacter) tools.push(CREATE_CHARACTER_TOOL);
+      if (settings.autoEditCharacter) tools.push(EDIT_CHARACTER_TOOL);
 
       try {
         const result = await streamChat({
@@ -192,6 +291,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           temperature: TEMPERATURE_MAP[settings.temperature],
           maxTokens: MAX_TOKENS_MAP[settings.responseLength],
           reasoning: settings.reasoning,
+          tools: tools.length > 0 ? tools : undefined,
           signal: controller.signal,
           onDelta: (_delta, content) => {
             update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === placeholder.id ? { ...m, content } : m)) }), { touch: false });
@@ -199,7 +299,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         });
 
         const finalContent = result.content.trim();
-        if (!finalContent) {
+        if (!finalContent && (!result.toolCalls || result.toolCalls.length === 0)) {
           update((s) => ({ ...s, messages: s.messages.filter((m) => m.id !== placeholder.id) }));
           if (!result.aborted) showToast("The model returned an empty reply.");
         } else {
@@ -209,8 +309,23 @@ export function ChatPage({ sessionId }: ChatPageProps) {
             tokensOut: result.usage?.completionTokens ?? estimateTokens(finalContent),
             messages: 1,
           });
+
           const afterStream = getChatSession(sessionId);
-          if (!result.aborted && afterStream?.settings.autoIllustrate) illustrate(placeholder.id);
+          const updatedMessages = [...base, { ...placeholder, content: finalContent, streaming: false }];
+
+          let illustratedByTool = false;
+          if (result.toolCalls && result.toolCalls.length > 0) {
+            for (const tc of result.toolCalls) {
+              dispatchToolCall(placeholder.id, tc, updatedMessages);
+              if (tc.function.name === "illustrate_scene") {
+                illustratedByTool = true;
+              }
+            }
+          }
+
+          if (!result.aborted && afterStream?.settings.autoIllustrate && !illustratedByTool) {
+            illustrate(placeholder.id);
+          }
         }
       } catch (e) {
         const message = errorMessage(e, "Something went wrong while contacting the provider.");
@@ -223,7 +338,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         setStreaming(false);
       }
     },
-    [sessionId, storyline, configured, provider, model.id, takeTurn, update, showToast, illustrate],
+    [sessionId, storyline, configured, provider, model.id, takeTurn, update, showToast, illustrate, dispatchToolCall],
   );
 
   const send = useCallback(
@@ -356,7 +471,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
               modelName={model.name}
               onIllustrate={() => illustrate(message.id)}
               onRetry={retry}
-              onNarrate={() => showToast("Voice narration is not part of this demo")}
+              onNarrate={() => showToast("Voice narration failed. Check Settings → Providers → Voice (TTS)")}
               onRegenerateImage={(imageId) => regenerateImage(message.id, imageId)}
               onEdit={(content) => editMessage(message.id, content)}
               onAction={(action) => messageAction(message, action)}

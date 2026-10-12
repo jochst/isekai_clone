@@ -57,3 +57,40 @@ export async function providerErrorMessage(res: Response): Promise<string> {
     return text.slice(0, 300) || `${res.status} ${res.statusText}`;
   }
 }
+
+export interface VoiceContext {
+  provider: "openai-compatible" | "elevenlabs" | "local" | "browser";
+  baseUrl: string;
+  apiKey: string;
+  model: string;
+  voice: string;
+  speed: number;
+}
+
+export function readVoiceContext(headers: Headers): VoiceContext | { error: string } {
+  const provider = (headers.get("x-iz-voice-provider") || "openai-compatible") as VoiceContext["provider"];
+  const generalBaseUrl = (headers.get("x-iz-base-url") || "").trim().replace(/\/+$/, "");
+  const generalApiKey = (headers.get("x-iz-api-key") || "").trim();
+
+  let voiceBaseUrl = (headers.get("x-iz-voice-base-url") || "").trim().replace(/\/+$/, "");
+  let voiceApiKey = (headers.get("x-iz-voice-api-key") || "").trim();
+  const voiceModel = (headers.get("x-iz-voice-model") || (provider === "elevenlabs" ? "eleven_multilingual_v2" : "tts-1")).trim();
+  const voice = (headers.get("x-iz-voice-id") || (provider === "elevenlabs" ? "21m00Tcm4TlvDq8ikWAM" : "nova")).trim();
+  const speed = Number(headers.get("x-iz-voice-speed") || "1.0");
+
+  if (provider === "elevenlabs") {
+    if (!voiceApiKey && generalApiKey) voiceApiKey = generalApiKey;
+    if (!voiceBaseUrl) voiceBaseUrl = "https://api.elevenlabs.io/v1";
+    if (!voiceApiKey) return { error: "ElevenLabs API key is required. Add it in Settings → Providers." };
+  } else if (provider === "local") {
+    if (!voiceBaseUrl) voiceBaseUrl = "http://localhost:8880/v1";
+    // Local providers (Kokoro, OpenedAI Speech) often need no API key
+    if (!voiceApiKey) voiceApiKey = "local";
+  } else if (provider === "openai-compatible") {
+    if (!voiceBaseUrl) voiceBaseUrl = generalBaseUrl || "https://api.openai.com/v1";
+    if (!voiceApiKey) voiceApiKey = generalApiKey;
+    if (!voiceApiKey) return { error: "API key is required for voice generation. Add your key in Settings → Providers." };
+  }
+
+  return { provider, baseUrl: voiceBaseUrl, apiKey: voiceApiKey, model: voiceModel, voice, speed: isNaN(speed) ? 1.0 : speed };
+}

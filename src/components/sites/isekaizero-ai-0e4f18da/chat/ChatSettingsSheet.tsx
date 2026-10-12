@@ -119,6 +119,16 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, tok
               description="Automatically generate scene images when new messages arrive"
               right={<Toggle checked={settings.autoIllustrate} onChange={(autoIllustrate) => onChange({ autoIllustrate })} label="Auto Play on New Messages" />}
             />
+            <SettingRow
+              title="Auto-Generate Characters"
+              description="Automatically generate portraits when new characters enter the scene"
+              right={<Toggle checked={Boolean(settings.autoCreateCharacter)} onChange={(autoCreateCharacter) => onChange({ autoCreateCharacter })} label="Auto-Generate Characters" />}
+            />
+            <SettingRow
+              title="Auto-Create Appearances"
+              description="Automatically create new looks when character outfits or appearances change"
+              right={<Toggle checked={Boolean(settings.autoEditCharacter)} onChange={(autoEditCharacter) => onChange({ autoEditCharacter })} label="Auto-Create Appearances" />}
+            />
             <button type="button" onClick={() => setPickerOpen(true)} className="flex h-[49px] w-full items-center justify-between gap-3 text-left">
               <span className="min-w-0">
                 <span className="block text-[18px] font-semibold">Image Model</span>
@@ -135,16 +145,32 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, tok
             <div className="mt-2">
               <SegmentedControl
                 label="Illustration perspective"
-                value={settings.illustrationPerspective}
-                onChange={(illustrationPerspective) => onChange({ illustrationPerspective })}
+                value={settings.illustrationPerspective === "pov" || settings.imageGenPerspective === "pov" ? "pov" : "third"}
+                onChange={(p) => onChange({ illustrationPerspective: p, imageGenPerspective: p === "pov" ? "pov" : "3rd-person" })}
                 options={[
                   { value: "pov", label: "POV" },
                   { value: "third", label: "3rd Person" },
                 ]}
               />
               <p className="mt-2 text-[12px] text-white/55">
-                {settings.illustrationPerspective === "pov" ? "See the scene through your character's eyes" : "View the scene from an outside perspective"}
+                {(settings.illustrationPerspective === "pov" || settings.imageGenPerspective === "pov")
+                  ? "See the scene through your character's eyes"
+                  : "View the scene from an outside perspective"}
               </p>
+            </div>
+            <div className="mt-3">
+              <label className="block text-[13px] font-semibold text-white/80">Default Instructions</label>
+              <p className="mt-0.5 text-[11px] text-white/50">
+                Optional guidance applied every time scene or character illustration runs in this chat.
+              </p>
+              <textarea
+                value={settings.lightNovelPromptInstructions ?? ""}
+                onChange={(e) => onChange({ lightNovelPromptInstructions: e.target.value })}
+                placeholder="e.g. Makoto Shinkai style, cinematic lighting, 8k anime art, highly detailed"
+                spellCheck={false}
+                rows={3}
+                className="mt-2 block w-full resize-y rounded-[10px] border border-white/15 bg-white/[0.06] p-2.5 text-[13px] leading-5 text-white outline-none placeholder:text-white/30 focus:border-[#a7b9ff]"
+              />
             </div>
             <p className="mt-3 text-[12px] text-white/55">Mana/Arcane Per Image: {image.cost}</p>
             <p className="mt-1 text-[11px] leading-4 text-[#ffa8a8]">
