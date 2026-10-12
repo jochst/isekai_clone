@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Storyline } from "@/types/isekaizero";
+import type { StoryCardData, Storyline } from "@/types/isekaizero";
 import { CoverCard } from "./CoverCard";
 import { CastsGrid } from "./CastsGrid";
 import { StoryInfo, TitleBlock } from "./StoryInfo";
@@ -12,7 +12,7 @@ import { StartBar } from "./StartBar";
 export interface StorylinePageProps {
   storyline: Storyline;
   /** Same-category storylines shown under "Related Content" (the current one is filtered out). */
-  related: Storyline[];
+  related: StoryCardData[];
 }
 
 /**

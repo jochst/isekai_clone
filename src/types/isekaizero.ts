@@ -17,7 +17,15 @@ export type StoryCategory =
   | "supernatural"
   | "sports"
   | "psychological"
-  | "betrayal";
+  | "betrayal"
+  | "action"
+  | "romantasy"
+  | "drama"
+  | "mystery"
+  | "sliceOfLife"
+  | "martialArts"
+  | "cultivation"
+  | "historical";
 
 export interface Character {
   imageUrl?: string;

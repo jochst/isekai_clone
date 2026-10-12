@@ -71,6 +71,14 @@ const CATEGORY_BG: Record<StoryCategory, string> = {
   sports: "bg-[#4bb543]",
   psychological: "bg-[#a78bfa]",
   betrayal: "bg-[#ef4444]",
+  action: "bg-[#ea580c]",
+  romantasy: "bg-[#c026d3]",
+  drama: "bg-[#9333ea]",
+  mystery: "bg-[#4f46e5]",
+  sliceOfLife: "bg-[#16a34a]",
+  martialArts: "bg-[#b45309]",
+  cultivation: "bg-[#0d9488]",
+  historical: "bg-[#a16207]",
 };
 
 type Popover = "sort" | "tags" | null;

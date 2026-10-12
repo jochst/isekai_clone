@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { ChevronUp, FlaskConical, Swords } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Storyline } from "@/types/isekaizero";
+import type { StoryCardData, Storyline } from "@/types/isekaizero";
 import { StoryCard } from "../shared/StoryCard";
 import { formatCountLower } from "../shared/format";
 
@@ -39,7 +39,7 @@ function Section({ title, defaultOpen = true, children }: SectionProps) {
 
 export interface DetailSectionsProps {
   storyline: Storyline;
-  related: Storyline[];
+  related: StoryCardData[];
   className?: string;
 }
 
