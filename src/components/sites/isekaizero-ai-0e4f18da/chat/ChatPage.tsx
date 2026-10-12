@@ -88,7 +88,7 @@ export interface ChatPageProps {
 export function ChatPage({ sessionId }: ChatPageProps) {
   const router = useRouter();
   const hydrated = useHydrated();
-  const [session, update] = useChatSession(sessionId);
+  const [session, update, status] = useChatSession(sessionId);
   const [provider] = useProviderSettings();
   const usage = useUsage();
   const { toast, showToast } = useToast();
@@ -163,7 +163,8 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       if (msg.images) {
         for (const img of msg.images) {
           const url = getSceneImageUrl(img);
-          if (url && (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:image/"))) {
+          // /api/media/ files are inlined server-side, since the provider cannot reach this machine.
+          if (url && (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:image/") || url.startsWith("/api/media/"))) {
             urls.push(url);
             if (urls.length >= max) return urls.reverse();
           }
@@ -553,7 +554,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
 
   /* ---------------------------------------------------------------- render */
 
-  if (!hydrated || imported.loading) {
+  if (!hydrated || status === "loading" || imported.loading) {
     return (
       <div className="flex h-screen flex-col bg-[#020920] text-white">
         <div className="h-[60px] border-b border-white/[0.06] bg-[#11123c]" />
@@ -571,7 +572,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       <div className="flex h-screen flex-col items-center justify-center gap-4 bg-[#020920] p-6 text-center text-white">
         <p className="text-[16px] font-bold">This chat could not be found.</p>
         <p className="max-w-[360px] text-[13px] leading-[18px] text-white/60">
-          {session ? imported.error || "Its storyline is no longer available." : "Chats are stored in this browser only — it may have been deleted or started elsewhere."}
+          {session ? imported.error || "Its storyline is no longer available." : "It may have been deleted."}
         </p>
         <Link href="/chats" className="iz-btn-primary flex h-10 items-center rounded-[20px] px-5 text-[14px] font-semibold">
           Back to chats

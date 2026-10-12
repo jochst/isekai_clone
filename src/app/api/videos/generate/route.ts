@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { inlineLocalMedia } from "@/lib/chats/media";
 import { VIDEO_UNSUPPORTED_REASON } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { authHeaders, isNanoGpt, nativeApiBase, providerErrorMessage, readProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
@@ -54,7 +55,7 @@ export async function POST(req: Request) {
       payload[key] = STRING_PARAMS.has(key) ? String(value) : value;
     }
   }
-  const imageUrl = body.image?.url;
+  const imageUrl = body.image?.url && inlineLocalMedia(body.image.url);
   if (imageUrl) {
     if (imageUrl.startsWith("data:image/")) payload.imageDataUrl = imageUrl;
     else if (/^https?:\/\//i.test(imageUrl)) payload.imageUrl = imageUrl;

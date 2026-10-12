@@ -6,12 +6,12 @@ import { useState } from "react";
 
 import { AppShell } from "@/components/sites/isekaizero-ai-0e4f18da/shared";
 import { StoryCover } from "@/components/sites/isekaizero-ai-0e4f18da/shared/StoryCover";
-import { deleteSession, useChatSessions, useHydrated, useUsage } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
+import { deleteSession, useChatSessions, useUsage } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
 import { getStoryline } from "@/lib/sites/isekaizero-ai-0e4f18da/mock-data";
-import { CONTINUE_SENTINEL, resolveTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
+import { resolveTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import { cn } from "@/lib/utils";
-import type { ChatSession } from "@/types/isekaizero";
+import type { ChatSummary } from "@/types/isekaizero";
 
 import { ConfirmDialog, GradientButton } from "./primitives";
 
@@ -30,18 +30,12 @@ export function relativeTime(ts: number, now: number): string {
   return new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-function lastPreview(session: ChatSession): string {
-  const last = [...session.messages].reverse().find((m) => m.role !== "system" && m.content.trim() && m.content !== CONTINUE_SENTINEL);
-  return last?.content.replace(/\s+/g, " ").trim() ?? "";
-}
-
 export function ChatsListPage() {
-  const hydrated = useHydrated();
   const sessions = useChatSessions();
   const usage = useUsage();
   const [provider] = useProviderSettings();
   const [tab, setTab] = useState<Tab>("Activity");
-  const [pendingDelete, setPendingDelete] = useState<ChatSession | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<ChatSummary | null>(null);
   const [now] = useState(() => Date.now());
 
   const mana = usage.remainingBalance !== undefined ? Math.round(usage.remainingBalance * 100) : 20;
@@ -68,7 +62,7 @@ export function ChatsListPage() {
         <div className="mt-4 flex flex-col gap-[10px]">
           {tab !== "Activity" ? (
             <p className="p-10 text-center text-[14px] text-white/60">Nothing here yet.</p>
-          ) : !hydrated ? (
+          ) : sessions === null ? (
             Array.from({ length: 3 }, (_, i) => <div key={i} className="iz-skeleton h-[84px] rounded-[14px]" />)
           ) : sessions.length === 0 ? (
             <div className="flex flex-col items-center gap-4 p-10 text-center">
@@ -81,7 +75,7 @@ export function ChatsListPage() {
             sessions.map((s) => {
               const storyline = getStoryline(s.storylineId);
               const model = resolveTextModel(s.settings, provider);
-              const count = s.messages.filter((m) => m.role !== "system").length;
+              const count = s.messageCount;
               return (
                 <div
                   key={s.id}
@@ -93,7 +87,7 @@ export function ChatsListPage() {
                   </div>
                   <div className="pointer-events-none relative min-w-0 flex-1">
                     <div className="truncate font-[family-name:var(--font-roboto)] text-[15px] font-bold">{s.title}</div>
-                    <div className="iz-line-clamp-1 truncate text-[13px] text-white/60">{lastPreview(s)}</div>
+                    <div className="iz-line-clamp-1 truncate text-[13px] text-white/60">{s.preview}</div>
                     <div className="truncate text-[11px] text-white/45">
                       {count} {count === 1 ? "message" : "messages"} · {relativeTime(s.updatedAt, now)} · {model.name}
                     </div>
@@ -117,7 +111,7 @@ export function ChatsListPage() {
       <ConfirmDialog
         open={pendingDelete !== null}
         title="Delete this chat?"
-        description={pendingDelete ? `"${pendingDelete.title}" and its scene images will be removed from this browser.` : undefined}
+        description={pendingDelete ? `"${pendingDelete.title}" and its scene images will be deleted.` : undefined}
         onCancel={() => setPendingDelete(null)}
         onConfirm={() => {
           if (pendingDelete) deleteSession(pendingDelete.id);

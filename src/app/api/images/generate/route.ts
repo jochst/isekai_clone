@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { inlineLocalMedia } from "@/lib/chats/media";
 import { authHeaders, providerErrorMessage, readProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 export const runtime = "nodejs";
@@ -52,8 +53,9 @@ export async function POST(req: Request) {
 
   if (Array.isArray(body.referenceImages) && body.referenceImages.length > 0) {
     // Pass references in standard formats supported by Seedream 5 Pro / BytePlus / NanoGPT
-    payload.reference_images = body.referenceImages.slice(0, 10);
-    payload.image_urls = body.referenceImages.slice(0, 10);
+    const refs = body.referenceImages.slice(0, 10).map(inlineLocalMedia);
+    payload.reference_images = refs;
+    payload.image_urls = refs;
   }
 
   let upstream: Response;
