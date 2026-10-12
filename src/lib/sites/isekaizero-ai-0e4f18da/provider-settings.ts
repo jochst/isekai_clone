@@ -28,7 +28,7 @@ export const PROVIDER_PRESETS: ProviderPresetDef[] = [
     docsUrl: "https://nano-gpt.com/api",
     keysUrl: "https://nano-gpt.com/api",
     defaultTextModel: "deepseek/deepseek-latest",
-    defaultImageModel: "hidream",
+    defaultImageModel: "bytedance/seedream-v5.0-pro",
   },
   {
     id: "openai",
