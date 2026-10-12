@@ -29,8 +29,7 @@ import {
   ILLUSTRATE_SCENE_TOOL,
   MAX_TOKENS_MAP,
   TEMPERATURE_MAP,
-  buildAppearanceEditPrompt,
-  buildNewCharacterPortraitPrompt,
+  buildIllustrationBriefPrompt,
   buildMotionPrompt,
   buildScenePrompt,
   buildSystemPrompt,
@@ -248,43 +247,34 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         /* malformed json arguments from model */
       }
 
+      // Argument names follow Isekai Zero's real tool schemas (ai-tools.json).
       const name = toolCall.function.name;
-      if (name === "illustrate_scene") {
-        const perspective =
-          (args.perspective as "pov" | "3rd-person") ||
-          current.settings.imageGenPerspective ||
-          (current.settings.illustrationPerspective === "pov" ? "pov" : "3rd-person");
-        const prompt = buildScenePrompt(storyline, recentMessages, {
-          perspective,
-          defaultInstructions: current.settings.lightNovelPromptInstructions,
-        });
+      const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+      const draw = (prompt: string) => {
         const image: SceneImageModel = { id: newId(), url: "", prompt, model: imageModel, createdAt: Date.now(), status: "generating" };
         attachSceneImage(sessionId, messageId, image);
         void runImage(messageId, image);
+      };
+      if (name === "illustrate_scene") {
+        const perspective =
+          args.perspective === "pov" || args.perspective === "third-person"
+            ? args.perspective === "pov" ? "pov" : "3rd-person"
+            : current.settings.imageGenPerspective || (current.settings.illustrationPerspective === "pov" ? "pov" : "3rd-person");
+        const opts = { perspective, defaultInstructions: current.settings.lightNovelPromptInstructions } as const;
+        const brief = str(args.description);
+        const characters = Array.isArray(args.characters) ? args.characters.filter((c): c is string => typeof c === "string") : [];
+        draw(brief ? buildIllustrationBriefPrompt(storyline, brief, characters, opts) : buildScenePrompt(storyline, recentMessages, opts));
       } else if (name === "create_character" && current.settings.autoCreateCharacter) {
-        const charName = String(args.name || "Unknown");
-        const appearance = String(args.appearance || "");
-        const role = args.role ? String(args.role) : undefined;
-        if (appearance) {
-          const prompt = buildNewCharacterPortraitPrompt({ name: charName, appearance, role }, storyline, current.settings.lightNovelPromptInstructions);
-          const image: SceneImageModel = { id: newId(), url: "", prompt, model: imageModel, createdAt: Date.now(), status: "generating" };
-          attachSceneImage(sessionId, messageId, image);
-          void runImage(messageId, image);
-        }
+        const prompt = str(args.imagePrompt) || str(args.imageDescription);
+        if (prompt) draw(prompt);
       } else if (name === "edit_character" && current.settings.autoEditCharacter) {
-        const charName = String(args.name || "Unknown");
-        const appearance = String(args.appearance || "");
-        const lastMsg = recentMessages[recentMessages.length - 1]?.content || "";
-        if (appearance) {
-          const baseChar = storyline.characters.find((c) => c.name.toLowerCase() === charName.toLowerCase());
-          const prompt = buildAppearanceEditPrompt({ name: charName, appearance: baseChar?.appearance }, appearance, lastMsg, current.settings.lightNovelPromptInstructions);
-          const image: SceneImageModel = { id: newId(), url: "", prompt, model: imageModel, createdAt: Date.now(), status: "generating" };
-          attachSceneImage(sessionId, messageId, image);
-          void runImage(messageId, image);
-        }
+        // ponytail: rename/note is only announced; a chat-local cast to store it lands with ADR Phase 3.
+        const from = str(args.characterName);
+        const to = str(args.newName);
+        if (from) showToast(to && to !== from ? `${from} is now known as ${to}` : `${from}'s character note was updated`);
       }
     },
-    [sessionId, storyline, provider, runImage],
+    [sessionId, storyline, provider, runImage, showToast],
   );
 
   /* ---------------------------------------------------------------- videos */

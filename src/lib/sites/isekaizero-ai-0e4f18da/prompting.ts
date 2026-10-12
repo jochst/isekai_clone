@@ -10,6 +10,7 @@ import { importedPrompt, replaceCardMacros } from "@/lib/imports/prompt";
 import type { ProviderImageModel, ProviderVideoModel, VideoParamSpec, VideoStatusResult } from "./provider-catalog";
 import { defaultResolution } from "./provider-catalog";
 import type { VideoParamValue } from "@/types/isekaizero";
+import { toolFunction, toolInstruction } from "./ai-tools";
 
 /** Hidden user turn sent by the Composer's "Continue" action. */
 export const CONTINUE_SENTINEL = "(continue the scene)";
@@ -118,9 +119,6 @@ export const PERSPECTIVE_PROMPT_MAP: Record<ChatSettings["perspective"], string>
   "3rd": 'Always write in third person perspective. Always refer to {{user}} by name and use "he/she/they" for {{user}}\'s actions and dialogue.',
 };
 
-export const CODEX_KNOWLEDGE_BASE_INSTRUCTION =
-  "The codex is the story's knowledge base. The index lists each entry with a one-line description: that description tells you what the entry covers and when to read it. Whenever the story is about to touch what a description mentions, never contradict or invent details a codex entry defines. Update and create only on real story developments.";
-
 export interface SystemPromptOptions {
   /** When on, the player controls a listed character rather than an unnamed protagonist. */
   takeTurn?: boolean;
@@ -157,22 +155,13 @@ export function buildSystemPrompt(storyline: Storyline, session: ChatSession, op
             ? "When continuing a scene, advance the environment and NPC actions without taking control of {{user}}'s actions."
             : "When continuing a scene, you may describe {{user}}'s natural reactions alongside world events.",
           "Never assume, reveal, or act upon meta knowledge that non-player characters would not realistically possess.",
-          "Messages enclosed in triple backticks as (OOC: ...) are out-of-character directorial instructions to you as the narrator/GM. Obey these instructions without treating them as in-universe dialogue spoken by {{user}}.",
-          "Messages prefixed with '> 🪄' are guided narrative suggestions. Seamlessly weave the suggestion into the unfolding scene.",
         ].join(" ")
       : "Never speak or act for the player.",
     "Stay in character; keep dialogue in quotes and actions in italics using *asterisks*.",
     "End each reply at a moment that invites the player to act.",
-    // Visual and character generation directives
-    settings.autoIllustrate
-      ? "At visually dramatic, romantic, or climactic moments, frame the scene with vivid sensory and environmental details suitable for scene illustration."
-      : "",
-    settings.autoCreateCharacter
-      ? "When a new person, creature, or NPC enters the story with real presence, introduce them with a clear visual description of their appearance (face, hair, eyes, outfit, physique)."
-      : "",
-    settings.autoEditCharacter
-      ? "When any character's appearance changes (new clothing, armor, battle marks, wet hair, or emotional expression), explicitly describe their updated appearance in the narrative."
-      : "",
+    // Real Isekai Zero tool instructions, sent alongside the matching functions (see toolsForSettings).
+    settings.autoIllustrate ? toolInstruction("scene-illustrator") : "",
+    settings.autoCreateCharacter || settings.autoEditCharacter ? toolInstruction("character-manager") : "",
     settings.guidancePrompt?.trim() ? `\n[Guidance Prompt]\n${settings.guidancePrompt.trim()}` : "",
     importedPrompt(storyline, session),
   ];
@@ -226,109 +215,30 @@ export function buildScenePrompt(
 }
 
 /**
- * Builds a prompt to generate a character portrait when a new character is introduced (autoCreateCharacter).
+ * Prompt for an `illustrate_scene` call. The story AI's brief IS the picture (per the real tool contract);
+ * we only add the framing, the named characters' looks and the chat's light-novel instructions.
  */
-export function buildNewCharacterPortraitPrompt(
-  character: { name: string; appearance: string; role?: string },
-  storyline?: Storyline,
-  defaultInstructions = "",
+export function buildIllustrationBriefPrompt(
+  storyline: Storyline,
+  brief: string,
+  characterNames: string[],
+  opts: BuildScenePromptOptions = {},
 ): string {
-  const storyCtx = storyline ? ` from "${storyline.title}"` : "";
-  const extra = defaultInstructions.trim() ? ` ${defaultInstructions.trim()}.` : "";
-  return `Anime character portrait and key visual of ${character.name}${character.role ? ` (${character.role})` : ""}${storyCtx}. Appearance details: ${character.appearance}.${extra} Style: detailed anime character art, clean outlines, masterwork, studio lighting, solo character focus, simple aesthetic background, high quality, no text.`;
-}
-
-/**
- * Builds an image prompt to edit or update an existing character's visual appearance (autoEditCharacter / autoCreateAppearances).
- */
-export function buildAppearanceEditPrompt(
-  character: { name: string; appearance?: string },
-  newAppearanceOrEdit: string,
-  sceneContext = "",
-  defaultInstructions = "",
-): string {
-  const ctx = sceneContext.trim() ? ` Scene context: ${sceneContext.trim().slice(0, 300)}.` : "";
-  const extra = defaultInstructions.trim() ? ` ${defaultInstructions.trim()}.` : "";
-  return `Anime character appearance variation for ${character.name}. Updated look and outfit: ${newAppearanceOrEdit}.${character.appearance ? ` Base character features to preserve: ${character.appearance}.` : ""}${ctx}${extra} Style: consistent anime character key visual, precise outfit and expression rendering, high quality anime art, no text.`;
-}
-
-/**
- * Builds a scenery background prompt without characters (autoCreateBackground / autoEditBackground in Visual Novel mode).
- */
-export function buildBackgroundPrompt(
-  location: string,
-  timeOfDay = "daytime",
-  weather = "clear skies",
-  defaultInstructions = "",
-): string {
-  const extra = defaultInstructions.trim() ? ` ${defaultInstructions.trim()}.` : "";
-  return `Anime background scenery of ${location}. Lighting/time of day: ${timeOfDay}. Atmosphere/weather: ${weather}.${extra} Style: Makoto Shinkai inspired scenery, highly detailed anime environment, scenic background art, vibrant colors, environmental lighting, zero characters, no humans, no text, wallpaper quality.`;
+  const shot = opts.perspective === "pov" ? "first-person POV of the player (the player is not drawn)" : "cinematic third-person shot";
+  const looks = characterNames
+    .map((name) => storyline.characters.find((c) => c.name.toLowerCase() === name.toLowerCase()))
+    .filter((c) => c !== undefined)
+    .map((c) => `${c.name}: ${c.appearance}`)
+    .join("; ");
+  const extra = opts.defaultInstructions?.trim() ? ` Additional guidance: ${opts.defaultInstructions.trim()}.` : "";
+  return `Anime illustration, ${shot}. ${brief.trim()}${looks ? ` Character looks: ${looks}.` : ""}${extra} Style: detailed anime key visual, high quality, no text, no watermark.`;
 }
 
 /* ------------------------------------------------------------------ Tool definitions for LLM Function Calling */
 
-export const ILLUSTRATE_SCENE_TOOL = {
-  type: "function" as const,
-  function: {
-    name: "illustrate_scene",
-    description: "Call illustrate_scene to generate an anime scene illustration for an image model (e.g. Seedream 5 Pro) when a dramatic, emotional, or visually noteworthy moment occurs.",
-    parameters: {
-      type: "object",
-      properties: {
-        description: {
-          type: "string",
-          description: "Detailed visual description of the scene, actions, poses, lighting, and environment.",
-        },
-        perspective: {
-          type: "string",
-          enum: ["pov", "3rd-person"],
-          description: "Perspective: 'pov' for first-person through player's eyes, '3rd-person' for cinematic camera.",
-        },
-        characters: {
-          type: "array",
-          items: { type: "string" },
-          description: "Names of characters present and visible in the scene.",
-        },
-      },
-      required: ["description"],
-    },
-  },
-};
-
-export const CREATE_CHARACTER_TOOL = {
-  type: "function" as const,
-  function: {
-    name: "create_character",
-    description: "Call create_character for EVERY being that enters the scene with presence: allies, villains, NPCs, monsters, beasts, spirits. Describe faces, style, and visual appearance.",
-    parameters: {
-      type: "object",
-      properties: {
-        name: { type: "string", description: "Character name or descriptor (e.g. 'Goblin raider', 'Yuki')" },
-        role: { type: "string", description: "Role in the story (e.g. 'Knight', 'Merchant', 'Monster')" },
-        appearance: { type: "string", description: "Detailed visual appearance: hair, eyes, clothing, physique, distinctive marks" },
-        persona: { type: "string", description: "Personality traits and motivations" },
-      },
-      required: ["name", "appearance"],
-    },
-  },
-};
-
-export const EDIT_CHARACTER_TOOL = {
-  type: "function" as const,
-  function: {
-    name: "edit_character",
-    description: "Call edit_character when a character's true name is revealed or their look meaningfully changes (new outfit, scars, battle marks, transformation).",
-    parameters: {
-      type: "object",
-      properties: {
-        name: { type: "string", description: "Name of the character being edited" },
-        appearance: { type: "string", description: "Updated appearance description (e.g. 'Festival yukata', 'Battle-torn armor')" },
-        notes: { type: "string", description: "Lasting changes, debts, oaths, or status effects" },
-      },
-      required: ["name", "appearance"],
-    },
-  },
-};
+export const ILLUSTRATE_SCENE_TOOL = toolFunction("illustrate_scene");
+export const CREATE_CHARACTER_TOOL = toolFunction("create_character");
+export const EDIT_CHARACTER_TOOL = toolFunction("edit_character");
 
 const MOTION_PROMPT_MAX = 1500;
 
