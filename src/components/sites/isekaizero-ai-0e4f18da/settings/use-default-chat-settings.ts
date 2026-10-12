@@ -25,6 +25,11 @@ export interface DefaultChatSettings {
   reasoning: boolean;
   perspective: Perspective;
   continueBehavior: ContinueBehavior;
+  /** Default instructions for scene illustration / light novel adaptations */
+  lightNovelPromptInstructions?: string;
+  autoCreateCharacter?: boolean;
+  autoEditCharacter?: boolean;
+  imageGenPerspective?: "pov" | "3rd-person";
   ui: {
     sendOnEnter: boolean;
     autoScroll: boolean;
@@ -47,6 +52,10 @@ export const DEFAULT_CHAT_SETTINGS: DefaultChatSettings = {
   reasoning: false,
   perspective: "none",
   continueBehavior: "control",
+  lightNovelPromptInstructions: "",
+  autoCreateCharacter: false,
+  autoEditCharacter: false,
+  imageGenPerspective: "3rd-person",
   ui: {
     sendOnEnter: true,
     autoScroll: true,

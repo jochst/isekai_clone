@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { Activity, Check, Cpu, Eye, EyeOff, KeyRound, RotateCcw, Search } from "lucide-react";
+import { Activity, Check, Cpu, Eye, EyeOff, KeyRound, Loader2, Pause, Play, RotateCcw, Search, Volume2 } from "lucide-react";
 
 import type { ProviderImageModel, ProviderTextModel } from "@/app/api/providers/models/route";
 import {
@@ -12,7 +12,8 @@ import {
   useProviderSettings,
   type ProviderPresetDef,
 } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ProviderSettings } from "@/types/isekaizero";
+import { VOICE_CATALOG, generateSpeech, speakWithBrowser, stopBrowserSpeech } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
+import type { ProviderSettings, VoiceProvider } from "@/types/isekaizero";
 import { cn } from "@/lib/utils";
 
 import { SettingsShell, type SettingsTab } from "./SettingsShell";
@@ -31,11 +32,12 @@ import {
   type SegmentedOption,
 } from "./ui";
 
-type TabKey = "provider" | "models" | "usage";
+type TabKey = "provider" | "models" | "voice" | "usage";
 
 const TABS: readonly SettingsTab<TabKey>[] = [
   { key: "provider", label: "API Provider", icon: KeyRound },
   { key: "models", label: "Models", icon: Cpu },
+  { key: "voice", label: "Voice (TTS)", icon: Volume2 },
   { key: "usage", label: "Usage", icon: Activity },
 ];
 
@@ -179,6 +181,7 @@ export function ProviderSettingsPage() {
           loadModels={loadModels}
         />
       ) : null}
+      {tab === "voice" ? <VoiceTab settings={settings} update={update} /> : null}
       {tab === "usage" ? <UsageTab /> : null}
     </SettingsShell>
   );
@@ -601,5 +604,257 @@ function StatTile({ label, value, hint }: { label: string; value: string; hint?:
       <div className="mt-1 truncate font-heading text-[22px] font-bold leading-7 text-white">{value}</div>
       {hint ? <div className="mt-[2px] text-[11px] leading-4 text-[rgba(255,255,255,0.4)]">{hint}</div> : null}
     </div>
+  );
+}
+
+/* ---------- Voice (TTS) tab ---------- */
+
+interface VoiceTabProps {
+  settings: ProviderSettings;
+  update: (patch: Partial<ProviderSettings>) => void;
+}
+
+const VOICE_PROVIDER_OPTIONS: readonly SegmentedOption<VoiceProvider>[] = [
+  { value: "openai-compatible", label: "OpenAI / NanoGPT" },
+  { value: "elevenlabs", label: "ElevenLabs" },
+  { value: "local", label: "Local / Kokoro" },
+  { value: "browser", label: "Browser Native" },
+];
+
+const SPEED_OPTIONS: readonly SegmentedOption<string>[] = [
+  { value: "0.75", label: "0.75x" },
+  { value: "1.0", label: "1.0x (Normal)" },
+  { value: "1.25", label: "1.25x" },
+  { value: "1.5", label: "1.5x" },
+];
+
+function VoiceTab({ settings, update }: VoiceTabProps) {
+  const [testText, setTestText] = useState("Greetings traveler! I am ready to narrate your isekai adventures.");
+  const [testState, setTestState] = useState<"idle" | "loading" | "playing">("idle");
+  const [showKey, setShowKey] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const provider = settings.voiceProvider ?? "openai-compatible";
+  const catalog = VOICE_CATALOG.filter((v) => v.provider === provider || provider === "browser");
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+      }
+      stopBrowserSpeech();
+    };
+  }, []);
+
+  const runTestSpeech = async () => {
+    if (testState === "loading") return;
+    if (testState === "playing") {
+      if (audioRef.current) audioRef.current.pause();
+      stopBrowserSpeech();
+      setTestState("idle");
+      return;
+    }
+
+    try {
+      setTestState("loading");
+      const result = await generateSpeech({ text: testText, settings });
+      if (result.isBrowserApi) {
+        setTestState("playing");
+        return;
+      }
+      if (result.audioUrl) {
+        if (!audioRef.current) {
+          audioRef.current = new Audio(result.audioUrl);
+          audioRef.current.onended = () => setTestState("idle");
+          audioRef.current.onerror = () => setTestState("idle");
+        } else {
+          audioRef.current.src = result.audioUrl;
+        }
+        await audioRef.current.play();
+        setTestState("playing");
+      }
+    } catch (e) {
+      setTestState("idle");
+      alert(e instanceof Error ? e.message : "Voice test failed");
+    }
+  };
+
+  return (
+    <>
+      <SettingCard title="Voice Engine" description="Choose how voice lines and narration are synthesized">
+        <SegmentedControl
+          label="Voice Provider"
+          options={VOICE_PROVIDER_OPTIONS}
+          value={provider}
+          onChange={(p) => {
+            const defaultVoice =
+              p === "elevenlabs"
+                ? "21m00Tcm4TlvDq8ikWAM"
+                : p === "local"
+                ? "af_bella"
+                : "nova";
+            const defaultModel =
+              p === "elevenlabs"
+                ? "eleven_multilingual_v2"
+                : p === "local"
+                ? "kokoro"
+                : "tts-1";
+            update({ voiceProvider: p, voiceId: defaultVoice, voiceModel: defaultModel });
+          }}
+        />
+        <p className="mt-2 text-[12px] text-white/55">
+          {provider === "openai-compatible" && "Speaks via OpenAI-compatible /v1/audio/speech (NanoGPT, OpenAI, LocalAI)."}
+          {provider === "elevenlabs" && "Expressive anime characters and roleplay voices via ElevenLabs API."}
+          {provider === "local" && "100% private, free offline voice synthesis (Kokoro-82M, OpenedAI Speech, Piper)."}
+          {provider === "browser" && "Zero-setup built-in browser speech synthesis. No API keys or downloads needed."}
+        </p>
+      </SettingCard>
+
+      <SettingCard title="Voice Selection" description="Select a character voice preset or specify a custom voice ID">
+        <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {catalog.map((v) => {
+            const active = (settings.voiceId || "nova") === v.id;
+            return (
+              <button
+                key={v.id}
+                type="button"
+                onClick={() => update({ voiceId: v.id })}
+                className={cn(
+                  "flex cursor-pointer flex-col rounded-[10px] border p-3 text-left transition-colors",
+                  active
+                    ? "border-[#a7b9ff] bg-[#2a41e4]/20 text-white"
+                    : "border-white/10 bg-white/[0.04] text-white/80 hover:border-white/20",
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[13px] font-semibold">{v.name}</span>
+                  {active ? <Check size={14} className="text-[#a7b9ff]" /> : null}
+                </div>
+                <span className="mt-1 text-[11px] text-white/50">{v.description}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <Field label="Voice ID / Voice Name" hint="ID passed to the TTS provider (e.g. nova, af_bella, or an ElevenLabs voice ID)">
+          <TextInput
+            value={settings.voiceId || ""}
+            onChange={(voiceId) => update({ voiceId })}
+            placeholder={provider === "elevenlabs" ? "21m00Tcm4TlvDq8ikWAM" : provider === "local" ? "af_bella" : "nova"}
+          />
+        </Field>
+
+        <Field label="Voice Model" hint="Model name passed to the TTS provider">
+          <TextInput
+            value={settings.voiceModel || ""}
+            onChange={(voiceModel) => update({ voiceModel })}
+            placeholder={provider === "elevenlabs" ? "eleven_multilingual_v2" : provider === "local" ? "kokoro" : "tts-1"}
+          />
+        </Field>
+
+        <div className="mt-3">
+          <label className="block text-[13px] font-semibold text-white/80">Speech Speed</label>
+          <div className="mt-1.5">
+            <SegmentedControl
+              label="Speed"
+              options={SPEED_OPTIONS}
+              value={String(settings.voiceSpeed ?? "1.0")}
+              onChange={(s) => update({ voiceSpeed: Number(s) })}
+            />
+          </div>
+        </div>
+      </SettingCard>
+
+      {provider !== "browser" ? (
+        <SettingCard title="Endpoint & Credentials">
+          <Field
+            label="TTS Base URL"
+            hint={
+              provider === "local"
+                ? "Local OpenAI-compatible speech endpoint (e.g. http://localhost:8880/v1 for Kokoro)"
+                : provider === "elevenlabs"
+                ? "https://api.elevenlabs.io/v1"
+                : "Leave blank to reuse main API Provider base URL"
+            }
+          >
+            <TextInput
+              value={settings.voiceBaseUrl || ""}
+              onChange={(voiceBaseUrl) => update({ voiceBaseUrl })}
+              placeholder={provider === "local" ? "http://localhost:8880/v1" : provider === "elevenlabs" ? "https://api.elevenlabs.io/v1" : settings.baseUrl || "https://api.openai.com/v1"}
+            />
+          </Field>
+
+          <Field
+            label="Dedicated Voice API Key"
+            hint={provider === "elevenlabs" ? "Your ElevenLabs API key (xi-api-key)" : "Optional. Leave blank to reuse main API Key."}
+          >
+            <div className="relative">
+              <input
+                type={showKey ? "text" : "password"}
+                value={settings.voiceApiKey || ""}
+                onChange={(e) => update({ voiceApiKey: e.target.value })}
+                placeholder={settings.apiKey ? "●●●●●●●● (Using main API Key)" : "Enter TTS API key"}
+                spellCheck={false}
+                className={cn(TEXT_INPUT_CLASS, "h-10 pr-10 font-mono text-[13px]")}
+              />
+              <button
+                type="button"
+                onClick={() => setShowKey((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+              >
+                {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </Field>
+        </SettingCard>
+      ) : null}
+
+      <SettingCard title="Voice Test & Preview" description="Preview synthesized speech with current settings">
+        <textarea
+          value={testText}
+          onChange={(e) => setTestText(e.target.value)}
+          rows={2}
+          className="w-full resize-none rounded-[10px] border border-white/15 bg-white/[0.06] p-2.5 text-[13px] leading-5 text-white outline-none focus:border-[#a7b9ff]"
+        />
+        <div className="mt-3 flex justify-end">
+          <GradientButton onClick={runTestSpeech} disabled={testState === "loading"}>
+            {testState === "loading" ? (
+              <>
+                <Loader2 size={15} className="animate-spin" />
+                <span>Generating Speech...</span>
+              </>
+            ) : testState === "playing" ? (
+              <>
+                <Pause size={15} />
+                <span>Stop Audio</span>
+              </>
+            ) : (
+              <>
+                <Play size={15} />
+                <span>Test Voice Narration</span>
+              </>
+            )}
+          </GradientButton>
+        </div>
+      </SettingCard>
+
+      <SettingCard title="Open-Source & Local Voice Guide" description="Run high quality local TTS models with 0 cost and 100% privacy">
+        <div className="space-y-3 text-[12px] leading-relaxed text-white/70">
+          <p>
+            You can run <strong>Kokoro-82M</strong> (top-tier anime/roleplay open-source TTS) or <strong>OpenedAI-Speech</strong> on your computer. They expose a drop-in OpenAI-compatible <code className="rounded bg-white/10 px-1 py-0.5 text-white">/v1/audio/speech</code> API.
+          </p>
+          <div className="rounded-[8px] bg-black/40 p-3 font-mono text-[11px] text-[#a7b9ff]">
+            <p className="text-white/50"># Option 1: Run Kokoro FastAPI via Docker</p>
+            <p className="select-all">docker run -d -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-gpu:latest</p>
+            <p className="mt-2 text-white/50"># Option 2: Run OpenedAI Speech (Piper/XTTS)</p>
+            <p className="select-all">docker run -d -p 8000:8000 ghcr.io/matatonic/openedai-speech</p>
+          </div>
+          <p>
+            Once started, switch Voice Provider to <strong>Local / Kokoro</strong> with Base URL <code className="rounded bg-white/10 px-1 py-0.5 text-white">http://localhost:8880/v1</code>.
+          </p>
+        </div>
+      </SettingCard>
+    </>
   );
 }

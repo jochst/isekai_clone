@@ -188,6 +188,16 @@ export const DEFAULT_CHAT_SETTINGS: ChatSettings = {
   autoIllustrate: false,
   illustrationModel: "default",
   illustrationPerspective: "third",
+  promptVersion: 2,
+  aiControlBehavior: "no-control",
+  continueBehavior: "control",
+  responseTokenLimit: "capped",
+  lightNovelPromptInstructions: "",
+  autoCreateCharacter: false,
+  autoEditCharacter: false,
+  autoCreateBackground: false,
+  autoEditBackground: false,
+  imageGenPerspective: "3rd-person",
 };
 
 export function buildDefaultChatSettings(): ChatSettings {

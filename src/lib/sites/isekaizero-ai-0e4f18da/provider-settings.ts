@@ -74,6 +74,12 @@ export const DEFAULT_PROVIDER_SETTINGS: ProviderSettings = {
   imageModel: PROVIDER_PRESETS[0].defaultImageModel,
   autoIllustrate: false,
   imageSize: "1024x1024",
+  voiceProvider: "openai-compatible",
+  voiceBaseUrl: "",
+  voiceApiKey: "",
+  voiceModel: "tts-1",
+  voiceId: "nova",
+  voiceSpeed: 1.0,
 };
 
 const CHANGE_EVENT = "iz:provider-settings";
@@ -125,12 +131,19 @@ export function isProviderConfigured(s: ProviderSettings): boolean {
 
 /** Headers attached by the client to every /api/* request so the server never has to store a key. */
 export function providerHeaders(s: ProviderSettings): Record<string, string> {
-  return {
+  const h: Record<string, string> = {
     "x-iz-base-url": s.baseUrl,
     "x-iz-image-base-url": s.imageBaseUrl || s.baseUrl,
     "x-iz-api-key": s.apiKey,
     "x-iz-preset": s.preset,
   };
+  if (s.voiceProvider) h["x-iz-voice-provider"] = s.voiceProvider;
+  if (s.voiceBaseUrl) h["x-iz-voice-base-url"] = s.voiceBaseUrl;
+  if (s.voiceApiKey) h["x-iz-voice-api-key"] = s.voiceApiKey;
+  if (s.voiceModel) h["x-iz-voice-model"] = s.voiceModel;
+  if (s.voiceId) h["x-iz-voice-id"] = s.voiceId;
+  if (s.voiceSpeed !== undefined) h["x-iz-voice-speed"] = String(s.voiceSpeed);
+  return h;
 }
 
 function subscribe(onChange: () => void): () => void {
