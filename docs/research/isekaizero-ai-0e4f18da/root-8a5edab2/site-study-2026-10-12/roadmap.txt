@@ -1,0 +1,196 @@
+ISEKAI ZERO Roadmap — What's Coming Next
+  - 
+  - 
+      About
+      Roadmap
+      Affiliates
+    Open App →
+        ᚠᚢᚦᚨ
+        ᚱᚲᚷᚹ
+        ᚺᚾᛁᛃ
+    The Gate Opens Further
+# ROADMAP
+    Where ISEKAI ZERO is heading — new worlds, new powers, new ways to live your story. Quarter by quarter, here's what we're summoning next.
+    Last updated · October 2026
+      🔮
+## A Note Before You Scroll
+        Everything on this roadmap is subject to change as AI technology progresses. Nobody knows what AI will look like tomorrow — the landscape shifts every single week. What we can promise is this: ISEKAI ZERO does its best to adapt to every AI breakthrough and bring the best possible RP experience to our users with what's available. Features may arrive earlier, later, or in an even better form than described here.
+        We take pride in our craft and hold ourselves to the highest standards. At the same time, we love being first — building things nobody else dares to build. Sometimes that means something breaks or we get it wrong. When that happens, we move fast and fix fast.
+## Q3 2026
+        ✓ Quest Cleared
+      The creation quarter, delivered — music, a far more powerful creator kit, Dungeon Mind v2, Michiru, and the plumbing that pays for it all.
+        Quest Progress · 8 / 8 Live
+              🎧
+### Full Music Platform
+              Live Now
+            A mini Spotify built right into ISEKAI ZERO — create, publish and listen without leaving the app, on web and mobile, in all 18 languages.
+              - Generate original AI songs or upload your own, build albums & playlists, publish with automatic copyright screening
+              - A real player: background playback, lock-screen controls, CarPlay & Android Auto, AirPlay & Chromecast, and the floating music bubble
+              - Since launch: music adaptation in chat with your pick of Suno model, momentum-based Hot singles and Top albums, 18+ tagging with SFW browsing
+              🛠️
+### Storyline Creator Upgrade
+              Live Now
+            More power in creators' hands — and it shipped bigger than planned.
+              - Function presets inside your storylines: dice with server-judged checks, stat sheets with creator-defined schemas, a living codex, a character manager, scene illustration and story endings
+              - Staged edits — draft in private, preview in a real chat, publish when it's right; the live version stays up until the update is approved
+              - Your own Story AI prompt, codex entries that stay hidden until unlocked, and 10k-token prompt caps
+              🧙‍♂️
+### Dungeon Mind v2
+              Live Now
+            Rebuilt from everything we learned in beta, exactly as we warned it might be. The Mind now runs on the same functions creators script themselves.
+              - Custom functions, dice, stats and codex — all callable by the Mind mid-adventure
+              - Creators choose: off by default, on by default, or required for their story
+              - Honor mode for forward-only runs, and real endings the Mind can call
+### Michiru, Your In-App Guide
+              Live Now
+            The witch at the door now actually helps.
+              - A beginner tour inside your first chat, with Michiru's full set of expressions
+              - The helper panel and the persona builder — describe who you want to be, she builds it with you
+              - Twenty expressions, one personality — she reacts to what you do, not just what you type
+              💳
+### Web Payments
+              Live Now
+            Pulled forward from Q4. Every way to pay on the web, with the price shown in your currency.
+              - PayPal and crypto checkout
+              - Local cards and wallets, charged in MYR at the day's rate
+              - Custom top-up amounts — pay exactly what you need
+              💎
+### Earn Mana Hub
+              Live Now
+            One place to earn free Mana without spending a cent.
+              - Surveys and partner offers that pay out in Mana, credited the moment they complete
+              - In-progress tracking, so an offer you started keeps counting across sessions
+              - Daily check-in, referrals and the leaderboards all moved under one roof
+              💬
+### Chat Quality of Life
+              Live Now
+            The small things that make long stories livable.
+              - A 30-day recycle bin for deleted chats and branches, and search across all your chats
+              - Stop a reply in place and keep what was written; Assist writes or refines your next message
+              - Slash commands — type / in any chat to continue, improvise, steer, skip, cut, recap or end the story without leaving the keyboard
+              - Your own text colours and background tint per chat, settings per branch, one-tap reset
+              🔐
+### Account Security
+              Live Now
+            Your worlds, locked down.
+              - Two-factor authentication on every account
+              - Native passkeys on iOS and Android — sign in with Face ID or fingerprint, no password to phish
+## Q4 2026
+        ▶ Now Playing
+      The creation quarter, part two — your rules for your creations, real creator stats, the ISEKAI ZERO+ membership, a smarter Michiru, your own AI agent plugged in over MCP, an affiliate program, smarter characters, and a little style.
+        Quest Progress · 0 / 8 Live
+              🔌
+### Creator MCP Server
+              In Development
+            Plug your own AI agent into ISEKAI ZERO. Claude, ChatGPT or any MCP client signs in with your account and works with your tools, charged to your wallet with the price shown first.
+              - Generate and edit images, video (draft and final), music and lyrics, voices and scripts, browse your galleries, check prices and balance — 30+ tools
+              - Read your own storylines and characters, their review history and the content policy, and search the help centre — so your agent can tell you why a story was rejected and how to fix it
+              - Then your agent drafts for you — create and update storylines and characters, storyteller rules, opening messages, cast, covers, media, codex, tags, stat schemas, functions and soundtracks. Drafts only: you still press publish
+              📜
+### Usage Rights Control
+              In Development
+            Your creations, your rules. Decide exactly how the community may use your storylines and characters.
+              - Set permissions per storyline and per character — open them up, or keep them exclusive
+              - Allow or forbid derivative works — remixes, spin-offs and iterations of your stories
+              - Choose whether others can cast your characters in their own stories and universes
+              - Rights are shown clearly on every piece of content, so creators are always respected
+              📊
+### Better Creator Stats
+              In Development
+            Know your audience. A proper analytics home for everything you publish.
+              - Per-storyline and per-character insights — plays, chats started, and how far players get
+              - Track your reach over time — followers, plays and engagement trends at a glance
+              - See what resonates, so you can double down on the stories your fans love
+              ✨
+### ISEKAI ZERO+
+              Planned
+            Our premium membership — one subscription that levels up your whole adventure. Your subscription's full value comes back as ARCANE every month, so the perks below effectively come free. Note: this is not unlimited chat — chat still runs on credits, same as before.
+              - Export chats to PDF, eBook and Word
+              - Chats saved & encrypted locally on your device
+              - Priority free queue with higher limits & context
+              - Remove all ads
+              - Exclusive Plus badge + Discord role — and more
+### Michiru Upgrade
+              In Development
+            Your in-app guide levels up from tour guide to creative partner.
+              - Creator mode — she drafts characters, codex entries and opening scenes with you, right inside the editor
+              - She knows the help centre by heart: ask about pricing, rules or any feature and get the real answer, not a guess
+              - She remembers you — your taste, your stories, where you left off — across every session
+              🤝
+### Affiliate Program
+              In Development
+            Creators and influencers earn from every credit pack their fans buy. Built, in private testing, opening this quarter.
+              - Your own code and tagged links — earn a share of every credit pack your fans buy, for months after they join
+              - Fans who join with your code get a bonus on their first pack, so sharing helps them too
+              - A live dashboard of clicks, sign-ups and purchases, with payouts by bank transfer or crypto
+              🧠
+### Character Memory System
+              R&D
+            Characters that truly remember — the foundation for Universe.
+              - Infinite starting memories per character, powered by RAG
+              - Keyword-triggered recall — the right memory surfaces at the right moment in conversation
+              - Michiru on Discord is the live experiment: she already keeps long-term memory of the server, reflects on it nightly and recalls it in conversation — what works for her comes to every character
+            Still active research, not a promise — retrieval-based memory is notoriously brittle, and we'll only ship it if it actually feels magical. It moved once already; it moves again before it ships half-baked.
+              🎲
+### Cosmetics
+              Planned
+            Make your adventure look like yours. Collectible cosmetics that change how the game feels, never how it plays.
+              - Dice skins — roll a crystal d20, an ember d20, or whatever Michiru stocks that week
+              - Chat themes, bubble styles and profile flair to match your story's mood
+              - Earn some, buy some in the Michiru store, show them off in every chat
+## Q1 2027
+        ⏭ Next Quest
+      The connection quarter — manga for everyone to read, a proper visual novel, and stories that stop being something you play alone.
+              📖
+### Manga
+              In Development
+            A full manga ecosystem — creators publish, everyone reads.
+              - Create and publish manga to the whole community
+              - Every manga is attached to a storyline — read the manga first, and if you love it, step in and play it
+              🎬
+### Visual Novel v2
+              In Development
+            True immersive narration with multi-character scene generation — your story, staged like a real visual novel.
+              🎮
+### Multiplayer
+              Planned
+            Adventure together. Share the same story, the same world, the same moment — with friends at your side.
+              - Play a storyline together — everyone's choices shape the same shared adventure
+              - Each player brings their own persona into the party
+              - Chat, react and decide as a group while the story unfolds live for everyone
+              🌌
+### Universe
+              R&D
+            Build your world — a complete universe with all its lore, characters, locations, factions and history. Like a lorebook on steroids.
+              - Full world-building: lores, history, characters, locations and factions in one living database
+              - Attach your universe to any story — new or existing, yours or beyond
+              - Storylines with a universe auto-pull exactly the data they need on the fly — richer worlds, fewer tokens
+              - The Character Memory System is part of it — one world, infinite stories
+            The technology for this isn't ready yet — most affordable models today can't truly comprehend a world this deep. This is our prediction of where AI is heading, and we're building so we're ready the moment it arrives.
+              🎥
+### Short Film Ecosystem
+              Planned
+            A full short-film ecosystem — creators produce and publish AI short films, everyone watches. Your stories, now in motion.
+              - Produce short films with AI — scenes, characters and voices brought to life in video
+              - Publish to the community and build an audience with your own filmography
+              - Attach a film to a storyline — watch it first, then step in and live the story yourself
+## Q2 2027
+        🔒 Locked
+            🔒 Sealed
+            ᛈᛇᛉᛊᛏᛒ
+            To be revealed…
+            🔒 Sealed
+            ᛖᛗᛚᛜᛞᛟ
+            To be revealed…
+    ✦
+    ✦
+    ✦
+## The story is just beginning.
+    Every feature above is being forged right now. Step through the gate and be there when they arrive.
+      Start Your Adventure
+    Also on mobile
+        Download on theApp Store
+        Get it onGoogle Play
+      isekaizero.ai ·
+      Get the app ·
+      About us

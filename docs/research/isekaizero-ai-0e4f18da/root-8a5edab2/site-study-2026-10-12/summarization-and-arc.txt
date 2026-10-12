@@ -1,0 +1,17 @@
+# Summarization and Arc
+### Save your tokens with 
+### The Summarization Tool! 
+Getting deep into a story and finding that your messages are starting to get expensive? That is what our Summarization Tool is for! Every message you send adds to the context, and increases the token usage. 
+More about context and tokens here: What Are Tokens? | ISEKAI ZERO. 
+In the simplest terms, more context equals more tokens, more tokens equals more mana/arcane cost, so the lower you can keep that context, the cheaper your chats are going to be! So, let's take a look at how to use the Summarization tool, and how to keep the token usage as low as possible. 
+First thing we need to do it hit the settings button in the top right of the chat screen, that will take us to this screen: 
+As you can see, I currently have 243 messages in this chat, and a context of about 43,000, this is translating to about 3 arcane per message with Gemini 2.5 Pro, so lets try and drop that. 
+I am going to select the Summarization tool, and get this screen: 
+Summarization works by taking your chat and breaking it down into chapters. A chapter is an AI summary of 20 messages; this condenses the information in those 20 messages so you can continue the story while keeping the important information the AI needs to maintain your continuity. With 243 messages, I can get 11 chapters: 
+Now that we have our chapters, we can see that we have halved our original context: 
+And dropped our message cost: 
+Selecting a chapter will bring up the summary, this allows you to regenerate or edit it if you feel like something is missing. 
+### From Chapter to Arc 
+Once you have 10 chapters you can summarize even further by condensing them into a single Arc, condensing your context even more: 
+We started with around 40,000 contexts and ended with just under 16,000. Just by creating a single arc. Saving us not just in Mana/Arcane cost, but also extending the time we can spend with our story!  
+    Enter section select mode

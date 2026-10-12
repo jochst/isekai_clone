@@ -1,0 +1,136 @@
+# Transparent Pricing
+            Hi guys, I'm Louis, founder of ISEKAI ZERO!
+Let me break down how our pricing works and where your money actually goes.
+### Why This Page Isn't Available in Our Mobile Apps
+Apple and Google take a 30-34% tax (depending on region) on in-app purchases, so they prohibit us from displaying this pricing information in their apps if we offer alternative payment methods outside their stores.
+### What We're Building Here
+We imagine a platform that is truly community-focused, built from the ground up to give you the ultimate AI roleplay experience. This is why we made our platform token usage-based with transparent pricing. We don't enforce hidden memory limits, we don't enforce private models—by default, we use DeepSeek v4 Flash 0731, which is extremely affordable and delivers consistent, coherent RP. But of course, if you want an even better experience, you can use our premium selection.
+We believe you deserve to know exactly what you're paying for and where every cent goes. No hidden fees, no mysterious calculations—just honest, straightforward pricing.
+##### The Exchange Rate
+100 Arcane = $1 USD (base rate)
+Payment processing fees are added on top depending on your payment method (Website: ~10%, App Stores: ~34%).
+### Why We Chose Token-Based Pricing
+The beauty of our token-based platform is complete freedom over your preferences. Subscription services are forced to limit what they can offer based on the constraints of their monthly budget, but with us, you choose exactly what you want.
+Of course, there are trade-offs—here you pay per use, while subscriptions work within a fixed monthly budget. However, you'd be surprised how great the roleplay experience is and how far you can go with just $1.
+##### What You Get for Your Money:
+$1 (100 Arcane) on DeepSeek v4 Flash 0731: Up to 1,000 full memory RP messages
+With our chat summarization feature (up to 80% context saved!), your credits stretch even further.
+### How Our Pricing Actually Works
+Look, we want to be completely upfront with you. We're a service company not AI company, we only here to provide you a good RP experience.
+Our pricing is simple: 100 Arcane = $1 USD. We add a 30% markup to cover operations and reward creators.
+Here's how payment processing works:
+#### Payment Processing Fees (You Pay)
+Different payment methods have different fees that are added to your purchase:
+Payment Method
+Fee
+To Get 100 Arcane
+Website (Stripe)
+~10%
+You pay ~$1.10
+Apple App Store
+~34%
+You pay ~$1.34
+Google Play Store
+~34%
+You pay ~$1.34
+Why the difference? Apple and Google charge 30-34% platform fees. We pass these costs to users because we can't absorb them while keeping the platform sustainable. 
+10% on Stripe? How? Yes, the effective rate of Stripe varies lets say user only top up 2 USD the effective rate is basically 17%. We are losing money on each 2 USD Top-up. We do planning on add on more web payment options with better fee, but at the moment we are stuck with it.
+### How Your Credits Are Used
+Example of every 100 Arcane spent:
+Category
+Amount
+Markup (%)
+Goes To
+Base AI Cost
+77 Arcane ($0.77)
+-
+AI Provider
+Platform Markup (30%)
+23 Arcane ($0.23)
+100%
+Breakdown below ↓
+Creator Profit Share
+5.75 Arcane ($0.058)
+25%
+Storyline Creators
+Referral Bonus
+1.15 Arcane ($0.012)
+5%
+Your Referrer (if any)
+Platform Operations
+16.10 Arcane ($0.161)
+70%
+Server costs, development, support
+Important: Creators only earn from Arcane credits (paid credits), not from Mana credits (free credits). This ensures creators are rewarded when users choose to spend money on their content.
+You can see our base price at some of our API providers here:
+https://openrouter.ai
+https://api-docs.deepseek.com/quick_start/pricing
+### Why We Keep Telling You to Buy on the Website
+The payment processing fees are different depending on where you buy:
+Platform
+Cost for 100 Arcane
+ISEKAI ZERO Website
+~$1.10
+Apple App Store
+~$1.34
+Google Play Store
+~$1.34
+Buying on our website saves you ~20% compared to app stores. That's more value for your money, which means more messages for you and more earnings for creators.
+### What We Built Into This Platform
+We're not just building another AI chat platform. Here's what makes ISEKAI ZERO different:
+#### Free Options (Yes, Actually Free!)
+We know not everyone wants to spend money, so we made sure we have solid free options:
+- Free AI models included — play without paying
+- Daily free Mana rewards (works exactly like paid credits!)
+- Watch ads to earn extra Mana whenever you want more
+#### Transparent Inferences
+We hate when platforms secretly cap things, so:
+- Full Context Memory: Adjust context size to whatever your appetite allows
+- No Memory Caps: We don't secretly limit your chat history
+- No Model Restrictions: Use whatever model fits your needs and budget
+- Token Based Usage: Only pay for what you actually use
+- Open Source Prompting Flow: Coming Soon!
+#### Community-First Features
+These are the features we're most proud of:
+- 25% Profit Sharing for Creators (from paid credit usage)
+- 5% Profit Sharing for Referrals
+- Chat Summarization (save up to 80% of context!)
+#### Premium Experience Tools
+Because we want you to have the best experience possible:
+- Image generation and editing AI
+- Visual Novel Mode (auto TTS + image gen/edit)
+- iOS/Android app & web mobile-focused UI
+### Our Promise to You
+Ultimately, at ISEKAI ZERO you will get the best money's worth of whatever you spend. We're not here to maximize profits—we're here to provide you with convenience and the best roleplay experience possible while supporting the creators who make it all worthwhile.
+Here's what we're committed to:
+✓ Complete Transparency - You always know what you're paying for
+✓ Community Support - Your money supports creators directly
+✓ No Artificial Limits - Full control over your experience
+✓ True Freedom - Choose your models, context size, and features
+✓ Fair Pricing - Competitive rates with clear fee structure
+If something changes, we'll tell you. If there's an issue, we'll be upfront about it. That's how we want to run this platform.
+### About ISEKAI ZERO
+ISEKAI ZERO is a platform that uses AI to transform creative content into immersive, interactive experiences where users don't just consume stories — they live them.
+The philosophy: In an age where AI can instantly generate anything, the platform chooses to amplify human creativity rather than replace it. Creators earn 25% profit share when their worlds are explored through AI-powered features, ensuring creativity is celebrated and rewarded, not consumed without recognition.
+The vision: Entertainment should no longer be passive. Instead of watching a hero's journey, you become the hero. Instead of reading about fantasy worlds, you explore them. This is simulation as the next evolution of storytelling — where artists become world architects, and every visitor shapes the story.
+The mission is simple: give creators a new canvas where their stories, worlds, and characters don't just exist on a page, but become living experiences that can be explored, interacted with, and lived. Infinite possibilities. Zero Limit. You got isekai'd.
+## FAQ
+Q: Why is pricing different on mobile apps?
+A: Apple and Google take 30-34% platform fees, which are passed to users. We legally can't display this pricing information in-app. That's why we keep recommending the website where fees are only ~10%.
+Q: Do my credits expire?
+A: Nope! Your Arcane credits never expire. We're not going to punish you for not using the platform constantly.
+Q: Can I see exactly how much each message costs?
+A: Absolutely! Tap on any message and click the info button—a full breakdown will be provided showing the exact Arcane cost and where it goes.
+Q: What if I run out of credits?
+A: You can always switch to our free models, watch ads to earn extra Mana, or purchase more credits on our website.
+Q: How do creators get paid?
+A: Creators automatically receive 25% of the profit from any paid credits used with their storylines. It's tracked and distributed automatically—no manual work needed. Payments are processed daily at 12am GMT+8.
+## Talk to us?
+We're committed to maintaining complete transparency in everything we do. If you have questions about our pricing, suggestions for improvement, or just want to chat:
+- Email: louis@isekai.world
+- Join our Discord community for direct support and discussions
+I am really just a dude that really love RP and believe this is the best way that everyone can have a most enjoyable RP experience. I read feedback personally.
+Thanks for reading if you actually made it this far.
+Built by the community, for the community.
+ISEKAI ZERO - Where your story begins.
+    Enter section select mode

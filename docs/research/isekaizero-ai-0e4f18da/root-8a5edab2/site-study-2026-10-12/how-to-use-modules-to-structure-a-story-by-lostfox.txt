@@ -1,0 +1,129 @@
+# How to Use Modules to Structure a Story by lostfox
+            How to Use Modules to Structure a Story
+A Guide by foxlostintranslation (lostfox)
+What Are Modules?
+Modules are a way to organize your story and give the AI the flexibility to choose what’s appropriate at any given time based on the user’s actions. I add them in the “Prompt Guideline” space in ISK0.
+For this guide, I’ll reference two of my stories: Beneath the Unseelie Hill (BUH) and Neutral Ground (NG) as examples.
+Step 1: Classify Your Modules
+First, decide how to categorize your modules. This helps the AI know what to introduce and when. Your classification depends on your story type:
+BUH (Linear Story with Start & End):
+- Core Plot Modules: The main journey
+- Folklore & Side Modules: World-building scenes that don’t affect the main plot (side quests)
+- Romance-Specific Modules: Unique scenes for each romance option (or bonding modules)
+- Transformation Modules: Track a mechanic (physical changes, power gains, etc.)
+NG (Sandbox / Slice of Life):
+- Date Modules: Formulaic date templates (same structure for all characters)
+- Pressure Modules: External complications (government, society, family)
+- Crisis Modules: Character-specific scenes
+- Fallout Modules: Internal consequences based on user choices
+Step 2: Write Your Modules
+Inside each category, define individual scenes. Keep them short (or don’t—but you’ll suffer token consequences). For each module, explain:
+- What happens in the scene
+- How it’s triggered
+Example Format:
+M1: Court Introduction
+{{user}} arrives, meets the LIs, learns basic survival.
+Trigger: Game start.
+Step 3: Structure Your Prompt Guidelines
+Here’s the skeleton I use. Adapt it to your story:
+THE PROMPT GUIDELINES (The Rulebook)
+Narrative Perspective & Tone:
+Write in the second person (“You”). [Add your tone description here—lyrical, modern, ominous, witty, etc.]
+Player Agency is Sacred:
+Never control {{user}}’s actions, thoughts, or dialogue. Present choices, describe consequences, and react to their decisions. They define their own personality. The story molds to them.
+Pacing & Structure (The Modular Flow):
+Do not force a linear plot. Instead, offer narrative hooks from the available modules below. Follow the player’s interest.
+[Optional pacing guidance:]
+- Start with: Module 1: [Your starting module]
+- Early Game: Offer hooks for [early modules]
+- Mid-Game: Weave in [mid-game modules]
+- Late Game: Escalate with [climax modules]
+- Romance: Integrate character-specific modules as relationships deepen
+Step 4: Add Your Modules
+Here are complete examples from my own stories. Use them as templates for formatting.
+Example 1: Beneath the Unseelie Hill (BUH)
+Core Plot Modules (The Main Journey)
+M1: Court Introduction: {{user}} arrives, meets the LIs, learns basic survival. Trigger: Game start.
+M2: Path Selection: {{user}} must choose a role: Soldier (Cairn), Poet (Lachlan), or Courtier (Earc). This locks in her primary LI and aspect path. Trigger: After initial exploration.
+M3: The Wild Hunt: A chaotic, dangerous seasonal ritual. {{user}}’s role depends on her chosen path. Trigger: Seasonal change or border exploration.
+M4: Parentage Revelation: {{user}} discovers her true parents were Seelie nobles. Trigger: Investigating her past or encountering Seelie agents.
+M5: Human Counterpart: {{user}} meets the human who lived her life. Trigger: Visiting the human world or a magical crossover.
+M6: Court War: Tensions with the Seelie Court erupt into open conflict. Trigger: Aggressive player choices or mid-game plot escalation.
+M7: Final Transformation: {{user}} fully embraces her fae nature, achieving her final form based on her choices. Trigger: The climax of her personal journey.
+Folklore & Side Modules (World-Building & Depth)
+M8: Market of Lost Things: A strange market where memories, senses, and years can be traded. Trigger: When {{user}} needs something rare or seeks hidden knowledge.
+M9: The Tithe to Hollows: The Unseelie must pay a debt to ancient powers. A moral dilemma. Trigger: Approaching a solstice or equinox.
+M10: Greensickness: A supernatural illness strikes, requiring a cure made of impossible things. Trigger: After a major rule is broken or as a romance complication.
+M11: Changeling Gathering: A secret meeting of others like her. Trigger: When {{user}} feels isolated or deeply questions her identity.
+Romance-Specific Modules (Deepen Bonds)
+M12: Cairn’s Oath Stone: He tests her loyalty in a ritual of stone and promise.
+M13: Lachlan’s Drowning Poem: He shares the tragic origin of his curse through a poetic recital.
+M14: Earc’s Political Gambit: He involves her in a high-stakes game of court intrigue.
+Transformation Modules (Track Her Change)
+- Awakening (Level 1): Subtle signs (e.g., hair texture, eye sparkle).
+- Manifestation (Level 2): Noticeable changes (e.g., voice echo, cold skin).
+- Crisis (Level 3): Major physical shifts under stress.
+- Mastery (Level 5): Full, controlled transformation.
+Final Form Determination:
+Track {{user}}’s choices: Emotional/Artistic = Water, Loyal/Practical = Stone, Cunning/Strategic = Thorn.
+At thresholds (5, 15, 25, 30), describe physical changes.
+Aspect: WATER (Empathy, Art, Emotion)
+- Sacrifice & Protection → Selkie
+- Passion & Possession → Each-Uisge
+- Truth & Artistry → Undine
+Aspect: STONE (Loyalty, Practicality, Justice)
+- Guardianship & Home → Urisk
+- Vengeance & Justice → Redcap
+- Memory & Secrets → Ghillie Dhu
+Aspect: THORN (Cunning, Strategy, Ambition)
+- Ambition & Rule → Unseelie Sidhe Noble
+- Allure & Inspiration → Leanan Sídhe
+- Freedom & Chaos → Púca of the Frost
+Example 2: Neutral Ground (NG)
+Start Module
+M1: Start here: {{user}} goes to a meeting with a civil servant. They explain the program. {{user}} must pick a first date candidate. Trigger: Game start.
+Date Modules
+D1: First Date: Neutral ground, government approved. Trigger: MC agrees to see someone.
+D2: Second Date: Date chooses a neutral location. Trigger: First date went well OR MC is curious.
+D3: Their Territory: MC visits their home. Trigger: After D1 or D2.
+D4: Your Territory: They visit MC’s space. Trigger: After D1 or D2.
+D5: The Group Date: Mandated group activity. All four candidates. Government intervention. Trigger: MC ignored one or more candidates.
+D6: The Accidental Meeting: Running into a candidate outside dating context. Trigger: Random chance / candidate’s choice.
+Pressure Modules
+P1: Progress Report Due: MC must document their dating experiences. Trigger: Monthly requirement.
+P2: Government Review: An official interviews MC about “compatibility.” Trigger: After several dates / a major choice.
+P3: Family Asks: Approval? Disapproval? Trigger: Regular interval.
+P4: Public Opinion: A stranger comments. A news piece airs. Society watches. Trigger: Random / after public sighting.
+P5: The Deadline: MC must make a choice by X date. The clock is visible. Trigger: Story midpoint.
+P6: Financial Threat: Funding, scholarships, or job security tied to compliance. Trigger: If MC resists the program.
+P7: Public Unrest: Government actions create public unrest. Trigger: A scandal related to the program appears.
+Darren Crisis Modules
+DR1: The Nightmare: MC witnesses (or finds evidence of) a panic attack. Trigger: Sleepover / late night / staying over.
+DR2: The Scar: MC asks about his scar. Or touches it without thinking. Trigger: Intimacy moment.
+DR3: The Window Seat: MC finds his hidden nook. Sees him vulnerable there. Trigger: Exploring his home.
+DR4: Liam Appears: His half-brother shows up. Old wounds open. Trigger: Random / family event.
+DR5: Julie Calls: His sister reaches out. MC sees that dynamic. Trigger: Relationship deepening.
+DR6: His Past: Darren introduces MC to some ex-coworkers. Trigger: At least 4 Darren modules already experienced.
+(Lena, Lucien and Noemi follow similar structure)
+Fallout Modules
+F1: The Rejection: MC turns someone down. How do they handle it? Trigger: MC chooses someone else.
+F2: The Unchosen Lingers: A rejected candidate reappears. Not over it. Not gone. Trigger: After rejection.
+F3: Jealousy: A candidate sees MC with someone else. Reaction varies. Trigger: Group setting / accidental.
+F4: The Choice Made: MC finally picks. The others react. Trigger: Story climax.
+F5: The Aftermath: Life after the choice. Is it what MC expected? Trigger: Resolution.
+Step 5: The Final Line
+Every time I finish a prompt, I add this:
+AI Guideline for Using Modules: Weave these modules into the story based on {{user}}’s actions. Offer hooks—a rumor, an invitation, a strange event—but the AI can make up more scenarios as it sees fit and is not constrained to this guide.
+And then I add some instructions on how to weave the modules into the AI. Some examples from NG:
+- Track MC’s choices. Who are they seeing? How often? How did it go?
+- Check triggers. Has enough time passed? Has intimacy deepened? Has a candidate been neglected?
+- Offer hooks naturally. “Your phone buzzes. A message from Lucien: ‘I was wondering if you’d like to see my studio. No pressure. Just... if you want.’”
+- Follow MC’s lead. If they ignore a hook, let it drop. If they pursue, escalate.
+- Let pressure build. Government reports. Family questions. The ticking clock. MC should feel the walls closing in.
+- Remember: every character is the hero of their own story. Even the unchosen. Even the rejected. Their pain matters.
+Final Note
+This is simply my workflow. There are many ways to approach things, but this is what suits me, and I hope it can be helpful to you as well. Remember, you don’t have to follow this guide rigidly, or at all; everyone develops their own method, and what suits me might not suit you. Experiment, adapt, and find your own rhythm.
+Hope this helped! Feel free to reach out on Discord if you have any questions.
+— lostfox
+Find my stories on: isekai.world
+    Enter section select mode
