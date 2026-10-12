@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Loader2, X } from "lucide-react";
+import { Clapperboard, Download, Loader2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { getSceneImageUrl } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
@@ -10,6 +10,8 @@ export interface SceneImageProps {
   image: SceneImageModel;
   /** Re-runs generation for this image (also used by "Tap to retry"). */
   onRegenerate: () => void;
+  /** Starts image-to-video for this image; hidden when absent. */
+  onAnimate?: () => void;
 }
 
 function Lightbox({ url, prompt, onClose }: { url: string; prompt: string; onClose: () => void }) {
@@ -46,7 +48,7 @@ function Lightbox({ url, prompt, onClose }: { url: string; prompt: string; onClo
   );
 }
 
-export function SceneImage({ image, onRegenerate }: SceneImageProps) {
+export function SceneImage({ image, onRegenerate, onAnimate }: SceneImageProps) {
   const [open, setOpen] = useState(false);
   const url = getSceneImageUrl(image);
 
@@ -85,9 +87,16 @@ export function SceneImage({ image, onRegenerate }: SceneImageProps) {
       <div className="flex items-center justify-between gap-3 px-3 py-2 text-[11px] text-white/55">
         <span className="truncate">{image.model}</span>
         {image.status !== "generating" ? (
-          <button type="button" onClick={onRegenerate} className="shrink-0 text-[#a7b9ff] hover:underline">
-            Regenerate
-          </button>
+          <span className="flex shrink-0 items-center gap-3">
+            {onAnimate && image.status === "done" && url ? (
+              <button type="button" onClick={onAnimate} className="flex items-center gap-1 text-[#a7b9ff] hover:underline">
+                <Clapperboard size={12} /> Animate
+              </button>
+            ) : null}
+            <button type="button" onClick={onRegenerate} className="text-[#a7b9ff] hover:underline">
+              Regenerate
+            </button>
+          </span>
         ) : null}
       </div>
 

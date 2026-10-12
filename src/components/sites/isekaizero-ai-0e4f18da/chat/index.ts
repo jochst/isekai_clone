@@ -4,6 +4,7 @@ export { MessageBubble, renderRichText, type MessageBubbleProps } from "./Messag
 export { MessagePopover, type MessagePopoverProps, type MessageAction } from "./MessagePopover";
 export { Composer, type ComposerProps } from "./Composer";
 export { SceneImage, type SceneImageProps } from "./SceneImage";
+export { SceneVideo, type SceneVideoProps } from "./SceneVideo";
 export { ChatSettingsSheet, type ChatSettingsSheetProps } from "./ChatSettingsSheet";
 export { ChatsListPage, relativeTime } from "./ChatsListPage";
 export {

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test } from "vitest";
 import { getDbStoryline, toStoryCard, type StoryCardRow } from "../src/lib/story-db";
 
 const row: StoryCardRow = {

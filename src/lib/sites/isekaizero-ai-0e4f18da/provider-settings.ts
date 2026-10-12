@@ -80,6 +80,8 @@ export const DEFAULT_PROVIDER_SETTINGS: ProviderSettings = {
   voiceModel: "tts-1",
   voiceId: "nova",
   voiceSpeed: 1.0,
+  videoModel: "",
+  videoParams: {},
 };
 
 const CHANGE_EVENT = "iz:provider-settings";

@@ -47,6 +47,15 @@ export function authHeaders(ctx: ProviderContext): Record<string, string> {
   return h;
 }
 
+export function isNanoGpt(ctx: ProviderContext): boolean {
+  return ctx.preset === "nano-gpt";
+}
+
+/** NanoGPT's native (non-OpenAI-compatible) API root, e.g. https://nano-gpt.com/api for base https://nano-gpt.com/api/v1. */
+export function nativeApiBase(ctx: ProviderContext): string {
+  return ctx.baseUrl.replace(/\/v1\/?$/, "");
+}
+
 export async function providerErrorMessage(res: Response): Promise<string> {
   const text = await res.text().catch(() => "");
   try {

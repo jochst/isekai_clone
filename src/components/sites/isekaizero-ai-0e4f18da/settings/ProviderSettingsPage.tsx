@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { Activity, Check, Cpu, Eye, EyeOff, KeyRound, Loader2, Pause, Play, RotateCcw, Search, Volume2 } from "lucide-react";
 
 import type { ProviderImageModel, ProviderTextModel } from "@/app/api/providers/models/route";
+import { invalidateProviderCatalog } from "@/components/sites/isekaizero-ai-0e4f18da/image-generation/use-provider-catalog";
 import {
   DEFAULT_PROVIDER_SETTINGS,
   isProviderConfigured,
@@ -213,6 +214,7 @@ function ProviderTab({ settings, preset, update, onTest, onPresetChange }: Provi
     });
     setTest({ kind: "idle" });
     onPresetChange();
+    invalidateProviderCatalog();
   };
 
   const runTest = async () => {
@@ -389,6 +391,10 @@ function formatPrice(n: number): string {
 function ModelsTab({ settings, update, configured, models, loadModels }: ModelsTabProps) {
   const [open, setOpen] = useState<OpenPicker>(null);
 
+  const sizeOptions = IMAGE_SIZE_OPTIONS.some((o) => o.value === settings.imageSize)
+    ? IMAGE_SIZE_OPTIONS
+    : [{ value: settings.imageSize, label: settings.imageSize }, ...IMAGE_SIZE_OPTIONS];
+
   useEffect(() => {
     if (configured && models.status === "idle") {
       loadModels().catch(() => undefined);
@@ -475,7 +481,7 @@ function ModelsTab({ settings, update, configured, models, loadModels }: ModelsT
       <SettingCard title="Image size">
         <SegmentedControl
           label="Image size"
-          options={IMAGE_SIZE_OPTIONS}
+          options={sizeOptions}
           value={settings.imageSize}
           onChange={(imageSize) => update({ imageSize })}
         />
