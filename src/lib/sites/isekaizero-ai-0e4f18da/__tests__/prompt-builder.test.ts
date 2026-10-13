@@ -87,3 +87,15 @@ describe("resolveTextModel", () => {
     expect(resolveTextModel({ ...DEFAULT_CHAT_SETTINGS, modelId: row.id }, provider)).toMatchObject({ id: row.model, name: row.name });
   });
 });
+
+describe("assemblePrompt with memory", () => {
+  it("sends the story so far in the system prompt and only the unsummarized messages as history", () => {
+    const messages = Array.from({ length: 45 }, (_, i) => ({ id: `m${i}`, role: (i % 2 ? "user" : "assistant") as "user" | "assistant", content: `line ${i}`, createdAt: i }));
+    const memory = { chapters: [{ id: "c1", number: 1, title: "Dawn", summary: "Kai woke.", firstMessageId: "m0", lastMessageId: "m19", messageCount: 20, enabled: true, createdAt: 1 }], arcs: [] };
+    const { messages: sent } = assemblePrompt(story, { ...session(), messages, memory });
+    expect(sent[0].content).toContain("## The story so far");
+    expect(sent[0].content).toContain("### Chapter 1: Dawn\nKai woke.");
+    expect(sent.some((m) => m.content.startsWith("line 19"))).toBe(false);
+    expect(sent[1].content).toBe("line 20");
+  });
+});

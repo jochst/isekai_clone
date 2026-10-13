@@ -3,7 +3,7 @@ import "server-only";
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { CONTINUE_SENTINEL, type ChatMessage, type ChatSession, type ChatSummary } from "@/types/isekaizero";
+import { CONTINUE_SENTINEL, type ChatMemory, type ChatMessage, type ChatSession, type ChatSummary } from "@/types/isekaizero";
 import { localizeMedia } from "./media";
 
 /**
@@ -11,7 +11,7 @@ import { localizeMedia } from "./media";
  * wholesale and would wipe them. A message row holds the message as JSON; `seq` is its position in the chat.
  */
 
-export type ChatMeta = Omit<ChatSession, "messages">;
+export type ChatMeta = Omit<ChatSession, "messages" | "memory">;
 
 /** One write from the client: changed chat fields, the full message order, and the messages that changed. */
 export interface ChatPatch {
@@ -31,7 +31,8 @@ export function openChatDb(): DatabaseSync {
       id TEXT NOT NULL, chat_id TEXT NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
       seq INTEGER NOT NULL, body TEXT NOT NULL, PRIMARY KEY (chat_id, id)
     );
-    CREATE INDEX IF NOT EXISTS messages_by_seq ON messages (chat_id, seq);`);
+    CREATE INDEX IF NOT EXISTS messages_by_seq ON messages (chat_id, seq);
+    CREATE TABLE IF NOT EXISTS memory (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);`);
   return db;
 }
 
@@ -72,7 +73,18 @@ export function getChat(db: DatabaseSync, id: string): ChatSession | undefined {
   const row = db.prepare("SELECT meta FROM chats WHERE id = ?").get(id);
   if (!row) return undefined;
   const messages = db.prepare("SELECT body FROM messages WHERE chat_id = ? ORDER BY seq").all(id).map((m) => JSON.parse(String(m.body)) as ChatMessage);
-  return { ...(JSON.parse(String(row.meta)) as ChatMeta), messages };
+  const memory = getMemory(db, id);
+  return { ...(JSON.parse(String(row.meta)) as ChatMeta), messages, ...(memory ? { memory } : {}) };
+}
+
+/* Memory lives in its own table and is only written by the memory API, so a client meta sync never overwrites it. */
+export function getMemory(db: DatabaseSync, chatId: string): ChatMemory | undefined {
+  const row = db.prepare("SELECT body FROM memory WHERE chat_id = ?").get(chatId);
+  return row ? (JSON.parse(String(row.body)) as ChatMemory) : undefined;
+}
+
+export function saveMemory(db: DatabaseSync, chatId: string, memory: ChatMemory): void {
+  db.prepare("INSERT INTO memory VALUES (?, ?) ON CONFLICT(chat_id) DO UPDATE SET body = excluded.body").run(chatId, JSON.stringify(memory));
 }
 
 export function deleteChat(db: DatabaseSync, id: string): void {
@@ -96,8 +108,10 @@ export function applyChatPatch(db: DatabaseSync, id: string, patch: ChatPatch): 
     const exists = db.prepare("SELECT 1 FROM chats WHERE id = ?").get(id);
     if (!exists && !patch.meta) throw new Error("Chat not found.");
     if (patch.meta) {
+      const { memory: _memory, ...meta } = patch.meta as ChatMeta & { memory?: unknown };
+      void _memory; // memory is never written through a patch
       db.prepare("INSERT INTO chats VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET meta = excluded.meta, updated = excluded.updated")
-        .run(id, JSON.stringify({ ...patch.meta, id }), patch.meta.updatedAt);
+        .run(id, JSON.stringify({ ...meta, id }), meta.updatedAt);
     }
     const order = patch.order ?? (db.prepare("SELECT id FROM messages WHERE chat_id = ? ORDER BY seq").all(id).map((r) => String(r.id)));
     const seq = new Map(order.map((messageId, i) => [messageId, i]));
@@ -122,6 +136,8 @@ export function applyChatPatch(db: DatabaseSync, id: string, patch: ChatPatch): 
 
 /** Writes a whole chat (create, branch, import from browser storage). */
 export function saveChat(db: DatabaseSync, session: ChatSession): void {
-  const { messages, ...meta } = session;
+  const { messages, memory, ...meta } = session;
   applyChatPatch(db, session.id, { meta, order: messages.map((m) => m.id), upsert: messages });
+  // Creating or branching a chat may carry memory (a branch keeps the chapters before its cut).
+  if (memory) saveMemory(db, session.id, memory);
 }

@@ -1,5 +1,6 @@
 export { ChatPage, type ChatPageProps } from "./ChatPage";
-export { ChatHeader, MemorySheet, type ChatHeaderProps, type MemorySheetProps } from "./ChatHeader";
+export { ChatHeader, type ChatHeaderProps } from "./ChatHeader";
+export { MemorySheet, type MemorySheetProps } from "./MemorySheet";
 export { MessageBubble, renderRichText, type MessageBubbleProps } from "./MessageBubble";
 export { MessagePopover, type MessagePopoverProps, type MessageAction } from "./MessagePopover";
 export { Composer, type ComposerProps } from "./Composer";

@@ -7,7 +7,6 @@ import { BalancePills } from "@/components/sites/isekaizero-ai-0e4f18da/shared";
 import { StoryCover } from "@/components/sites/isekaizero-ai-0e4f18da/shared/StoryCover";
 import type { Storyline } from "@/types/isekaizero";
 
-import { SideSheet } from "./primitives";
 
 export interface ChatHeaderProps {
   storyline: Storyline;
@@ -44,40 +43,5 @@ export function ChatHeader({ storyline, modelName, messageCount, mana, arcane, o
         <Settings size={20} />
       </button>
     </header>
-  );
-}
-
-export interface MemorySheetProps {
-  open: boolean;
-  onClose: () => void;
-  messageCount: number;
-  tokenEstimate: number;
-  onSummarize: () => void;
-}
-
-export function MemorySheet({ open, onClose, messageCount, tokenEstimate, onSummarize }: MemorySheetProps) {
-  return (
-    <SideSheet open={open} onClose={onClose} title="Memory" subtitle="Chapters and arcs of this story">
-      <div className="rounded-[12px] bg-white/5 p-3 text-[13px]">
-        <div className="flex items-center justify-between">
-          <span>Messages</span>
-          <span className="text-white/70">{messageCount}</span>
-        </div>
-        <div className="mt-2 flex items-center justify-between">
-          <span>Context</span>
-          <span className="text-white/70">≈ {tokenEstimate.toLocaleString("en-US")} tokens</span>
-        </div>
-      </div>
-      <p className="mt-4 text-[13px] leading-[18px] text-white/70">
-        Condense your story into chapters and arcs to save tokens while keeping continuity
-      </p>
-      <button
-        type="button"
-        onClick={onSummarize}
-        className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10"
-      >
-        Summarize into chapter
-      </button>
-    </SideSheet>
   );
 }

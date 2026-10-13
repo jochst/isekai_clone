@@ -11,12 +11,13 @@
  */
 import { useCallback, useSyncExternalStore } from "react";
 
-import type { ChatMessage, ChatSession, ChatSettings, ChatSummary, SceneImage, SceneVideo, Storyline } from "@/types/isekaizero";
+import type { ChatMemory, ChatMessage, ChatSession, ChatSettings, ChatSummary, SceneImage, SceneVideo, Storyline } from "@/types/isekaizero";
 import { CONTINUE_SENTINEL } from "@/types/isekaizero";
 
-import { readProviderSettings } from "./provider-settings";
+import { providerHeaders, readProviderSettings } from "./provider-settings";
 import { readDefaultChatSettings, type DefaultChatSettings } from "@/components/sites/isekaizero-ai-0e4f18da/settings/use-default-chat-settings";
 import { replaceCardMacros } from "@/lib/imports/prompt";
+import { memoryForBranch, type MemoryEdit } from "@/lib/chats/memory";
 
 export const USAGE_STORAGE_KEY = "iz.usage.v1";
 /** Pre-server chat storage; renamed to `…migrated` once its chats are on the server. */
@@ -238,9 +239,12 @@ const settled = (m: ChatMessage) => !m.streaming;
 export type SessionDiff = { create: ChatSession } | { patch: { meta?: Omit<ChatSession, "messages">; order?: string[]; upsert?: ChatMessage[] } };
 
 export function diffSession(previous: ChatSession | undefined, current: ChatSession): SessionDiff | null {
-  const { messages, ...meta } = current;
+  // Memory is written only through the memory API, so it is never part of a patch.
+  const { messages, memory: _memory, ...meta } = current;
+  void _memory;
   if (!previous) return { create: { ...current, messages: messages.filter(settled) } };
-  const { messages: before, ...previousMeta } = previous;
+  const { messages: before, memory: _previousMemory, ...previousMeta } = previous;
+  void _previousMemory;
   const metaChanged = JSON.stringify(meta) !== JSON.stringify(previousMeta);
   const order = messages.map((m) => m.id);
   const orderChanged = order.length !== before.length || order.some((id, i) => before[i].id !== id);
@@ -396,6 +400,32 @@ export function acceptServerMessages(id: string, order: string[], saved: ChatMes
   scheduleSync(id);
 }
 
+export type MemoryAction =
+  | { action: "create-chapter"; model: string }
+  | { action: "create-arc"; model: string; size: number }
+  | { action: "regenerate"; kind: "chapter" | "arc"; id: string; model: string }
+  | { action: "write-chapter"; title: string; summary: string }
+  | { action: "write-arc"; title: string; summary: string; size: number }
+  | { action: "edit"; edit: MemoryEdit };
+
+/** Runs a memory action on the server and takes the chat's memory it returns. Throws with the server's message. */
+export async function runMemoryAction(id: string, body: MemoryAction): Promise<ChatMemory> {
+  const res = await fetch(`/api/chats/${encodeURIComponent(id)}/memory`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...providerHeaders(readProviderSettings()) },
+    body: JSON.stringify(body),
+  });
+  const json = (await res.json().catch(() => ({}))) as { memory?: ChatMemory; error?: string };
+  if (!res.ok || !json.memory) throw new Error(json.error || `Request failed (${res.status})`);
+  const memory = json.memory;
+  const current = sessions.get(id);
+  if (current) sessions.set(id, { ...current, memory });
+  const previous = synced.get(id);
+  if (previous) synced.set(id, { ...previous, memory });
+  emit();
+  return memory;
+}
+
 export function deleteSession(id: string): void {
   sessions.delete(id);
   synced.delete(id);
@@ -412,7 +442,14 @@ export function branchSession(id: string, messageId: string): ChatSession | unde
   const cut = source.messages.findIndex((m) => m.id === messageId);
   if (cut === -1) return undefined;
   const now = Date.now();
-  const copy: ChatSession = { ...source, id: newId(), createdAt: now, updatedAt: now, messages: source.messages.slice(0, cut + 1).map((m) => ({ ...m, streaming: false })) };
+  const copy: ChatSession = {
+    ...source,
+    id: newId(),
+    createdAt: now,
+    updatedAt: now,
+    messages: source.messages.slice(0, cut + 1).map((m) => ({ ...m, streaming: false })),
+    memory: memoryForBranch(source.memory, source.messages, cut),
+  };
   put(copy);
   return copy;
 }

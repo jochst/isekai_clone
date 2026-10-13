@@ -305,6 +305,51 @@ export interface ChatSettings {
   autoEditBackground?: boolean;
   /** Image generation perspective: pov or 3rd-person */
   imageGenPerspective?: "pov" | "3rd-person";
+  /** How much a chapter/arc summary keeps (Isekai Zero "Summary detail"). */
+  summaryDetail?: SummaryDetail;
+  /** Provider model ids for summaries; "" = the chat's own model. */
+  chapterSummarizerModel?: string;
+  arcSummarizerModel?: string;
+}
+
+export type SummaryDetail = "concise" | "balanced" | "detailed";
+
+/** A summary of a run of messages that stands in for them in the prompt. */
+export interface MemoryChapter {
+  id: string;
+  /** 1-based, in story order. */
+  number: number;
+  title: string;
+  summary: string;
+  /** First and last message covered; everything up to `lastMessageId` is summarized. */
+  firstMessageId: string;
+  lastMessageId: string;
+  messageCount: number;
+  /** Disabled chapters are left out of the prompt (their messages stay summarized, i.e. out too). */
+  enabled: boolean;
+  writtenByYou?: boolean;
+  model?: string;
+  createdAt: number;
+}
+
+/** A summary of consecutive chapters that stands in for them in the prompt. */
+export interface MemoryArc {
+  id: string;
+  number: number;
+  title: string;
+  summary: string;
+  /** Chapter numbers covered, inclusive. */
+  firstChapter: number;
+  lastChapter: number;
+  enabled: boolean;
+  writtenByYou?: boolean;
+  model?: string;
+  createdAt: number;
+}
+
+export interface ChatMemory {
+  chapters: MemoryChapter[];
+  arcs: MemoryArc[];
 }
 
 /** Hidden user turn sent by the Composer's "Continue" action. */
@@ -320,6 +365,8 @@ export interface ChatSession {
   messages: ChatMessage[];
   settings: ChatSettings;
   playerName: string;
+  /** Chapters and arcs; written only through /api/chats/[id]/memory, never by the client's PATCH sync. */
+  memory?: ChatMemory;
 }
 
 /** A chat as listed on /chats: everything but the messages. */
