@@ -22,6 +22,8 @@ export interface MessageBubbleProps {
   onIllustrate: () => void;
   onRetry: () => void;
   onNarrate?: () => void;
+  /** Narrator voice and speaking rate for this chat (Narrate reads with them). */
+  narration?: { voiceId: string; speed: number };
   onRegenerateImage: (imageId: string) => void;
   /** Message-level Animate: latest finished scene image → image-to-video, else text-to-video. */
   onAnimate: () => void;
@@ -74,6 +76,7 @@ export function MessageBubble({
   onIllustrate,
   onRetry,
   onNarrate,
+  narration,
   onRegenerateImage,
   onAnimate,
   onAnimateImage,
@@ -119,7 +122,7 @@ export function MessageBubble({
 
     try {
       setAudioState("loading");
-      const result = await generateSpeech({ text: message.content, settings: provider });
+      const result = await generateSpeech({ text: message.content, settings: provider, voiceId: narration?.voiceId, speed: narration?.speed });
       if (result.isBrowserApi) {
         setAudioState("playing");
         return;

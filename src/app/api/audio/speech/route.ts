@@ -61,6 +61,7 @@ export async function POST(req: Request) {
             similarity_boost: 0.75,
             style: 0.0,
             use_speaker_boost: true,
+            speed: Math.max(0.7, Math.min(speed || 1.0, 1.2)),
           },
         }),
         signal: req.signal,

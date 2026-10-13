@@ -11,7 +11,8 @@ import { VideoParamsForm, paramSummary } from "@/components/sites/isekaizero-ai-
 import { resolveImageModel, resolveVideoModel, type ContextReport, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatSession, ChatSettings, ProviderSettings, ReasoningEffort, VideoParamValue } from "@/types/isekaizero";
+import type { ChatSession, ChatSettings, ProviderSettings, ReasoningEffort, Storyline, VideoParamValue } from "@/types/isekaizero";
+import { characterVoice, narratorVoice, voicesFor } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 
 import { cn } from "@/lib/utils";
 import { AccordionCard, SegmentedControl, SettingRow, SideSheet, Toggle } from "./primitives";
@@ -44,9 +45,11 @@ export interface ChatSettingsSheetProps {
   onChange: (patch: Partial<ChatSettings>) => void;
   /** Opens the Memory (chapters and arcs) panel. */
   onOpenMemory: () => void;
+  /** The story, for per-character voices. */
+  storyline: Storyline;
 }
 
-export function ChatSettingsSheet({ open, onClose, session, provider, model, context, onChange, onOpenMemory }: ChatSettingsSheetProps) {
+export function ChatSettingsSheet({ open, onClose, session, provider, model, context, onChange, onOpenMemory, storyline }: ChatSettingsSheetProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const { settings } = session;
   const [, updateProvider] = useProviderSettings();
@@ -113,6 +116,10 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
               ]}
             />
             <p className="mt-2 text-[11px] leading-4 text-white/50">Visual Novel picks the story&apos;s own backgrounds and character expressions after each reply (one small model call).</p>
+          </AccordionCard>
+
+          <AccordionCard title="Voice Narration" description="Generate voice narration for each character in the story">
+            <VoiceSettings settings={settings} provider={provider} storyline={storyline} onChange={onChange} />
           </AccordionCard>
 
           <AccordionCard title="Response Length" description="Sets the response length for AI responses" defaultOpen>
@@ -331,5 +338,67 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
         }}
       />
     </>
+  );
+}
+
+const RATE_OPTIONS = [
+  { value: "0.8", label: "0.8×" },
+  { value: "1", label: "1×" },
+  { value: "1.15", label: "1.15×" },
+  { value: "1.3", label: "1.3×" },
+];
+
+/** Isekai Zero's Play Mode voice settings (labels from en_flat.tsv: chatSettings.playMode.*). */
+function VoiceSettings({ settings, provider, storyline, onChange }: { settings: ChatSettings; provider: ProviderSettings; storyline: Storyline; onChange: (patch: Partial<ChatSettings>) => void }) {
+  const voices = voicesFor(provider);
+  const narrator = narratorVoice(settings, provider);
+  const select = "mt-1 w-full rounded-[10px] border border-white/12 bg-white/[0.06] px-3 py-2 text-[13px] text-white";
+  const options = (current: string) => (
+    <>
+      {voices.map((v) => (
+        <option key={v.id} value={v.id}>
+          {v.name}
+        </option>
+      ))}
+      {!voices.some((v) => v.id === current) ? <option value={current}>{current}</option> : null}
+    </>
+  );
+  return (
+    <div className="flex flex-col gap-3 text-[13px]">
+      <SettingRow title="Voice & Narration Enabled" description="Generate voice narration for each character in the story" right={<Toggle label="Voice & Narration Enabled" checked={settings.voiceEnabled ?? false} onChange={(voiceEnabled) => onChange({ voiceEnabled })} />} />
+      <SettingRow title="Auto Play on New Messages" description="Automatically play voice narration when new messages arrive" right={<Toggle label="Auto Play on New Messages" checked={settings.autoPlayVoice ?? false} onChange={(autoPlayVoice) => onChange({ autoPlayVoice })} />} />
+      <label className="text-white/70">
+        Narrator Voice
+        <select className={select} value={narrator} onChange={(e) => onChange({ narratorVoice: e.target.value })}>
+          {options(narrator)}
+        </select>
+      </label>
+      <div>
+        <div className="mb-1 text-white/70">Narrator Speaking Rate</div>
+        <SegmentedControl label="Narrator Speaking Rate" value={String(settings.narratorSpeakingRate ?? 1)} options={RATE_OPTIONS} onChange={(v) => onChange({ narratorSpeakingRate: Number(v) })} />
+      </div>
+      <div>
+        <div className="mb-1 text-white/70">Characters Speaking Rate</div>
+        <SegmentedControl label="Characters Speaking Rate" value={String(settings.charactersSpeakingRate ?? 1)} options={RATE_OPTIONS} onChange={(v) => onChange({ charactersSpeakingRate: Number(v) })} />
+      </div>
+      {storyline.characters.length > 0 ? (
+        <div>
+          <div className="text-white/70">Character Voices</div>
+          <p className="text-[11px] text-white/45">Used for dialogue in Visual Novel mode. Unset characters get a voice matching their description.</p>
+          {storyline.characters.map((c) => {
+            const current = characterVoice(c.name, storyline, settings, provider);
+            return (
+              <label key={c.id} className="mt-2 block text-[12px] text-white/70">
+                {c.name}
+                <select className={select} value={current} onChange={(e) => onChange({ characterVoices: { ...settings.characterVoices, [c.name]: e.target.value } })}>
+                  {options(current)}
+                </select>
+              </label>
+            );
+          })}
+        </div>
+      ) : null}
+      <p className="text-[11px] text-white/45">Voice provider and model are set in Settings → Providers → Voice (TTS).</p>
+    </div>
   );
 }

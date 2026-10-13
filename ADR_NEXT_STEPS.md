@@ -283,7 +283,19 @@ The gap: Default Chat Settings could only really use models from the site's buil
 - [ ] **Illustration:** POV vs. 3rd person, chained from the previous image, uses appearance loadouts.
 - [ ] **Manga:** 1–8 panels per page, up to 2 pages; per-page edit, regenerate and revert. Built from an LLM panel script plus NanoGPT images.
 - [ ] **Video scenes:** up to 2 chained 15 s beats with character references (extends the merged Animate feature).
-- [ ] **Voice:** Narration, Drama (a voice per character) and Audiobook modes; separate speaking rates; per-character voice assignment; auto-narrate.
+- [x] **Voice (5b):** the site's Play Mode voice settings.
+  - Settings: Voice & Narration Enabled, Auto Play on New Messages, Narrator Voice, Narrator / Characters Speaking Rate, and a voice per character.
+  - **Narration mode:** the narrator reads the reply (Narrate button, or auto-play).
+  - **Visual Novel mode:** quoted dialogue is spoken in the speaking character's voice, everything else by the narrator. The stage advances beat by beat as the audio ends.
+  - Unset characters get a stable voice matching the gender their description suggests.
+  - A failed part is retried once, then skipped, so playback never stalls.
+  - Live, through NanoGPT's Kokoro (`/audio/speech`):
+    - all 10 beats auto-advanced
+    - George narrated; Ellen's lines were in a female voice (Sarah)
+    - about 1.3–3.4 s per part
+  - The direct ElevenLabs path (now honouring speaking rate) still needs a live test once `ELEVENLABS_API_KEY` is set.
+  - Known ceiling: in a paragraph naming several characters, a quote can be given to the wrong one. The site uses an AI script-writer call; add one if that matters.
+  - Not done: Audiobook mode (a narrator voicing every role) and voice design/cloning (Phase 6 studio).
 - [ ] **Music:** via NanoGPT.
   - Most music models are synchronous on `/v1/audio/speech`.
   - Some, e.g. `Elevenlabs-Music-V1`, are async and polled through `/api/tts/status`.

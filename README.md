@@ -4,7 +4,7 @@ A local, single-user clone of **[isekaizero.ai](https://www.isekaizero.ai)**, th
 
 Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript (strict)**, **Tailwind CSS v4** and **SQLite**.
 
-The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2 and 5a, as of PR #26.
+The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2, 5a and 5b, as of PR #27.
 
 ---
 
@@ -131,8 +131,14 @@ Turns each reply into a scene: background, characters and text you tap through, 
   - Rate-limited requests (HTTP 429) wait and retry automatically, up to 3 times.
 
 ### Voice
-- **Narrate** on any reply reads it aloud through ElevenLabs, any OpenAI-compatible text-to-speech service, a local Kokoro server, or the browser's built-in voice. Set it up in **Settings → Providers → Voice (TTS)**.
-- Per-character voices, Drama and Audiobook modes, and voiced Visual Novel scenes come in Phase 5b.
+Set the speech provider and model in **Settings → Providers → Voice (TTS)**: ElevenLabs, any OpenAI-compatible text-to-speech service, a local Kokoro server, or the browser's built-in voice. NanoGPT's `Kokoro-82m` works over the OpenAI-compatible option, with no extra key. Then, per chat, open **Chat Settings → Voice Narration**:
+- **Voice & Narration Enabled** and **Auto Play on New Messages**.
+- **Narrator Voice**, plus a voice for each character. Characters you don't set get a voice that matches their description.
+- **Narrator** and **Characters Speaking Rate**.
+
+**What you hear:**
+- **Narration mode:** the narrator reads each reply. The **Narrate** button works on any message.
+- **Visual Novel mode:** dialogue is spoken in each character's voice and the rest by the narrator. The stage moves to the next paragraph when its audio ends. **Play voice** / **Stop voice** sit at the top of the stage.
 
 ### Imports
 - **The Import library** (`/imports`) adds personal character cards and stories from Isekai Zero, Chub, JanitorAI and anime.gf links, or from exported files. See [docs/IMPORTING.md](docs/IMPORTING.md).
@@ -175,8 +181,8 @@ Then go to **Settings → Providers → Voice (TTS) → Local / Kokoro**, base U
 | 1 | Chats in SQLite, keys in `.env.local`, server-side turns with reply versions, token and reasoning controls, image model split | Done (#19–#23) |
 | 2 | Chapters and arcs, real context limits, trimming, warnings, auto-summarize, usage per reply | Done (#24–#25) |
 | 5a | Visual Novel mode and the Media Picker | Done (#26) |
-| 5b | Voices: ElevenLabs Narration / Drama / Audiobook, a voice per character, voiced Visual Novel scenes | Next |
-| 5c | Auto-generated backgrounds and characters for stories without art; chained illustrations (Seedream edit) | Planned |
+| 5b | Voices: narrator and a voice per character, voiced Visual Novel scenes, auto play | Done (#27) |
+| 5c | Auto-generated backgrounds and characters for stories without art; chained illustrations (Seedream edit) | Next |
 | 5d+ | Manga, chained video scenes, music via NanoGPT | Planned |
 | 3 | Codex (story lore), Dungeon Mind v2 tools (dice, stats, inventory), characters saved to the cast, story endings | Planned (moved after Phase 5) |
 | 4 | Composer parity: slash commands, Improvise, RETRY+, OOC, personas, Honor mode, history tools | Planned |
