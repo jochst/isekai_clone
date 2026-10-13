@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppBackdrop } from "@/components/sites/isekaizero-ai-0e4f18da/shared";
 import {
   DEFAULT_CHAT_SETTINGS,
+  acceptServerMessages,
   addUsage,
   attachSceneImage,
   attachSceneVideo,
@@ -24,16 +25,10 @@ import { getStoryline } from "@/lib/sites/isekaizero-ai-0e4f18da/mock-data";
 import { useImportedStoryline } from "@/lib/imports/use-imported-storyline";
 import {
   CONTINUE_SENTINEL,
-  CREATE_CHARACTER_TOOL,
-  EDIT_CHARACTER_TOOL,
-  ILLUSTRATE_SCENE_TOOL,
-  MAX_TOKENS_MAP,
-  TEMPERATURE_MAP,
   buildIllustrationBriefPrompt,
   buildMotionPrompt,
   buildScenePrompt,
   buildSystemPrompt,
-  importedPostHistory,
   estimateContextTokens,
   estimateTokens,
   generateSceneImage,
@@ -41,10 +36,10 @@ import {
   resolveImageSize,
   resolveTextModel,
   resolveVideoModel,
-  streamChat,
+  streamTurn,
   suggestDestinies,
-  toApiMessages,
 } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
+import { planTurn, settleOutcome, type TurnRequest } from "@/lib/chats/turn";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { isProviderConfigured, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import type { ChatMessage, SceneImage as SceneImageModel, SceneVideo as SceneVideoModel } from "@/types/isekaizero";
@@ -394,12 +389,22 @@ export function ChatPage({ sessionId }: ChatPageProps) {
 
   /* ---------------------------------------------------------------- completions */
 
-  const runAssistantTurn = useCallback(
-    async (base: ChatMessage[]) => {
+  /**
+   * Runs one story turn on the server, which builds the prompt, streams the reply and saves it. Locally the
+   * player's message and a streaming placeholder show until the saved messages come back.
+   */
+  const runTurn = useCallback(
+    async (type: TurnRequest["type"], content?: string) => {
       const current = getChatSession(sessionId);
       if (!current || !storyline) return;
       if (!configured) {
         showToast("Connect a provider to start chatting.");
+        return;
+      }
+      const request: TurnRequest = { type, content, model: model.id, takeTurn, userMessageId: newId(), replyId: newId() };
+      const plan = planTurn(current, request);
+      if (typeof plan === "string") {
+        showToast(plan);
         return;
       }
       abortRef.current?.abort();
@@ -407,67 +412,51 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       abortRef.current = controller;
       setStreaming(true);
 
-      const placeholder: ChatMessage = { id: newId(), role: "assistant", content: "", createdAt: Date.now(), streaming: true, speaker: "Narrator" };
-      update({ messages: [...base, placeholder] });
-
-      const system = buildSystemPrompt(storyline, { ...current, messages: base }, { takeTurn });
-      const apiMessages = toApiMessages(system, base, importedPostHistory(storyline, current), current.settings.userInputPrompt);
-      const { settings } = current;
-
-      const tools: unknown[] = [];
-      if (settings.autoIllustrate) tools.push(ILLUSTRATE_SCENE_TOOL);
-      if (settings.autoCreateCharacter) tools.push(CREATE_CHARACTER_TOOL);
-      if (settings.autoEditCharacter) tools.push(EDIT_CHARACTER_TOOL);
+      const placeholder: ChatMessage = { ...plan.reply, content: "", streaming: true, images: undefined, videos: undefined };
+      update({ messages: [...plan.history, placeholder] });
+      let latest = "";
 
       try {
-        const result = await streamChat({
+        const done = await streamTurn({
           settings: provider,
-          model: model.id,
-          messages: apiMessages,
-          temperature: TEMPERATURE_MAP[settings.temperature],
-          maxTokens: MAX_TOKENS_MAP[settings.responseLength],
-          reasoning: settings.reasoning,
-          tools: tools.length > 0 ? tools : undefined,
+          chatId: sessionId,
+          request,
           signal: controller.signal,
-          onDelta: (_delta, content) => {
-            update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === placeholder.id ? { ...m, content } : m)) }), { touch: false });
+          onContent: (text) => {
+            latest = text;
+            update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === placeholder.id ? { ...m, content: text } : m)) }), { touch: false });
           },
         });
-
-        const finalContent = result.content.trim();
-        if (!finalContent && (!result.toolCalls || result.toolCalls.length === 0)) {
-          update((s) => ({ ...s, messages: s.messages.filter((m) => m.id !== placeholder.id) }));
-          if (!result.aborted) showToast("The model returned an empty reply.");
-        } else {
-          update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === placeholder.id ? { ...m, content: finalContent, streaming: false } : m)) }));
-          addUsage({
-            tokensIn: result.usage?.promptTokens ?? estimateTokens(apiMessages.map((m) => m.content).join("\n")),
-            tokensOut: result.usage?.completionTokens ?? estimateTokens(finalContent),
-            messages: 1,
-          });
-
-          const afterStream = getChatSession(sessionId);
-          const updatedMessages = [...base, { ...placeholder, content: finalContent, streaming: false }];
-
-          let illustratedByTool = false;
-          if (result.toolCalls && result.toolCalls.length > 0) {
-            for (const tc of result.toolCalls) {
-              dispatchToolCall(placeholder.id, tc, updatedMessages);
-              if (tc.function.name === "illustrate_scene") {
-                illustratedByTool = true;
-              }
-            }
-          }
-
-          if (!result.aborted && afterStream?.settings.autoIllustrate && !illustratedByTool) {
-            illustrate(placeholder.id);
-          }
+        // Stopped: the server saved what had arrived; apply the same rule locally.
+        const saved = done ?? (() => {
+          const local = settleOutcome(current, plan, latest, false);
+          return { order: local.order, messages: local.upsert, empty: local.empty, toolCalls: [], usage: undefined };
+        })();
+        acceptServerMessages(sessionId, saved.order, saved.messages);
+        if (saved.empty) {
+          if (done) showToast("The model returned an empty reply.");
+          return;
         }
+        const reply = saved.messages.find((m) => m.id === plan.reply.id);
+        addUsage({ tokensIn: saved.usage?.promptTokens ?? 0, tokensOut: saved.usage?.completionTokens ?? estimateTokens(reply?.content ?? ""), messages: 1 });
+        if (!done) return;
+
+        const afterTurn = getChatSession(sessionId);
+        let illustratedByTool = false;
+        for (const tc of saved.toolCalls) {
+          dispatchToolCall(plan.reply.id, tc, afterTurn?.messages ?? []);
+          if (tc.function.name === "illustrate_scene") illustratedByTool = true;
+        }
+        if (afterTurn?.settings.autoIllustrate && !illustratedByTool) illustrate(plan.reply.id);
       } catch (e) {
         const message = errorMessage(e, "Something went wrong while contacting the provider.");
+        const errorRow: ChatMessage = { id: newId(), role: "system", content: message, createdAt: Date.now() };
+        // Put a retried reply back as it was; a new reply becomes the error row.
         update((s) => ({
           ...s,
-          messages: s.messages.map((m) => (m.id === placeholder.id ? { ...m, role: "system", content: message, streaming: false } : m)),
+          messages: plan.user
+            ? s.messages.map((m) => (m.id === placeholder.id ? errorRow : m))
+            : [...s.messages.map((m) => (m.id === placeholder.id ? plan.reply : m)), errorRow],
         }));
       } finally {
         if (abortRef.current === controller) abortRef.current = null;
@@ -479,24 +468,32 @@ export function ChatPage({ sessionId }: ChatPageProps) {
 
   const send = useCallback(
     (text: string) => {
-      const current = getChatSession(sessionId);
-      if (!current || streaming) return;
-      const userMessage: ChatMessage = { id: newId(), role: "user", content: text, createdAt: Date.now() };
-      void runAssistantTurn([...current.messages.filter((m) => m.role !== "system"), userMessage]);
+      if (!streaming) void runTurn(text === CONTINUE_SENTINEL ? "continue" : "take-turn", text);
     },
-    [sessionId, streaming, runAssistantTurn],
+    [streaming, runTurn],
   );
 
-  /** Retry: drop the last assistant reply (or error row) and regenerate from the turn before it. */
+  /** Retry: rolls a new version of the last reply; the previous ones stay one swipe away. */
   const retry = useCallback(() => {
+    if (!streaming) void runTurn("retry");
+  }, [streaming, runTurn]);
+
+  /** Erase: removes the latest message so the player can take back a turn (the opening stays). */
+  const erase = useCallback(() => {
     const current = getChatSession(sessionId);
-    if (!current || streaming) return;
-    const messages = current.messages;
-    let cut = messages.length - 1;
-    while (cut >= 0 && (messages[cut].role === "system" || messages[cut].role === "assistant")) cut -= 1;
-    if (cut < 0) return; // nothing but the opening — nothing to regenerate from
-    void runAssistantTurn(messages.slice(0, cut + 1));
-  }, [sessionId, streaming, runAssistantTurn]);
+    if (!current || streaming || current.messages.length <= 1) return;
+    update((s) => ({ ...s, messages: s.messages.slice(0, -1) }));
+  }, [sessionId, streaming, update]);
+
+  /** Swipes a reply to another of its versions. */
+  const selectChoice = useCallback(
+    (messageId: string, index: number) =>
+      update((s) => ({
+        ...s,
+        messages: s.messages.map((m) => (m.id === messageId && m.choices?.[index] !== undefined ? { ...m, content: m.choices[index], choiceIndex: index } : m)),
+      })),
+    [update],
+  );
 
   const stop = useCallback(() => abortRef.current?.abort(), []);
 
@@ -509,7 +506,12 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   /* ---------------------------------------------------------------- per-message actions */
 
   const editMessage = useCallback(
-    (messageId: string, content: string) => update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === messageId ? { ...m, content } : m)) })),
+    (messageId: string, content: string) =>
+      update((s) => ({
+        ...s,
+        // An edited reply also replaces the version on screen, so swiping away and back keeps the edit.
+        messages: s.messages.map((m) => (m.id === messageId ? { ...m, content, choices: m.choices?.map((c, i) => (i === (m.choiceIndex ?? 0) ? content : c)) } : m)),
+      })),
     [update],
   );
 
@@ -617,6 +619,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
               onRegenerateVideo={(videoId) => regenerateVideo(message.id, videoId)}
               onCheckVideo={(videoId) => checkVideo(message.id, videoId)}
               onEdit={(content) => editMessage(message.id, content)}
+              onSelectChoice={(index) => selectChoice(message.id, index)}
               onAction={(action) => messageAction(message, action)}
             />
           ))}
@@ -634,6 +637,8 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           onSend={send}
           onStop={stop}
           onContinue={() => send(CONTINUE_SENTINEL)}
+          onErase={erase}
+          canErase={session.messages.length > 1}
           onRequestDestinies={requestDestinies}
           onError={showToast}
         />

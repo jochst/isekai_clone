@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { inflateSync } from "node:zlib";
 import { load } from "cheerio";
-import type { Character, StoryCategory, Storyline } from "@/types/isekaizero";
+import type { Character, ChatSettings, StoryCategory, Storyline } from "@/types/isekaizero";
 import { record, string, strings, type ImportedEntry, type ImportSource } from "./types";
 
 export const MAX_IMPORT_BYTES = 20 * 1024 * 1024;
@@ -137,6 +137,7 @@ export function normalizeImport(raw: unknown, origin: { source?: ImportSource; u
     flags: { public: false, sfw: rating === "sfw", mature: rating !== "sfw", monetized: false, featured: false, visualNovelReady: false, dungeonMind: false },
     publishedAt: string(d.publishedAt || d.createdAt) || now, updatedAt: now, version: 1,
     cover: { gradient: ["#423a70", "#233354", "#09172e"], glyph: kind === "story" ? "✧" : "✦", pattern: "stars", imageUrl: coverUrl },
+    ...creatorPrompt(d),
     tokens: { storyline: Math.ceil(plot.length / 4), characters: Math.ceil(cast.map(c => character(c, 0).persona).join("").length / 4), scenario: Math.ceil(opening.length / 4) },
     imported: {
       kind, source, sourceUrl, contentRating: rating, warnings, alternateGreetings,
@@ -145,6 +146,27 @@ export function normalizeImport(raw: unknown, origin: { source?: ImportSource; u
     },
   };
   return { id, kind, source, sourceId, sourceUrl, contentRating: rating, importedAt: now, warnings, storyline, raw };
+}
+
+/** Isekai Zero's advanced-mode prompt fields and default chat settings, when the story exposes them. */
+function creatorPrompt(d: Record<string, unknown>): Pick<Storyline, "prompt" | "defaultChatSettings"> {
+  // Plain text, not HTML: creators use tags like <t>Time|Weather</t> for the scene tracker, which must survive.
+  const prompt = { plot: string(d.promptPlot).trim(), guideline: string(d.promptGuideline).trim(), reminder: string(d.reminder).trim(), outputReminder: string(d.aiOutputReminder).trim() };
+  const s = record(d.defaultChatSettings);
+  const pick = <K extends keyof ChatSettings>(key: K, allowed: readonly unknown[]) => (allowed.includes(s[key]) ? { [key]: s[key] } : {});
+  const defaults: Partial<ChatSettings> = {
+    ...pick("responseLength", ["short", "medium", "long"]),
+    ...pick("temperature", ["low", "medium", "high", "max"]),
+    ...pick("perspective", ["1st", "2nd", "3rd"]),
+    ...pick("aiControlBehavior", ["control", "no-control"]),
+    ...pick("continueBehavior", ["control", "no-control"]),
+    ...pick("responseTokenLimit", ["capped", "high", "max"]),
+    ...pick("reasoning", [true, false]),
+  };
+  return {
+    ...(Object.values(prompt).some(Boolean) ? { prompt } : {}),
+    ...(Object.keys(defaults).length > 0 ? { defaultChatSettings: defaults } : {}),
+  };
 }
 
 function sourceName(value: unknown): ImportSource {

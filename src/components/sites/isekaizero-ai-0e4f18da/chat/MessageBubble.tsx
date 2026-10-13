@@ -1,6 +1,6 @@
 "use client";
 
-import { Image as ImageIcon, Loader2, MoreHorizontal, Pause, Play, RefreshCw, Volume2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, MoreHorizontal, Pause, Play, RefreshCw, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -29,6 +29,8 @@ export interface MessageBubbleProps {
   onRegenerateVideo: (videoId: string) => void;
   onCheckVideo: (videoId: string) => void;
   onEdit: (content: string) => void;
+  /** Swipes a retried reply to another version. */
+  onSelectChoice: (index: number) => void;
   /** Popover actions other than Info/Edit (handled inline) and Illustration (→ onIllustrate). */
   onAction: (action: MessageAction) => void;
 }
@@ -78,6 +80,7 @@ export function MessageBubble({
   onRegenerateVideo,
   onCheckVideo,
   onEdit,
+  onSelectChoice,
   onAction,
 }: MessageBubbleProps) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -232,6 +235,8 @@ export function MessageBubble({
   }
 
   const streaming = Boolean(message.streaming);
+  const choiceCount = message.choices?.length ?? 0;
+  const choiceIndex = message.choiceIndex ?? choiceCount - 1;
 
   return (
     <div className="w-full max-w-full self-start rounded-[16px] border border-[rgba(167,185,255,0.18)] bg-[rgba(17,18,60,0.75)] px-4 py-[14px]">
@@ -297,6 +302,19 @@ export function MessageBubble({
             </>
           )}
         </button>
+        {choiceCount > 1 ? (
+          <span className="flex items-center gap-[2px] text-[12px] text-white/70">
+            <button type="button" aria-label="Previous version" onClick={() => onSelectChoice(choiceIndex - 1)} disabled={streaming || choiceIndex === 0} className={cn(PILL, "px-2")}>
+              <ChevronLeft size={14} />
+            </button>
+            <span className="min-w-[34px] text-center tabular-nums">
+              {choiceIndex + 1}/{choiceCount}
+            </span>
+            <button type="button" aria-label="Next version" onClick={() => onSelectChoice(choiceIndex + 1)} disabled={streaming || choiceIndex === choiceCount - 1} className={cn(PILL, "px-2")}>
+              <ChevronRight size={14} />
+            </button>
+          </span>
+        ) : null}
         {canRetry ? (
           <button type="button" onClick={onRetry} disabled={streaming} className={PILL}>
             <RefreshCw size={14} /> Retry

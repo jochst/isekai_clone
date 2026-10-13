@@ -75,6 +75,10 @@ export interface Storyline {
   opening: string;
   /** World/plot summary used in the system prompt. */
   plot: string;
+  /** Creator's AI-facing fields (Isekai Zero "advanced mode"); absent when the creator kept them secret. */
+  prompt?: { plot?: string; guideline?: string; reminder?: string; outputReminder?: string };
+  /** Creator's default chat settings, applied to new chats unless the player overrides creator settings. */
+  defaultChatSettings?: Partial<ChatSettings>;
   scenarios: { title: string; summary: string }[];
   stats: { plays: number; chats: number; likes: number; saves: number; comments: number; gifts: number };
   flags: { public: boolean; sfw: boolean; monetized: boolean; featured: boolean; visualNovelReady: boolean; dungeonMind: boolean; mature: boolean };
@@ -254,6 +258,9 @@ export interface ChatMessage {
   videos?: SceneVideo[];
   /** Character speaking, when derivable. */
   speaker?: string;
+  /** Every version of an assistant reply (Retry adds one); `content` is `choices[choiceIndex]`. */
+  choices?: string[];
+  choiceIndex?: number;
 }
 
 export interface ChatSettings {
