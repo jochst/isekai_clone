@@ -109,15 +109,23 @@ export function VideoGenerationPage({ className }: VideoGenerationPageProps) {
     setUrlInput("");
   };
 
+  // Double-spend guard: `generating` state lags a render, so a fast double-click could submit twice.
+  const submitting = useRef(false);
   const onGenerate = async () => {
+    if (submitting.current) return;
     setLocalError(null);
     clearError();
     if (needsImage && !source) {
       setLocalError("This model needs a source image.");
       return;
     }
-    const job = await submit({ model: settings.videoModel, prompt: prompt.trim(), params: values, imageUrl: supportsImage && source ? source.url : undefined });
-    if (job) setSelectedId(job.id);
+    submitting.current = true;
+    try {
+      const job = await submit({ model: settings.videoModel, prompt: prompt.trim(), params: values, imageUrl: supportsImage && source ? source.url : undefined });
+      if (job) setSelectedId(job.id);
+    } finally {
+      submitting.current = false;
+    }
   };
 
   const canGenerate = prompt.trim().length > 0 && Boolean(settings.videoModel) && !generating && catalog.videoSupported;

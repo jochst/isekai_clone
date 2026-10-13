@@ -39,6 +39,20 @@ const TEMPERATURE_OPTIONS: readonly SegmentedOption<TemperatureLevel>[] = [
   { value: "max", label: "Max" },
 ];
 
+const TOKEN_LIMIT_OPTIONS: readonly SegmentedOption<"capped" | "high" | "max">[] = [
+  { value: "capped", label: "Capped" },
+  { value: "high", label: "High" },
+  { value: "max", label: "Max" },
+];
+
+const REASONING_EFFORT_OPTIONS: readonly SegmentedOption<"minimal" | "low" | "medium" | "high" | "max">[] = [
+  { value: "minimal", label: "Min" },
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Mid" },
+  { value: "high", label: "High" },
+  { value: "max", label: "Max" },
+];
+
 const REASONING_OPTIONS: readonly SegmentedOption<"off" | "on">[] = [
   { value: "off", label: "Off" },
   { value: "on", label: "On" },
@@ -186,6 +200,16 @@ export function DefaultChatSettingsPage() {
             ) : null}
           </SettingCard>
 
+          <SettingCard title="Response Token Limit" description="Sets the maximum token limit for AI responses">
+            <SegmentedControl
+              label="Response Token Limit"
+              options={TOKEN_LIMIT_OPTIONS}
+              value={settings.responseTokenLimit}
+              onChange={(responseTokenLimit) => update({ responseTokenLimit })}
+            />
+            {settings.responseTokenLimit === "max" ? <p className="mt-2 text-[11px] leading-[15px] text-[rgb(255,168,168)]">This will prevent truncation but it will not stop the model from over yapping</p> : null}
+          </SettingCard>
+
           <SettingCard
             title="Reasoning"
             description="Squeeze more intelligence out of the model, but it will increase output token cost"
@@ -197,6 +221,17 @@ export function DefaultChatSettingsPage() {
               onChange={(v) => update({ reasoning: v === "on" })}
             />
           </SettingCard>
+
+          {settings.reasoning ? (
+            <SettingCard title="Reasoning Effort" description="Controls how much effort the model puts into reasoning">
+              <SegmentedControl
+                label="Reasoning Effort"
+                options={REASONING_EFFORT_OPTIONS}
+                value={settings.reasoningEffort}
+                onChange={(reasoningEffort) => update({ reasoningEffort })}
+              />
+            </SettingCard>
+          ) : null}
 
           <SettingCard title="Perspective" description="Set the narrative perspective for AI responses">
             <SegmentedControl

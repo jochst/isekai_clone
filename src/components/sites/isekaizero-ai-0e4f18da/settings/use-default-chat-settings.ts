@@ -23,6 +23,8 @@ export interface DefaultChatSettings {
   responseLength: ResponseLength;
   temperature: TemperatureLevel;
   reasoning: boolean;
+  reasoningEffort: "minimal" | "low" | "medium" | "high" | "max";
+  responseTokenLimit: "capped" | "high" | "max";
   perspective: Perspective;
   continueBehavior: ContinueBehavior;
   /** Default instructions for scene illustration / light novel adaptations */
@@ -50,6 +52,8 @@ export const DEFAULT_CHAT_SETTINGS: DefaultChatSettings = {
   responseLength: "medium",
   temperature: "mid",
   reasoning: false,
+  reasoningEffort: "medium",
+  responseTokenLimit: "capped",
   perspective: "none",
   continueBehavior: "control",
   lightNovelPromptInstructions: "",

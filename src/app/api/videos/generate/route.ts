@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { inlineLocalMedia } from "@/lib/chats/media";
 import { VIDEO_UNSUPPORTED_REASON } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
-import { authHeaders, isNanoGpt, nativeApiBase, providerErrorMessage, readProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
+import { authHeaders, fetchWithRetry, isNanoGpt, nativeApiBase, providerErrorMessage, readProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
 
   let upstream: Response;
   try {
-    upstream = await fetch(`${nativeApiBase(ctx)}/generate-video`, {
+    upstream = await fetchWithRetry(`${nativeApiBase(ctx)}/generate-video`, {
       method: "POST",
       headers: authHeaders(ctx),
       body: JSON.stringify(payload),

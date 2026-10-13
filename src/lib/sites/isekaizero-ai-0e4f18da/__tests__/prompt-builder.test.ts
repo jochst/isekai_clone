@@ -51,13 +51,19 @@ describe("Isekai Zero creator fields", () => {
   it("gives reasoning turns room to think, since hidden reasoning counts against max_tokens", () => {
     expect(assemblePrompt(story, session({ ...DEFAULT_CHAT_SETTINGS, reasoning: true })).maxTokens).toBe(4450);
   });
+
+  it("Max lifts the cap so replies are never cut off, and effort only applies with reasoning on", () => {
+    expect(assemblePrompt(story, session({ ...DEFAULT_CHAT_SETTINGS, responseTokenLimit: "max" })).maxTokens).toBe(8192);
+    expect(assemblePrompt(story, session({ ...DEFAULT_CHAT_SETTINGS, reasoningEffort: "high" })).reasoningEffort).toBeUndefined();
+    expect(assemblePrompt(story, session({ ...DEFAULT_CHAT_SETTINGS, reasoning: true, reasoningEffort: "high" })).reasoningEffort).toBe("high");
+  });
 });
 
 describe("resolveNewChatSettings", () => {
   const player = { ...PLAYER_DEFAULTS, temperature: "low" as const, perspective: "1st" as const, customPrompt: "Be brief." };
   it("lets the creator's defaults win unless the player overrides creator settings", () => {
     expect(resolveNewChatSettings(DEFAULT_CHAT_SETTINGS, player, story.defaultChatSettings)).toMatchObject({ temperature: "high", perspective: "3rd", guidancePrompt: "Be brief." });
-    expect(resolveNewChatSettings(DEFAULT_CHAT_SETTINGS, { ...player, overrideCreator: true }, story.defaultChatSettings)).toMatchObject({ temperature: "low", perspective: "1st", responseTokenLimit: "max" });
+    expect(resolveNewChatSettings(DEFAULT_CHAT_SETTINGS, { ...player, overrideCreator: true }, story.defaultChatSettings)).toMatchObject({ temperature: "low", perspective: "1st", responseTokenLimit: "capped" });
   });
   it("maps the defaults page's own enums", () => {
     expect(resolveNewChatSettings(DEFAULT_CHAT_SETTINGS, { ...PLAYER_DEFAULTS, temperature: "mid", perspective: "none", continueBehavior: "dont-control" })).toMatchObject({ temperature: "medium", perspective: "2nd", continueBehavior: "no-control" });

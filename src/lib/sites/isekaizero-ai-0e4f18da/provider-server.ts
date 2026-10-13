@@ -74,8 +74,12 @@ export function authHeaders(ctx: ProviderContext): Record<string, string> {
  * deepseek/deepseek-latest) otherwise think silently and can spend the whole max_tokens before writing a word.
  * Only sent to providers known to accept it; plain OpenAI-compatible servers may reject unknown fields.
  */
-export function reasoningParams(ctx: ProviderContext, reasoning: boolean): Record<string, unknown> {
-  return !reasoning && (ctx.preset === "nano-gpt" || ctx.preset === "openrouter") ? { reasoning: { enabled: false } } : {};
+export function reasoningParams(ctx: ProviderContext, reasoning: boolean, effort?: string): Record<string, unknown> {
+  if (ctx.preset !== "nano-gpt" && ctx.preset !== "openrouter") return {};
+  if (!reasoning) return { reasoning: { enabled: false } };
+  if (!effort) return {};
+  // NanoGPT takes reasoning_effort minimal…max (verified live); OpenRouter's scale stops at "high".
+  return ctx.preset === "nano-gpt" ? { reasoning_effort: effort } : { reasoning: { effort: effort === "max" ? "high" : effort } };
 }
 
 export function isNanoGpt(ctx: ProviderContext): boolean {
@@ -85,6 +89,33 @@ export function isNanoGpt(ctx: ProviderContext): boolean {
 /** NanoGPT's native (non-OpenAI-compatible) API root, e.g. https://nano-gpt.com/api for base https://nano-gpt.com/api/v1. */
 export function nativeApiBase(ctx: ProviderContext): string {
   return ctx.baseUrl.replace(/\/v1\/?$/, "");
+}
+
+const RETRIES_ON_429 = 3;
+const MAX_RETRY_WAIT_MS = 30_000;
+
+function retryDelay(res: Response, attempt: number): number {
+  const header = res.headers.get("retry-after");
+  const seconds = header ? Number(header) : NaN;
+  const fromHeader = Number.isFinite(seconds) ? seconds * 1000 : header ? Date.parse(header) - Date.now() : NaN;
+  const backoff = 1000 * 2 ** attempt + Math.random() * 250;
+  return Math.min(MAX_RETRY_WAIT_MS, Math.max(0, Number.isFinite(fromHeader) ? fromHeader : backoff));
+}
+
+/**
+ * fetch() that waits and retries when the provider answers 429 (rate limited), honouring Retry-After and
+ * otherwise backing off 1s/2s/4s. A 429 means the request was refused, so retrying can't double-charge.
+ * Other errors are returned as-is: NanoGPT advises against blind retries on 4xx.
+ */
+export async function fetchWithRetry(url: string, init: RequestInit = {}, sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))): Promise<Response> {
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(url, init);
+    if (res.status !== 429 || attempt >= RETRIES_ON_429 || init.signal?.aborted) return res;
+    const wait = retryDelay(res, attempt);
+    await res.body?.cancel().catch(() => {});
+    await sleep(wait);
+    if (init.signal?.aborted) return res;
+  }
 }
 
 export async function providerErrorMessage(res: Response): Promise<string> {

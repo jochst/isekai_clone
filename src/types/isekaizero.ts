@@ -196,8 +196,10 @@ export interface ProviderSettings {
   apiKey: string;
   /** Selected text model id (provider-facing). */
   textModel: string;
-  /** Selected image model id (provider-facing). */
+  /** Selected image model id (provider-facing), used for scene illustrations. */
   imageModel: string;
+  /** Model for high-volume automatic images (character portraits, backgrounds); "" = the preset's default. */
+  portraitModel?: string;
   /** Whether scene images are generated automatically for every new AI message. */
   autoIllustrate: boolean;
   imageSize: string;
@@ -263,6 +265,8 @@ export interface ChatMessage {
   choiceIndex?: number;
 }
 
+export type ReasoningEffort = "minimal" | "low" | "medium" | "high" | "max";
+
 export interface ChatSettings {
   modelId: string | "auto";
   responseLength: "short" | "medium" | "long";
@@ -279,8 +283,10 @@ export interface ChatSettings {
   aiControlBehavior?: "control" | "no-control";
   /** Whether the AI may write for or control the player character during continue */
   continueBehavior?: "control" | "no-control";
-  /** Maximum token limit: capped (~220/450/800), high, max */
+  /** Response Token Limit: capped (the length's normal cap), high (double), max (no truncation, 8192). */
   responseTokenLimit?: "capped" | "high" | "max";
+  /** How hard a reasoning model thinks when Reasoning is on. */
+  reasoningEffort?: ReasoningEffort;
   /** Custom instructions included in the system prompt to guide AI responses (up to 10k tokens) */
   guidancePrompt?: string;
   /** AI Output Reminder appended to every user message (up to 500 characters) */
