@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { isNanoGpt, nativeApiBase, readProviderContext, readVoiceContext, type ProviderContext } from "../provider-server";
+import { isNanoGpt, nativeApiBase, readProviderContext, readVoiceContext, reasoningParams, type ProviderContext } from "../provider-server";
 
 const ctx = (baseUrl: string, preset = "nano-gpt"): ProviderContext => ({ baseUrl, imageBaseUrl: "", apiKey: "k", preset });
 
@@ -40,5 +40,14 @@ describe(".env.local keys", () => {
   it("uses ELEVENLABS_API_KEY for ElevenLabs voice", () => {
     vi.stubEnv("ELEVENLABS_API_KEY", "xi-env");
     expect(readVoiceContext(nano({ "x-iz-voice-provider": "elevenlabs" }))).toMatchObject({ apiKey: "xi-env", baseUrl: "https://api.elevenlabs.io/v1" });
+  });
+});
+
+describe("reasoningParams", () => {
+  it("turns hidden reasoning off for NanoGPT and OpenRouter only", () => {
+    expect(reasoningParams(ctx("https://x", "nano-gpt"), false)).toEqual({ reasoning: { enabled: false } });
+    expect(reasoningParams(ctx("https://x", "openrouter"), false)).toEqual({ reasoning: { enabled: false } });
+    expect(reasoningParams(ctx("https://x", "nano-gpt"), true)).toEqual({});
+    expect(reasoningParams(ctx("https://x", "custom"), false)).toEqual({});
   });
 });

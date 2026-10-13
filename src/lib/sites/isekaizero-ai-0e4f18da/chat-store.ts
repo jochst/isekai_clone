@@ -15,6 +15,7 @@ import type { ChatMessage, ChatSession, ChatSettings, ChatSummary, SceneImage, S
 import { CONTINUE_SENTINEL } from "@/types/isekaizero";
 
 import { readProviderSettings } from "./provider-settings";
+import { readDefaultChatSettings, type DefaultChatSettings } from "@/components/sites/isekaizero-ai-0e4f18da/settings/use-default-chat-settings";
 import { replaceCardMacros } from "@/lib/imports/prompt";
 
 export const USAGE_STORAGE_KEY = "iz.usage.v1";
@@ -66,8 +67,34 @@ export const DEFAULT_CHAT_SETTINGS: ChatSettings = {
   imageGenPerspective: "3rd-person",
 };
 
-export function buildDefaultChatSettings(): ChatSettings {
-  return { ...DEFAULT_CHAT_SETTINGS, autoIllustrate: readProviderSettings().autoIllustrate };
+/** The player's Default Chat Settings page, in chat-settings terms (its own enums differ slightly). */
+export function playerDefaults(d: DefaultChatSettings): Partial<ChatSettings> {
+  return {
+    modelId: d.modelId,
+    responseLength: d.responseLength,
+    temperature: d.temperature === "mid" ? "medium" : d.temperature,
+    reasoning: d.reasoning,
+    ...(d.perspective !== "none" ? { perspective: d.perspective } : {}),
+    continueBehavior: d.continueBehavior === "dont-control" ? "no-control" : "control",
+    ...(d.customPrompt.trim() ? { guidancePrompt: d.customPrompt } : {}),
+    lightNovelPromptInstructions: d.lightNovelPromptInstructions ?? "",
+    autoCreateCharacter: d.autoCreateCharacter ?? false,
+    autoEditCharacter: d.autoEditCharacter ?? false,
+    imageGenPerspective: d.imageGenPerspective ?? "3rd-person",
+  };
+}
+
+/**
+ * Settings for a new chat, as on Isekai Zero: the player's defaults, then the creator's defaults on top
+ * (they know their story), unless the player turned on "Override creator settings".
+ */
+export function resolveNewChatSettings(base: ChatSettings, player: DefaultChatSettings, creator: Partial<ChatSettings> = {}): ChatSettings {
+  const mine = playerDefaults(player);
+  return player.overrideCreator ? { ...base, ...creator, ...mine } : { ...base, ...mine, ...creator };
+}
+
+export function buildDefaultChatSettings(storyline?: Storyline): ChatSettings {
+  return resolveNewChatSettings({ ...DEFAULT_CHAT_SETTINGS, autoIllustrate: readProviderSettings().autoIllustrate }, readDefaultChatSettings(), storyline?.defaultChatSettings);
 }
 
 /** Older chats lack newer settings fields. */
@@ -321,7 +348,7 @@ export function createChatSession(storyline: Storyline, opts: CreateChatOptions 
     createdAt: now,
     updatedAt: now,
     playerName,
-    settings: buildDefaultChatSettings(),
+    settings: buildDefaultChatSettings(storyline),
     messages: opening ? [{ id: newId(), role: "assistant", content: storyline.imported ? replaceCardMacros(opening, storyline.characters[0]?.name || storyline.title, playerName) : opening, createdAt: now, speaker: "Narrator" }] : [],
   };
   put(session);
@@ -344,6 +371,25 @@ export function updateSession(id: string, patch: SessionPatch, opts: UpdateOptio
   if (!current) return;
   const next = typeof patch === "function" ? patch(current) : { ...current, ...patch };
   sessions.set(id, opts.touch === false ? next : { ...next, updatedAt: Date.now() });
+  emit();
+  scheduleSync(id);
+}
+
+/**
+ * Takes the messages a server turn saved: the cache and the server-confirmed copy both become `order`,
+ * with `saved` replacing the local versions, so nothing is sent back.
+ */
+export function acceptServerMessages(id: string, order: string[], saved: ChatMessage[]): void {
+  const current = sessions.get(id);
+  if (!current) return;
+  const savedById = new Map(saved.map((m) => [m.id, m]));
+  const pick = (list: ChatMessage[]) => {
+    const byId = new Map(list.map((m) => [m.id, m]));
+    return order.map((mid) => savedById.get(mid) ?? byId.get(mid)).filter((m): m is ChatMessage => m !== undefined);
+  };
+  sessions.set(id, { ...current, messages: pick(current.messages), updatedAt: Date.now() });
+  const previous = synced.get(id);
+  if (previous) synced.set(id, { ...previous, messages: pick(previous.messages) });
   emit();
   scheduleSync(id);
 }

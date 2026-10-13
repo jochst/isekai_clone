@@ -1,6 +1,6 @@
 "use client";
 
-import { Dices, Image as ImageIcon, Loader2, Play, Send, Square } from "lucide-react";
+import { Dices, Eraser, Image as ImageIcon, Loader2, Play, Send, Square } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 
@@ -20,6 +20,9 @@ export interface ComposerProps {
   onSend: (text: string) => void;
   onStop: () => void;
   onContinue: () => void;
+  /** Removes the latest message (disabled when only the opening is left). */
+  onErase: () => void;
+  canErase: boolean;
   /** Resolves with up to three suggested actions ("Choose Your Destiny"). */
   onRequestDestinies: () => Promise<string[]>;
   onError: (message: string) => void;
@@ -40,6 +43,8 @@ export function Composer({
   onSend,
   onStop,
   onContinue,
+  onErase,
+  canErase,
   onRequestDestinies,
   onError,
 }: ComposerProps) {
@@ -126,6 +131,9 @@ export function Composer({
         <div className="flex items-center gap-2">
           <button type="button" onClick={onContinue} disabled={!configured || streaming} className={QUICK_PILL}>
             <Play size={14} /> Continue
+          </button>
+          <button type="button" onClick={onErase} disabled={streaming || !canErase} className={QUICK_PILL}>
+            <Eraser size={14} /> Erase
           </button>
           <button
             type="button"
