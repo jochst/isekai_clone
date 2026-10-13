@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Palette, Play, SlidersHorizontal, Wand2 } from "lucide-react";
 
 import { LLM_CATALOG } from "@/lib/sites/isekaizero-ai-0e4f18da/catalog";
+import { useModelCatalog } from "../llms/use-model-catalog";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 
 import { SettingsShell, type SettingsTab } from "./SettingsShell";
@@ -85,9 +86,13 @@ export function DefaultChatSettingsPage() {
   const [settings, update, reset] = useDefaultChatSettings();
   const [provider, updateProvider] = useProviderSettings();
 
-  const selectedModel = settings.modelId === "auto" ? undefined : LLM_CATALOG.find((m) => m.id === settings.modelId);
-  const modelTitle = selectedModel?.name ?? AUTO_TITLE;
-  const modelDescription = selectedModel?.description || AUTO_DESCRIPTION;
+  const { byokModels, presetLabel } = useModelCatalog();
+  const isAuto = settings.modelId === "auto";
+  const catalogModel = isAuto ? undefined : LLM_CATALOG.find((m) => m.id === settings.modelId);
+  // A model picked from the provider list is stored as its provider id (e.g. "deepseek/deepseek-latest").
+  const providerModel = isAuto || catalogModel ? undefined : byokModels.find((m) => m.model === settings.modelId || m.id === settings.modelId);
+  const modelTitle = isAuto ? AUTO_TITLE : catalogModel?.name ?? providerModel?.name ?? settings.modelId.replace(/^byok:/, "");
+  const modelDescription = isAuto ? AUTO_DESCRIPTION : catalogModel?.description || `From your ${presetLabel} models`;
 
   return (
     <SettingsShell
@@ -124,10 +129,12 @@ export function DefaultChatSettingsPage() {
             </span>
           </Link>
 
-          <InfoNote>
-            On Auto, new chats follow the recommended model and its own default settings. Select a default AI model to
-            customize your default chat settings.
-          </InfoNote>
+          {isAuto ? (
+            <InfoNote>
+              On Auto, new chats follow the recommended model and its own default settings. Select a default AI model to
+              customize your default chat settings.
+            </InfoNote>
+          ) : null}
 
           <AccordionCard title="Custom Prompts">
             <label htmlFor="iz-custom-prompt" className="sr-only">

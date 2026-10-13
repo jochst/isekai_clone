@@ -98,15 +98,13 @@ export function LlmPickerPage({ selectedId, onSelect }: LlmPickerPageProps) {
   const [compact, setCompact] = useState(false);
 
   const catalog = useModelCatalog();
-  const { configured, hydrated, presetLabel, byokStatus, byokError, byokModels, catalogModels, chips, updateSettings } = catalog;
+  const { configured, hydrated, presetLabel, byokStatus, byokError, byokModels, catalogModels, chips } = catalog;
 
   const visibleCatalog = useMemo(() => catalogModels.filter((m) => matchesTier(m, tier) && matchesProvider(m, chip)), [catalogModels, tier, chip]);
   const visibleByok = useMemo(() => byokModels.filter((m) => matchesTier(m, tier) && matchesProvider(m, chip)), [byokModels, tier, chip]);
 
-  const selectByok = (model: LlmModel) => {
-    updateSettings({ textModel: model.model });
-    onSelect(model.id, true);
-  };
+  // The picker sets this chat's (or the defaults') model only; the provider-wide default stays as it is.
+  const selectByok = (model: LlmModel) => onSelect(model.model, true);
 
   const isByokSelected = (model: LlmModel) => selectedId === model.id || selectedId === model.model;
 

@@ -178,28 +178,56 @@ Media files go on disk under `data/media/` and are served through a route. Provi
 
 Each phase ends green on `npm run check` (lint + typecheck + build + tests).
 
-### Phase 0: Consolidate (small)
-- [ ] Merge `jochst/add_image_vid_generation` (ADR-5) and unify on Vitest.
-- [ ] Move NanoGPT and ElevenLabs keys to `.env.local`. Settings page shows "configured / missing" instead of key inputs.
-- [ ] Home page: replace `mock-data.ts` rows with `dev.db` queries (trending, most messages, recently released, per-category rows from `engagementJson`/`publishedAt`).
-- [ ] Remove mock stories from Explore and Related. Move the `story-db.ts:63` filtering into SQL (search, sort, paging) to match the real sort options.
-- [ ] Map the unmapped categories (see `docs/unmapped-story-categories.md`) to the real 21 categories.
-- **Exit:** no page imports `mock-data.ts` except tests.
+### Phase 0: Consolidate (small) — done, PR #17
+- [x] Merge `jochst/add_image_vid_generation` (ADR-5) and unify on Vitest.
+- [x] Move NanoGPT and ElevenLabs keys to `.env.local` (moved to Phase 1b, PR #20).
+- [x] Home page: replace `mock-data.ts` rows with `dev.db` queries, including the site's daily "Trending Today in …" category rotation.
+- [x] Remove mock stories from Explore and Related.
+  - Deferred: moving Explore's filtering into SQL. Client-side filtering of about 6k cards is still fast.
+- [x] Map the unmapped categories to the real 21 (8 added).
+- [x] Also done: Antigravity's invented tool schemas replaced with the real `ai-tools.json` (ADR-6).
+- **Exit met:** no page lists mock stories. Mock stories stay resolvable by id, so old chats keep working.
 
-### Phase 1: Persistence and the server-side chat API (large, the foundation)
-- [ ] Add the Prisma models from ADR-2, plus a migration.
-- [ ] Media store: write generated images and videos to `data/media/`, served by `/api/media/[id]`.
-- [ ] Endpoints: `POST /api/chats` (start: persona, scenario/greeting, settings snapshot) and `POST /api/chats/[id]/messages` with the full `type` set, streaming SSE.
-- [ ] `assemblePrompt()` in the §3.3 order:
-  - verbatim perspective and length lines pulled from `en_flat.tsv`
-  - **`defaultChatSettingsJson` from the story merged with your Default Chat Settings** (honouring "override creator settings")
-- [ ] Message choices: retry adds a choice and the UI swipes between them; plus edit, delete, branch, rewind/undo and erase.
-- [ ] One-time localStorage → SQLite import.
-- [ ] Tests: prompt-assembly snapshot tests per settings combination, and route tests against `scripts/mock-provider.mjs`.
-- **Exit:** a chat survives a reload with images, and every composer action works.
+### Phase 1: Persistence and the server-side chat API (large, the foundation) — done, PRs #19–#22
+- [x] **Storage (1a, #19):** chats live in `data/chats.sqlite`, not `dev.db`.
+  - Deviation from ADR-2: a separate file, because `npm run db:restore` replaces `dev.db` wholesale. It uses `node:sqlite`, like the import database.
+- [x] **Media store (1a):** generated images and videos are saved to `data/media/` and served by `/api/media/[file]`. Local files are inlined when sent to the provider.
+- [x] **Keys (1b, #20):** provider keys are read from `.env.local` on the server and never reach the browser.
+- [x] **Turn API (1c, #21):** `POST /api/chats/[id]/turn` handles take-turn, continue and retry, streaming SSE.
+  - It builds the prompt and saves the reply on the server.
+  - Other turn types (improvise, OOC, …) are in Phase 4.
+- [x] **Prompt assembly (1c):** `assemblePrompt()` follows the §3.3 order, including the creator's advanced-mode fields:
+  - `promptPlot` and `promptGuideline`
+  - `reminder`, placed after the history
+  - `aiOutputReminder`, attached to each player turn
+- [x] **Creator default settings (1c):** a story's `defaultChatSettings` is merged with your Default Chat Settings, honouring "Override creator settings".
+- [x] **Message choices (1c):** retry adds a version and the UI swipes between versions. Edit, delete, branch and erase also work.
+- [x] **One-time import (1a):** existing chats move from localStorage to SQLite.
+- [x] **Tests:** the route and prompt tests pass.
+  - Every phase is now also tested live against NanoGPT before merge, and that found two bugs the mock couldn't:
+    - reasoning models spent the whole token cap thinking
+    - Seedream was billed at the 2k price
+- [x] **Reply limits (1d, #22):** Response Token Limit (Capped/High/Max) and Reasoning Effort.
+  - Hidden reasoning is turned off when Reasoning is off.
+- [x] **Images and rate limits (1d):**
+  - Per-job image models: Seedream for scenes, HiDream O1 Dev for portraits.
+  - Tiered image sizes.
+  - Retry on 429.
+  - Double-spend guards.
+- **Exit met:** a chat survives a reload with images, and every composer action works.
+
+### Phase 1 follow-up: provider models in every model picker
+The gap: Default Chat Settings could only really use models from the site's built-in catalog, not your NanoGPT model ids.
+- [x] Picking a provider model stores its plain id (e.g. `z-ai/glm-4.7`).
+  - Before: the internal `byok:` prefix was saved and then copied into the global text model, so the app would have sent `byok:…` to NanoGPT.
+  - Old `byok:` values are repaired when read.
+- [x] `resolveTextModel` sends a chat's own provider model as-is. Before, it silently fell back to the provider default.
+- [x] The chat and Default Chat Settings pickers set only their own model. The provider default in Settings → Providers stays unchanged.
+- [x] Default Chat Settings shows the picked model's name ("GLM 4.7 — From your NanoGPT models"). The "On Auto" note only shows on Auto.
 
 ### Phase 2: Memory and context management
 - [ ] Token counting per model context length (from NanoGPT `/models`).
+  - Provider models currently assume 128k, because `resolveTextModel` has no context length for them.
 - [ ] Chapter summaries every about 20 messages; arc summaries every 5–10 chapters. Settings: summarizer model, detail level, auto/manual, write-your-own, regenerate, enable/disable, delete latest only.
 - [ ] Trimming order: oldest raw messages → oldest chapters. Show "Chapters x/y trimmed", "Memory Almost Full" and "Context Full".
 - [ ] Usage info popover: tokens, cache, tokens per second, cost.
@@ -229,7 +257,9 @@ Each phase ends green on `npm run check` (lint + typecheck + build + tests).
 - [ ] **Manga:** 1–8 panels per page, up to 2 pages; per-page edit, regenerate and revert. Built from an LLM panel script plus NanoGPT images.
 - [ ] **Video scenes:** up to 2 chained 15 s beats with character references (extends the merged Animate feature).
 - [ ] **Voice:** Narration, Drama (a voice per character) and Audiobook modes; separate speaking rates; per-character voice assignment; auto-narrate.
-- [ ] **Music:** blocked on the ADR-4 open question.
+- [ ] **Music:** via NanoGPT.
+  - Most music models are synchronous on `/v1/audio/speech`.
+  - Some, e.g. `Elevenlabs-Music-V1`, are async and polled through `/api/tts/status`.
 - **Exit:** one story plays fully in VN mode with voices.
 
 ### Phase 6: Creation studio
@@ -249,7 +279,9 @@ Each phase ends green on `npm run check` (lint + typecheck + build + tests).
 Everything listed under ADR-1. Also: server deployment, accounts, multi-device sync, i18n beyond English, the sister site (`isekai.world`) import, and the live-streaming host.
 
 ## 7. Open questions (need your call)
-1. **Music:** worth adding a provider (ElevenLabs music or another), or skip soundtracks?
+1. ~~**Music:**~~ Answered: NanoGPT has music generation, so no extra provider is needed.
 2. **Comments:** scrape and show the real comments read-only, or remove the panel?
 3. **Phase order:** Phase 5 (media) could come before Phase 3 (DM tools) if visual novel / voice matters more to you than dice and stats.
-4. **Model per role:** which NanoGPT models for story, summarizer, Media Picker and Assist. One cheap model for the helper roles keeps cost down.
+4. **Model per role:** which NanoGPT models for summarizer, Media Picker and Assist. One cheap model for the helper roles keeps cost down.
+   - Partly answered: images are split by job, with Seedream 5.0 Pro for scenes and `hidream-o1-image-dev` for portraits.
+   - The story model is whatever you pick per chat or in Default Chat Settings.

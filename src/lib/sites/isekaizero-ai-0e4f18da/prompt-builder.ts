@@ -45,16 +45,22 @@ export interface ResolvedTextModel {
   auto: boolean;
 }
 
+/** Older saves stored provider models as "byok:<id>"; the provider only knows <id>. */
+const providerModelId = (id: string) => (id.startsWith("byok:") ? id.slice("byok:".length) : id);
+
 /**
- * "auto" and BYOK ids resolve to `ProviderSettings.textModel`; a platform catalog id sends the catalog row's
- * `model` string (the provider may or may not serve it — errors surface inline in the chat).
+ * "auto" resolves to `ProviderSettings.textModel` (Settings → Providers). Any other id is either a platform
+ * catalog id, which sends the catalog row's `model` string, or a provider model id (e.g. a NanoGPT id picked
+ * in an LLM picker), which is sent as-is. Errors from the provider surface inline in the chat.
  */
 export function resolveTextModel(settings: ChatSettings, provider: ProviderSettings): ResolvedTextModel {
   if (settings.modelId !== "auto") {
     const row = LLM_CATALOG.find((m) => m.id === settings.modelId);
     if (row) return { id: row.model, name: row.name, description: row.description, contextLimit: row.contextLimit, auto: false };
+    const own = providerModelId(settings.modelId);
+    if (own) return { id: own, name: own, description: "A model from your provider.", contextLimit: DEFAULT_CONTEXT_LIMIT, auto: false };
   }
-  const id = provider.textModel;
+  const id = providerModelId(provider.textModel);
   const row = LLM_CATALOG.find((m) => m.model === id || m.id === id);
   return {
     id,

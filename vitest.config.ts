@@ -11,5 +11,7 @@ export default defineConfig({
   test: {
     include: ["src/**/*.test.ts", "tests/**/*.test.ts"],
     environment: "node",
+    // Never let a real provider key from the shell reach tests (where a failing assertion would print it).
+    env: { NANOGPT_API_KEY: "", ELEVENLABS_API_KEY: "", OPENAI_API_KEY: "", OPENROUTER_API_KEY: "", CUSTOM_API_KEY: "" },
   },
 });
