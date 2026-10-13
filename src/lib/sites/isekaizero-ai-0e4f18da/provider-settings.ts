@@ -86,6 +86,60 @@ export const DEFAULT_PROVIDER_SETTINGS: ProviderSettings = {
 
 const CHANGE_EVENT = "iz:provider-settings";
 
+/**
+ * Stand-in for a key that lives in the server's `.env.local`. The real key never reaches the browser:
+ * settings read with this value count as configured, it is never stored, and it is never sent.
+ */
+export const ENV_KEY = "env";
+
+/** Which providers have a key in `.env.local` (from `/api/providers/keys`); null until loaded. */
+let serverKeys: Record<string, boolean> | null = null;
+let serverKeysRequested = false;
+
+function loadServerKeys(): void {
+  if (serverKeysRequested || typeof window === "undefined") return;
+  serverKeysRequested = true;
+  fetch("/api/providers/keys", { cache: "no-store" })
+    .then((res) => (res.ok ? (res.json() as Promise<{ keys: Record<string, boolean> }>) : null))
+    .then((json) => {
+      if (!json) return;
+      serverKeys = json.keys;
+      cachedRaw = undefined; // re-overlay on next read
+      // A key typed into the browser earlier is redundant once .env.local has one: drop the browser copy.
+      const stored = parse(storedRaw());
+      if ((serverKeys[stored.preset] && stored.apiKey) || (serverKeys.elevenlabs && stored.voiceProvider === "elevenlabs" && stored.voiceApiKey)) {
+        writeProviderSettings(stored);
+      } else {
+        window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
+      }
+    })
+    .catch(() => {
+      serverKeysRequested = false;
+    });
+}
+
+function storedRaw(): string | null {
+  try {
+    return window.localStorage.getItem(PROVIDER_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+/** Puts `ENV_KEY` in place of keys the server holds. */
+function withServerKeys(s: ProviderSettings): ProviderSettings {
+  if (!serverKeys) return s;
+  const apiKey = serverKeys[s.preset] ? ENV_KEY : s.apiKey;
+  const voiceApiKey = serverKeys.elevenlabs && s.voiceProvider === "elevenlabs" ? ENV_KEY : s.voiceApiKey;
+  return apiKey === s.apiKey && voiceApiKey === s.voiceApiKey ? s : { ...s, apiKey, voiceApiKey };
+}
+
+/** Keys the server holds are never written to browser storage. */
+function withoutServerKeys(s: ProviderSettings): ProviderSettings {
+  const drop = (key: string | undefined, held: boolean | undefined) => (key === ENV_KEY || held ? "" : key);
+  return { ...s, apiKey: drop(s.apiKey, serverKeys?.[s.preset]) ?? "", voiceApiKey: drop(s.voiceApiKey, serverKeys?.elevenlabs && s.voiceProvider === "elevenlabs") };
+}
+
 /* Snapshot cache so useSyncExternalStore gets a stable reference for an unchanged raw value. */
 let cachedRaw: string | null | undefined;
 let cachedSettings: ProviderSettings = DEFAULT_PROVIDER_SETTINGS;
@@ -102,7 +156,8 @@ function parse(raw: string | null): ProviderSettings {
 
 export function readProviderSettings(): ProviderSettings {
   if (typeof window === "undefined") return DEFAULT_PROVIDER_SETTINGS;
-  if (memoryFallback) return memoryFallback;
+  loadServerKeys();
+  if (memoryFallback) return withServerKeys(memoryFallback);
   let raw: string | null = null;
   try {
     raw = window.localStorage.getItem(PROVIDER_STORAGE_KEY);
@@ -111,13 +166,15 @@ export function readProviderSettings(): ProviderSettings {
   }
   if (raw !== cachedRaw) {
     cachedRaw = raw;
-    cachedSettings = parse(raw);
+    cachedSettings = withServerKeys(parse(raw));
   }
   return cachedSettings;
 }
 
-export function writeProviderSettings(next: ProviderSettings): void {
+export function writeProviderSettings(value: ProviderSettings): void {
   if (typeof window === "undefined") return;
+  const next = withoutServerKeys(value);
+  cachedRaw = undefined;
   try {
     window.localStorage.setItem(PROVIDER_STORAGE_KEY, JSON.stringify(next));
   } catch {
@@ -131,17 +188,17 @@ export function isProviderConfigured(s: ProviderSettings): boolean {
   return Boolean(s.baseUrl && s.apiKey && s.textModel);
 }
 
-/** Headers attached by the client to every /api/* request so the server never has to store a key. */
+/** Headers attached by the client to every /api/* request; keys the server holds in .env.local are left out. */
 export function providerHeaders(s: ProviderSettings): Record<string, string> {
   const h: Record<string, string> = {
     "x-iz-base-url": s.baseUrl,
     "x-iz-image-base-url": s.imageBaseUrl || s.baseUrl,
-    "x-iz-api-key": s.apiKey,
     "x-iz-preset": s.preset,
   };
+  if (s.apiKey !== ENV_KEY) h["x-iz-api-key"] = s.apiKey;
   if (s.voiceProvider) h["x-iz-voice-provider"] = s.voiceProvider;
   if (s.voiceBaseUrl) h["x-iz-voice-base-url"] = s.voiceBaseUrl;
-  if (s.voiceApiKey) h["x-iz-voice-api-key"] = s.voiceApiKey;
+  if (s.voiceApiKey && s.voiceApiKey !== ENV_KEY) h["x-iz-voice-api-key"] = s.voiceApiKey;
   if (s.voiceModel) h["x-iz-voice-model"] = s.voiceModel;
   if (s.voiceId) h["x-iz-voice-id"] = s.voiceId;
   if (s.voiceSpeed !== undefined) h["x-iz-voice-speed"] = String(s.voiceSpeed);

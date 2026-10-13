@@ -12,6 +12,7 @@ import {
   providerHeaders,
   useProviderSettings,
   type ProviderPresetDef,
+  ENV_KEY,
 } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import { VOICE_CATALOG, generateSpeech, speakWithBrowser, stopBrowserSpeech } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import type { ProviderSettings, VoiceProvider } from "@/types/isekaizero";
@@ -34,6 +35,25 @@ import {
 } from "./ui";
 
 type TabKey = "provider" | "models" | "voice" | "usage";
+
+/** Mirrors ENV_KEYS in provider-server.ts (server-only). */
+const ENV_VAR_BY_PRESET: Record<ProviderSettings["preset"], string> = {
+  "nano-gpt": "NANOGPT_API_KEY",
+  openai: "OPENAI_API_KEY",
+  openrouter: "OPENROUTER_API_KEY",
+  custom: "CUSTOM_API_KEY",
+};
+
+function EnvKeyBadge({ name }: { name: string }) {
+  return (
+    <div className="flex h-11 items-center gap-2 rounded-[10px] border border-[rgba(74,222,128,0.35)] bg-[rgba(74,222,128,0.08)] px-3 text-[13px] text-white">
+      <KeyRound size={16} className="text-[rgb(74,222,128)]" aria-hidden />
+      <span>
+        Using <code className="font-mono">{name}</code> from .env.local
+      </span>
+    </div>
+  );
+}
 
 const TABS: readonly SettingsTab<TabKey>[] = [
   { key: "provider", label: "API Provider", icon: KeyRound },
@@ -267,7 +287,11 @@ function ProviderTab({ settings, preset, update, onTest, onPresetChange }: Provi
           htmlFor="iz-provider-api-key"
           helper={
             <>
-              <span>Stored only in this browser (localStorage). Never sent anywhere except your provider.</span>
+              <span>
+                {settings.apiKey === ENV_KEY
+                  ? "Loaded from .env.local on the server. It never reaches the browser."
+                  : `Add ${ENV_VAR_BY_PRESET[settings.preset]} to .env.local (recommended), or enter it here; a key here is stored in this browser.`}
+              </span>
               {preset.keysUrl ? (
                 <a
                   href={preset.keysUrl}
@@ -281,6 +305,9 @@ function ProviderTab({ settings, preset, update, onTest, onPresetChange }: Provi
             </>
           }
         >
+          {settings.apiKey === ENV_KEY ? (
+            <EnvKeyBadge name={ENV_VAR_BY_PRESET[settings.preset]} />
+          ) : (
           <div className="relative">
             <input
               id="iz-provider-api-key"
@@ -301,6 +328,7 @@ function ProviderTab({ settings, preset, update, onTest, onPresetChange }: Provi
               {showKey ? <EyeOff size={18} strokeWidth={2} aria-hidden /> : <Eye size={18} strokeWidth={2} aria-hidden />}
             </button>
           </div>
+          )}
         </Field>
 
         <Field label="Chat base URL" htmlFor="iz-provider-base-url">
@@ -336,7 +364,7 @@ function ProviderTab({ settings, preset, update, onTest, onPresetChange }: Provi
               update({ apiKey: "" });
               setTest({ kind: "idle" });
             }}
-            disabled={!settings.apiKey}
+            disabled={!settings.apiKey || settings.apiKey === ENV_KEY}
           >
             Clear key
           </OutlineButton>
@@ -793,8 +821,11 @@ function VoiceTab({ settings, update }: VoiceTabProps) {
 
           <Field
             label="Dedicated Voice API Key"
-            helper={provider === "elevenlabs" ? "Your ElevenLabs API key (xi-api-key)" : "Optional. Leave blank to reuse main API Key."}
+            helper={provider === "elevenlabs" ? "Your ElevenLabs API key. Add ELEVENLABS_API_KEY to .env.local (recommended) or enter it here." : "Optional. Leave blank to reuse main API Key."}
           >
+            {settings.voiceApiKey === ENV_KEY ? (
+              <EnvKeyBadge name="ELEVENLABS_API_KEY" />
+            ) : (
             <div className="relative">
               <input
                 type={showKey ? "text" : "password"}
@@ -812,6 +843,7 @@ function VoiceTab({ settings, update }: VoiceTabProps) {
                 {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
+            )}
           </Field>
         </SettingCard>
       ) : null}
