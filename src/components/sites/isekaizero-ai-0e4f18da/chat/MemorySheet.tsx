@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import type { ChatSession, ChatSettings, MemoryArc, MemoryChapter, SummaryDetail } from "@/types/isekaizero";
 
 import { useModelCatalog } from "../llms/use-model-catalog";
-import { ConfirmDialog, SegmentedControl, SideSheet } from "./primitives";
+import { ConfirmDialog, SegmentedControl, SideSheet, Toggle } from "./primitives";
 
 /* Labels and hints are Isekai Zero's own (en_flat.tsv: chatSettings.memory.*). */
 
@@ -110,6 +110,16 @@ export function MemorySheet({ open, onClose, session, chatModelId, tokenEstimate
       <Section title="Summary detail">
         <SegmentedControl label="Summary detail" value={detail} options={DETAIL_OPTIONS} onChange={(summaryDetail) => onSettingsChange({ summaryDetail })} />
         <p className="mt-2 text-[12px] leading-4 text-white/60">{DETAIL_HINTS[detail]}</p>
+      </Section>
+
+      <Section title="Auto-summarize">
+        <label className="flex items-center justify-between gap-3 text-[13px]">
+          <span>
+            Write chapters automatically when memory is almost full
+            <span className="block text-[11px] text-white/50">Older messages get summarized instead of trimmed. Uses the chapter summarizer.</span>
+          </span>
+          <Toggle label="Auto-summarize" checked={settings.autoSummarize !== false} onChange={(autoSummarize) => onSettingsChange({ autoSummarize })} />
+        </label>
       </Section>
 
       <Section title="Summarizers">

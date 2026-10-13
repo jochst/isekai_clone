@@ -99,3 +99,34 @@ describe("assemblePrompt with memory", () => {
     expect(sent[1].content).toBe("line 20");
   });
 });
+
+describe("context trimming", () => {
+  const long = (i: number) => `${"word ".repeat(400)}${i}`; // ~500 tokens each
+  const messages = Array.from({ length: 30 }, (_, i) => ({ id: `m${i}`, role: (i % 2 ? "user" : "assistant") as "user" | "assistant", content: long(i), createdAt: i }));
+  const chapters = Array.from({ length: 4 }, (_, i) => ({ id: `c${i}`, number: i + 1, title: `T${i + 1}`, summary: "summary ".repeat(400), firstMessageId: "x", lastMessageId: "x", messageCount: 20, enabled: true, createdAt: i }));
+
+  it("fits within the window by dropping the oldest messages, keeping the latest player turn", () => {
+    const { context, messages: sent } = assemblePrompt(story, { ...session(), messages }, { contextLimit: 8000 });
+    expect(context.trimmedMessages).toBeGreaterThan(0);
+    expect(context.totalMessages).toBe(30);
+    expect(context.estimated).toBeLessThanOrEqual(8000 - 450);
+    expect(context.full).toBe(false);
+    expect(sent.at(-2)?.content).toContain("29"); // newest messages survive
+    expect(sent.some((m) => m.content.endsWith(" 0"))).toBe(false);
+  });
+
+  it("drops the oldest chapters once only the latest turn is left, and reports Context Full when nothing else can go", () => {
+    const one = [messages[1]];
+    const memory = { chapters: chapters.map((c) => ({ ...c, lastMessageId: "gone" })), arcs: [] };
+    const fits = assemblePrompt(story, { ...session(), messages: one, memory }, { contextLimit: 3000 });
+    expect(fits.context.trimmedChapters).toBeGreaterThan(0);
+    expect(fits.context.totalChapters).toBe(4);
+    expect(fits.messages[0].content).not.toContain("### Chapter 1:");
+    const tooSmall = assemblePrompt(story, { ...session(), messages: one }, { contextLimit: 1000 });
+    expect(tooSmall.context.full).toBe(true);
+  });
+
+  it("does not trim when everything fits", () => {
+    expect(assemblePrompt(story, session(), { contextLimit: 128000 }).context).toMatchObject({ trimmedMessages: 0, trimmedChapters: 0, full: false, limit: 128000 });
+  });
+});

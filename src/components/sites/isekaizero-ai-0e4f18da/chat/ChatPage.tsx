@@ -8,6 +8,7 @@ import { AppBackdrop } from "@/components/sites/isekaizero-ai-0e4f18da/shared";
 import {
   DEFAULT_CHAT_SETTINGS,
   acceptServerMessages,
+  runMemoryAction,
   addUsage,
   attachSceneImage,
   attachSceneVideo,
@@ -29,7 +30,7 @@ import {
   buildMotionPrompt,
   buildScenePrompt,
   assemblePrompt,
-  estimatePromptTokens,
+  type ContextReport,
   estimateTokens,
   generateSceneImage,
   resolveImageModel,
@@ -40,11 +41,13 @@ import {
   suggestDestinies,
 } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { planTurn, settleOutcome, type TurnRequest } from "@/lib/chats/turn";
+import { chapterPlan } from "@/lib/chats/memory";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { isProviderConfigured, resolvePortraitModel, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatMessage, SceneImage as SceneImageModel, SceneVideo as SceneVideoModel } from "@/types/isekaizero";
+import type { ChatMessage, ChatSession, SceneImage as SceneImageModel, SceneVideo as SceneVideoModel } from "@/types/isekaizero";
 
 import { useProviderCatalog } from "../image-generation/use-provider-catalog";
+import { useModelCatalog } from "../llms/use-model-catalog";
 import { useVideoGeneration, type VideoJob } from "../video-generation/use-video-generation";
 
 import { ChatHeader } from "./ChatHeader";
@@ -124,8 +127,15 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const storyline = useMemo(() => (session ? getStoryline(session.storylineId) ?? imported.storyline : undefined), [session, imported.storyline]);
   const configured = isProviderConfigured(provider);
   const model = useMemo(() => resolveTextModel(session?.settings ?? DEFAULT_CHAT_SETTINGS, provider), [session?.settings, provider]);
-  // What the next turn would send: system prompt with chapter/arc memory, then the unsummarized messages.
-  const tokenEstimate = useMemo(() => (session && storyline ? estimatePromptTokens(assemblePrompt(storyline, session, { takeTurn }).messages) : 0), [session, storyline, takeTurn]);
+  const { byokModels } = useModelCatalog();
+  // The model's real window (NanoGPT reports it per model), unless this chat sets a Context Limit Override.
+  const contextLimit = session?.settings.contextLimitOverride || byokModels.find((m) => m.model === model.id)?.contextLimit || model.contextLimit;
+  // What the next turn would send: system prompt with chapter/arc memory, then the unsummarized messages, trimmed to fit.
+  const assembled = useMemo(() => (session && storyline ? assemblePrompt(storyline, session, { takeTurn, contextLimit }) : undefined), [session, storyline, takeTurn, contextLimit]);
+  const context = assembled?.context;
+  const tokenEstimate = context?.estimated ?? 0;
+  const [lowContextDismissed, setLowContextDismissed] = useState(false);
+  const autoRunning = useRef(false);
   const mana = usage.remainingBalance !== undefined ? Math.round(usage.remainingBalance * 100) : 20;
 
   /* Abort any in-flight stream when leaving the page. */
@@ -402,6 +412,33 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   /* ---------------------------------------------------------------- completions */
 
   /**
+   * Auto-summarize (on unless turned off in Memory): once the context is 75% full, write the chapters that can be
+   * made so older messages are summarized instead of trimmed. Uses the chapter summarizer, else the chat's model.
+   */
+  const autoSummarize = useCallback(async () => {
+    const current = getChatSession(sessionId);
+    if (!current || !storyline || current.settings.autoSummarize === false || autoRunning.current) return;
+    const next = assemblePrompt(storyline, current, { contextLimit });
+    const room = next.context.limit - next.maxTokens;
+    const available = chapterPlan(current).available;
+    if (available === 0 || (next.context.estimated < 0.75 * room && next.context.trimmedMessages === 0)) return;
+    autoRunning.current = true;
+    showToast(`Memory almost full: writing ${available} chapter(s)`);
+    let made = 0;
+    try {
+      for (let i = 0; i < available; i++) {
+        await runMemoryAction(sessionId, { action: "create-chapter", model: current.settings.chapterSummarizerModel || model.id });
+        made++;
+      }
+    } catch (e) {
+      showToast(errorMessage(e, "Failed to summarize chapters"));
+    } finally {
+      autoRunning.current = false;
+    }
+    if (made > 0) showToast(`${made} new chapter(s) created`);
+  }, [sessionId, storyline, contextLimit, model.id, showToast]);
+
+  /**
    * Runs one story turn on the server, which builds the prompt, streams the reply and saves it. Locally the
    * player's message and a streaming placeholder show until the saved messages come back.
    */
@@ -413,7 +450,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         showToast("Connect a provider to start chatting.");
         return;
       }
-      const request: TurnRequest = { type, content, model: model.id, takeTurn, userMessageId: newId(), replyId: newId() };
+      const request: TurnRequest = { type, content, model: model.id, takeTurn, userMessageId: newId(), replyId: newId(), contextLimit };
       const plan = planTurn(current, request);
       if (typeof plan === "string") {
         showToast(plan);
@@ -460,6 +497,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           if (tc.function.name === "illustrate_scene") illustratedByTool = true;
         }
         if (afterTurn?.settings.autoIllustrate && !illustratedByTool) illustrate(plan.reply.id);
+        void autoSummarize();
       } catch (e) {
         const message = errorMessage(e, "Something went wrong while contacting the provider.");
         const errorRow: ChatMessage = { id: newId(), role: "system", content: message, createdAt: Date.now() };
@@ -475,7 +513,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         setStreaming(false);
       }
     },
-    [sessionId, storyline, configured, provider, model.id, takeTurn, update, showToast, illustrate, dispatchToolCall],
+    [sessionId, storyline, configured, provider, model.id, takeTurn, update, showToast, illustrate, dispatchToolCall, contextLimit, autoSummarize],
   );
 
   const send = useCallback(
@@ -642,6 +680,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           streaming={streaming}
           modelName={model.name}
           tokenEstimate={tokenEstimate}
+          contextLimit={context?.limit ?? contextLimit}
           autoIllustrate={session.settings.autoIllustrate}
           sendOnEnter={sendOnEnter}
           takeTurn={takeTurn}
@@ -662,7 +701,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         session={session}
         provider={provider}
         model={model}
-        tokenEstimate={tokenEstimate}
+        context={context ?? { estimated: 0, limit: contextLimit, trimmedMessages: 0, totalMessages: 0, trimmedChapters: 0, totalChapters: 0, full: false }}
         onChange={(patch) => update((s) => ({ ...s, settings: { ...s.settings, ...patch } }), { touch: false })}
         onOpenMemory={() => (setSettingsOpen(false), setMemoryOpen(true))}
       />
@@ -675,7 +714,47 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         onSettingsChange={(patch) => update((s) => ({ ...s, settings: { ...s.settings, ...patch } }), { touch: false })}
         onToast={showToast}
       />
+      {context && !streaming && !lowContextDismissed && contextNeedsAttention(session, assembled.maxTokens, context) ? (
+        <ContextLowModal
+          onDismiss={() => setLowContextDismissed(true)}
+          onSummarize={() => (setLowContextDismissed(true), setMemoryOpen(true))}
+          onChangeModel={() => router.push(`/chats/${sessionId}/llms`)}
+        />
+      ) : null}
       <ToastView toast={toast} />
+    </div>
+  );
+}
+
+/**
+ * "Memory Almost Full" (Isekai Zero's contextLowModal): 90% of the room is used or messages are already being
+ * trimmed, and auto-summarize can't help (it's off, or nothing can be summarized yet).
+ */
+function contextNeedsAttention(session: ChatSession, maxTokens: number, context: ContextReport): boolean {
+  const room = context.limit - maxTokens;
+  const almostFull = context.estimated >= 0.9 * room || context.trimmedMessages > 0;
+  const autoWillHandle = session.settings.autoSummarize !== false && chapterPlan(session).available > 0;
+  return almostFull && !autoWillHandle;
+}
+
+function ContextLowModal({ onDismiss, onSummarize, onChangeModel }: { onDismiss: () => void; onSummarize: () => void; onChangeModel: () => void }) {
+  return (
+    <div role="dialog" aria-modal="true" aria-labelledby="iz-context-low" className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 p-4" onClick={onDismiss}>
+      <div className="w-full max-w-[360px] rounded-[16px] border border-white/12 bg-[#11123c] p-5 text-center" onClick={(e) => e.stopPropagation()}>
+        <h2 id="iz-context-low" className="text-[17px] font-bold">
+          Memory Almost Full
+        </h2>
+        <p className="mt-2 text-[13px] leading-[18px] text-white/70">Your chat is running low on context memory. The AI may start forgetting earlier parts of your conversation.</p>
+        <div className="mt-4 flex flex-col gap-2">
+          <button type="button" onClick={onSummarize} className="iz-btn-primary h-10 rounded-[20px] text-[14px] font-semibold">
+            Use Summarization
+          </button>
+          <button type="button" onClick={onChangeModel} className="h-10 rounded-[20px] border border-white/15 bg-white/[0.06] text-[14px] font-semibold">
+            Change Model
+          </button>
+        </div>
+        <p className="mt-3 text-[11px] text-white/40">Tap outside to dismiss</p>
+      </div>
     </div>
   );
 }

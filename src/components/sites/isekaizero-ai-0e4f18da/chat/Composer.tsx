@@ -13,6 +13,7 @@ export interface ComposerProps {
   streaming: boolean;
   modelName: string;
   tokenEstimate: number;
+  contextLimit: number;
   autoIllustrate: boolean;
   sendOnEnter: boolean;
   takeTurn: boolean;
@@ -36,6 +37,7 @@ export function Composer({
   streaming,
   modelName,
   tokenEstimate,
+  contextLimit,
   autoIllustrate,
   sendOnEnter,
   takeTurn,
@@ -187,7 +189,7 @@ export function Composer({
 
         <div className="flex items-center justify-between gap-3 text-[11px] text-white/45">
           <span className="truncate">
-            {modelName} · {tokenEstimate.toLocaleString("en-US")} tokens in context
+            {modelName} · {tokenEstimate.toLocaleString("en-US")} / {contextLimit.toLocaleString("en-US")} tokens in context
           </span>
           {autoIllustrate ? (
             <span className="flex shrink-0 items-center gap-1">
