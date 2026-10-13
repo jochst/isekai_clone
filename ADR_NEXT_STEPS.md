@@ -265,9 +265,21 @@ The gap: Default Chat Settings could only really use models from the site's buil
 - [ ] Chat history: branches picker, archive, 30-day trash, message search, saved messages, export.
 - **Exit:** every chat string in `en_flat.tsv` under the chat namespaces maps to a working control, or to a deliberate ADR-1 omission.
 
-### Phase 5: Media adaptations
-- [ ] **Media Picker:** a separate cheap-model call after each reply that chooses from existing story assets (`[image 2 Aria]`, `[track 2]`, `stop`). It drives background/foreground.
-- [ ] **Visual Novel mode:** stories-style player, backgrounds/foregrounds, auto-create or auto-edit backgrounds and characters, shareable local `/visual-novels/[id]`.
+### Phase 5: Media adaptations (moved ahead of Phase 3 on 2026-10-13, at your request)
+- [x] **Media Picker (5a):** a small model call after each reply (reasoning off, ~3 s live) picks:
+  - the background, from the story's captioned backgrounds
+  - each present character's expression, from that character's captioned foregrounds
+  - The data comes from `dev.db`: 2,310 stories are VN-ready, and 24k characters have media.
+  - It falls back to the last background and each character's first look.
+  - Music tracks (`[track n]`) come in 5d.
+- [x] **Visual Novel mode (5a):** set with Play Mode (Narration / Visual Novel) in Chat Settings, or from a message's "Visual Novel" action.
+  - Stories-style stage: background, up to 3 characters, the reply in tap-to-advance beats, earlier replies one arrow away, and a Log toggle.
+  - Live on "Eldenwynn Academy": the picks followed the story.
+    - "Inside classroom" with "Ellen is Happy".
+    - Then the courtyard at dusk with "Ayano drawing her blade".
+    - Then "Ayano is Angry" with "Ellen is Frowning".
+- [ ] **VN generation (5c):** auto-create or auto-edit backgrounds and characters for stories without media.
+- [ ] Shareable local `/visual-novels/[id]`.
 - [ ] **Illustration:** POV vs. 3rd person, chained from the previous image, uses appearance loadouts.
 - [ ] **Manga:** 1–8 panels per page, up to 2 pages; per-page edit, regenerate and revert. Built from an LLM panel script plus NanoGPT images.
 - [ ] **Video scenes:** up to 2 chained 15 s beats with character references (extends the merged Animate feature).

@@ -2,7 +2,8 @@
  * API clients for the roleplay chat: plain fetch against this app's `/api/*` routes, with `providerHeaders`.
  * Prompt construction lives in prompt-builder.ts (shared with the server) and is re-exported here.
  */
-import type { ChatMessage, ChatSession, ProviderSettings, Storyline, VideoParamValue } from "@/types/isekaizero";
+import type { ChatMessage, ChatSession, ProviderSettings, Storyline, VideoParamValue, VnScene } from "@/types/isekaizero";
+import { fallbackScene, parseScene, presentCharacters, scenePrompt } from "@/lib/chats/scene";
 import type { TurnRequest } from "@/lib/chats/turn";
 
 import { providerHeaders } from "./provider-settings";
@@ -349,4 +350,22 @@ export async function streamTurn(opts: StreamTurnOptions): Promise<TurnDone | nu
     throw e;
   }
   return done;
+}
+
+/* ------------------------------------------------------------------ visual novel */
+
+export interface PickSceneOptions {
+  settings: ProviderSettings;
+  model: string;
+  storyline: Storyline;
+  reply: string;
+  previous?: VnScene;
+}
+
+/** Media Picker call (reasoning off, a few tokens). Without captioned media to choose from, no call is made. */
+export async function pickScene(opts: PickSceneOptions): Promise<VnScene> {
+  const { storyline, reply, previous } = opts;
+  if ((storyline.backgrounds?.length ?? 0) === 0 && presentCharacters(storyline, reply).length === 0) return fallbackScene(storyline, reply, previous);
+  const text = await completeChat({ settings: opts.settings, model: opts.model, messages: scenePrompt(storyline, reply, previous), temperature: 0.2, maxTokens: 80 });
+  return parseScene(text, storyline, reply, previous);
 }

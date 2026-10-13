@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { cache } from "react";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient, type Prisma } from "@prisma/client";
-import { categories, normalizeImport, plainText, safeImageUrl } from "@/lib/imports/cards";
+import { categories, normalizeImport, plainText, safeImageUrl, storyImages } from "@/lib/imports/cards";
 import { record, strings } from "@/lib/imports/types";
 import type { StoryCardData, Storyline } from "@/types/isekaizero";
 
@@ -75,5 +75,10 @@ export const getDbStoryline = cache(async (id: string): Promise<Storyline | unde
   if (!row) return undefined;
   const { storyline } = normalizeImport(row.rawJson, { source: "isekaizero", url: row.sourceUrl ?? undefined, kind: "story" });
   const card = toStoryCard(row);
-  return { ...storyline, id: card.id, category: card.category, stats: card.stats, flags: card.flags, publishedAt: card.publishedAt };
+  // Each cast member's foreground images (expressions) live on their own Character row.
+  const castIds = storyline.characters.map((c) => c.id);
+  const rows = castIds.length > 0 ? await db()!.character.findMany({ where: { id: { in: castIds } }, select: { id: true, mediaJson: true } }) : [];
+  const imagesById = new Map(rows.map((r) => [r.id, storyImages(r.mediaJson, "foreground")]));
+  const characters = storyline.characters.map((c) => ({ ...c, images: imagesById.get(c.id) ?? [] }));
+  return { ...storyline, characters, id: card.id, category: card.category, stats: card.stats, flags: card.flags, publishedAt: card.publishedAt };
 });
