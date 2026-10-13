@@ -1,4 +1,4 @@
-import { CONTINUE_SENTINEL, type ChatMessage, type ChatSession } from "@/types/isekaizero";
+import { CONTINUE_SENTINEL, type ChatMessage, type ChatSession, type MessageUsage } from "@/types/isekaizero";
 
 /*
  * The server turn engine's pure parts: what each turn type sends to the provider and what it saves.
@@ -20,6 +20,8 @@ export interface TurnRequest {
   takeTurn?: boolean;
   /** RETRY+: direction for the rewritten reply. */
   instruction?: string;
+  /** The model's context window as the client knows it (or the chat's override). */
+  contextLimit?: number;
 }
 
 export interface TurnPlan {
@@ -41,7 +43,8 @@ export function parseTurnRequest(v: unknown): TurnRequest | string {
   const str = (k: string) => (typeof r[k] === "string" ? (r[k] as string) : undefined);
   if (r.type === "take-turn" && !str("content")?.trim()) return "Write something first.";
   if (r.type !== "retry" && (!str("userMessageId") || !str("replyId"))) return "userMessageId and replyId are required.";
-  return { type: r.type, content: str("content"), model: r.model, userMessageId: str("userMessageId"), replyId: str("replyId"), takeTurn: r.takeTurn === true, instruction: str("instruction") };
+  const contextLimit = typeof r.contextLimit === "number" && Number.isFinite(r.contextLimit) && r.contextLimit >= 1000 ? Math.min(r.contextLimit, 10_000_000) : undefined;
+  return { type: r.type, content: str("content"), model: r.model, userMessageId: str("userMessageId"), replyId: str("replyId"), takeTurn: r.takeTurn === true, instruction: str("instruction"), contextLimit };
 }
 
 export function planTurn(chat: ChatSession, req: TurnRequest, now = Date.now()): TurnPlan | string {
@@ -65,12 +68,12 @@ export function planTurn(chat: ChatSession, req: TurnRequest, now = Date.now()):
  * What to save once the reply text is known. A retry adds a new choice to the same message (the old text
  * stays one swipe away) and drops its media, which belonged to the old version.
  */
-export function settleTurn(plan: TurnPlan, content: string): { order: string[]; upsert: ChatMessage[] } {
+export function settleTurn(plan: TurnPlan, content: string, usage?: MessageUsage): { order: string[]; upsert: ChatMessage[] } {
   const previous = plan.reply.choices ?? (plan.reply.content ? [plan.reply.content] : []);
   const choices = [...previous, content];
   const reply: ChatMessage = plan.user
-    ? { ...plan.reply, content, choices: [content], choiceIndex: 0 }
-    : { ...plan.reply, content, choices, choiceIndex: choices.length - 1, images: undefined, videos: undefined };
+    ? { ...plan.reply, content, choices: [content], choiceIndex: 0, usage }
+    : { ...plan.reply, content, choices, choiceIndex: choices.length - 1, images: undefined, videos: undefined, usage };
   return { order: [...plan.history.map((m) => m.id), reply.id], upsert: [...(plan.user ? [plan.user] : []), reply] };
 }
 
@@ -78,9 +81,9 @@ export function settleTurn(plan: TurnPlan, content: string): { order: string[]; 
  * The save for any outcome, shared by the server and the client (which applies it itself after Stop).
  * An empty reply with no tool calls keeps only the player's turn; a retry then changes nothing.
  */
-export function settleOutcome(chat: ChatSession, plan: TurnPlan, text: string, hadToolCalls: boolean): { order: string[]; upsert: ChatMessage[]; empty: boolean } {
+export function settleOutcome(chat: ChatSession, plan: TurnPlan, text: string, hadToolCalls: boolean, usage?: MessageUsage): { order: string[]; upsert: ChatMessage[]; empty: boolean } {
   const content = text.trim();
-  if (content || hadToolCalls) return { ...settleTurn(plan, content), empty: false };
+  if (content || hadToolCalls) return { ...settleTurn(plan, content, usage), empty: false };
   if (!plan.user) return { order: chat.messages.map((m) => m.id), upsert: [], empty: true };
   return { order: plan.history.map((m) => m.id), upsert: [plan.user], empty: true };
 }
@@ -96,14 +99,14 @@ export interface ToolCall {
 export interface StreamOutcome {
   content: string;
   toolCalls: ToolCall[];
-  usage?: { promptTokens: number; completionTokens: number };
+  usage?: { promptTokens: number; completionTokens: number; cost?: number };
   /** "stop", "length" (hit max_tokens), "tool_calls", … as reported by the provider. */
   finishReason?: string;
 }
 
 interface Chunk {
   choices?: { finish_reason?: string | null; delta?: { content?: string | null; tool_calls?: { index?: number; id?: string; function?: { name?: string; arguments?: string } }[] } }[];
-  usage?: { prompt_tokens?: number; completion_tokens?: number };
+  usage?: { prompt_tokens?: number; completion_tokens?: number; cost?: number };
   error?: { message?: string } | string;
 }
 
@@ -127,7 +130,7 @@ export async function readCompletionStream(body: ReadableStream<Uint8Array>, onC
       return; // keep-alive comments or partial junk
     }
     if (chunk.error) throw new Error(typeof chunk.error === "string" ? chunk.error : chunk.error.message || "Provider error");
-    if (chunk.usage) usage = { promptTokens: chunk.usage.prompt_tokens ?? 0, completionTokens: chunk.usage.completion_tokens ?? 0 };
+    if (chunk.usage) usage = { promptTokens: chunk.usage.prompt_tokens ?? 0, completionTokens: chunk.usage.completion_tokens ?? 0, cost: typeof chunk.usage.cost === "number" ? chunk.usage.cost : undefined };
     finishReason = chunk.choices?.[0]?.finish_reason ?? finishReason;
     const delta = chunk.choices?.[0]?.delta;
     if (delta?.content) {

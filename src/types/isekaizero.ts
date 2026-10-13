@@ -260,12 +260,25 @@ export interface ChatMessage {
   videos?: SceneVideo[];
   /** Character speaking, when derivable. */
   speaker?: string;
+  /** What producing this reply took (Isekai Zero's message info: tokens, speed, cost). */
+  usage?: MessageUsage;
   /** Every version of an assistant reply (Retry adds one); `content` is `choices[choiceIndex]`. */
   choices?: string[];
   choiceIndex?: number;
 }
 
 export type ReasoningEffort = "minimal" | "low" | "medium" | "high" | "max";
+
+export interface MessageUsage {
+  model?: string;
+  promptTokens?: number;
+  completionTokens?: number;
+  /** USD, when the provider reports it (NanoGPT does). */
+  cost?: number;
+  /** Time to the first streamed token, and to the end of the reply. */
+  firstTokenMs?: number;
+  totalMs?: number;
+}
 
 export interface ChatSettings {
   modelId: string | "auto";
@@ -310,6 +323,10 @@ export interface ChatSettings {
   /** Provider model ids for summaries; "" = the chat's own model. */
   chapterSummarizerModel?: string;
   arcSummarizerModel?: string;
+  /** A smaller context window than the model's, to save cost (Isekai Zero "Context Limit Override"); 0/absent = the model's. */
+  contextLimitOverride?: number;
+  /** Write chapters automatically when the context is almost full. */
+  autoSummarize?: boolean;
 }
 
 export type SummaryDetail = "concise" | "balanced" | "detailed";

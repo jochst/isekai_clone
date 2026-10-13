@@ -62,6 +62,8 @@ export function arcPlan(memory: ChatMemory): { available: number; needed: number
 export interface MemoryView {
   /** "Story so far" text from enabled arcs and chapters, "" when there is none. */
   text: string;
+  /** The arc/chapter entries behind `text`, oldest first (trimming drops from the front). */
+  parts: string[];
   /** Messages after the last chapter, sent as the live history. */
   recent: ChatMessage[];
   summarizedMessages: number;
@@ -76,10 +78,15 @@ export function memoryView(session: ChatSession): MemoryView {
     ...memory.chapters.filter((c) => c.enabled && !covered(c)).map((c) => `### Chapter ${c.number}: ${c.title}\n${c.summary}`),
   ];
   return {
-    text: parts.length > 0 ? `## The story so far\nEarlier events, summarized in order. Treat them as what already happened.\n\n${parts.join("\n\n")}` : "",
+    text: memoryText(parts),
+    parts,
     recent: session.messages.slice(until),
     summarizedMessages: story(session.messages.slice(0, until)).length,
   };
+}
+
+export function memoryText(parts: string[]): string {
+  return parts.length > 0 ? `## The story so far\nEarlier events, summarized in order. Treat them as what already happened.\n\n${parts.join("\n\n")}` : "";
 }
 
 /* ------------------------------------------------------------------ summarizer prompts */

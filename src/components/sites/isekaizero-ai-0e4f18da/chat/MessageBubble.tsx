@@ -189,9 +189,25 @@ export function MessageBubble({
     </div>
   ) : null;
 
+  const usage = message.usage;
+  const outputMs = usage?.totalMs !== undefined ? usage.totalMs - (usage.firstTokenMs ?? 0) : undefined;
+  const speed = usage?.completionTokens && outputMs ? Math.round((usage.completionTokens / outputMs) * 1000) : undefined;
   const infoLine = showInfo ? (
-    <div className="mt-2 text-[11px] text-white/50">
-      {modelName} · ≈ {estimateTokens(message.content)} tokens · {new Date(message.createdAt).toLocaleString("en-US")}
+    <div className="mt-2 text-[11px] leading-4 text-white/50">
+      {usage ? (
+        <>
+          {usage.model ?? modelName} · {usage.promptTokens?.toLocaleString("en-US") ?? "?"} in / {usage.completionTokens?.toLocaleString("en-US") ?? "?"} out
+          {speed ? ` · ${speed} tokens/s` : ""}
+          {usage.firstTokenMs !== undefined ? ` · first token ${(usage.firstTokenMs / 1000).toFixed(1)} s` : ""}
+          {usage.cost !== undefined ? ` · $${usage.cost.toFixed(4)}` : ""}
+        </>
+      ) : (
+        <>
+          {modelName} · ≈ {estimateTokens(message.content)} tokens
+        </>
+      )}
+      {" · "}
+      {new Date(message.createdAt).toLocaleString("en-US")}
     </div>
   ) : null;
 

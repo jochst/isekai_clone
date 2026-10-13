@@ -225,9 +225,10 @@ The gap: Default Chat Settings could only really use models from the site's buil
 - [x] The chat and Default Chat Settings pickers set only their own model. The provider default in Settings → Providers stays unchanged.
 - [x] Default Chat Settings shows the picked model's name ("GLM 4.7 — From your NanoGPT models"). The "On Auto" note only shows on Auto.
 
-### Phase 2: Memory and context management
-- [ ] Token counting per model context length (from NanoGPT `/models`).
-  - Provider models currently assume 128k, because `resolveTextModel` has no context length for them.
+### Phase 2: Memory and context management — done, PRs #24 and 2b
+- [x] **Context window per model (2b):** the real window comes from NanoGPT's detailed `/models`, e.g. `deepseek-chat` 128k, `deepseek/deepseek-latest` 1M, `z-ai/glm-4.7` 200k.
+  - A chat's **Context Limit Override** (16k–128k) takes precedence.
+  - Token counts are estimates at 4 characters per token. Live, that ran about 25% above the provider's real count (15.7k estimated vs 12.5k actual), so trimming kicks in early rather than overflowing.
 - [x] **Chapters and arcs (2a):**
   - Chapter summaries cover 20 messages each, and the latest 20 messages stay raw. Arcs cover 5–10 chapters.
   - Settings and actions: summarizer models (chapter and arc), detail level, write-your-own, regenerate, edit, enable/disable, delete latest only.
@@ -235,10 +236,17 @@ The gap: Default Chat Settings could only really use models from the site's buil
   - Live result (140-message chat, `deepseek-chat`): 6 chapters at ~10 s each, then 1 arc.
     - Context went from ≈11.5k to ≈3.3k tokens per turn.
     - The next real turn still recalled details that existed only in the arc.
-  - Still to do: **auto** summarizing (Phase 2b), triggered when the context nears its limit.
-- [ ] Trimming order: oldest raw messages → oldest chapters. Show "Chapters x/y trimmed", "Memory Almost Full" and "Context Full".
-- [ ] Usage info popover: tokens, cache, tokens per second, cost.
-- **Exit:** a 500-message chat stays under the context limit without losing continuity.
+- [x] **Auto-summarize (2b):** on by default, can be turned off in Memory.
+  - Once the context is 75% full, it writes every chapter that can be made, so old messages are summarized instead of trimmed.
+- [x] **Trimming (2b):** oldest raw messages go first (never the player's latest turn), then the oldest chapters.
+  - Chat Settings shows "Estimated Context", "Context Limit", and "Messages/Chapters: x/y trimmed".
+  - **Memory Almost Full** appears at 90% of the room, or once trimming starts, when auto-summarize can't help.
+  - **Context Full** refuses the turn without calling the provider.
+- [x] **Usage per reply (2b):** model, tokens in/out, tokens per second, time to first token, and the provider's reported cost, shown in the message's Info line.
+  - Not yet: prompt-cache hits.
+- **Exit met, live:** a 140-message chat at a 16k override measured 15.7k / 16k with 3 messages trimmed.
+  - One real turn, then auto-summarize wrote 6 chapters.
+  - Context dropped to 4.6k / 16k, with no warning needed.
 
 ### Phase 3: Codex, DM v2 tools and character state
 - [ ] Load each story's `codexJson`: index always included; in-context entries in full; the others via `read_codex`. Support writable entries and unlockable/hidden/spoiler flags.

@@ -70,6 +70,23 @@ describe("POST /api/chats/[id]/turn", () => {
     expect(withChatDb((db) => getChat(db, "c1"))!.messages).toHaveLength(3);
   });
 
+  it("records usage on the reply: tokens, provider cost and timing", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => sse({ choices: [{ delta: { content: "Hi." } }] }, { choices: [], usage: { prompt_tokens: 120, completion_tokens: 3, cost: 0.0004 } })));
+    await events(await turn({ type: "take-turn", content: "Hello", model: "deepseek", userMessageId: "u9", replyId: "a9" }));
+    const reply = withChatDb((db) => getChat(db, "c1"))!.messages.at(-1);
+    expect(reply?.usage).toMatchObject({ model: "deepseek", promptTokens: 120, completionTokens: 3, cost: 0.0004 });
+    expect(reply?.usage?.totalMs).toBeGreaterThanOrEqual(0);
+  });
+
+  it("refuses a turn that cannot fit the context window (Context Full) without calling the provider", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const res = await turn({ type: "take-turn", content: "x", model: "deepseek", userMessageId: "u10", replyId: "a10", contextLimit: 1000 });
+    expect(res.status).toBe(413);
+    expect((await res.json()).error).toMatch(/^Context Full/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("rejects bad requests and unknown chats", async () => {
     expect((await turn({ type: "take-turn", model: "m" })).status).toBe(400);
     const missing = await POST(new Request("http://localhost:3000/api/chats/nope/turn", { method: "POST", headers: { host: "localhost:3000", "x-iz-base-url": "https://x/v1", "x-iz-api-key": "k", "x-iz-preset": "nano-gpt" }, body: JSON.stringify({ type: "retry", model: "m" }) }), { params: Promise.resolve({ id: "nope" }) });

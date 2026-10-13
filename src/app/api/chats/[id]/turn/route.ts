@@ -37,7 +37,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const plan = planTurn(chat, turn);
   if (typeof plan === "string") return Response.json({ error: plan }, { status: 400 });
 
-  const prompt = assemblePrompt(storyline, { ...chat, messages: plan.history }, { takeTurn: turn.takeTurn, retryInstruction: turn.instruction });
+  const contextLimit = chat.settings.contextLimitOverride || turn.contextLimit;
+  const prompt = assemblePrompt(storyline, { ...chat, messages: plan.history }, { takeTurn: turn.takeTurn, retryInstruction: turn.instruction, contextLimit });
+  if (prompt.context.full) {
+    // Isekai Zero's "Context Full" (contextFullError.description).
+    return Response.json({ error: "Context Full: the conversation has exceeded this model's memory limit. Please switch to a model with a larger memory or summarize the story to free up space." }, { status: 413 });
+  }
+  const started = Date.now();
+  let firstTokenMs: number | undefined;
   const upstream = await fetchWithRetry(`${ctx.baseUrl}/chat/completions`, {
     method: "POST",
     headers: { ...authHeaders(ctx), Accept: "text/event-stream" },
@@ -57,7 +64,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!upstream.ok || !upstream.body) return Response.json({ error: await providerErrorMessage(upstream) }, { status: upstream.status || 502 });
 
   const save = (outcome: StreamOutcome) => {
-    const result = settleOutcome(chat, plan, outcome.content, outcome.toolCalls.length > 0);
+    const usage = { model: turn.model, ...outcome.usage, firstTokenMs, totalMs: Date.now() - started };
+    const result = settleOutcome(chat, plan, outcome.content, outcome.toolCalls.length > 0, usage);
     if (result.upsert.length > 0) withChatDb((db) => applyChatPatch(db, chatId, { meta: { ...meta(chat), updatedAt: Date.now() }, order: result.order, upsert: result.upsert }));
     return { order: result.order, messages: result.upsert, empty: result.empty };
   };
@@ -75,6 +83,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       let latest = "";
       try {
         const outcome = await readCompletionStream(upstream.body!, (content) => {
+          firstTokenMs ??= Date.now() - started;
           latest = content;
           send({ type: "delta", content });
         });

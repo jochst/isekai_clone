@@ -9,7 +9,7 @@ import type { ProviderImageModel, ProviderVideoModel, VideoParamSpec } from "./p
 import { defaultResolution } from "./provider-catalog";
 import type { VideoParamValue } from "@/types/isekaizero";
 import { toolFunction, toolInstruction, type OpenAiTool } from "./ai-tools";
-import { memoryView } from "@/lib/chats/memory";
+import { memoryText, memoryView } from "@/lib/chats/memory";
 
 export { CONTINUE_SENTINEL } from "@/types/isekaizero";
 
@@ -327,6 +327,20 @@ export function responseTokenCap(settings: ChatSettings): number {
 export interface AssembleOptions extends SystemPromptOptions {
   /** RETRY+: direction for the rewritten reply. */
   retryInstruction?: string;
+  /** The model's context window (or the chat's override); defaults to 128k. */
+  contextLimit?: number;
+}
+
+/** How the request fits the context window (Isekai Zero's "Estimated Context" and "x/y trimmed"). */
+export interface ContextReport {
+  estimated: number;
+  limit: number;
+  trimmedMessages: number;
+  totalMessages: number;
+  trimmedChapters: number;
+  totalChapters: number;
+  /** Even after trimming, the request does not fit ("Context Full"). */
+  full: boolean;
 }
 
 export interface AssembledPrompt {
@@ -336,6 +350,7 @@ export interface AssembledPrompt {
   maxTokens: number;
   reasoning: boolean;
   reasoningEffort?: ChatSettings["reasoningEffort"];
+  context: ContextReport;
 }
 
 /**
@@ -350,12 +365,45 @@ export function assemblePrompt(storyline: Storyline, session: ChatSession, opts:
   const postHistory = [importedPostHistory(storyline, session), retry].filter(Boolean).join("\n\n");
   // Summarized messages are replaced by the chapter/arc memory; only the messages after it go as history.
   const memory = memoryView(session);
-  const system = [buildSystemPrompt(storyline, session, opts), memory.text].filter(Boolean).join("\n\n");
+  const maxTokens = responseTokenCap(settings);
+  const limit = opts.contextLimit && opts.contextLimit > 0 ? opts.contextLimit : DEFAULT_CONTEXT_LIMIT;
+  const base = buildSystemPrompt(storyline, session, opts);
+  const built = toApiMessages(base, memory.recent, postHistory, reminder);
+  const post = postHistory ? built.slice(-1) : [];
+  let history = built.slice(1, built.length - post.length);
+  let parts = memory.parts;
+  const system = () => ({ role: "system" as const, content: [base, memoryText(parts)].filter(Boolean).join("\n\n") });
+  // The reply needs room too: the request must fit in (context window - max reply tokens).
+  const budget = limit - maxTokens;
+  let estimated = estimatePromptTokens([system(), ...history, ...post]);
+  // Over budget: the oldest raw messages fall out first (never the player's latest turn), then the oldest chapters.
+  const latestTurn = Math.max(0, history.findLastIndex((m) => m.role === "user"));
+  let trimmedMessages = 0;
+  while (estimated > budget && trimmedMessages < latestTurn) {
+    estimated -= estimateTokens(history[trimmedMessages].content) + 4;
+    trimmedMessages++;
+  }
+  history = history.slice(trimmedMessages);
+  let trimmedChapters = 0;
+  while (estimated > budget && trimmedChapters < memory.parts.length) {
+    trimmedChapters++;
+    parts = memory.parts.slice(trimmedChapters);
+    estimated = estimatePromptTokens([system(), ...history, ...post]);
+  }
   return {
-    messages: toApiMessages(system, memory.recent, postHistory, reminder),
+    messages: [system(), ...history, ...post],
+    context: {
+      estimated,
+      limit,
+      trimmedMessages,
+      totalMessages: trimmedMessages + history.length,
+      trimmedChapters,
+      totalChapters: memory.parts.length,
+      full: estimated > budget,
+    },
     tools: toolsForSettings(settings),
     temperature: TEMPERATURE_MAP[settings.temperature],
-    maxTokens: responseTokenCap(settings),
+    maxTokens,
     reasoning: settings.reasoning,
     reasoningEffort: settings.reasoning ? settings.reasoningEffort : undefined,
   };

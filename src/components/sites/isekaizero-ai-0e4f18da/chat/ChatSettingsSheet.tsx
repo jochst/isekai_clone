@@ -8,12 +8,22 @@ import { ImageModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/imag
 import { useProviderCatalog } from "@/components/sites/isekaizero-ai-0e4f18da/image-generation/use-provider-catalog";
 import { VideoModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoModelPicker";
 import { VideoParamsForm, paramSummary } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoParamsForm";
-import { resolveImageModel, resolveVideoModel, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
+import { resolveImageModel, resolveVideoModel, type ContextReport, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import type { ChatSession, ChatSettings, ProviderSettings, ReasoningEffort, VideoParamValue } from "@/types/isekaizero";
 
+import { cn } from "@/lib/utils";
 import { AccordionCard, SegmentedControl, SettingRow, SideSheet, Toggle } from "./primitives";
+
+/** "Off" uses the model's own window; smaller limits trim older messages sooner and cost less per turn. */
+const CONTEXT_OVERRIDE_OPTIONS = [
+  { value: "0", label: "Model" },
+  { value: "16000", label: "16k" },
+  { value: "32000", label: "32k" },
+  { value: "64000", label: "64k" },
+  { value: "128000", label: "128k" },
+];
 
 const REASONING_EFFORT_OPTIONS: { value: ReasoningEffort; label: string }[] = [
   { value: "minimal", label: "Min" },
@@ -29,13 +39,14 @@ export interface ChatSettingsSheetProps {
   session: ChatSession;
   provider: ProviderSettings;
   model: ResolvedTextModel;
-  tokenEstimate: number;
+  /** How the next request fits the context window (estimated tokens, limit, what was trimmed). */
+  context: ContextReport;
   onChange: (patch: Partial<ChatSettings>) => void;
   /** Opens the Memory (chapters and arcs) panel. */
   onOpenMemory: () => void;
 }
 
-export function ChatSettingsSheet({ open, onClose, session, provider, model, tokenEstimate, onChange, onOpenMemory }: ChatSettingsSheetProps) {
+export function ChatSettingsSheet({ open, onClose, session, provider, model, context, onChange, onOpenMemory }: ChatSettingsSheetProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const { settings } = session;
   const [, updateProvider] = useProviderSettings();
@@ -51,7 +62,7 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, tok
     name: imageModel.name || "Not set",
     cost: imageModel.costPerImage !== undefined ? `${Math.round(imageModel.costPerImage * 100)}` : "provider pricing",
   };
-  const fill = Math.min(100, Math.round((tokenEstimate / Math.max(1, model.contextLimit)) * 100));
+  const fill = Math.min(100, Math.round((context.estimated / Math.max(1, context.limit)) * 100));
 
   return (
     <>
@@ -73,13 +84,21 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, tok
 
         <div className="mt-3 rounded-[12px] bg-white/5 p-3 text-[13px]">
           <div className="flex items-center justify-between">
-            <span>Context</span>
-            <span className="text-white/70">≈ {tokenEstimate.toLocaleString("en-US")} tokens</span>
+            <span>Estimated Context</span>
+            <span className="text-white/70">≈ {context.estimated.toLocaleString("en-US")} tokens</span>
           </div>
           <div className="mt-2 h-1 rounded-[2px] bg-white/15">
-            <div className="h-1 rounded-[2px] bg-[#a7b9ff] transition-[width] duration-300" style={{ width: `${fill}%` }} />
+            <div className={cn("h-1 rounded-[2px] transition-[width] duration-300", fill >= 90 ? "bg-[#ffb4ab]" : "bg-[#a7b9ff]")} style={{ width: `${fill}%` }} />
           </div>
-          <div className="mt-1 text-[11px] text-white/45">{model.contextLimit.toLocaleString("en-US")} token limit</div>
+          <div className="mt-1 flex justify-between text-[11px] text-white/45">
+            <span>Context Limit</span>
+            <span>
+              {context.limit.toLocaleString("en-US")}
+              {settings.contextLimitOverride ? " (override)" : ""}
+            </span>
+          </div>
+          {context.trimmedMessages > 0 ? <div className="mt-1 text-[11px] text-[#ffb4ab]">Messages: {context.trimmedMessages}/{context.totalMessages} trimmed</div> : null}
+          {context.trimmedChapters > 0 ? <div className="mt-1 text-[11px] text-[#ffb4ab]">Chapters: {context.trimmedChapters}/{context.totalChapters} trimmed</div> : null}
         </div>
 
         <div className="mt-3 flex flex-col gap-3">
@@ -107,6 +126,15 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, tok
                 { value: "high", label: "High" },
                 { value: "max", label: "Max" },
               ]}
+            />
+          </AccordionCard>
+
+          <AccordionCard title="Context Limit Override" description="Set a context limit to save cost and manage token usage">
+            <SegmentedControl
+              label="Context Limit Override"
+              value={String(settings.contextLimitOverride ?? 0)}
+              onChange={(v) => onChange({ contextLimitOverride: Number(v) || undefined })}
+              options={CONTEXT_OVERRIDE_OPTIONS}
             />
           </AccordionCard>
 
