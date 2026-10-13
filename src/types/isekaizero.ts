@@ -348,6 +348,15 @@ export interface ChatSettings {
   autoSummarize?: boolean;
   /** Isekai Zero "Play Mode": plain text (narration) or the Visual Novel stage. */
   playMode?: "narration" | "visualNovel";
+  /** "Voice & Narration Enabled": speak replies (narrator only in Narration mode, character voices in Visual Novel). */
+  voiceEnabled?: boolean;
+  /** "Auto Play on New Messages". */
+  autoPlayVoice?: boolean;
+  /** Voice ids; unset uses Settings → Providers' voice for the narrator and a fitting default per character. */
+  narratorVoice?: string;
+  characterVoices?: Record<string, string>;
+  narratorSpeakingRate?: number;
+  charactersSpeakingRate?: number;
 }
 
 export type SummaryDetail = "concise" | "balanced" | "detailed";

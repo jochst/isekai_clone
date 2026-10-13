@@ -54,6 +54,7 @@ import { useVideoGeneration, type VideoJob } from "../video-generation/use-video
 
 import { ChatHeader } from "./ChatHeader";
 import { MemorySheet } from "./MemorySheet";
+import { narratorVoice, playSpeech, speechParts } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { VisualNovelStage } from "./VisualNovelStage";
 import { ChatSettingsSheet } from "./ChatSettingsSheet";
 import { Composer } from "./Composer";
@@ -141,6 +142,21 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const tokenEstimate = context?.estimated ?? 0;
   const [lowContextDismissed, setLowContextDismissed] = useState(false);
   const autoRunning = useRef(false);
+  const stopNarration = useRef<(() => void) | null>(null);
+  useEffect(() => () => stopNarration.current?.(), []);
+  /** Voice for the Visual Novel stage, when Voice & Narration is on. */
+  const playBeat = useMemo(
+    () =>
+      session?.settings.voiceEnabled && storyline
+        ? (text: string, soleSpeaker: string | undefined, onDone: () => void) =>
+            playSpeech(speechParts(text, storyline, session.settings, provider, { visualNovel: true, soleSpeaker }), provider, onDone, showToast)
+        : undefined,
+    [session?.settings, storyline, provider, showToast],
+  );
+  const narration = useMemo(
+    () => (session ? { voiceId: narratorVoice(session.settings, provider), speed: session.settings.narratorSpeakingRate ?? 1 } : undefined),
+    [session, provider],
+  );
   const mana = usage.remainingBalance !== undefined ? Math.round(usage.remainingBalance * 100) : 20;
 
   /* Abort any in-flight stream when leaving the page. */
@@ -522,6 +538,12 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         }
         if (afterTurn?.settings.autoIllustrate && !illustratedByTool) illustrate(plan.reply.id);
         if (afterTurn?.settings.playMode === "visualNovel") void pickSceneFor(plan.reply.id);
+        // Narration mode "Auto Play on New Messages": the narrator reads the new reply (the VN stage plays its own).
+        const newReply = afterTurn?.messages.find((m) => m.id === plan.reply.id);
+        if (afterTurn && newReply && afterTurn.settings.voiceEnabled && afterTurn.settings.autoPlayVoice && afterTurn.settings.playMode !== "visualNovel") {
+          stopNarration.current?.();
+          stopNarration.current = playSpeech(speechParts(newReply.content, storyline, afterTurn.settings, provider, { visualNovel: false }), provider, undefined, showToast);
+        }
         void autoSummarize();
       } catch (e) {
         const message = errorMessage(e, "Something went wrong while contacting the provider.");
@@ -702,7 +724,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
 
       {visualNovel && !showLog ? (
         <div className="flex min-h-0 flex-1 flex-col">
-          <VisualNovelStage storyline={storyline} messages={session.messages} streaming={streaming} onShowLog={() => setShowLog(true)} />
+          <VisualNovelStage storyline={storyline} messages={session.messages} streaming={streaming} onShowLog={() => setShowLog(true)} playBeat={playBeat} autoPlay={session.settings.autoPlayVoice} />
           {composer}
         </div>
       ) : (
@@ -730,6 +752,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
                 onCheckVideo={(videoId) => checkVideo(message.id, videoId)}
                 onEdit={(content) => editMessage(message.id, content)}
                 onSelectChoice={(index) => selectChoice(message.id, index)}
+              narration={narration}
                 onAction={(action) => messageAction(message, action)}
               />
             ))}
@@ -748,6 +771,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         context={context ?? { estimated: 0, limit: contextLimit, trimmedMessages: 0, totalMessages: 0, trimmedChapters: 0, totalChapters: 0, full: false }}
         onChange={(patch) => update((s) => ({ ...s, settings: { ...s.settings, ...patch } }), { touch: false })}
         onOpenMemory={() => (setSettingsOpen(false), setMemoryOpen(true))}
+        storyline={storyline}
       />
       <MemorySheet
         open={memoryOpen}

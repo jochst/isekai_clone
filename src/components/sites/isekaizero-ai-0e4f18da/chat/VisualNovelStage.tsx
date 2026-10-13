@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronLeft, ChevronRight, ScrollText } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, ScrollText, Square, Volume2 } from "lucide-react";
 
 import { vnBeats } from "@/lib/chats/scene";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,10 @@ export interface VisualNovelStageProps {
   streaming: boolean;
   /** Switch back to the text log (Isekai Zero's Narration view). */
   onShowLog: () => void;
+  /** Speaks one beat in the right voices; returns a stop function. Absent when voice is off. */
+  playBeat?: (text: string, soleSpeaker: string | undefined, onDone: () => void) => () => void;
+  /** "Auto Play on New Messages": voice starts by itself when a new reply arrives. */
+  autoPlay?: boolean;
 }
 
 /**
@@ -24,14 +28,50 @@ export interface VisualNovelStageProps {
  * tapping advances, the arrows step through earlier replies. Background and characters come from the reply's
  * \`scene\` (picked by the Media Picker); a reply without one keeps the last background shown.
  */
-export function VisualNovelStage({ storyline, messages, streaming, onShowLog }: VisualNovelStageProps) {
+export function VisualNovelStage({ storyline, messages, streaming, onShowLog, playBeat, autoPlay = false }: VisualNovelStageProps) {
   const replies = messages.filter((m) => m.role === "assistant" && m.content.trim());
   const latest = replies.length - 1;
+  // Voice plays beat by beat while on; a newly arrived reply turns it on when Auto Play is set.
+  const [voiceOn, setVoiceOn] = useState(false);
+  const latestId = replies[latest]?.id;
+  const [seenLatest, setSeenLatest] = useState(latestId);
+  if (latestId !== seenLatest) {
+    setSeenLatest(latestId);
+    if (autoPlay && playBeat) setVoiceOn(true);
+  }
   // Browsing an earlier reply sticks to it; otherwise the stage follows the newest reply (and resets its beat).
   const [pinned, setPinned] = useState<{ index: number; beat: number } | null>(null);
   const [beatState, setBeatState] = useState({ id: "", beat: 0 });
   const index = pinned?.index ?? latest;
   const reply = replies[index];
+  const beats = vnBeats(reply?.content ?? "");
+  const beat = pinned ? pinned.beat : beatState.id === reply?.id ? beatState.beat : 0;
+  const shownBeat = Math.min(beat, Math.max(0, beats.length - 1));
+  const setBeat = (next: number) => (pinned ? setPinned({ index, beat: next }) : setBeatState({ id: reply?.id ?? "", beat: next }));
+  const go = (to: number) => setPinned(to >= latest ? null : { index: to, beat: 0 });
+
+  const background = [...replies.slice(0, index + 1)].reverse().find((m) => m.scene?.background)?.scene?.background;
+  const characters = reply?.scene?.characters ?? [];
+  const lastBeat = shownBeat >= beats.length - 1;
+  const advance = () => {
+    if (!lastBeat) setBeat(shownBeat + 1);
+    else if (index < latest) go(index + 1);
+  };
+  const soleSpeaker = characters.length === 1 ? characters[0].name : undefined;
+  const beatText = beats[shownBeat] ?? "";
+  const atEnd = lastBeat && index >= latest;
+
+  // Speak the current beat; when it ends, move on (and stop after the newest reply's last beat).
+  useEffect(() => {
+    if (!voiceOn || !playBeat || streaming || !beatText) return;
+    return playBeat(beatText, soleSpeaker, () => {
+      if (atEnd) setVoiceOn(false);
+      else advance();
+    });
+    // advance/atEnd follow from the beat and reply, which are in the deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [voiceOn, playBeat, streaming, reply?.id, shownBeat, beatText, soleSpeaker]);
+
   if (!reply) {
     return (
       <div className="flex flex-1 items-center justify-center text-[13px] text-white/60">
@@ -39,19 +79,6 @@ export function VisualNovelStage({ storyline, messages, streaming, onShowLog }: 
       </div>
     );
   }
-  const beats = vnBeats(reply.content);
-  const beat = pinned ? pinned.beat : beatState.id === reply.id ? beatState.beat : 0;
-  const shownBeat = Math.min(beat, Math.max(0, beats.length - 1));
-  const setBeat = (next: number) => (pinned ? setPinned({ index, beat: next }) : setBeatState({ id: reply.id, beat: next }));
-  const go = (to: number) => setPinned(to >= latest ? null : { index: to, beat: 0 });
-
-  const background = [...replies.slice(0, index + 1)].reverse().find((m) => m.scene?.background)?.scene?.background;
-  const characters = reply.scene?.characters ?? [];
-  const lastBeat = shownBeat >= beats.length - 1;
-  const advance = () => {
-    if (!lastBeat) setBeat(shownBeat + 1);
-    else if (index < latest) go(index + 1);
-  };
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden" aria-label="Visual Novel">
@@ -65,9 +92,16 @@ export function VisualNovelStage({ storyline, messages, streaming, onShowLog }: 
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
       </div>
 
-      <button type="button" onClick={onShowLog} className="absolute right-3 top-3 z-10 flex h-8 items-center gap-1 rounded-[16px] bg-black/50 px-3 text-[12px] font-semibold text-white/90 backdrop-blur hover:bg-black/70">
-        <ScrollText size={14} /> Log
-      </button>
+      <div className="absolute right-3 top-3 z-10 flex gap-2">
+        {playBeat ? (
+          <button type="button" onClick={() => setVoiceOn((v) => !v)} aria-pressed={voiceOn} className="flex h-8 items-center gap-1 rounded-[16px] bg-black/50 px-3 text-[12px] font-semibold text-white/90 backdrop-blur hover:bg-black/70">
+            {voiceOn ? <Square size={13} /> : <Volume2 size={14} />} {voiceOn ? "Stop voice" : "Play voice"}
+          </button>
+        ) : null}
+        <button type="button" onClick={onShowLog} className="flex h-8 items-center gap-1 rounded-[16px] bg-black/50 px-3 text-[12px] font-semibold text-white/90 backdrop-blur hover:bg-black/70">
+          <ScrollText size={14} /> Log
+        </button>
+      </div>
 
       <button type="button" onClick={advance} className="relative flex min-h-0 flex-1 cursor-pointer items-end justify-center gap-2 px-4" aria-label="Next">
         {characters.map((c) => (
