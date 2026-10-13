@@ -37,16 +37,18 @@ import {
   resolveImageSize,
   resolveTextModel,
   resolveVideoModel,
+  generateStoryMedia,
+  listStoryMedia,
   pickScene,
   streamTurn,
   suggestDestinies,
 } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { planTurn, settleOutcome, type TurnRequest } from "@/lib/chats/turn";
 import { chapterPlan } from "@/lib/chats/memory";
-import { fallbackScene } from "@/lib/chats/scene";
+import { applyMedia, fallbackScene, withStoryMedia } from "@/lib/chats/scene";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { isProviderConfigured, resolvePortraitModel, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatMessage, ChatSession, SceneImage as SceneImageModel, SceneVideo as SceneVideoModel, VnScene } from "@/types/isekaizero";
+import type { ChatMessage, ChatSession, MediaRequest, SceneImage as SceneImageModel, SceneVideo as SceneVideoModel, StoryMedia, VnScene } from "@/types/isekaizero";
 
 import { useProviderCatalog } from "../image-generation/use-provider-catalog";
 import { useModelCatalog } from "../llms/use-model-catalog";
@@ -86,6 +88,16 @@ const VIDEO_START_FAILED = "Video generation could not start. Check your provide
 
 export interface ChatPageProps {
   sessionId: string;
+}
+
+/** The widest landscape size a model lists, up to 16:9 (backgrounds fill a wide stage); undefined keeps the default size. */
+function landscapeSize(resolutions: string[] = []): string | undefined {
+  const sizes = resolutions.flatMap((r) => {
+    const m = /^(\d+)\s*[x*]\s*(\d+)$/i.exec(r);
+    const ratio = m ? Number(m[1]) / Number(m[2]) : 0;
+    return ratio > 1 && ratio <= 1.8 ? [{ r, ratio }] : [];
+  });
+  return sizes.sort((a, b) => b.ratio - a.ratio)[0]?.r;
 }
 
 export function ChatPage({ sessionId }: ChatPageProps) {
@@ -130,7 +142,23 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const stickToBottomRef = useRef(true);
 
   const imported = useImportedStoryline(session && !getStoryline(session.storylineId) ? session.storylineId : undefined);
-  const storyline = useMemo(() => (session ? getStoryline(session.storylineId) ?? imported.storyline : undefined), [session, imported.storyline]);
+  const baseStoryline = useMemo(() => (session ? getStoryline(session.storylineId) ?? imported.storyline : undefined), [session, imported.storyline]);
+  // Visual Novel art drawn for this story earlier (Phase 5c), merged in so the Media Picker can reuse it.
+  const [storyMedia, setStoryMedia] = useState<{ id: string; media: StoryMedia[] }>();
+  const storyId = baseStoryline?.id;
+  useEffect(() => {
+    if (!storyId) return;
+    const controller = new AbortController();
+    listStoryMedia(storyId, controller.signal)
+      .then((media) => setStoryMedia({ id: storyId, media }))
+      .catch(() => {});
+    return () => controller.abort();
+  }, [storyId]);
+  const storyline = useMemo(
+    () => (baseStoryline && storyMedia?.id === baseStoryline.id ? withStoryMedia(baseStoryline, storyMedia.media) : baseStoryline),
+    [baseStoryline, storyMedia],
+  );
+  const drawingScenes = useRef(new Set<string>());
   const configured = isProviderConfigured(provider);
   const model = useMemo(() => resolveTextModel(session?.settings ?? DEFAULT_CHAT_SETTINGS, provider), [session?.settings, provider]);
   const { byokModels } = useModelCatalog();
@@ -298,7 +326,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         const characters = Array.isArray(args.characters) ? args.characters.filter((c): c is string => typeof c === "string") : [];
         draw(brief ? buildIllustrationBriefPrompt(storyline, brief, characters, opts) : buildScenePrompt(storyline, recentMessages, opts));
       } else if (name === "create_character" && current.settings.autoCreateCharacter) {
-        // Portraits are high volume, so they use the cheaper portrait model (HiDream O1 Dev on NanoGPT).
+        // Portraits are high volume, so they use the portrait model (qwen-image, in the NanoGPT subscription).
         const prompt = str(args.imagePrompt) || str(args.imageDescription);
         if (prompt) draw(prompt, resolvePortraitModel(provider));
       } else if (name === "edit_character" && current.settings.autoEditCharacter) {
@@ -440,15 +468,55 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       if (!current || !storyline || index < 0) return;
       const reply = current.messages[index].content;
       const previous = [...current.messages.slice(0, index)].reverse().find((m) => m.scene)?.scene;
-      let scene: VnScene;
+      const generate = current.settings.vnGenerateMedia !== false && !drawingScenes.current.has(messageId);
+      let picked: { scene: VnScene; requests: MediaRequest[] };
       try {
-        scene = await pickScene({ settings: provider, model: model.id, storyline, reply, previous });
+        picked = await pickScene({ settings: provider, model: model.id, storyline, reply, previous, generate });
       } catch {
-        scene = fallbackScene(storyline, reply, previous);
+        picked = { scene: fallbackScene(storyline, reply, previous), requests: [] };
       }
-      update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === messageId ? { ...m, scene } : m)) }), { touch: false });
+      const setScene = (next: (scene: VnScene) => VnScene) =>
+        update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === messageId ? { ...m, scene: next(m.scene ?? picked.scene) } : m)) }), { touch: false });
+      setScene(() => picked.scene);
+      if (picked.requests.length === 0) return;
+
+      // Nothing in the story fits: draw it with the portrait model (high volume, so a cheap or subscription one).
+      drawingScenes.current.add(messageId);
+      const portraitModel = resolvePortraitModel(provider);
+      const info = imageById(portraitModel);
+      showToast(picked.requests.length === 1 ? `Drawing ${picked.requests[0].caption}…` : `Drawing ${picked.requests.length} new images for this scene…`);
+      try {
+        const results = await Promise.allSettled(
+          picked.requests.map((request) =>
+            generateStoryMedia({
+              settings: provider,
+              storylineId: storyline.id,
+              request,
+              model: portraitModel,
+              size: request.kind === "background" ? landscapeSize(info?.resolutions) : resolveImageSize(info, provider),
+              useReference: info?.imageToImage ?? false,
+            }),
+          ),
+        );
+        const made: StoryMedia[] = [];
+        for (const result of results) {
+          if (result.status === "rejected") continue;
+          made.push(result.value.media);
+          addUsage({ images: 1, cost: result.value.cost ?? 0, remainingBalance: result.value.remainingBalance });
+        }
+        const failed = results.find((x): x is PromiseRejectedResult => x.status === "rejected");
+        if (failed) showToast(errorMessage(failed.reason, "Could not draw the new scene art."));
+        if (made.length === 0) return;
+        setStoryMedia((prev) => {
+          const known = prev?.id === storyline.id ? prev.media : [];
+          return { id: storyline.id, media: [...known, ...made.filter((m) => !known.some((k) => k.id === m.id))] };
+        });
+        setScene((scene) => applyMedia(scene, made));
+      } finally {
+        drawingScenes.current.delete(messageId);
+      }
     },
-    [sessionId, storyline, provider, model.id, update],
+    [sessionId, storyline, provider, model.id, update, imageById, showToast],
   );
 
   /**

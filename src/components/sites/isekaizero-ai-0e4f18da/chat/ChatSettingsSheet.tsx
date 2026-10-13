@@ -116,6 +116,11 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
               ]}
             />
             <p className="mt-2 text-[11px] leading-4 text-white/50">Visual Novel picks the story&apos;s own backgrounds and character expressions after each reply (one small model call).</p>
+            <SettingRow
+              title="Generate Missing Art"
+              description="When nothing fits, draw a new background or expression with your character portrait model. Saved with the story and reused."
+              right={<Toggle label="Generate Missing Art" checked={settings.vnGenerateMedia !== false} onChange={(vnGenerateMedia) => onChange({ vnGenerateMedia })} />}
+            />
           </AccordionCard>
 
           <AccordionCard title="Voice Narration" description="Generate voice narration for each character in the story">

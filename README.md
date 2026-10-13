@@ -4,7 +4,7 @@ A local, single-user clone of **[isekaizero.ai](https://www.isekaizero.ai)**, th
 
 Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript (strict)**, **Tailwind CSS v4** and **SQLite**.
 
-The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2, 5a and 5b, as of PR #27.
+The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2 and 5a–5c, as of PR #28.
 
 ---
 
@@ -46,7 +46,7 @@ npm run dev                  # http://localhost:3000
 
 | Path | What it holds |
 | :--- | :--- |
-| `data/chats.sqlite` | Your chats, reply versions, and memory (chapters and arcs) |
+| `data/chats.sqlite` | Your chats, reply versions, memory (chapters and arcs), and Visual Novel art drawn for stories |
 | `data/media/` | Every generated image and video, saved locally so they outlive the provider's links |
 | `data/imports.sqlite` | Personal imports from the Import library |
 
@@ -116,13 +116,18 @@ Turns each reply into a scene: background, characters and text you tap through, 
 - **Log** switches to the normal text view; **Back to Visual Novel** returns.
 - The message box stays at the bottom, so Continue, Erase and Destiny all work.
 
-**Which stories work best:** stories marked **Visual Novel Ready** (2,310 in the catalog) have captioned backgrounds and character expressions. Other stories show the cast's cover art over the story cover. Generating new backgrounds and characters for those comes next (Phase 5c).
+**Which stories work best:** stories marked **Visual Novel Ready** (2,310 in the catalog) have captioned backgrounds and character expressions.
+
+**Missing art is drawn for you** (Play Mode → **Generate Missing Art**, on by default):
+- When no background fits the place, or no image shows a character's current emotion, the Media Picker asks for one ("Ancient temple interior with a campfire", "Mira is terrified").
+- It's drawn with your **character portrait model** (default `qwen-image`, included in the NanoGPT subscription). Characters are redrawn from their existing art, so they keep the same face and outfit, then cut out with `birefnet/v2` (about $0.01 each).
+- New art is saved with the story and reused by every chat of it, so each image is paid for once. A blank image from a content filter is rejected instead of saved.
 
 ### Images and video
 - **Illustrations:** the **Illustration** button on a reply draws the scene.
   - Earlier images are sent as references, for consistency.
   - With **Auto Illustrate** on, the story AI decides when to illustrate.
-- **Portraits:** when the story AI creates a character, a portrait is drawn with the **character portrait model**. On NanoGPT that defaults to `hidream-o1-image-dev` (included in the subscription); scene illustrations use your image model (default **Seedream 5.0 Pro**).
+- **Portraits:** when the story AI creates a character, a portrait is drawn with the **character portrait model**. On NanoGPT that defaults to `qwen-image` (included in the subscription; pick `chroma`, also included, for NSFW stories with adult characters); scene illustrations use your image model (default **Seedream 5.0 Pro**).
 - **Image size and cost:** models priced by size tier get the tier matching your image size. For Seedream 5.0 Pro, 1024 px is sent as `1k`, about $0.043 instead of $0.086.
 - **Video:** **Animate** turns a scene image or a reply into a video (NanoGPT video models). It keeps checking after a reload.
 - **Creation pages:** **Creation**, with **Image** and **Video** tabs.
@@ -182,8 +187,8 @@ Then go to **Settings → Providers → Voice (TTS) → Local / Kokoro**, base U
 | 2 | Chapters and arcs, real context limits, trimming, warnings, auto-summarize, usage per reply | Done (#24–#25) |
 | 5a | Visual Novel mode and the Media Picker | Done (#26) |
 | 5b | Voices: narrator and a voice per character, voiced Visual Novel scenes, auto play | Done (#27) |
-| 5c | Auto-generated backgrounds and characters for stories without art; chained illustrations (Seedream edit) | Next |
-| 5d+ | Manga, chained video scenes, music via NanoGPT | Planned |
+| 5c | Visual Novel art drawn when a story lacks it: backgrounds and character expressions, cut out and saved per story | Done (#28) |
+| 5d+ | Chained illustrations (Seedream edit), manga, chained video scenes, music via NanoGPT | Next |
 | 3 | Codex (story lore), Dungeon Mind v2 tools (dice, stats, inventory), characters saved to the cast, story endings | Planned (moved after Phase 5) |
 | 4 | Composer parity: slash commands, Improvise, RETRY+, OOC, personas, Honor mode, history tools | Planned |
 | 6 | Creation studio: your own stories and characters | Planned |

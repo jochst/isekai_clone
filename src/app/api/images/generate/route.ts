@@ -1,26 +1,8 @@
 import { NextResponse } from "next/server";
-import { inlineLocalMedia } from "@/lib/chats/media";
-import { authHeaders, fetchWithRetry, providerErrorMessage, readProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
+import { ProviderError, readProviderContext, requestImages, type ImageRequest } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
-
-interface ImageRequestBody {
-  model: string;
-  prompt: string;
-  size?: string;
-  n?: number;
-  /** "url" (default) or "b64_json" */
-  responseFormat?: "url" | "b64_json";
-  referenceImages?: string[];
-}
-
-interface OpenAiImageResponse {
-  created?: number;
-  data?: { url?: string; b64_json?: string; revised_prompt?: string }[];
-  cost?: number;
-  remainingBalance?: number;
-}
 
 /**
  * Generates one or more images through the OpenAI-compatible images endpoint
@@ -32,59 +14,20 @@ export async function POST(req: Request) {
   const ctx = readProviderContext(req.headers);
   if ("error" in ctx) return NextResponse.json({ error: ctx.error }, { status: 400 });
 
-  let body: ImageRequestBody;
+  let body: ImageRequest;
   try {
-    body = (await req.json()) as ImageRequestBody;
+    body = (await req.json()) as ImageRequest;
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
   if (!body.model) return NextResponse.json({ error: "No image model selected. Pick one in Settings → Providers." }, { status: 400 });
   if (!body.prompt?.trim()) return NextResponse.json({ error: "prompt is required" }, { status: 400 });
 
-  const imageBase = ctx.imageBaseUrl || ctx.baseUrl;
-  const responseFormat = body.responseFormat ?? "url";
-  const payload: Record<string, unknown> = {
-    model: body.model,
-    prompt: body.prompt.slice(0, 3000),
-    n: Math.min(Math.max(body.n ?? 1, 1), 4),
-    size: body.size || "1024x1024",
-    response_format: responseFormat,
-  };
-
-  if (Array.isArray(body.referenceImages) && body.referenceImages.length > 0) {
-    // Pass references in standard formats supported by Seedream 5 Pro / BytePlus / NanoGPT
-    const refs = body.referenceImages.slice(0, 10).map(inlineLocalMedia);
-    payload.reference_images = refs;
-    payload.image_urls = refs;
-  }
-
-  let upstream: Response;
   try {
-    upstream = await fetchWithRetry(`${imageBase}/images/generations`, {
-      method: "POST",
-      headers: authHeaders(ctx),
-      body: JSON.stringify(payload),
-      signal: req.signal,
-    });
+    const result = await requestImages(ctx, { ...body, referenceImages: Array.isArray(body.referenceImages) ? body.referenceImages : undefined }, req.signal);
+    return NextResponse.json({ ...result, model: body.model });
   } catch (e) {
-    const message = e instanceof Error ? e.message : "unknown error";
-    return NextResponse.json({ error: `Could not reach image provider: ${message}` }, { status: 502 });
+    if (e instanceof ProviderError) return NextResponse.json({ error: e.message }, { status: e.status });
+    throw e;
   }
-  if (!upstream.ok) {
-    return NextResponse.json({ error: await providerErrorMessage(upstream) }, { status: upstream.status });
-  }
-
-  const json = (await upstream.json()) as OpenAiImageResponse;
-  const images = (json.data ?? [])
-    .map((d) => {
-      if (d.url) return { url: d.url, prompt: d.revised_prompt || body.prompt };
-      if (d.b64_json) return { url: `data:image/png;base64,${d.b64_json}`, prompt: d.revised_prompt || body.prompt };
-      return null;
-    })
-    .filter((x): x is { url: string; prompt: string } => x !== null);
-
-  if (images.length === 0) {
-    return NextResponse.json({ error: "Provider returned no image data" }, { status: 502 });
-  }
-  return NextResponse.json({ images, cost: json.cost, remainingBalance: json.remainingBalance, model: body.model });
 }

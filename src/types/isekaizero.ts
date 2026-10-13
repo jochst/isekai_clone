@@ -34,6 +34,20 @@ export interface StoryImage {
   caption: string;
 }
 
+/** Visual Novel art drawn for a story that lacked it, stored per story so each image is paid for once. */
+export interface StoryMedia extends StoryImage {
+  kind: "background" | "character";
+  /** The cast member it belongs to, for kind "character". */
+  character?: string;
+}
+
+/** Art the Media Picker asked for because nothing in the story fits ("background: new …", "Name: new …"). */
+export interface MediaRequest {
+  kind: StoryMedia["kind"];
+  character?: string;
+  caption: string;
+}
+
 /** What a Visual Novel stage shows for one reply (picked by the Media Picker). */
 export interface VnScene {
   background?: StoryImage;
@@ -348,6 +362,8 @@ export interface ChatSettings {
   autoSummarize?: boolean;
   /** Isekai Zero "Play Mode": plain text (narration) or the Visual Novel stage. */
   playMode?: "narration" | "visualNovel";
+  /** Visual Novel: draw a background or expression when the story has none that fits (on unless turned off). */
+  vnGenerateMedia?: boolean;
   /** "Voice & Narration Enabled": speak replies (narrator only in Narration mode, character voices in Visual Novel). */
   voiceEnabled?: boolean;
   /** "Auto Play on New Messages". */

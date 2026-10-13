@@ -31,8 +31,9 @@ export const PROVIDER_PRESETS: ProviderPresetDef[] = [
     keysUrl: "https://nano-gpt.com/api",
     defaultTextModel: "deepseek/deepseek-latest",
     defaultImageModel: "bytedance/seedream-v5.0-pro",
-    // Included in the NanoGPT subscription; the distilled, faster HiDream O1.
-    defaultPortraitModel: "hidream-o1-image-dev",
+    // Included in the NanoGPT subscription and takes reference images. Chroma (also included) allows NSFW but
+    // returns a black image for prompts about young characters, common in this catalog.
+    defaultPortraitModel: "qwen-image",
   },
   {
     id: "openai",
