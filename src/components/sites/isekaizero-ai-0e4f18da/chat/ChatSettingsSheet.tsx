@@ -11,9 +11,17 @@ import { VideoParamsForm, paramSummary } from "@/components/sites/isekaizero-ai-
 import { resolveImageModel, resolveVideoModel, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatSession, ChatSettings, ProviderSettings, VideoParamValue } from "@/types/isekaizero";
+import type { ChatSession, ChatSettings, ProviderSettings, ReasoningEffort, VideoParamValue } from "@/types/isekaizero";
 
 import { AccordionCard, SegmentedControl, SettingRow, SideSheet, Toggle } from "./primitives";
+
+const REASONING_EFFORT_OPTIONS: { value: ReasoningEffort; label: string }[] = [
+  { value: "minimal", label: "Min" },
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Mid" },
+  { value: "high", label: "High" },
+  { value: "max", label: "Max" },
+];
 
 export interface ChatSettingsSheetProps {
   open: boolean;
@@ -101,6 +109,20 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, tok
             />
           </AccordionCard>
 
+          <AccordionCard title="Response Token Limit" description="Sets the maximum token limit for AI responses">
+            <SegmentedControl
+              label="Response Token Limit"
+              value={settings.responseTokenLimit ?? "capped"}
+              onChange={(responseTokenLimit) => onChange({ responseTokenLimit })}
+              options={[
+                { value: "capped", label: "Capped" },
+                { value: "high", label: "High" },
+                { value: "max", label: "Max" },
+              ]}
+            />
+            {settings.responseTokenLimit === "max" ? <p className="mt-2 text-[11px] leading-[15px] text-[rgb(255,168,168)]">This will prevent truncation but it will not stop the model from over yapping</p> : null}
+          </AccordionCard>
+
           <AccordionCard title="Reasoning" description="Squeeze more intelligence out of the model, but it will increase output token cost">
             <SegmentedControl
               label="Reasoning"
@@ -111,6 +133,17 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, tok
                 { value: "on", label: "On" },
               ]}
             />
+            {settings.reasoning ? (
+              <div className="mt-3">
+                <p className="mb-2 text-[12px] leading-4 text-white/60">Reasoning Effort: controls how much effort the model puts into reasoning</p>
+                <SegmentedControl
+                  label="Reasoning Effort"
+                  value={settings.reasoningEffort ?? "medium"}
+                  onChange={(reasoningEffort) => onChange({ reasoningEffort })}
+                  options={REASONING_EFFORT_OPTIONS}
+                />
+              </div>
+            ) : null}
           </AccordionCard>
 
           <AccordionCard title="Perspective" description="Set the narrative perspective for AI responses">

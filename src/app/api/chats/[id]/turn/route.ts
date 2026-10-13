@@ -4,7 +4,7 @@ import type { ChatSession } from "@/types/isekaizero";
 import { findStoryline } from "@/lib/chats/storyline";
 import { parseTurnRequest, planTurn, readCompletionStream, settleOutcome, type StreamOutcome } from "@/lib/chats/turn";
 import { assemblePrompt } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-builder";
-import { authHeaders, providerErrorMessage, readProviderContext, reasoningParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
+import { authHeaders, fetchWithRetry, providerErrorMessage, readProviderContext, reasoningParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -38,7 +38,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (typeof plan === "string") return Response.json({ error: plan }, { status: 400 });
 
   const prompt = assemblePrompt(storyline, { ...chat, messages: plan.history }, { takeTurn: turn.takeTurn, retryInstruction: turn.instruction });
-  const upstream = await fetch(`${ctx.baseUrl}/chat/completions`, {
+  const upstream = await fetchWithRetry(`${ctx.baseUrl}/chat/completions`, {
     method: "POST",
     headers: { ...authHeaders(ctx), Accept: "text/event-stream" },
     body: JSON.stringify({
@@ -49,7 +49,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       temperature: prompt.temperature,
       max_tokens: prompt.maxTokens,
       ...(prompt.tools.length > 0 ? { tools: prompt.tools } : {}),
-      ...reasoningParams(ctx, prompt.reasoning),
+      ...reasoningParams(ctx, prompt.reasoning, prompt.reasoningEffort),
     }),
     signal: request.signal,
   }).catch((e: unknown) => e as Error);

@@ -41,7 +41,7 @@ import {
 } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { planTurn, settleOutcome, type TurnRequest } from "@/lib/chats/turn";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
-import { isProviderConfigured, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
+import { isProviderConfigured, resolvePortraitModel, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import type { ChatMessage, SceneImage as SceneImageModel, SceneVideo as SceneVideoModel } from "@/types/isekaizero";
 
 import { useProviderCatalog } from "../image-generation/use-provider-catalog";
@@ -201,6 +201,11 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       }
       const index = current.messages.findIndex((m) => m.id === messageId);
       if (index === -1) return;
+      // Double-spend guard: one paid illustration per message at a time.
+      if (current.messages[index].images?.some((img) => img.status === "generating")) {
+        showToast("This scene is already being drawn");
+        return;
+      }
       const prompt =
         customPrompt ||
         buildScenePrompt(storyline, current.messages.slice(0, index + 1), {
@@ -218,7 +223,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     (messageId: string, imageId: string) => {
       const current = getChatSession(sessionId);
       const image = current?.messages.find((m) => m.id === messageId)?.images?.find((img) => img.id === imageId);
-      if (!image) return;
+      if (!image || image.status === "generating") return;
       if (!provider.apiKey) {
         showToast("Connect a provider first");
         return;
@@ -246,8 +251,8 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       // Argument names follow Isekai Zero's real tool schemas (ai-tools.json).
       const name = toolCall.function.name;
       const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
-      const draw = (prompt: string) => {
-        const image: SceneImageModel = { id: newId(), url: "", prompt, model: imageModel, createdAt: Date.now(), status: "generating" };
+      const draw = (prompt: string, model = imageModel) => {
+        const image: SceneImageModel = { id: newId(), url: "", prompt, model, createdAt: Date.now(), status: "generating" };
         attachSceneImage(sessionId, messageId, image);
         void runImage(messageId, image);
       };
@@ -261,8 +266,9 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         const characters = Array.isArray(args.characters) ? args.characters.filter((c): c is string => typeof c === "string") : [];
         draw(brief ? buildIllustrationBriefPrompt(storyline, brief, characters, opts) : buildScenePrompt(storyline, recentMessages, opts));
       } else if (name === "create_character" && current.settings.autoCreateCharacter) {
+        // Portraits are high volume, so they use the cheaper portrait model (HiDream O1 Dev on NanoGPT).
         const prompt = str(args.imagePrompt) || str(args.imageDescription);
-        if (prompt) draw(prompt);
+        if (prompt) draw(prompt, resolvePortraitModel(provider));
       } else if (name === "edit_character" && current.settings.autoEditCharacter) {
         // ponytail: rename/note is only announced; a chat-local cast to store it lands with ADR Phase 3.
         const from = str(args.characterName);
@@ -295,6 +301,11 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       const index = current.messages.findIndex((m) => m.id === messageId);
       if (index === -1) return;
       const message = current.messages[index];
+      // Double-spend guard: video is the priciest call, so never start a second one for the same message.
+      if (message.videos?.some((v) => v.status === "queued" || v.status === "generating")) {
+        showToast("A video for this message is already being made");
+        return;
+      }
       const source = imageId
         ? message.images?.find((img) => img.id === imageId)
         : [...(message.images ?? [])].reverse().find((img) => img.status === "done" && getSceneImageUrl(img));
@@ -334,7 +345,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       const current = getChatSession(sessionId);
       const message = current?.messages.find((m) => m.id === messageId);
       const video = message?.videos?.find((v) => v.id === videoId);
-      if (!video) return;
+      if (!video || video.status === "queued" || video.status === "generating") return;
       if (!provider.baseUrl || !provider.apiKey) {
         showToast("Connect a provider first");
         return;

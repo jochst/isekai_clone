@@ -15,6 +15,11 @@ describe("resolveImageSize", () => {
     expect(resolveImageSize(undefined, provider)).toBe("1024x1024");
     expect(resolveImageSize(normalizeImageModel({ id: "m", supported_parameters: { resolutions: ["1024x1024", "2k"] } }, "https://p"), provider)).toBe("1024x1024");
   });
+  it("picks the matching price tier for tiered models instead of their first, pricier option", () => {
+    const seedream = normalizeImageModel({ id: "bytedance/seedream-v5.0-pro", supported_parameters: { resolutions: ["1:1", "16:9", "1k", "2k", "auto"] } }, "https://p");
+    expect(resolveImageSize(seedream, provider)).toBe("1k");
+    expect(resolveImageSize(seedream, { ...provider, imageSize: "2048x2048" })).toBe("2k");
+  });
   it("falls back to the model default (auto, else first)", () => {
     expect(resolveImageSize(normalizeImageModel({ id: "m", supported_parameters: { resolutions: ["2048*2048", "auto"] } }, "https://p"), provider)).toBe("auto");
     expect(resolveImageSize(normalizeImageModel({ id: "m", supported_parameters: { resolutions: ["1k", "2k"] } }, "https://p"), provider)).toBe("1k");

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { inlineLocalMedia } from "@/lib/chats/media";
-import { authHeaders, providerErrorMessage, readProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
+import { authHeaders, fetchWithRetry, providerErrorMessage, readProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
 
   let upstream: Response;
   try {
-    upstream = await fetch(`${imageBase}/images/generations`, {
+    upstream = await fetchWithRetry(`${imageBase}/images/generations`, {
       method: "POST",
       headers: authHeaders(ctx),
       body: JSON.stringify(payload),

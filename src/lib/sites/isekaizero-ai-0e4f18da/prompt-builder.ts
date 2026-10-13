@@ -84,6 +84,15 @@ export function resolveImageModel(settings: ChatSettings, provider: ProviderSett
 export function resolveImageSize(model: ProviderImageModel | undefined, provider: ProviderSettings): string {
   const configured = provider.imageSize || "1024x1024";
   if (!model || model.resolutions.length === 0 || model.resolutions.includes(configured)) return configured;
+  // Models priced by tier (Seedream 5.0 Pro: "1k" $0.045, "2k"/aspect ratios $0.09) get the tier matching the
+  // configured pixel size, rather than their first option, which may be the pricier one.
+  const dims = /^(\d+)\s*[x*]\s*(\d+)$/i.exec(configured);
+  if (dims) {
+    const side = Math.max(Number(dims[1]), Number(dims[2]));
+    const tier = side <= 1024 ? "1k" : side <= 1536 ? "1.5k" : "2k";
+    const match = model.resolutions.find((r) => r.toLowerCase() === tier);
+    if (match) return match;
+  }
   return defaultResolution(model.resolutions) ?? configured;
 }
 
@@ -293,7 +302,15 @@ export function toolsForSettings(settings: ChatSettings): OpenAiTool[] {
 }
 
 const REASONING_HEADROOM = 4000;
-const TOKEN_LIMIT_FACTOR: Record<NonNullable<ChatSettings["responseTokenLimit"]>, number> = { capped: 1, high: 2, max: 5 };
+/** "max" is Isekai Zero's "prevent truncation" setting: a ceiling high enough that replies are never cut off. */
+const MAX_RESPONSE_TOKENS = 8192;
+
+export function responseTokenCap(settings: ChatSettings): number {
+  const limit = settings.responseTokenLimit ?? "capped";
+  const cap = limit === "max" ? MAX_RESPONSE_TOKENS : MAX_TOKENS_MAP[settings.responseLength] * (limit === "high" ? 2 : 1);
+  // Hidden reasoning counts against max_tokens, so a reasoning turn gets room to think before it writes.
+  return cap + (settings.reasoning ? REASONING_HEADROOM : 0);
+}
 
 export interface AssembleOptions extends SystemPromptOptions {
   /** RETRY+: direction for the rewritten reply. */
@@ -306,6 +323,7 @@ export interface AssembledPrompt {
   temperature: number;
   maxTokens: number;
   reasoning: boolean;
+  reasoningEffort?: ChatSettings["reasoningEffort"];
 }
 
 /**
@@ -322,8 +340,8 @@ export function assemblePrompt(storyline: Storyline, session: ChatSession, opts:
     messages: toApiMessages(buildSystemPrompt(storyline, session, opts), session.messages, postHistory, reminder),
     tools: toolsForSettings(settings),
     temperature: TEMPERATURE_MAP[settings.temperature],
-    // Hidden reasoning counts against max_tokens, so a reasoning turn gets room to think before it writes.
-    maxTokens: MAX_TOKENS_MAP[settings.responseLength] * TOKEN_LIMIT_FACTOR[settings.responseTokenLimit ?? "capped"] + (settings.reasoning ? REASONING_HEADROOM : 0),
+    maxTokens: responseTokenCap(settings),
     reasoning: settings.reasoning,
+    reasoningEffort: settings.reasoning ? settings.reasoningEffort : undefined,
   };
 }

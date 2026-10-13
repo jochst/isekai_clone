@@ -74,6 +74,8 @@ export function playerDefaults(d: DefaultChatSettings): Partial<ChatSettings> {
     responseLength: d.responseLength,
     temperature: d.temperature === "mid" ? "medium" : d.temperature,
     reasoning: d.reasoning,
+    reasoningEffort: d.reasoningEffort,
+    responseTokenLimit: d.responseTokenLimit,
     ...(d.perspective !== "none" ? { perspective: d.perspective } : {}),
     continueBehavior: d.continueBehavior === "dont-control" ? "no-control" : "control",
     ...(d.customPrompt.trim() ? { guidancePrompt: d.customPrompt } : {}),

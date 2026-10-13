@@ -15,6 +15,8 @@ export interface ProviderPresetDef {
   keysUrl: string;
   defaultTextModel: string;
   defaultImageModel: string;
+  /** Cheaper model for automatic portraits/backgrounds; "" = use the image model. */
+  defaultPortraitModel: string;
 }
 
 /** Presets for OpenAI-compatible services. NanoGPT is the primary BYOK target requested for this clone. */
@@ -29,6 +31,8 @@ export const PROVIDER_PRESETS: ProviderPresetDef[] = [
     keysUrl: "https://nano-gpt.com/api",
     defaultTextModel: "deepseek/deepseek-latest",
     defaultImageModel: "bytedance/seedream-v5.0-pro",
+    // Included in the NanoGPT subscription; the distilled, faster HiDream O1.
+    defaultPortraitModel: "hidream-o1-image-dev",
   },
   {
     id: "openai",
@@ -40,6 +44,7 @@ export const PROVIDER_PRESETS: ProviderPresetDef[] = [
     keysUrl: "https://platform.openai.com/api-keys",
     defaultTextModel: "gpt-5.6-sol",
     defaultImageModel: "gpt-image-2",
+    defaultPortraitModel: "",
   },
   {
     id: "openrouter",
@@ -51,6 +56,7 @@ export const PROVIDER_PRESETS: ProviderPresetDef[] = [
     keysUrl: "https://openrouter.ai/keys",
     defaultTextModel: "deepseek/deepseek-chat",
     defaultImageModel: "",
+    defaultPortraitModel: "",
   },
   {
     id: "custom",
@@ -62,6 +68,7 @@ export const PROVIDER_PRESETS: ProviderPresetDef[] = [
     keysUrl: "",
     defaultTextModel: "",
     defaultImageModel: "",
+    defaultPortraitModel: "",
   },
 ];
 
@@ -182,6 +189,11 @@ export function writeProviderSettings(value: ProviderSettings): void {
     memoryFallback = next;
   }
   window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
+}
+
+/** Model for automatic character portraits: the chosen one, else the preset's default, else the image model. */
+export function resolvePortraitModel(s: ProviderSettings): string {
+  return s.portraitModel || PROVIDER_PRESETS.find((p) => p.id === s.preset)?.defaultPortraitModel || s.imageModel;
 }
 
 export function isProviderConfigured(s: ProviderSettings): boolean {

@@ -64,6 +64,7 @@ export function useImageGeneration(settings: ProviderSettings): UseImageGenerati
   const [result, setResult] = useState<GeneratedImage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<GeneratedImage[]>([]);
+  const busy = useRef(false);
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
 
@@ -83,6 +84,9 @@ export function useImageGeneration(settings: ProviderSettings): UseImageGenerati
       return null;
     }
 
+    // Double-spend guard: `generating` state lags a render, so a fast double-click could request twice.
+    if (busy.current) return null;
+    busy.current = true;
     setGenerating(true);
     try {
       const res = await fetch("/api/images/generate", {
@@ -119,6 +123,7 @@ export function useImageGeneration(settings: ProviderSettings): UseImageGenerati
       setError(`Could not reach the server: ${message}`);
       return null;
     } finally {
+      busy.current = false;
       setGenerating(false);
     }
   }, []);

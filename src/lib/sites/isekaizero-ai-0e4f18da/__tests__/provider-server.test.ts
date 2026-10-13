@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { isNanoGpt, nativeApiBase, readProviderContext, readVoiceContext, reasoningParams, type ProviderContext } from "../provider-server";
+import { isNanoGpt, nativeApiBase, fetchWithRetry, readProviderContext, readVoiceContext, reasoningParams, type ProviderContext } from "../provider-server";
 
 const ctx = (baseUrl: string, preset = "nano-gpt"): ProviderContext => ({ baseUrl, imageBaseUrl: "", apiKey: "k", preset });
 
@@ -49,5 +49,42 @@ describe("reasoningParams", () => {
     expect(reasoningParams(ctx("https://x", "openrouter"), false)).toEqual({ reasoning: { enabled: false } });
     expect(reasoningParams(ctx("https://x", "nano-gpt"), true)).toEqual({});
     expect(reasoningParams(ctx("https://x", "custom"), false)).toEqual({});
+  });
+
+  it("passes the reasoning effort when reasoning is on", () => {
+    expect(reasoningParams(ctx("https://x", "nano-gpt"), true, "max")).toEqual({ reasoning_effort: "max" });
+    expect(reasoningParams(ctx("https://x", "openrouter"), true, "max")).toEqual({ reasoning: { effort: "high" } });
+    expect(reasoningParams(ctx("https://x", "custom"), true, "high")).toEqual({});
+  });
+});
+
+describe("fetchWithRetry", () => {
+  afterEach(() => vi.unstubAllGlobals());
+  const respond = (...statuses: [number, Record<string, string>?][]) => {
+    const fetchMock = vi.fn(async () => {
+      const [status, headers] = statuses.shift() ?? [200];
+      return new Response("{}", { status, headers });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    return fetchMock;
+  };
+
+  it("waits Retry-After on 429 and tries again", async () => {
+    const fetchMock = respond([429, { "retry-after": "2" }], [200]);
+    const waits: number[] = [];
+    const res = await fetchWithRetry("https://x", {}, async (ms) => void waits.push(ms));
+    expect(res.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(waits).toEqual([2000]);
+  });
+
+  it("backs off without Retry-After, gives up after 3 retries, and never retries other errors", async () => {
+    const waits: number[] = [];
+    respond([429], [429], [429], [429], [200]);
+    expect((await fetchWithRetry("https://x", {}, async (ms) => void waits.push(ms))).status).toBe(429);
+    expect(waits.map((w) => Math.floor(w / 1000))).toEqual([1, 2, 4]);
+    const once = respond([402], [200]);
+    expect((await fetchWithRetry("https://x", {}, async () => {})).status).toBe(402);
+    expect(once).toHaveBeenCalledTimes(1);
   });
 });

@@ -162,6 +162,7 @@ function creatorPrompt(d: Record<string, unknown>): Pick<Storyline, "prompt" | "
     ...pick("continueBehavior", ["control", "no-control"]),
     ...pick("responseTokenLimit", ["capped", "high", "max"]),
     ...pick("reasoning", [true, false]),
+    ...pick("reasoningEffort", ["minimal", "low", "medium", "high", "max"]),
   };
   return {
     ...(Object.values(prompt).some(Boolean) ? { prompt } : {}),

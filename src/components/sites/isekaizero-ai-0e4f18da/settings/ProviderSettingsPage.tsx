@@ -10,6 +10,7 @@ import {
   isProviderConfigured,
   PROVIDER_PRESETS,
   providerHeaders,
+  resolvePortraitModel,
   useProviderSettings,
   type ProviderPresetDef,
   ENV_KEY,
@@ -231,6 +232,7 @@ function ProviderTab({ settings, preset, update, onTest, onPresetChange }: Provi
       imageBaseUrl: p.imageBaseUrl,
       textModel: p.defaultTextModel,
       imageModel: p.defaultImageModel,
+      portraitModel: "",
     });
     setTest({ kind: "idle" });
     onPresetChange();
@@ -410,7 +412,7 @@ interface ModelsTabProps {
   loadModels: () => Promise<ModelsResponse>;
 }
 
-type OpenPicker = "text" | "image" | null;
+type OpenPicker = "text" | "image" | "portrait" | null;
 
 function formatPrice(n: number): string {
   return n >= 10 ? n.toFixed(0) : n >= 1 ? n.toFixed(2) : n.toFixed(3);
@@ -498,6 +500,28 @@ function ModelsTab({ settings, update, configured, models, loadModels }: ModelsT
                 emptyMessage="No image models reported by this provider."
                 onSelect={(id) => {
                   update({ imageModel: id });
+                  setOpen(null);
+                }}
+              />
+            ) : null}
+
+            <SelectRow
+              title="Character portrait model"
+              description="Used for automatic character portraits (high volume, so a cheaper or subscription model saves credits)"
+              value={imageRows.find((m) => m.id === resolvePortraitModel(settings))?.name || resolvePortraitModel(settings) || "Not set"}
+              onClick={() => setOpen((v) => (v === "portrait" ? null : "portrait"))}
+            />
+            {open === "portrait" ? (
+              <ModelList
+                rows={imageRows.map((m) => ({
+                  id: m.id,
+                  name: m.name,
+                  price: m.costPerImage !== undefined ? `${m.costPerImage.toFixed(3)} per image` : undefined,
+                }))}
+                selected={resolvePortraitModel(settings)}
+                emptyMessage="No image models reported by this provider."
+                onSelect={(id) => {
+                  update({ portraitModel: id });
                   setOpen(null);
                 }}
               />

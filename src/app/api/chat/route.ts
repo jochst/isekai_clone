@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authHeaders, providerErrorMessage, readProviderContext, reasoningParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
+import { authHeaders, fetchWithRetry, providerErrorMessage, readProviderContext, reasoningParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 export const runtime = "nodejs";
 
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
 
   let upstream: Response;
   try {
-    upstream = await fetch(`${ctx.baseUrl}/chat/completions`, {
+    upstream = await fetchWithRetry(`${ctx.baseUrl}/chat/completions`, {
       method: "POST",
       headers: { ...authHeaders(ctx), Accept: stream ? "text/event-stream" : "application/json" },
       body: JSON.stringify(payload),
