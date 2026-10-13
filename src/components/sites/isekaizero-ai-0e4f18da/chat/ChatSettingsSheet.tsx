@@ -31,10 +31,11 @@ export interface ChatSettingsSheetProps {
   model: ResolvedTextModel;
   tokenEstimate: number;
   onChange: (patch: Partial<ChatSettings>) => void;
-  onToast: (message: string) => void;
+  /** Opens the Memory (chapters and arcs) panel. */
+  onOpenMemory: () => void;
 }
 
-export function ChatSettingsSheet({ open, onClose, session, provider, model, tokenEstimate, onChange, onToast }: ChatSettingsSheetProps) {
+export function ChatSettingsSheet({ open, onClose, session, provider, model, tokenEstimate, onChange, onOpenMemory }: ChatSettingsSheetProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const { settings } = session;
   const [, updateProvider] = useProviderSettings();
@@ -263,10 +264,10 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, tok
             <p className="text-[13px] leading-[18px] text-white/70">Condense your story into chapters and arcs to save tokens while keeping continuity</p>
             <button
               type="button"
-              onClick={() => onToast("Chapter summaries are not part of this demo")}
-              className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/60"
+              onClick={onOpenMemory}
+              className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10"
             >
-              Summarize chapter
+              Open Memory
             </button>
           </AccordionCard>
         </div>

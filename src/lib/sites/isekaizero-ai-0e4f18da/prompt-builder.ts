@@ -9,6 +9,7 @@ import type { ProviderImageModel, ProviderVideoModel, VideoParamSpec } from "./p
 import { defaultResolution } from "./provider-catalog";
 import type { VideoParamValue } from "@/types/isekaizero";
 import { toolFunction, toolInstruction, type OpenAiTool } from "./ai-tools";
+import { memoryView } from "@/lib/chats/memory";
 
 export { CONTINUE_SENTINEL } from "@/types/isekaizero";
 
@@ -27,6 +28,11 @@ const DEFAULT_CONTEXT_LIMIT = 128_000;
 /** Rough estimate: ≈ 4 characters per token. */
 export function estimateTokens(text: string): number {
   return Math.ceil(text.length / 4);
+}
+
+/** Estimated input tokens of an assembled request (system prompt with memory, history, reminders). */
+export function estimatePromptTokens(messages: { content: string }[]): number {
+  return messages.reduce((sum, m) => sum + estimateTokens(m.content) + 4, 0);
 }
 
 export function estimateContextTokens(systemPrompt: string, messages: ChatMessage[]): number {
@@ -342,8 +348,11 @@ export function assemblePrompt(storyline: Storyline, session: ChatSession, opts:
   const reminder = [settings.userInputPrompt, storyline.prompt?.outputReminder].filter((x) => x?.trim()).join("\n");
   const retry = opts.retryInstruction?.trim() ? `Write the next reply following this direction from the player: ${opts.retryInstruction.trim()}` : "";
   const postHistory = [importedPostHistory(storyline, session), retry].filter(Boolean).join("\n\n");
+  // Summarized messages are replaced by the chapter/arc memory; only the messages after it go as history.
+  const memory = memoryView(session);
+  const system = [buildSystemPrompt(storyline, session, opts), memory.text].filter(Boolean).join("\n\n");
   return {
-    messages: toApiMessages(buildSystemPrompt(storyline, session, opts), session.messages, postHistory, reminder),
+    messages: toApiMessages(system, memory.recent, postHistory, reminder),
     tools: toolsForSettings(settings),
     temperature: TEMPERATURE_MAP[settings.temperature],
     maxTokens: responseTokenCap(settings),

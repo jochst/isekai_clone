@@ -28,8 +28,8 @@ import {
   buildIllustrationBriefPrompt,
   buildMotionPrompt,
   buildScenePrompt,
-  buildSystemPrompt,
-  estimateContextTokens,
+  assemblePrompt,
+  estimatePromptTokens,
   estimateTokens,
   generateSceneImage,
   resolveImageModel,
@@ -47,7 +47,8 @@ import type { ChatMessage, SceneImage as SceneImageModel, SceneVideo as SceneVid
 import { useProviderCatalog } from "../image-generation/use-provider-catalog";
 import { useVideoGeneration, type VideoJob } from "../video-generation/use-video-generation";
 
-import { ChatHeader, MemorySheet } from "./ChatHeader";
+import { ChatHeader } from "./ChatHeader";
+import { MemorySheet } from "./MemorySheet";
 import { ChatSettingsSheet } from "./ChatSettingsSheet";
 import { Composer } from "./Composer";
 import { MessageBubble } from "./MessageBubble";
@@ -123,8 +124,8 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const storyline = useMemo(() => (session ? getStoryline(session.storylineId) ?? imported.storyline : undefined), [session, imported.storyline]);
   const configured = isProviderConfigured(provider);
   const model = useMemo(() => resolveTextModel(session?.settings ?? DEFAULT_CHAT_SETTINGS, provider), [session?.settings, provider]);
-  const systemPrompt = useMemo(() => (session && storyline ? buildSystemPrompt(storyline, session, { takeTurn }) : ""), [session, storyline, takeTurn]);
-  const tokenEstimate = useMemo(() => (session ? estimateContextTokens(systemPrompt, session.messages) : 0), [session, systemPrompt]);
+  // What the next turn would send: system prompt with chapter/arc memory, then the unsummarized messages.
+  const tokenEstimate = useMemo(() => (session && storyline ? estimatePromptTokens(assemblePrompt(storyline, session, { takeTurn }).messages) : 0), [session, storyline, takeTurn]);
   const mana = usage.remainingBalance !== undefined ? Math.round(usage.remainingBalance * 100) : 20;
 
   /* Abort any in-flight stream when leaving the page. */
@@ -663,14 +664,16 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         model={model}
         tokenEstimate={tokenEstimate}
         onChange={(patch) => update((s) => ({ ...s, settings: { ...s.settings, ...patch } }), { touch: false })}
-        onToast={showToast}
+        onOpenMemory={() => (setSettingsOpen(false), setMemoryOpen(true))}
       />
       <MemorySheet
         open={memoryOpen}
         onClose={() => setMemoryOpen(false)}
-        messageCount={messageCount}
+        session={session}
+        chatModelId={model.id}
         tokenEstimate={tokenEstimate}
-        onSummarize={() => showToast("Chapter summaries are not part of this demo")}
+        onSettingsChange={(patch) => update((s) => ({ ...s, settings: { ...s.settings, ...patch } }), { touch: false })}
+        onToast={showToast}
       />
       <ToastView toast={toast} />
     </div>

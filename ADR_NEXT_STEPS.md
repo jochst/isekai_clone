@@ -228,7 +228,14 @@ The gap: Default Chat Settings could only really use models from the site's buil
 ### Phase 2: Memory and context management
 - [ ] Token counting per model context length (from NanoGPT `/models`).
   - Provider models currently assume 128k, because `resolveTextModel` has no context length for them.
-- [ ] Chapter summaries every about 20 messages; arc summaries every 5–10 chapters. Settings: summarizer model, detail level, auto/manual, write-your-own, regenerate, enable/disable, delete latest only.
+- [x] **Chapters and arcs (2a):**
+  - Chapter summaries cover 20 messages each, and the latest 20 messages stay raw. Arcs cover 5–10 chapters.
+  - Settings and actions: summarizer models (chapter and arc), detail level, write-your-own, regenerate, edit, enable/disable, delete latest only.
+  - Stored in their own table, written only by `/api/chats/[id]/memory`.
+  - Live result (140-message chat, `deepseek-chat`): 6 chapters at ~10 s each, then 1 arc.
+    - Context went from ≈11.5k to ≈3.3k tokens per turn.
+    - The next real turn still recalled details that existed only in the arc.
+  - Still to do: **auto** summarizing (Phase 2b), triggered when the context nears its limit.
 - [ ] Trimming order: oldest raw messages → oldest chapters. Show "Chapters x/y trimmed", "Memory Almost Full" and "Context Full".
 - [ ] Usage info popover: tokens, cache, tokens per second, cost.
 - **Exit:** a 500-message chat stays under the context limit without losing continuity.
