@@ -102,6 +102,19 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
         </div>
 
         <div className="mt-3 flex flex-col gap-3">
+          <AccordionCard title="Play Mode" description="Narration shows text; Visual Novel stages each reply with backgrounds and character images">
+            <SegmentedControl
+              label="Play Mode"
+              value={settings.playMode ?? "narration"}
+              onChange={(playMode) => onChange({ playMode })}
+              options={[
+                { value: "narration", label: "Narration" },
+                { value: "visualNovel", label: "Visual Novel" },
+              ]}
+            />
+            <p className="mt-2 text-[11px] leading-4 text-white/50">Visual Novel picks the story&apos;s own backgrounds and character expressions after each reply (one small model call).</p>
+          </AccordionCard>
+
           <AccordionCard title="Response Length" description="Sets the response length for AI responses" defaultOpen>
             <SegmentedControl
               label="Response Length"

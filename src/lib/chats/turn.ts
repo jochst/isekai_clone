@@ -61,7 +61,10 @@ export function planTurn(chat: ChatSession, req: TurnRequest, now = Date.now()):
   }
   const user: ChatMessage = { id: req.userMessageId!, role: "user", content: req.type === "continue" ? CONTINUE_SENTINEL : req.content!.trim(), createdAt: now };
   const reply: ChatMessage = { id: req.replyId!, role: "assistant", content: "", createdAt: now, speaker: "Narrator" };
-  return { history: [...chat.messages.filter((m) => m.role !== "system"), user], user, reply };
+  // The client's background sync may already have saved this turn's player message (same id) before this
+  // request read the chat; it must not appear twice.
+  const earlier = chat.messages.filter((m) => m.role !== "system" && m.id !== user.id && m.id !== reply.id);
+  return { history: [...earlier, user], user, reply };
 }
 
 /**

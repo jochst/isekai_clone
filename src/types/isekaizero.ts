@@ -27,8 +27,23 @@ export type StoryCategory =
   | "cultivation"
   | "historical";
 
+/** A creator-uploaded image with its caption ("Inside classroom", "Ellen is Smiling"), used by Visual Novel mode. */
+export interface StoryImage {
+  id: string;
+  url: string;
+  caption: string;
+}
+
+/** What a Visual Novel stage shows for one reply (picked by the Media Picker). */
+export interface VnScene {
+  background?: StoryImage;
+  characters: { name: string; image: StoryImage }[];
+}
+
 export interface Character {
   imageUrl?: string;
+  /** Foreground images (expressions, poses) with captions; Visual Novel mode picks among them. */
+  images?: StoryImage[];
   id: string;
   name: string;
   /** Short role line shown under the name in the casts strip. */
@@ -77,6 +92,8 @@ export interface Storyline {
   plot: string;
   /** Creator's AI-facing fields (Isekai Zero "advanced mode"); absent when the creator kept them secret. */
   prompt?: { plot?: string; guideline?: string; reminder?: string; outputReminder?: string };
+  /** Creator-uploaded backgrounds with captions, for Visual Novel mode. */
+  backgrounds?: StoryImage[];
   /** Creator's default chat settings, applied to new chats unless the player overrides creator settings. */
   defaultChatSettings?: Partial<ChatSettings>;
   scenarios: { title: string; summary: string }[];
@@ -260,6 +277,8 @@ export interface ChatMessage {
   videos?: SceneVideo[];
   /** Character speaking, when derivable. */
   speaker?: string;
+  /** Visual Novel stage for this reply: background and character images. */
+  scene?: VnScene;
   /** What producing this reply took (Isekai Zero's message info: tokens, speed, cost). */
   usage?: MessageUsage;
   /** Every version of an assistant reply (Retry adds one); `content` is `choices[choiceIndex]`. */
@@ -327,6 +346,8 @@ export interface ChatSettings {
   contextLimitOverride?: number;
   /** Write chapters automatically when the context is almost full. */
   autoSummarize?: boolean;
+  /** Isekai Zero "Play Mode": plain text (narration) or the Visual Novel stage. */
+  playMode?: "narration" | "visualNovel";
 }
 
 export type SummaryDetail = "concise" | "balanced" | "detailed";

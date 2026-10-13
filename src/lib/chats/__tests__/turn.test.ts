@@ -28,6 +28,13 @@ describe("planTurn + settleOutcome", () => {
     expect(saved.upsert[1]).toMatchObject({ id: "a2", content: "She waves back.", choices: ["She waves back."], choiceIndex: 0 });
   });
 
+  it("never lists the player's message twice when the client's sync saved it first", () => {
+    const synced = chat([...base.messages, msg("u2", "user", "I wave"), msg("a2", "assistant", "")]);
+    const plan = planTurn(synced, { type: "take-turn", model: "m", content: "I wave", userMessageId: "u2", replyId: "a2" }) as TurnPlan;
+    expect(ids(plan.history)).toEqual(["o", "u1", "a1", "u2"]);
+    expect(settleOutcome(synced, plan, "Hi.", false).order).toEqual(["o", "u1", "a1", "u2", "a2"]);
+  });
+
   it("continue sends the hidden continue turn", () => {
     const plan = planTurn(base, { type: "continue", model: "m", userMessageId: "u2", replyId: "a2" }) as TurnPlan;
     expect(plan.user?.content).toBe(CONTINUE_SENTINEL);

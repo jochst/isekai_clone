@@ -37,14 +37,16 @@ import {
   resolveImageSize,
   resolveTextModel,
   resolveVideoModel,
+  pickScene,
   streamTurn,
   suggestDestinies,
 } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { planTurn, settleOutcome, type TurnRequest } from "@/lib/chats/turn";
 import { chapterPlan } from "@/lib/chats/memory";
+import { fallbackScene } from "@/lib/chats/scene";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { isProviderConfigured, resolvePortraitModel, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatMessage, ChatSession, SceneImage as SceneImageModel, SceneVideo as SceneVideoModel } from "@/types/isekaizero";
+import type { ChatMessage, ChatSession, SceneImage as SceneImageModel, SceneVideo as SceneVideoModel, VnScene } from "@/types/isekaizero";
 
 import { useProviderCatalog } from "../image-generation/use-provider-catalog";
 import { useModelCatalog } from "../llms/use-model-catalog";
@@ -52,6 +54,7 @@ import { useVideoGeneration, type VideoJob } from "../video-generation/use-video
 
 import { ChatHeader } from "./ChatHeader";
 import { MemorySheet } from "./MemorySheet";
+import { VisualNovelStage } from "./VisualNovelStage";
 import { ChatSettingsSheet } from "./ChatSettingsSheet";
 import { Composer } from "./Composer";
 import { MessageBubble } from "./MessageBubble";
@@ -117,6 +120,8 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const [takeTurn, setTakeTurn] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [memoryOpen, setMemoryOpen] = useState(false);
+  /** In Visual Novel play mode, the text log is one tap away from the stage. */
+  const [showLog, setShowLog] = useState(false);
   const [sendOnEnter] = useState(readSendOnEnter);
 
   const abortRef = useRef<AbortController | null>(null);
@@ -411,6 +416,25 @@ export function ChatPage({ sessionId }: ChatPageProps) {
 
   /* ---------------------------------------------------------------- completions */
 
+  /** Visual Novel: the Media Picker chooses this reply's background and character images. */
+  const pickSceneFor = useCallback(
+    async (messageId: string) => {
+      const current = getChatSession(sessionId);
+      const index = current?.messages.findIndex((m) => m.id === messageId) ?? -1;
+      if (!current || !storyline || index < 0) return;
+      const reply = current.messages[index].content;
+      const previous = [...current.messages.slice(0, index)].reverse().find((m) => m.scene)?.scene;
+      let scene: VnScene;
+      try {
+        scene = await pickScene({ settings: provider, model: model.id, storyline, reply, previous });
+      } catch {
+        scene = fallbackScene(storyline, reply, previous);
+      }
+      update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === messageId ? { ...m, scene } : m)) }), { touch: false });
+    },
+    [sessionId, storyline, provider, model.id, update],
+  );
+
   /**
    * Auto-summarize (on unless turned off in Memory): once the context is 75% full, write the chapters that can be
    * made so older messages are summarized instead of trimmed. Uses the chapter summarizer, else the chat's model.
@@ -497,6 +521,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           if (tc.function.name === "illustrate_scene") illustratedByTool = true;
         }
         if (afterTurn?.settings.autoIllustrate && !illustratedByTool) illustrate(plan.reply.id);
+        if (afterTurn?.settings.playMode === "visualNovel") void pickSceneFor(plan.reply.id);
         void autoSummarize();
       } catch (e) {
         const message = errorMessage(e, "Something went wrong while contacting the provider.");
@@ -513,7 +538,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         setStreaming(false);
       }
     },
-    [sessionId, storyline, configured, provider, model.id, takeTurn, update, showToast, illustrate, dispatchToolCall, contextLimit, autoSummarize],
+    [sessionId, storyline, configured, provider, model.id, takeTurn, update, showToast, illustrate, dispatchToolCall, contextLimit, autoSummarize, pickSceneFor],
   );
 
   const send = useCallback(
@@ -589,7 +614,10 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           showToast("Manga generation is not part of this demo");
           return;
         case "visualNovel":
-          showToast("Visual Novel mode is not part of this demo");
+          // Switch the chat to Visual Novel play mode and stage this reply.
+          update((s) => ({ ...s, settings: { ...s.settings, playMode: "visualNovel" } }), { touch: false });
+          if (!message.scene && message.role === "assistant") void pickSceneFor(message.id);
+          setShowLog(false);
           return;
         case "illustration":
           illustrate(message.id);
@@ -601,7 +629,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           return;
       }
     },
-    [sessionId, update, router, showToast, illustrate, animate],
+    [sessionId, update, router, showToast, illustrate, animate, pickSceneFor],
   );
 
   /* ---------------------------------------------------------------- render */
@@ -633,6 +661,27 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     );
   }
 
+  const visualNovel = session.settings.playMode === "visualNovel";
+  const composer = (
+    <Composer
+      configured={configured}
+      streaming={streaming}
+      modelName={model.name}
+      tokenEstimate={tokenEstimate}
+      contextLimit={context?.limit ?? contextLimit}
+      autoIllustrate={session.settings.autoIllustrate}
+      sendOnEnter={sendOnEnter}
+      takeTurn={takeTurn}
+      onTakeTurnChange={setTakeTurn}
+      onSend={send}
+      onStop={stop}
+      onContinue={() => send(CONTINUE_SENTINEL)}
+      onErase={erase}
+      canErase={session.messages.length > 1}
+      onRequestDestinies={requestDestinies}
+      onError={showToast}
+    />
+  );
   const visible = session.messages.filter((m) => !(m.role === "user" && m.content === CONTINUE_SENTINEL));
   const lastAssistantId = [...session.messages].reverse().find((m) => m.role === "assistant")?.id;
   const hasUserTurn = session.messages.some((m) => m.role === "user");
@@ -651,49 +700,44 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         onOpenSettings={() => setSettingsOpen(true)}
       />
 
-      <div ref={listRef} onScroll={onListScroll} className="iz-scroll-thin flex min-h-0 flex-1 flex-col overflow-y-auto">
-        <div className="mx-auto flex w-full max-w-[860px] flex-1 flex-col gap-[14px] px-4 pb-6 pt-4">
-          {visible.map((message, i) => (
-            <MessageBubble
-              key={message.id}
-              message={message}
-              index={i}
-              canRetry={message.id === lastAssistantId && hasUserTurn}
-              modelName={model.name}
-              onIllustrate={() => illustrate(message.id)}
-              onRetry={retry}
-              onNarrate={() => showToast("Voice narration failed. Check Settings → Providers → Voice (TTS)")}
-              onRegenerateImage={(imageId) => regenerateImage(message.id, imageId)}
-              onAnimate={() => animate(message.id)}
-              onAnimateImage={(imageId) => animate(message.id, imageId)}
-              onRegenerateVideo={(videoId) => regenerateVideo(message.id, videoId)}
-              onCheckVideo={(videoId) => checkVideo(message.id, videoId)}
-              onEdit={(content) => editMessage(message.id, content)}
-              onSelectChoice={(index) => selectChoice(message.id, index)}
-              onAction={(action) => messageAction(message, action)}
-            />
-          ))}
+      {visualNovel && !showLog ? (
+        <div className="flex min-h-0 flex-1 flex-col">
+          <VisualNovelStage storyline={storyline} messages={session.messages} streaming={streaming} onShowLog={() => setShowLog(true)} />
+          {composer}
         </div>
+      ) : (
+        <div ref={listRef} onScroll={onListScroll} className="iz-scroll-thin flex min-h-0 flex-1 flex-col overflow-y-auto">
+          {visualNovel ? (
+            <button type="button" onClick={() => setShowLog(false)} className="sticky top-2 z-10 mx-auto mt-2 h-8 rounded-[16px] bg-[#284bcf] px-4 text-[12px] font-semibold text-white shadow-lg">
+              Back to Visual Novel
+            </button>
+          ) : null}
+          <div className="mx-auto flex w-full max-w-[860px] flex-1 flex-col gap-[14px] px-4 pb-6 pt-4">
+            {visible.map((message, i) => (
+              <MessageBubble
+                key={message.id}
+                message={message}
+                index={i}
+                canRetry={message.id === lastAssistantId && hasUserTurn}
+                modelName={model.name}
+                onIllustrate={() => illustrate(message.id)}
+                onRetry={retry}
+                onNarrate={() => showToast("Voice narration failed. Check Settings → Providers → Voice (TTS)")}
+                onRegenerateImage={(imageId) => regenerateImage(message.id, imageId)}
+                onAnimate={() => animate(message.id)}
+                onAnimateImage={(imageId) => animate(message.id, imageId)}
+                onRegenerateVideo={(videoId) => regenerateVideo(message.id, videoId)}
+                onCheckVideo={(videoId) => checkVideo(message.id, videoId)}
+                onEdit={(content) => editMessage(message.id, content)}
+                onSelectChoice={(index) => selectChoice(message.id, index)}
+                onAction={(action) => messageAction(message, action)}
+              />
+            ))}
+          </div>
 
-        <Composer
-          configured={configured}
-          streaming={streaming}
-          modelName={model.name}
-          tokenEstimate={tokenEstimate}
-          contextLimit={context?.limit ?? contextLimit}
-          autoIllustrate={session.settings.autoIllustrate}
-          sendOnEnter={sendOnEnter}
-          takeTurn={takeTurn}
-          onTakeTurnChange={setTakeTurn}
-          onSend={send}
-          onStop={stop}
-          onContinue={() => send(CONTINUE_SENTINEL)}
-          onErase={erase}
-          canErase={session.messages.length > 1}
-          onRequestDestinies={requestDestinies}
-          onError={showToast}
-        />
-      </div>
+          {composer}
+        </div>
+      )}
 
       <ChatSettingsSheet
         open={settingsOpen}

@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { inflateSync } from "node:zlib";
 import { load } from "cheerio";
-import type { Character, ChatSettings, StoryCategory, Storyline } from "@/types/isekaizero";
+import type { Character, ChatSettings, StoryCategory, StoryImage, Storyline } from "@/types/isekaizero";
 import { record, string, strings, type ImportedEntry, type ImportSource } from "./types";
 
 export const MAX_IMPORT_BYTES = 20 * 1024 * 1024;
@@ -138,6 +138,7 @@ export function normalizeImport(raw: unknown, origin: { source?: ImportSource; u
     publishedAt: string(d.publishedAt || d.createdAt) || now, updatedAt: now, version: 1,
     cover: { gradient: ["#423a70", "#233354", "#09172e"], glyph: kind === "story" ? "✧" : "✦", pattern: "stars", imageUrl: coverUrl },
     ...creatorPrompt(d),
+    backgrounds: storyImages(d.media, "background"),
     tokens: { storyline: Math.ceil(plot.length / 4), characters: Math.ceil(cast.map(c => character(c, 0).persona).join("").length / 4), scenario: Math.ceil(opening.length / 4) },
     imported: {
       kind, source, sourceUrl, contentRating: rating, warnings, alternateGreetings,
@@ -146,6 +147,17 @@ export function normalizeImport(raw: unknown, origin: { source?: ImportSource; u
     },
   };
   return { id, kind, source, sourceId, sourceUrl, contentRating: rating, importedAt: now, warnings, storyline, raw };
+}
+
+/** Captioned images of one composition type from an Isekai Zero media list (story or character). */
+export function storyImages(media: unknown, composition: "background" | "foreground"): StoryImage[] {
+  if (!Array.isArray(media)) return [];
+  return media.flatMap((value) => {
+    const m = record(value);
+    const url = safeImageUrl(m.url);
+    if (m.type !== "image" || m.compositionType !== composition || m.hidden === true || !url) return [];
+    return [{ id: string(m._id) || url, url, caption: plainText(m.description).trim() }];
+  });
 }
 
 /** Isekai Zero's advanced-mode prompt fields and default chat settings, when the story exposes them. */
