@@ -4,7 +4,7 @@ A local, single-user clone of **[isekaizero.ai](https://www.isekaizero.ai)**, th
 
 Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript (strict)**, **Tailwind CSS v4** and **SQLite**.
 
-The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2 and 5a–5c, as of PR #28.
+The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2 and 5a–5d, as of PR #29.
 
 ---
 
@@ -125,7 +125,7 @@ Turns each reply into a scene: background, characters and text you tap through, 
 
 ### Images and video
 - **Illustrations:** the **Illustration** button on a reply draws the scene.
-  - Earlier images are sent as references, for consistency.
+  - Each illustration chains from the previous one (same place, lighting and outfits), and the art of the characters named in the reply is sent too, so they look like themselves. Set POV or 3rd Person in Chat Settings.
   - With **Auto Illustrate** on, the story AI decides when to illustrate.
 - **Portraits:** when the story AI creates a character, a portrait is drawn with the **character portrait model**. On NanoGPT that defaults to `qwen-image` (included in the subscription; pick `chroma`, also included, for NSFW stories with adult characters); scene illustrations use your image model (default **Seedream 5.0 Pro**).
 - **Image size and cost:** models priced by size tier get the tier matching your image size. For Seedream 5.0 Pro, 1024 px is sent as `1k`, about $0.043 instead of $0.086.
@@ -188,7 +188,8 @@ Then go to **Settings → Providers → Voice (TTS) → Local / Kokoro**, base U
 | 5a | Visual Novel mode and the Media Picker | Done (#26) |
 | 5b | Voices: narrator and a voice per character, voiced Visual Novel scenes, auto play | Done (#27) |
 | 5c | Visual Novel art drawn when a story lacks it: backgrounds and character expressions, cut out and saved per story | Done (#28) |
-| 5d+ | Chained illustrations (Seedream edit), manga, chained video scenes, music via NanoGPT | Next |
+| 5d | Illustrations chained from the previous image, with the cast's art as references | Done (#29) |
+| 5e+ | Manga, chained video scenes, music via NanoGPT | Next |
 | 3 | Codex (story lore), Dungeon Mind v2 tools (dice, stats, inventory), characters saved to the cast, story endings | Planned (moved after Phase 5) |
 | 4 | Composer parity: slash commands, Improvise, RETRY+, OOC, personas, Honor mode, history tools | Planned |
 | 6 | Creation studio: your own stories and characters | Planned |

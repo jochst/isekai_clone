@@ -290,7 +290,14 @@ The gap: Default Chat Settings could only really use models from the site's buil
   - Prompt lesson: with "prefer a listed image when close" the picker (deepseek) chose "sad" for terror every time; the "new" choice has to sit in the answer format itself.
   - Not done: chained illustrations (Seedream edit) moved to the Illustration item below.
 - [ ] Shareable local `/visual-novels/[id]`.
-- [ ] **Illustration:** POV vs. 3rd person, chained from the previous image, uses appearance loadouts.
+- [x] **Illustration (5d):** POV vs. 3rd person (already in Chat Settings), chained from the previous image, with the cast's art as references.
+  - Each illustration sends the latest earlier illustration in the chat, then the art of up to 3 cast members named in the reply, and tells the model which image is which ("1. the previous scene; 2. Elen Arkwind; …").
+  - New character portraits send no scene references, so they don't drift toward whoever was drawn last.
+  - Live test (2026-10-13): Seedream 5.0 Pro uses reference images on its base id; the `/edit` id gave the same result at the same price ($0.043 at 1k), so no model switch is needed.
+    - The monster scene with three catalog characters matched all three (outfits, hair, Mira's star brooch), $0.048, about 2 min.
+    - A second illustration chained from the first: same temple, monster, lighting and outfits, $0.051.
+  - Also fixed: scene prompts ended mid-sentence ("She .") and listed "Name: ;" for catalog characters without appearance text.
+  - Not done: appearance loadouts (several outfits per character) need a chat-local cast, which lands with Phase 3.
 - [ ] **Manga:** 1–8 panels per page, up to 2 pages; per-page edit, regenerate and revert. Built from an LLM panel script plus NanoGPT images.
 - [ ] **Video scenes:** up to 2 chained 15 s beats with character references (extends the merged Animate feature).
 - [x] **Voice (5b):** the site's Play Mode voice settings.

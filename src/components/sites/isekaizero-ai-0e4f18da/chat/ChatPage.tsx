@@ -33,6 +33,7 @@ import {
   type ContextReport,
   estimateTokens,
   generateSceneImage,
+  illustrationReferences,
   resolveImageModel,
   resolveImageSize,
   resolveTextModel,
@@ -208,46 +209,35 @@ export function ChatPage({ sessionId }: ChatPageProps) {
 
   /* ---------------------------------------------------------------- images */
 
-  /** Gathers previous generated image URLs from chat history for Seedream multi-image reference consistency */
-  const collectReferenceImages = useCallback((messages: ChatMessage[], targetMessageId?: string, max = 5): string[] => {
-    const urls: string[] = [];
-    const targetIdx = targetMessageId ? messages.findIndex((m) => m.id === targetMessageId) : -1;
-    const limit = targetIdx >= 0 ? targetIdx : messages.length;
-    for (let i = limit - 1; i >= 0; i--) {
-      const msg = messages[i];
-      if (msg.images) {
-        for (const img of msg.images) {
-          const url = getSceneImageUrl(img);
-          // /api/media/ files are inlined server-side, since the provider cannot reach this machine.
-          if (url && (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:image/") || url.startsWith("/api/media/"))) {
-            urls.push(url);
-            if (urls.length >= max) return urls.reverse();
-          }
-        }
-      }
-    }
-    return urls.reverse();
-  }, []);
-
+  /**
+   * Draws one image. Scene illustrations chain from the previous illustration and reference the named cast's art
+   * (`illustrationReferences`); pass `references: []` for images that must not (new character portraits).
+   */
   const runImage = useCallback(
-    async (messageId: string, image: SceneImageModel, customReferenceImages?: string[]) => {
+    async (messageId: string, image: SceneImageModel, references?: string[]) => {
       try {
         const current = getChatSession(sessionId);
-        const refs = customReferenceImages ?? (current ? collectReferenceImages(current.messages, messageId) : []);
+        const index = current?.messages.findIndex((m) => m.id === messageId) ?? -1;
+        const refs = references
+          ? { urls: references, note: "" }
+          : current && storyline && index >= 0
+            ? illustrationReferences(storyline, current.messages, index)
+            : { urls: [], note: "" };
         const result = await generateSceneImage({
           settings: provider,
           model: image.model,
-          prompt: image.prompt,
+          prompt: refs.note ? `${image.prompt} ${refs.note}` : image.prompt,
           size: resolveImageSize(imageById(image.model), provider),
-          referenceImages: refs.length > 0 ? refs : undefined,
+          referenceImages: refs.urls.length > 0 ? refs.urls : undefined,
         });
-        updateSceneImage(sessionId, messageId, image.id, { url: result.url, prompt: result.prompt, status: "done", error: undefined });
+        // The stored prompt stays the scene prompt; the reference note is rebuilt per request.
+        updateSceneImage(sessionId, messageId, image.id, { url: result.url, prompt: image.prompt, status: "done", error: undefined });
         addUsage({ images: 1, cost: result.cost ?? 0, remainingBalance: result.remainingBalance });
       } catch (e) {
         updateSceneImage(sessionId, messageId, image.id, { status: "error", error: errorMessage(e, "Image generation failed.") });
       }
     },
-    [provider, sessionId, collectReferenceImages, imageById],
+    [provider, sessionId, storyline, imageById],
   );
 
   const illustrate = useCallback(
@@ -311,10 +301,10 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       // Argument names follow Isekai Zero's real tool schemas (ai-tools.json).
       const name = toolCall.function.name;
       const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
-      const draw = (prompt: string, model = imageModel) => {
+      const draw = (prompt: string, model = imageModel, references?: string[]) => {
         const image: SceneImageModel = { id: newId(), url: "", prompt, model, createdAt: Date.now(), status: "generating" };
         attachSceneImage(sessionId, messageId, image);
-        void runImage(messageId, image);
+        void runImage(messageId, image, references);
       };
       if (name === "illustrate_scene") {
         const perspective =
@@ -328,7 +318,8 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       } else if (name === "create_character" && current.settings.autoCreateCharacter) {
         // Portraits are high volume, so they use the portrait model (qwen-image, in the NanoGPT subscription).
         const prompt = str(args.imagePrompt) || str(args.imageDescription);
-        if (prompt) draw(prompt, resolvePortraitModel(provider));
+        // A new character: earlier scene images as references would pull the portrait toward whoever was drawn last.
+        if (prompt) draw(prompt, resolvePortraitModel(provider), []);
       } else if (name === "edit_character" && current.settings.autoEditCharacter) {
         // ponytail: rename/note is only announced; a chat-local cast to store it lands with ADR Phase 3.
         const from = str(args.characterName);
