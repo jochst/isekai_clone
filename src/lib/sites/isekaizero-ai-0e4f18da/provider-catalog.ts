@@ -372,6 +372,8 @@ export interface ProviderVideoModel {
   textToVideo: boolean;
   imageToVideo: boolean;
   audio: boolean;
+  /** Takes `reference_images` (a JSON array of image URLs) for text-to-video, e.g. Seedance 2.0. */
+  referenceImages: boolean;
   priceSummary: string;
   params: VideoParamSpec[];
   defaults: Record<string, VideoParamValue>;
@@ -393,6 +395,7 @@ export function normalizeVideoModel(row: RawCatalogRow, origin: string): Provide
     textToVideo: capability(row, "text_to_video"),
     imageToVideo: capability(row, "image_to_video"),
     audio: capability(row, "audio_generation"),
+    referenceImages: isRecord(sp.parameters) && "reference_images" in sp.parameters,
     priceSummary: videoPriceSummary(row.pricing),
     params,
     defaults: defaultVideoParams(params, sp.defaults),

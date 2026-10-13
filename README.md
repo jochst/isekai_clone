@@ -4,7 +4,7 @@ A local, single-user clone of **[isekaizero.ai](https://www.isekaizero.ai)**, th
 
 Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript (strict)**, **Tailwind CSS v4** and **SQLite**.
 
-The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2 and 5a–5d, as of PR #29.
+The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2 and 5a–5e, as of PR #30.
 
 ---
 
@@ -129,7 +129,11 @@ Turns each reply into a scene: background, characters and text you tap through, 
   - With **Auto Illustrate** on, the story AI decides when to illustrate.
 - **Portraits:** when the story AI creates a character, a portrait is drawn with the **character portrait model**. On NanoGPT that defaults to `qwen-image` (included in the subscription; pick `chroma`, also included, for NSFW stories with adult characters); scene illustrations use your image model (default **Seedream 5.0 Pro**).
 - **Image size and cost:** models priced by size tier get the tier matching your image size. For Seedream 5.0 Pro, 1024 px is sent as `1k`, about $0.043 instead of $0.086.
-- **Video:** **Animate** turns a scene image or a reply into a video (NanoGPT video models). It keeps checking after a reload.
+- **Video:** **Animate** on a scene image animates that image. **More → Animate** on a reply makes a video scene:
+  - A director call splits the moment into 1 or 2 beats. Beat 1 animates the reply's illustration (or uses the cast's art as references), and beat 2 continues from beat 1's last frame.
+  - The **Duration** in Chat Settings → Scene Videos caps each beat, since video is priced per second (Seedance 2.0 Fast: about $0.57 per 5 s at 720p).
+  - Chaining needs **ffmpeg** (`winget install ffmpeg`, or set `FFMPEG_PATH`).
+  - Videos keep checking after a reload.
 - **Creation pages:** **Creation**, with **Image** and **Video** tabs.
 - **Protection:**
   - A second click can't start a duplicate image or video.
@@ -189,7 +193,8 @@ Then go to **Settings → Providers → Voice (TTS) → Local / Kokoro**, base U
 | 5b | Voices: narrator and a voice per character, voiced Visual Novel scenes, auto play | Done (#27) |
 | 5c | Visual Novel art drawn when a story lacks it: backgrounds and character expressions, cut out and saved per story | Done (#28) |
 | 5d | Illustrations chained from the previous image, with the cast's art as references | Done (#29) |
-| 5e+ | Manga, chained video scenes, music via NanoGPT | Next |
+| 5e | Video scenes: 1–2 planned beats, chained from the last frame | Done (#30) |
+| 5f+ | Manga, music via NanoGPT | Next |
 | 3 | Codex (story lore), Dungeon Mind v2 tools (dice, stats, inventory), characters saved to the cast, story endings | Planned (moved after Phase 5) |
 | 4 | Composer parity: slash commands, Improvise, RETRY+, OOC, personas, Honor mode, history tools | Planned |
 | 6 | Creation studio: your own stories and characters | Planned |

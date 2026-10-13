@@ -115,6 +115,7 @@ export interface ResolvedVideoModel {
   name: string;
   textToVideo?: boolean;
   imageToVideo?: boolean;
+  referenceImages?: boolean;
   priceSummary?: string;
   params?: VideoParamSpec[];
   defaults?: Record<string, VideoParamValue>;
@@ -125,7 +126,7 @@ export function resolveVideoModel(settings: ChatSettings, provider: ProviderSett
   const selected = !settings.animationModel || settings.animationModel === "default" ? provider.videoModel : settings.animationModel;
   const row = catalog?.find((m) => m.id === selected);
   if (row) {
-    return { id: row.id, name: row.name, textToVideo: row.textToVideo, imageToVideo: row.imageToVideo, priceSummary: row.priceSummary, params: row.params, defaults: row.defaults };
+    return { id: row.id, name: row.name, textToVideo: row.textToVideo, imageToVideo: row.imageToVideo, referenceImages: row.referenceImages, priceSummary: row.priceSummary, params: row.params, defaults: row.defaults };
   }
   return { id: selected, name: selected || "Not set" };
 }
@@ -310,6 +311,48 @@ export function buildMotionPrompt(
     ? `Animate this illustration from "${storyline.title}": ${scene}. Keep the characters and composition exactly as drawn; add subtle natural motion — breathing, blinking, hair and cloth moving in the air, ambient light flicker — with a slow cinematic push-in. Characters present: ${cast}. No text, no watermark.`
     : `Anime-style video, ${shot}, of the following scene from "${storyline.title}": ${scene}. Characters present: ${cast}. Smooth natural motion, slow cinematic camera movement, dramatic lighting, high quality, no text, no watermark.`;
   return text.slice(0, MOTION_PROMPT_MAX);
+}
+
+/** One shot of a video scene: its prompt and length in seconds (0 = the model's default). */
+export interface VideoBeat {
+  prompt: string;
+  seconds: number;
+}
+
+/**
+ * Isekai Zero "Video Scene Generation": a director call splits the moment into 1 or 2 beats ("max 2 chained 15s
+ * beats, the AI picks 1 or 2 based on the scene"). Beat 2 starts from beat 1's last frame.
+ */
+export function videoScenePlanPrompt(storyline: Storyline, lastMessages: ChatMessage[], opts: { fromImage: boolean; durations: number[] }): { role: "system" | "user"; content: string }[] {
+  const { cast } = sceneParts(storyline, lastMessages, "third");
+  // The whole moment (up to its last 2,000 characters): the turn a second beat needs is often at the end.
+  const reply = [...lastMessages].reverse().find((m) => m.role === "assistant" && m.content.trim())?.content ?? storyline.opening;
+  const scene = reply.replace(/\s+/g, " ").trim().slice(-2000);
+  const lengths = opts.durations.length > 0 ? opts.durations.join(", ") : "5";
+  return [
+    {
+      role: "system",
+      content: [
+        "You are a film director adapting a story moment into a short anime video scene.",
+        "Split it into 1 or 2 beats. Use 2 when the moment has two distinct actions or a clear turn (an escape, then someone turning to fight; an attack, then the reaction), or when its action will not fit one beat of the allowed length; never cram two actions into one beat. Use 1 for a single continuous action. The second beat continues from the last frame of the first.",
+        `Answer only with one line per beat: \`beat: <seconds> | <prompt>\`. Seconds must be one of: ${lengths}. Pick the shortest that fits each beat's action.`,
+        `Each prompt describes what happens on screen (action, expressions, camera movement), in under 80 words.${opts.fromImage ? " Beat 1 starts from the scene's illustration, so describe motion, not the setting." : ""} No dialogue, no text on screen.`,
+      ].join("\n"),
+    },
+    { role: "user", content: `Story: "${storyline.title}". Characters present: ${cast}.\n\nMoment:\n${scene}` },
+  ];
+}
+
+/** Reads the director's beats; lengths snap to the nearest allowed value. Anything unreadable falls back to one beat. */
+export function parseVideoBeats(text: string, durations: number[], fallbackPrompt: string): VideoBeat[] {
+  const nearest = (n: number) => (durations.length === 0 ? 0 : durations.reduce((best, d) => (Math.abs(d - n) < Math.abs(best - n) ? d : best)));
+  const beats = text
+    .split("\n")
+    .map((line) => /^\s*[-*]?\s*beat\s*\d*\s*:\s*(\d+)\s*s?\s*\|\s*(.+?)\s*$/i.exec(line))
+    .filter((m): m is RegExpExecArray => m !== null)
+    .slice(0, 2)
+    .map((m) => ({ seconds: nearest(Number(m[1])), prompt: `${m[2]} Anime style, consistent characters, no text, no watermark.`.slice(0, MOTION_PROMPT_MAX) }));
+  return beats.length > 0 ? beats : [{ prompt: fallbackPrompt, seconds: nearest(0) }];
 }
 
 /* ------------------------------------------------------------------ API messages */

@@ -299,7 +299,13 @@ The gap: Default Chat Settings could only really use models from the site's buil
   - Also fixed: scene prompts ended mid-sentence ("She .") and listed "Name: ;" for catalog characters without appearance text.
   - Not done: appearance loadouts (several outfits per character) need a chat-local cast, which lands with Phase 3.
 - [ ] **Manga:** 1–8 panels per page, up to 2 pages; per-page edit, regenerate and revert. Built from an LLM panel script plus NanoGPT images.
-- [ ] **Video scenes:** up to 2 chained 15 s beats with character references (extends the merged Animate feature).
+- [x] **Video scenes (5e):** Animate on a message plans 1–2 beats and chains them; Animate on one image still animates just that image.
+  - A director call (the chat's text model) writes `beat: <seconds> | <prompt>` lines; lengths snap to the model's options and are capped by the Duration picked in Scene Videos (video is priced per second).
+  - Beat 1 animates the reply's illustration, or is text-to-video with the cast's art as `reference_images` on models that take them (Seedance 2.0; flagged from the catalog).
+  - Beat 2 starts from beat 1's last frame: `/api/media/last-frame` grabs it with ffmpeg (`FFMPEG_PATH` or PATH, ~1 s), so it works with any image-to-video model and needs no public URL.
+  - Live with Seedance 2.0 Fast, 720p, 5 s beats ($0.57 each, more than the listed per-second rate): the monster scene became "escape" then "Lyra follows, Elen turns to fight"; beat 2's first frame matches beat 1's last.
+  - Prompt lessons: the director must see the whole reply (the illustration excerpt stopped before the turn), and must be told never to cram two actions into one short beat; before that it chose 1 beat 3 times out of 3, after it chose 2 beats 3 times out of 3.
+  - Not done: the site also attaches the previous video as a reference; that needs a public URL our local files don't have. A planned beat 2 is lost if the page reloads before beat 1 finishes (beat 1 is kept).
 - [x] **Voice (5b):** the site's Play Mode voice settings.
   - Settings: Voice & Narration Enabled, Auto Play on New Messages, Narrator Voice, Narrator / Characters Speaking Rate, and a voice per character.
   - **Narration mode:** the narrator reads the reply (Narrate button, or auto-play).

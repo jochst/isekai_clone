@@ -275,6 +275,8 @@ export interface SceneVideo {
   model: string;
   /** SceneImage animated (image-to-video); absent for text-to-video. */
   sourceImageId?: string;
+  /** Beat 2 of a video scene: beat 1's last frame (a local media URL), which this clip starts from. */
+  startFrame?: string;
   params: Record<string, VideoParamValue>;
   cost?: number;
   createdAt: number;

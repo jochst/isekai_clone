@@ -3,7 +3,7 @@ import { normalizeImport } from "@/lib/imports/cards";
 import type { ChatMessage, ChatSession, Storyline } from "@/types/isekaizero";
 import { DEFAULT_CHAT_SETTINGS, resolveNewChatSettings } from "../chat-store";
 import { DEFAULT_CHAT_SETTINGS as PLAYER_DEFAULTS } from "@/components/sites/isekaizero-ai-0e4f18da/settings/use-default-chat-settings";
-import { assemblePrompt, buildScenePrompt, illustrationReferences, resolveTextModel } from "../prompt-builder";
+import { assemblePrompt, buildScenePrompt, illustrationReferences, parseVideoBeats, resolveTextModel, videoScenePlanPrompt } from "../prompt-builder";
 import { STORYLINES } from "../mock-data";
 import { DEFAULT_PROVIDER_SETTINGS } from "../provider-settings";
 import { LLM_CATALOG } from "../catalog";
@@ -169,5 +169,24 @@ describe("buildScenePrompt", () => {
     const prompt = buildScenePrompt(story, [{ id: "1", role: "assistant", content: long, createdAt: 1 }]);
     expect(prompt).toMatch(/ruins\. Characters present: Mira Lynthal\. Style:/);
     expect(prompt).not.toContain("Mira Lynthal:");
+  });
+});
+
+describe("video scene beats", () => {
+  it("asks for 1-2 beats with the model's allowed lengths", () => {
+    const [system] = videoScenePlanPrompt(STORYLINES[0], [{ id: "1", role: "assistant", content: "The beast charges.", createdAt: 1 }], { fromImage: true, durations: [5, 10, 15] });
+    expect(system.content).toContain("one of: 5, 10, 15");
+    expect(system.content).toContain("starts from the scene's illustration");
+    const long = `${"They run. ".repeat(100)}Elen turns to face the beast.`;
+    const [, user] = videoScenePlanPrompt(STORYLINES[0], [{ id: "1", role: "assistant", content: long, createdAt: 1 }], { fromImage: false, durations: [] });
+    expect(user.content).toContain("Elen turns to face the beast.");
+  });
+
+  it("reads at most two beats, snaps lengths, and falls back to one beat", () => {
+    const beats = parseVideoBeats("Here you go:\nbeat: 7 | Mira stumbles back.\n- Beat 2: 14s | Elen charges.\nbeat: 5 | Extra.", [5, 10, 15], "fallback");
+    expect(beats.map((b) => b.seconds)).toEqual([5, 15]);
+    expect(beats[0].prompt).toMatch(/^Mira stumbles back\. Anime style/);
+    expect(parseVideoBeats("no plan", [5, 10], "fallback")).toEqual([{ prompt: "fallback", seconds: 5 }]);
+    expect(parseVideoBeats("beat: 8 | Go.", [], "f")[0].seconds).toBe(0);
   });
 });

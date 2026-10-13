@@ -375,6 +375,13 @@ export async function pickScene(opts: PickSceneOptions): Promise<{ scene: VnScen
   return { scene: parseScene(text, storyline, reply, previous), requests: generate ? parseRequests(text, storyline, reply) : [] };
 }
 
+/** A video's last frame, saved locally (`/api/media/…png`), so the next beat can start from it. */
+export async function lastFrame(videoUrl: string): Promise<string> {
+  const res = await fetch("/api/media/last-frame", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: videoUrl }) });
+  if (!res.ok) await readErrorResponse(res);
+  return ((await res.json()) as { url: string }).url;
+}
+
 /** Visual Novel art already generated for a story. */
 export async function listStoryMedia(storylineId: string, signal?: AbortSignal): Promise<StoryMedia[]> {
   const res = await fetch(`/api/storylines/${encodeURIComponent(storylineId)}/media`, { cache: "no-store", signal });

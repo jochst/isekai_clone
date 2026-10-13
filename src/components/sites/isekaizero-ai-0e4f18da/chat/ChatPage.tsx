@@ -38,7 +38,13 @@ import {
   resolveImageSize,
   resolveTextModel,
   resolveVideoModel,
+  completeChat,
   generateStoryMedia,
+  lastFrame,
+  parseVideoBeats,
+  type ResolvedVideoModel,
+  type VideoBeat,
+  videoScenePlanPrompt,
   listStoryMedia,
   pickScene,
   streamTurn,
@@ -49,7 +55,7 @@ import { chapterPlan } from "@/lib/chats/memory";
 import { applyMedia, fallbackScene, withStoryMedia } from "@/lib/chats/scene";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { isProviderConfigured, resolvePortraitModel, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatMessage, ChatSession, MediaRequest, SceneImage as SceneImageModel, SceneVideo as SceneVideoModel, StoryMedia, VnScene } from "@/types/isekaizero";
+import type { ChatMessage, ChatSession, MediaRequest, SceneImage as SceneImageModel, SceneVideo as SceneVideoModel, StoryMedia, VideoParamValue, VnScene } from "@/types/isekaizero";
 
 import { useProviderCatalog } from "../image-generation/use-provider-catalog";
 import { useModelCatalog } from "../llms/use-model-catalog";
@@ -113,8 +119,13 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   /* Destructured so the callbacks below depend on stable primitives/arrays, not the per-render catalog object. */
   const { status: catalogStatus, videoSupported, videoReason, videos: videoCatalog, imageById } = catalog;
   const videoLocations = useRef(new Map<string, string>()); // video id → message id
+  // ponytail: a planned beat 2 lives in memory only; after a reload beat 1 is kept and Animate can be run again.
+  const nextBeats = useRef(new Map<string, { messageId: string; prompt: string; model: ResolvedVideoModel; params: Record<string, VideoParamValue>; references: string[] }>()); // beat-1 video id → beat 2
+  const planningVideo = useRef(new Set<string>());
+  const chainBeatRef = useRef<(job: VideoJob) => void>(() => {});
   const onVideoJob = useCallback(
     (job: VideoJob) => {
+      if (job.status === "done" || job.status === "error" || job.status === "canceled") chainBeatRef.current(job);
       const messageId = videoLocations.current.get(job.id);
       if (!messageId) return;
       updateSceneVideo(sessionId, messageId, job.id, {
@@ -332,8 +343,39 @@ export function ChatPage({ sessionId }: ChatPageProps) {
 
   /* ---------------------------------------------------------------- videos */
 
+  /** Starts one clip: from a frame (image-to-video) when given, else text-to-video with the cast's art as references. */
+  const startClip = useCallback(
+    (messageId: string, clip: { prompt: string; model: ResolvedVideoModel; params: Record<string, VideoParamValue>; frame?: string; sourceImageId?: string; startFrame?: string; references?: string[] }) => {
+      const params = { ...clip.params };
+      if (!clip.frame && clip.references?.length && clip.model.referenceImages) params.reference_images = JSON.stringify(clip.references);
+      const video: SceneVideoModel = {
+        id: newId(),
+        status: "queued",
+        url: "",
+        prompt: clip.prompt,
+        model: clip.model.id,
+        sourceImageId: clip.sourceImageId,
+        startFrame: clip.startFrame,
+        params,
+        createdAt: Date.now(),
+      };
+      attachSceneVideo(sessionId, messageId, video);
+      videoLocations.current.set(video.id, messageId);
+      void submitVideo({ id: video.id, model: video.model, prompt: video.prompt, params, imageUrl: clip.frame }).then((job) => {
+        if (!job) updateSceneVideo(sessionId, messageId, video.id, { status: "error", error: VIDEO_START_FAILED });
+      });
+      return video.id;
+    },
+    [sessionId, submitVideo],
+  );
+
+  /**
+   * Animate. On a single image it animates that image. On a message it is Isekai Zero's Video Scene: a director call
+   * plans 1–2 beats; beat 1 animates the scene's illustration (or is text-to-video with the cast's art), and beat 2
+   * starts from beat 1's last frame once it finishes.
+   */
   const animate = useCallback(
-    (messageId: string, imageId?: string) => {
+    async (messageId: string, imageId?: string) => {
       const current = getChatSession(sessionId);
       if (!current || !storyline) return;
       if (!provider.baseUrl || !provider.apiKey) {
@@ -344,8 +386,8 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         showToast(videoReason ?? VIDEO_UNSUPPORTED_REASON);
         return;
       }
-      const model = resolveVideoModel(current.settings, provider, videoCatalog);
-      if (!model.id) {
+      const videoModel = resolveVideoModel(current.settings, provider, videoCatalog);
+      if (!videoModel.id) {
         showToast("Pick a video model in Chat Settings → Scene Videos first");
         return;
       }
@@ -353,7 +395,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       if (index === -1) return;
       const message = current.messages[index];
       // Double-spend guard: video is the priciest call, so never start a second one for the same message.
-      if (message.videos?.some((v) => v.status === "queued" || v.status === "generating")) {
+      if (planningVideo.current.has(messageId) || message.videos?.some((v) => v.status === "queued" || v.status === "generating")) {
         showToast("A video for this message is already being made");
         return;
       }
@@ -362,34 +404,69 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         : [...(message.images ?? [])].reverse().find((img) => img.status === "done" && getSceneImageUrl(img));
       const sourceUrl = source ? getSceneImageUrl(source) : "";
       const fromImage = Boolean(sourceUrl);
-      if (fromImage && model.imageToVideo === false) {
+      if (fromImage && videoModel.imageToVideo === false) {
         showToast("Pick a video model that supports image-to-video in Chat Settings");
         return;
       }
-      if (!fromImage && model.textToVideo === false) {
+      if (!fromImage && videoModel.textToVideo === false) {
         showToast("This video model needs a scene image. Illustrate the message first.");
         return;
       }
-      const prompt = buildMotionPrompt(storyline, current.messages.slice(0, index + 1), current.settings.illustrationPerspective, { fromImage });
-      const params = effectiveVideoParams(model.params ?? [], model.defaults ?? {}, provider.videoParams);
-      const video: SceneVideoModel = {
-        id: newId(),
-        status: "queued",
-        url: "",
-        prompt,
-        model: model.id,
-        sourceImageId: fromImage ? source?.id : undefined,
-        params,
-        createdAt: Date.now(),
-      };
-      attachSceneVideo(sessionId, messageId, video);
-      videoLocations.current.set(video.id, messageId);
-      void submitVideo({ id: video.id, model: video.model, prompt, params, imageUrl: fromImage ? sourceUrl : undefined }).then((job) => {
-        if (!job) updateSceneVideo(sessionId, messageId, video.id, { status: "error", error: VIDEO_START_FAILED });
-      });
+      const recent = current.messages.slice(0, index + 1);
+      const fallback = buildMotionPrompt(storyline, recent, current.settings.illustrationPerspective, { fromImage });
+      const params = effectiveVideoParams(videoModel.params ?? [], videoModel.defaults ?? {}, provider.videoParams);
+      const references = illustrationReferences(storyline, current.messages, index).urls.filter((u) => /^https?:\/\//.test(u));
+      if (imageId) {
+        startClip(messageId, { prompt: fallback, model: videoModel, params, frame: sourceUrl, sourceImageId: source?.id });
+        return;
+      }
+
+      // The Duration picked in Scene Videos caps each beat (video is priced per second); the director picks up to it.
+      const maxSeconds = Number(params.duration) || Infinity;
+      const durations = (videoModel.params?.find((p) => p.key === "duration")?.options ?? []).map((o) => Number(o.value)).filter((n) => n > 0 && n <= maxSeconds);
+      planningVideo.current.add(messageId);
+      showToast("Planning the video scene…");
+      let beats: VideoBeat[];
+      try {
+        const plan = await completeChat({ settings: provider, model: model.id, messages: videoScenePlanPrompt(storyline, recent, { fromImage, durations }), temperature: 0.4, maxTokens: 400 });
+        beats = parseVideoBeats(plan, durations, fallback);
+      } catch {
+        beats = parseVideoBeats("", durations, fallback);
+      } finally {
+        planningVideo.current.delete(messageId);
+      }
+      const withLength = (beat: VideoBeat) => (beat.seconds ? { ...params, duration: String(beat.seconds) } : params);
+      const first = startClip(messageId, { prompt: beats[0].prompt, model: videoModel, params: withLength(beats[0]), frame: sourceUrl || undefined, sourceImageId: source?.id, references });
+      if (beats[1]) {
+        nextBeats.current.set(first, { messageId, prompt: beats[1].prompt, model: videoModel, params: withLength(beats[1]), references });
+        showToast(`Video scene: 2 beats (${beats.map((b) => `${b.seconds || "default"} s`).join(" + ")}); beat 2 starts when beat 1 finishes`);
+      }
     },
-    [sessionId, storyline, provider, catalogStatus, videoSupported, videoReason, videoCatalog, showToast, submitVideo],
+    [sessionId, storyline, provider, model.id, catalogStatus, videoSupported, videoReason, videoCatalog, showToast, startClip],
   );
+
+  /* Beat 2 of a video scene starts from beat 1's last frame as soon as beat 1 is done. */
+  const chainBeat = useCallback(
+    async (job: VideoJob) => {
+      const next = nextBeats.current.get(job.id);
+      if (!next) return;
+      nextBeats.current.delete(job.id);
+      if (job.status !== "done" || !job.url) return;
+      let frame = "";
+      try {
+        frame = await lastFrame(job.url);
+      } catch (e) {
+        showToast(errorMessage(e, "Could not read beat 1's last frame."));
+      }
+      const fromFrame = Boolean(frame) && next.model.imageToVideo !== false;
+      if (!fromFrame && next.model.textToVideo === false) return;
+      startClip(next.messageId, { prompt: next.prompt, model: next.model, params: next.params, frame: fromFrame ? frame : undefined, startFrame: fromFrame ? frame : undefined, references: next.references });
+    },
+    [startClip, showToast],
+  );
+  useEffect(() => {
+    chainBeatRef.current = chainBeat;
+  }, [chainBeat]);
 
   const regenerateVideo = useCallback(
     (messageId: string, videoId: string) => {
@@ -402,7 +479,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         return;
       }
       const source = video.sourceImageId ? message?.images?.find((img) => img.id === video.sourceImageId) : undefined;
-      const sourceUrl = source ? getSceneImageUrl(source) : "";
+      const sourceUrl = (source ? getSceneImageUrl(source) : "") || video.startFrame || "";
       if (video.sourceImageId && !sourceUrl) {
         showToast("Regenerate the scene image, then animate it again.");
         return;
