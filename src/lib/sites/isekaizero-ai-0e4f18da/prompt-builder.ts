@@ -10,6 +10,7 @@ import { defaultResolution } from "./provider-catalog";
 import type { VideoParamValue } from "@/types/isekaizero";
 import { toolFunction, toolInstruction, type OpenAiTool } from "./ai-tools";
 import { memoryText, memoryView } from "@/lib/chats/memory";
+import { looks, presentCharacters } from "@/lib/chats/scene";
 
 export { CONTINUE_SENTINEL } from "@/types/isekaizero";
 
@@ -215,10 +216,16 @@ interface SceneParts {
 
 function sceneParts(storyline: Storyline, lastMessages: ChatMessage[], perspective: ChatSettings["illustrationPerspective"]): SceneParts {
   const lastAssistant = [...lastMessages].reverse().find((m) => m.role === "assistant" && m.content.trim());
-  const scene = (lastAssistant?.content ?? storyline.opening).replace(/\s+/g, " ").trim().slice(0, 600);
+  const text = (lastAssistant?.content ?? storyline.opening).replace(/\s+/g, " ").trim();
+  // Cut at the last full sentence inside the limit, so the prompt never ends mid-sentence ("She .").
+  const clipped = text.slice(0, 600);
+  const end = [...clipped.matchAll(/[.!?]["”’]?(?=\s)/g)].at(-1);
+  const cut = text.length > 600 && end?.index !== undefined && end.index >= 200 ? clipped.slice(0, end.index + end[0].length) : clipped;
+  const scene = cut.trim().replace(/[.!?]+$/, "");
   const recent = lastMessages.slice(-3).map((m) => m.content).join("\n");
   const present = storyline.characters.filter((c) => mentions(recent, c));
-  const cast = present.length > 0 ? present.map((c) => `${c.name}: ${c.appearance}`).join("; ") : "none in particular";
+  // Catalog characters have no appearance text; their reference images carry the look instead.
+  const cast = present.length > 0 ? present.map((c) => (c.appearance?.trim() ? `${c.name}: ${c.appearance.trim()}` : c.name)).join("; ") : "none in particular";
   const shot = perspective === "pov" ? "first-person POV of the player" : "cinematic third-person shot";
   return { scene, cast, shot };
 }
@@ -253,6 +260,31 @@ export function buildIllustrationBriefPrompt(
     .join("; ");
   const extra = opts.defaultInstructions?.trim() ? ` Additional guidance: ${opts.defaultInstructions.trim()}.` : "";
   return `Anime illustration, ${shot}. ${brief.trim()}${looks ? ` Character looks: ${looks}.` : ""}${extra} Style: detailed anime key visual, high quality, no text, no watermark.`;
+}
+
+const REFERENCE_URL = /^(https?:\/\/|data:image\/|\/api\/media\/)/;
+const MAX_CAST_REFERENCES = 3;
+
+/**
+ * Reference images for an illustration (Isekai Zero "chains from the last generated image"): the latest earlier
+ * illustration in the chat, for continuity of place and outfits, then the art of each cast member named in the
+ * reply, so they look like themselves. `note` tells the model which image is which.
+ */
+export function illustrationReferences(storyline: Storyline, messages: ChatMessage[], index: number): { urls: string[]; note: string } {
+  const previous = messages
+    .slice(0, index + 1)
+    .flatMap((m) => m.images ?? [])
+    .filter((img) => img.status === "done" && REFERENCE_URL.test(img.url))
+    .at(-1)?.url;
+  const cast = presentCharacters(storyline, messages[index]?.content ?? "")
+    .map((c) => ({ name: c.name, url: looks(c)[0]?.url ?? "" }))
+    .filter((c) => REFERENCE_URL.test(c.url))
+    .slice(0, MAX_CAST_REFERENCES);
+  const labels = [...(previous ? ["the previous scene (keep the setting, lighting and outfits consistent)"] : []), ...cast.map((c) => c.name)];
+  return {
+    urls: [...(previous ? [previous] : []), ...cast.map((c) => c.url)],
+    note: labels.length > 0 ? `Reference images, in order: ${labels.map((l, i) => `${i + 1}. ${l}`).join("; ")}. Draw each named character to match their reference.` : "",
+  };
 }
 
 /* ------------------------------------------------------------------ Tool definitions for LLM Function Calling */

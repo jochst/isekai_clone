@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { normalizeImport } from "@/lib/imports/cards";
-import type { ChatSession } from "@/types/isekaizero";
+import type { ChatMessage, ChatSession, Storyline } from "@/types/isekaizero";
 import { DEFAULT_CHAT_SETTINGS, resolveNewChatSettings } from "../chat-store";
 import { DEFAULT_CHAT_SETTINGS as PLAYER_DEFAULTS } from "@/components/sites/isekaizero-ai-0e4f18da/settings/use-default-chat-settings";
-import { assemblePrompt, resolveTextModel } from "../prompt-builder";
+import { assemblePrompt, buildScenePrompt, illustrationReferences, resolveTextModel } from "../prompt-builder";
+import { STORYLINES } from "../mock-data";
 import { DEFAULT_PROVIDER_SETTINGS } from "../provider-settings";
 import { LLM_CATALOG } from "../catalog";
 
@@ -128,5 +129,45 @@ describe("context trimming", () => {
 
   it("does not trim when everything fits", () => {
     expect(assemblePrompt(story, session(), { contextLimit: 128000 }).context).toMatchObject({ trimmedMessages: 0, trimmedChapters: 0, full: false, limit: 128000 });
+  });
+});
+
+describe("illustrationReferences", () => {
+  const cast: Storyline = {
+    ...STORYLINES[0],
+    characters: [
+      { ...STORYLINES[0].characters[0], id: "m", name: "Mira Lynthal", images: [{ id: "m1", url: "https://s3.example/mira.webp", caption: "Mira" }] },
+      { ...STORYLINES[0].characters[0], id: "e", name: "Elen Arkwind", images: [], imageUrl: "https://s3.example/elen.webp" },
+      { ...STORYLINES[0].characters[0], id: "x", name: "Absent Person", images: [], imageUrl: "https://s3.example/x.webp" },
+    ],
+  };
+  const msg = (id: string, content: string, images: ChatMessage["images"] = []): ChatMessage => ({ id, role: "assistant", content, createdAt: 1, images });
+  const img = (id: string, url: string, status: "done" | "error" | "generating" = "done") => ({ id, url, prompt: "", model: "m", createdAt: 1, status });
+
+  it("chains from the latest finished illustration and adds the named cast's art, labelled in order", () => {
+    const messages = [
+      msg("1", "Opening", [img("a", "/api/media/a.png"), img("b", "/api/media/b.png")]),
+      msg("2", "Later", [img("c", "", "generating"), img("d", "https://x/d.png", "error")]),
+      msg("3", "Mira and Elen run from the beast."),
+    ];
+    const refs = illustrationReferences(cast, messages, 2);
+    expect(refs.urls).toEqual(["/api/media/b.png", "https://s3.example/mira.webp", "https://s3.example/elen.webp"]);
+    expect(refs.note).toContain("1. the previous scene");
+    expect(refs.note).toContain("2. Mira Lynthal; 3. Elen Arkwind");
+  });
+
+  it("has no references or note for a first illustration with nobody named", () => {
+    expect(illustrationReferences(cast, [msg("1", "An empty field.")], 0)).toEqual({ urls: [], note: "" });
+  });
+});
+
+describe("buildScenePrompt", () => {
+  it("ends the scene on a full sentence and lists characters without empty looks", () => {
+    const base = STORYLINES[0];
+    const story: Storyline = { ...base, characters: [{ ...base.characters[0], name: "Mira Lynthal", appearance: "" }] };
+    const long = `${"Mira runs through the ruins. ".repeat(20)}She turns and screams “Run!” Then she`;
+    const prompt = buildScenePrompt(story, [{ id: "1", role: "assistant", content: long, createdAt: 1 }]);
+    expect(prompt).toMatch(/ruins\. Characters present: Mira Lynthal\. Style:/);
+    expect(prompt).not.toContain("Mira Lynthal:");
   });
 });
