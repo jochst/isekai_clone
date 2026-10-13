@@ -3,7 +3,9 @@ import { normalizeImport } from "@/lib/imports/cards";
 import type { ChatSession } from "@/types/isekaizero";
 import { DEFAULT_CHAT_SETTINGS, resolveNewChatSettings } from "../chat-store";
 import { DEFAULT_CHAT_SETTINGS as PLAYER_DEFAULTS } from "@/components/sites/isekaizero-ai-0e4f18da/settings/use-default-chat-settings";
-import { assemblePrompt } from "../prompt-builder";
+import { assemblePrompt, resolveTextModel } from "../prompt-builder";
+import { DEFAULT_PROVIDER_SETTINGS } from "../provider-settings";
+import { LLM_CATALOG } from "../catalog";
 
 const story = normalizeImport(
   {
@@ -67,5 +69,21 @@ describe("resolveNewChatSettings", () => {
   });
   it("maps the defaults page's own enums", () => {
     expect(resolveNewChatSettings(DEFAULT_CHAT_SETTINGS, { ...PLAYER_DEFAULTS, temperature: "mid", perspective: "none", continueBehavior: "dont-control" })).toMatchObject({ temperature: "medium", perspective: "2nd", continueBehavior: "no-control" });
+  });
+});
+
+describe("resolveTextModel", () => {
+  const provider = { ...DEFAULT_PROVIDER_SETTINGS, textModel: "deepseek/deepseek-latest" };
+  it("sends a provider model picked for the chat as-is, independent of the provider default", () => {
+    expect(resolveTextModel({ ...DEFAULT_CHAT_SETTINGS, modelId: "zai-org/glm-4.7" }, provider)).toMatchObject({ id: "zai-org/glm-4.7", auto: false });
+  });
+  it("repairs ids saved with the old byok: prefix, in chats and in the provider default", () => {
+    expect(resolveTextModel({ ...DEFAULT_CHAT_SETTINGS, modelId: "byok:zai-org/glm-4.7" }, provider).id).toBe("zai-org/glm-4.7");
+    expect(resolveTextModel(DEFAULT_CHAT_SETTINGS, { ...provider, textModel: "byok:deepseek/deepseek-latest" }).id).toBe("deepseek/deepseek-latest");
+  });
+  it("uses the provider default on auto and the catalog row's model for catalog ids", () => {
+    expect(resolveTextModel(DEFAULT_CHAT_SETTINGS, provider)).toMatchObject({ id: "deepseek/deepseek-latest", auto: true });
+    const row = LLM_CATALOG[0];
+    expect(resolveTextModel({ ...DEFAULT_CHAT_SETTINGS, modelId: row.id }, provider)).toMatchObject({ id: row.model, name: row.name });
   });
 });
