@@ -292,6 +292,7 @@ export function toolsForSettings(settings: ChatSettings): OpenAiTool[] {
   ].filter((t): t is OpenAiTool => t !== null);
 }
 
+const REASONING_HEADROOM = 4000;
 const TOKEN_LIMIT_FACTOR: Record<NonNullable<ChatSettings["responseTokenLimit"]>, number> = { capped: 1, high: 2, max: 5 };
 
 export interface AssembleOptions extends SystemPromptOptions {
@@ -321,7 +322,8 @@ export function assemblePrompt(storyline: Storyline, session: ChatSession, opts:
     messages: toApiMessages(buildSystemPrompt(storyline, session, opts), session.messages, postHistory, reminder),
     tools: toolsForSettings(settings),
     temperature: TEMPERATURE_MAP[settings.temperature],
-    maxTokens: MAX_TOKENS_MAP[settings.responseLength] * TOKEN_LIMIT_FACTOR[settings.responseTokenLimit ?? "capped"],
+    // Hidden reasoning counts against max_tokens, so a reasoning turn gets room to think before it writes.
+    maxTokens: MAX_TOKENS_MAP[settings.responseLength] * TOKEN_LIMIT_FACTOR[settings.responseTokenLimit ?? "capped"] + (settings.reasoning ? REASONING_HEADROOM : 0),
     reasoning: settings.reasoning,
   };
 }

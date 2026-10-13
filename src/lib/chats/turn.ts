@@ -46,6 +46,11 @@ export function parseTurnRequest(v: unknown): TurnRequest | string {
 
 export function planTurn(chat: ChatSession, req: TurnRequest, now = Date.now()): TurnPlan | string {
   if (req.type === "retry") {
+    // After a failed turn the player's message has no reply yet: retrying writes one.
+    const turns = chat.messages.filter((m) => m.role !== "system");
+    if (turns.at(-1)?.role === "user") {
+      return { history: turns, reply: { id: req.replyId ?? `reply-${now}`, role: "assistant", content: "", createdAt: now, speaker: "Narrator" } };
+    }
     const index = chat.messages.findLastIndex((m) => m.role === "assistant");
     const hasPlayerTurn = chat.messages.slice(0, Math.max(index, 0)).some((m) => m.role === "user");
     if (index < 0 || !hasPlayerTurn) return "No message to retry";
@@ -92,10 +97,12 @@ export interface StreamOutcome {
   content: string;
   toolCalls: ToolCall[];
   usage?: { promptTokens: number; completionTokens: number };
+  /** "stop", "length" (hit max_tokens), "tool_calls", … as reported by the provider. */
+  finishReason?: string;
 }
 
 interface Chunk {
-  choices?: { delta?: { content?: string | null; tool_calls?: { index?: number; id?: string; function?: { name?: string; arguments?: string } }[] } }[];
+  choices?: { finish_reason?: string | null; delta?: { content?: string | null; tool_calls?: { index?: number; id?: string; function?: { name?: string; arguments?: string } }[] } }[];
   usage?: { prompt_tokens?: number; completion_tokens?: number };
   error?: { message?: string } | string;
 }
@@ -108,6 +115,7 @@ export async function readCompletionStream(body: ReadableStream<Uint8Array>, onC
   let buffer = "";
   let content = "";
   let usage: StreamOutcome["usage"];
+  let finishReason: string | undefined;
   const handle = (line: string) => {
     if (!line.startsWith("data:")) return;
     const data = line.slice(5).trim();
@@ -120,6 +128,7 @@ export async function readCompletionStream(body: ReadableStream<Uint8Array>, onC
     }
     if (chunk.error) throw new Error(typeof chunk.error === "string" ? chunk.error : chunk.error.message || "Provider error");
     if (chunk.usage) usage = { promptTokens: chunk.usage.prompt_tokens ?? 0, completionTokens: chunk.usage.completion_tokens ?? 0 };
+    finishReason = chunk.choices?.[0]?.finish_reason ?? finishReason;
     const delta = chunk.choices?.[0]?.delta;
     if (delta?.content) {
       content += delta.content;
@@ -143,5 +152,5 @@ export async function readCompletionStream(body: ReadableStream<Uint8Array>, onC
     lines.forEach(handle);
   }
   handle(buffer);
-  return { content, toolCalls: [...calls.values()].filter((c) => c.function.name), usage };
+  return { content, toolCalls: [...calls.values()].filter((c) => c.function.name), usage, finishReason };
 }

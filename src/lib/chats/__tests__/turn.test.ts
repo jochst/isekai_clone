@@ -43,6 +43,15 @@ describe("planTurn + settleOutcome", () => {
     expect(settleOutcome(withMedia, again, "Yo.", false).upsert[0]).toMatchObject({ choices: ["Hello", "Hey!", "Yo."], choiceIndex: 2 });
   });
 
+  it("retry after a failed turn writes the missing reply", () => {
+    const failed = chat([msg("o", "assistant", "Opening"), msg("u1", "user", "Hi"), msg("e", "system", "Provider error")]);
+    const plan = planTurn(failed, { type: "retry", model: "m", replyId: "a1" }) as TurnPlan;
+    expect(ids(plan.history)).toEqual(["o", "u1"]);
+    const saved = settleOutcome(failed, plan, "Hello.", false);
+    expect(saved.order).toEqual(["o", "u1", "a1"]);
+    expect(saved.upsert).toEqual([expect.objectContaining({ id: "a1", content: "Hello.", choices: ["Hello."], choiceIndex: 0 })]);
+  });
+
   it("refuses to retry the opening, and keeps the player's turn when the reply is empty", () => {
     expect(planTurn(chat([msg("o", "assistant", "Opening")]), { type: "retry", model: "m" })).toBe("No message to retry");
     const plan = planTurn(base, { type: "take-turn", model: "m", content: "x", userMessageId: "u2", replyId: "a2" }) as TurnPlan;
@@ -75,6 +84,11 @@ describe("readCompletionStream", () => {
     expect(out.content).toBe("Hello");
     expect(out.toolCalls).toEqual([{ id: "t", type: "function", function: { name: "illustrate_scene", arguments: '{"description":"x"}' } }]);
     expect(out.usage).toEqual({ promptTokens: 10, completionTokens: 2 });
+  });
+
+  it("reports the finish reason, e.g. a token cap spent on hidden reasoning", async () => {
+    const out = await readCompletionStream(sse(['data: {"choices":[{"delta":{"role":"assistant"}}]}\n\n', 'data: {"choices":[{"delta":{},"finish_reason":"length"}],"usage":{"prompt_tokens":996,"completion_tokens":450}}\n\n']), () => {});
+    expect(out).toMatchObject({ content: "", finishReason: "length" });
   });
 
   it("throws provider errors sent mid-stream", async () => {

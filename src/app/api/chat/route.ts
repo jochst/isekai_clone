@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authHeaders, providerErrorMessage, readProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
+import { authHeaders, providerErrorMessage, readProviderContext, reasoningParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 export const runtime = "nodejs";
 
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     payload.tools = body.tools;
     if (body.tool_choice) payload.tool_choice = body.tool_choice;
   }
-  if (body.reasoning === false && ctx.preset === "openrouter") payload.reasoning = { enabled: false };
+  Object.assign(payload, reasoningParams(ctx, body.reasoning !== false));
 
   let upstream: Response;
   try {

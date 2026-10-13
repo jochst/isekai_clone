@@ -47,6 +47,10 @@ describe("Isekai Zero creator fields", () => {
     expect(messages.at(-1)?.content).toContain("Write the next reply following this direction from the player: more action");
     expect(maxTokens).toBe(900);
   });
+
+  it("gives reasoning turns room to think, since hidden reasoning counts against max_tokens", () => {
+    expect(assemblePrompt(story, session({ ...DEFAULT_CHAT_SETTINGS, reasoning: true })).maxTokens).toBe(4450);
+  });
 });
 
 describe("resolveNewChatSettings", () => {

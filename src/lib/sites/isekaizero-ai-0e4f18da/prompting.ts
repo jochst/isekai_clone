@@ -109,7 +109,8 @@ async function postChat(opts: ChatRequestOptions, stream: boolean): Promise<Resp
     messages: opts.messages,
     temperature: opts.temperature,
     max_tokens: opts.maxTokens,
-    reasoning: opts.reasoning,
+    // Short helper calls (destinies, prompt enhancing) never need hidden reasoning; it would eat their small caps.
+    reasoning: opts.reasoning ?? false,
     stream,
   };
   if (Array.isArray(opts.tools) && opts.tools.length > 0) {

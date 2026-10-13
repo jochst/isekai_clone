@@ -4,7 +4,7 @@ import type { ChatSession } from "@/types/isekaizero";
 import { findStoryline } from "@/lib/chats/storyline";
 import { parseTurnRequest, planTurn, readCompletionStream, settleOutcome, type StreamOutcome } from "@/lib/chats/turn";
 import { assemblePrompt } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-builder";
-import { authHeaders, providerErrorMessage, readProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
+import { authHeaders, providerErrorMessage, readProviderContext, reasoningParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -49,7 +49,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       temperature: prompt.temperature,
       max_tokens: prompt.maxTokens,
       ...(prompt.tools.length > 0 ? { tools: prompt.tools } : {}),
-      ...(!prompt.reasoning && ctx.preset === "openrouter" ? { reasoning: { enabled: false } } : {}),
+      ...reasoningParams(ctx, prompt.reasoning),
     }),
     signal: request.signal,
   }).catch((e: unknown) => e as Error);
@@ -79,7 +79,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           send({ type: "delta", content });
         });
         const saved = save(outcome);
-        send({ type: "done", ...saved, toolCalls: outcome.toolCalls, usage: outcome.usage });
+        if (saved.empty && outcome.finishReason === "length") {
+          // The cap ran out before any text: usually a reasoning model thinking through the whole budget.
+          send({ type: "error", error: "The model used its whole token limit before writing anything (most likely reasoning). Turn Reasoning off, raise the response token limit, or pick a non-reasoning model." });
+        } else {
+          send({ type: "done", ...saved, toolCalls: outcome.toolCalls, usage: outcome.usage });
+        }
       } catch (e) {
         if (request.signal.aborted) {
           save({ content: latest, toolCalls: [] }); // Stop keeps the partial reply, as on Isekai Zero

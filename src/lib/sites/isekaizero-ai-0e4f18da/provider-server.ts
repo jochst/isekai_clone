@@ -69,6 +69,15 @@ export function authHeaders(ctx: ProviderContext): Record<string, string> {
   return h;
 }
 
+/**
+ * Turns hidden reasoning off when the chat has Reasoning off. Reasoning models (e.g. NanoGPT's
+ * deepseek/deepseek-latest) otherwise think silently and can spend the whole max_tokens before writing a word.
+ * Only sent to providers known to accept it; plain OpenAI-compatible servers may reject unknown fields.
+ */
+export function reasoningParams(ctx: ProviderContext, reasoning: boolean): Record<string, unknown> {
+  return !reasoning && (ctx.preset === "nano-gpt" || ctx.preset === "openrouter") ? { reasoning: { enabled: false } } : {};
+}
+
 export function isNanoGpt(ctx: ProviderContext): boolean {
   return ctx.preset === "nano-gpt";
 }
