@@ -30,6 +30,7 @@ beforeEach(() => {
   calls = [];
   vi.stubGlobal("fetch", async (url: string, init: RequestInit = {}) => {
     const body = init.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : {};
+    if (!url.startsWith("/api/chats")) return new Response(JSON.stringify({ keys: {} }), { status: 200 }); // provider key status
     calls.push({ url, method: init.method ?? "GET", body });
     const reply = url === "/api/chats" && init.method === "POST" ? { sessions: body.sessions } : { messages: body.upsert ?? [], chats: [] };
     return new Response(JSON.stringify(reply), { status: 200 });
