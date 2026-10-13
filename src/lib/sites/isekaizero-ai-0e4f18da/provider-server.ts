@@ -1,5 +1,7 @@
 import "server-only";
 
+import { inlineLocalMedia } from "@/lib/chats/media";
+
 /**
  * Server-side helpers for talking to an OpenAI-compatible provider. Keys come from `.env.local`
  * (see `ENV_KEYS`); a key typed into Settings → Providers and forwarded per request is the fallback.
@@ -127,6 +129,65 @@ export async function providerErrorMessage(res: Response): Promise<string> {
   } catch {
     return text.slice(0, 300) || `${res.status} ${res.statusText}`;
   }
+}
+
+export interface ImageRequest {
+  model: string;
+  prompt: string;
+  size?: string;
+  n?: number;
+  responseFormat?: "url" | "b64_json";
+  /** http(s), data: or local `/api/media/` URLs; local ones are inlined, since the provider can't reach this machine. */
+  referenceImages?: string[];
+}
+
+export interface ImageResult {
+  images: { url: string; prompt: string }[];
+  cost?: number;
+  remainingBalance?: number;
+}
+
+/** A failed provider call, carrying the HTTP status to pass back to the browser. */
+export class ProviderError extends Error {
+  constructor(message: string, readonly status: number) {
+    super(message);
+  }
+}
+
+/** One call to the OpenAI-compatible images endpoint (`{imageBaseUrl}/images/generations`; NanoGPT: https://nano-gpt.com/v1). */
+export async function requestImages(ctx: ProviderContext, body: ImageRequest, signal?: AbortSignal): Promise<ImageResult> {
+  const payload: Record<string, unknown> = {
+    model: body.model,
+    prompt: body.prompt.slice(0, 3000),
+    n: Math.min(Math.max(body.n ?? 1, 1), 4),
+    size: body.size || "1024x1024",
+    response_format: body.responseFormat ?? "url",
+  };
+  if (body.referenceImages && body.referenceImages.length > 0) {
+    // Pass references in standard formats supported by Seedream 5 Pro / BytePlus / NanoGPT
+    const refs = body.referenceImages.slice(0, 10).map(inlineLocalMedia);
+    payload.reference_images = refs;
+    payload.image_urls = refs;
+  }
+
+  let upstream: Response;
+  try {
+    upstream = await fetchWithRetry(`${ctx.imageBaseUrl || ctx.baseUrl}/images/generations`, { method: "POST", headers: authHeaders(ctx), body: JSON.stringify(payload), signal });
+  } catch (e) {
+    throw new ProviderError(`Could not reach image provider: ${e instanceof Error ? e.message : "unknown error"}`, 502);
+  }
+  if (!upstream.ok) throw new ProviderError(await providerErrorMessage(upstream), upstream.status);
+
+  const json = (await upstream.json()) as { data?: { url?: string; b64_json?: string; revised_prompt?: string }[]; cost?: number; remainingBalance?: number };
+  const images = (json.data ?? [])
+    .map((d) => {
+      if (d.url) return { url: d.url, prompt: d.revised_prompt || body.prompt };
+      if (d.b64_json) return { url: `data:image/png;base64,${d.b64_json}`, prompt: d.revised_prompt || body.prompt };
+      return null;
+    })
+    .filter((x): x is { url: string; prompt: string } => x !== null);
+  if (images.length === 0) throw new ProviderError("Provider returned no image data", 502);
+  return { images, cost: json.cost, remainingBalance: json.remainingBalance };
 }
 
 export interface VoiceContext {

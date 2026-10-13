@@ -154,7 +154,7 @@ Media files go on disk under `data/media/` and are served through a route. Provi
 | Story LLM, summarizer, Media Picker, Assist, Michiru | Many (Gemini, Claude, DeepSeek…) | NanoGPT `/api/v1/chat/completions` (OpenAI-compatible), with a model per role |
 | Tool calling (DM v2) | Native function calling | NanoGPT `tools`. **Verify per model**; add a fallback that parses a JSON block from the text for models without tool support |
 | Images (illustration, portraits, backgrounds, edit, remove-bg) | Seedream / BytePlus etc. | NanoGPT `/v1/images/generations` (already wired). Edit and remove-bg via NanoGPT img2img models where available |
-| Image model per job (decided 2026-10-12) | — | Scene illustrations: Seedream 5.0 Pro (`bytedance/seedream-v5.0-pro`, credits; its `/edit` variant for `continuePrevious`). High-volume automatic images (character portraits, VN backgrounds): a subscription model, `hidream-o1-image-dev` by default (the distilled faster O1; `hidream-o1-image` when quality matters). Built in Phase 1 as a per-job model setting |
+| Image model per job (decided 2026-10-12) | — | Scene illustrations: Seedream 5.0 Pro (`bytedance/seedream-v5.0-pro`, credits; its `/edit` variant for `continuePrevious`). High-volume automatic images (character portraits, VN backgrounds): a subscription model, `qwen-image` by default. Built in Phase 1 as a per-job model setting. Corrected 2026-10-13: the subscription covers only `hidream` (I1), `chroma`, `z-image-turbo` and `qwen-image`; HiDream O1 is billed per image. Of those four, only Chroma allows NSFW, and only `qwen-image` accepts a reference image. Live test: Chroma returned an all-black 6 KB image (HTTP 200) for a "teenage" character but was clean for an adult one; qwen-image was clean for both; HiDream I1 showed artifacts. Phase 5c must reject filtered (near-blank) images instead of saving them |
 | Video (scenes, loop covers) | Seedance, Hailuo, Wan | NanoGPT `generate-video` + `video/status` (already built on the branch) |
 | TTS (narration, Drama, Audiobook) | Inworld, Seed Audio | ElevenLabs TTS. Drama mode means a voice per character; **verify** ElevenLabs' multi-speaker dialogue endpoint for a single-call Drama mode |
 | Voice design / cloning | Inworld | ElevenLabs Voice Design and Instant Voice Cloning (**verify** current endpoints) |
@@ -278,7 +278,17 @@ The gap: Default Chat Settings could only really use models from the site's buil
     - "Inside classroom" with "Ellen is Happy".
     - Then the courtyard at dusk with "Ayano drawing her blade".
     - Then "Ayano is Angry" with "Ellen is Frowning".
-- [ ] **VN generation (5c):** auto-create or auto-edit backgrounds and characters for stories without media.
+- [x] **VN generation (5c):** the Media Picker can ask for art the story lacks; it is drawn, stored with the story and reused.
+  - The picker may answer `background: new <place>` or `<Name>: new <Name> is <emotion>` when nothing listed shows it (at most one background and one image per present character per reply). "Generate Missing Art" in Play Mode turns it off.
+  - Drawn with the character portrait model (`qwen-image`, in the subscription). A character with any existing look is redrawn from it as the reference image, so face, hair and outfit stay the same; then `birefnet/v2` cuts out the background ($0.0095, RGBA PNG, ~5 s). A failed cut-out keeps the uncut image.
+  - Stored per story in `chats.sqlite` (`story_media`), merged into the story on the client, and deduped by caption, so every chat of a story reuses it.
+  - A blank result (a content filter's black image, under 20 KB) is rejected with a clear error instead of being saved.
+  - Live on "I Woke Up in a World of Magic and Monsters" (no backgrounds; each character only normal / happy / sad):
+    - the opening got a new "Ancient temple interior with a campfire" (7.5 s)
+    - a monster attack got "Elen is fierce and defiant", "Mira is terrified" and "Lyra is anxious and watching", drawn in parallel from the creator's art and cut out (~19 s, about $0.03 total)
+    - a calm scene correctly reused existing looks
+  - Prompt lesson: with "prefer a listed image when close" the picker (deepseek) chose "sad" for terror every time; the "new" choice has to sit in the answer format itself.
+  - Not done: chained illustrations (Seedream edit) moved to the Illustration item below.
 - [ ] Shareable local `/visual-novels/[id]`.
 - [ ] **Illustration:** POV vs. 3rd person, chained from the previous image, uses appearance loadouts.
 - [ ] **Manga:** 1–8 panels per page, up to 2 pages; per-page edit, regenerate and revert. Built from an LLM panel script plus NanoGPT images.
@@ -293,7 +303,7 @@ The gap: Default Chat Settings could only really use models from the site's buil
     - all 10 beats auto-advanced
     - George narrated; Ellen's lines were in a female voice (Sarah)
     - about 1.3–3.4 s per part
-  - The direct ElevenLabs path (now honouring speaking rate) still needs a live test once `ELEVENLABS_API_KEY` is set.
+  - The direct ElevenLabs path (with speaking rate) was tested live on 2026-10-13 with the key from `.env.local`: all four preset voices (Rachel, Bella, Antoni, Josh) returned valid MP3s, each 2.6–3.1 s of audio, in about 1–2 s.
   - Known ceiling: in a paragraph naming several characters, a quote can be given to the wrong one. The site uses an AI script-writer call; add one if that matters.
   - Not done: Audiobook mode (a narrator voicing every role) and voice design/cloning (Phase 6 studio).
 - [ ] **Music:** via NanoGPT.
@@ -322,5 +332,5 @@ Everything listed under ADR-1. Also: server deployment, accounts, multi-device s
 2. **Comments:** scrape and show the real comments read-only, or remove the panel?
 3. **Phase order:** Phase 5 (media) could come before Phase 3 (DM tools) if visual novel / voice matters more to you than dice and stats.
 4. **Model per role:** which NanoGPT models for summarizer, Media Picker and Assist. One cheap model for the helper roles keeps cost down.
-   - Partly answered: images are split by job, with Seedream 5.0 Pro for scenes and `hidream-o1-image-dev` for portraits.
+   - Partly answered: images are split by job, with Seedream 5.0 Pro for scenes and `qwen-image` (subscription) for portraits.
    - The story model is whatever you pick per chat or in Default Chat Settings.

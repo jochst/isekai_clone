@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { DEFAULT_CHAT_SETTINGS } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
 import type { ChatMessage, ChatSession } from "@/types/isekaizero";
-import { applyChatPatch, deleteChat, getChat, listChats, localizeMessages, saveChat, withChatDb } from "../db";
+import { addStoryMedia, applyChatPatch, deleteChat, getChat, listChats, listStoryMedia, localizeMessages, saveChat, withChatDb } from "../db";
 import { inlineLocalMedia } from "../media";
 
 let dir = "";
@@ -63,5 +63,18 @@ describe("chat storage", () => {
     expect(readdirSync(join(dir, "media"))).toHaveLength(1);
     expect(inlineLocalMedia(stored.images![0].url)).toBe(png);
     expect(inlineLocalMedia("https://cdn.example/x.png")).toBe("https://cdn.example/x.png");
+  });
+});
+
+describe("story media", () => {
+  it("keeps generated art per story, oldest first", () => {
+    withChatDb((db) => {
+      addStoryMedia(db, "s1", { id: "m1", kind: "background", url: "/api/media/a.png", caption: "Rooftop" });
+      addStoryMedia(db, "s2", { id: "m2", kind: "background", url: "/api/media/b.png", caption: "Library" });
+      addStoryMedia(db, "s1", { id: "m3", kind: "character", character: "Ellen", url: "/api/media/c.png", caption: "Ellen is surprised" });
+      expect(listStoryMedia(db, "s1").map((m) => m.id)).toEqual(["m1", "m3"]);
+      expect(listStoryMedia(db, "s1")[1]).toMatchObject({ character: "Ellen", caption: "Ellen is surprised" });
+      expect(listStoryMedia(db, "none")).toEqual([]);
+    });
   });
 });

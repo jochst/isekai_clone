@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { storyImages } from "@/lib/imports/cards";
 import { STORYLINES } from "@/lib/sites/isekaizero-ai-0e4f18da/mock-data";
-import type { Storyline } from "@/types/isekaizero";
-import { fallbackScene, looks, parseScene, presentCharacters, scenePrompt, vnBeats } from "../scene";
+import type { StoryMedia, Storyline } from "@/types/isekaizero";
+import { applyMedia, fallbackScene, looks, mediaPrompt, parseRequests, parseScene, presentCharacters, scenePrompt, vnBeats, withStoryMedia } from "../scene";
 
 const img = (id: string, caption: string) => ({ id, url: `https://s3.example/${id}.webp`, caption });
 const story: Storyline = {
@@ -37,6 +37,44 @@ describe("Media Picker", () => {
     expect(parseScene("background: keep", story, reply, previous).background?.id).toBe("b1");
     expect(parseScene("background: 7\nnonsense", story, reply, previous)).toEqual(fallbackScene(story, reply, previous));
     expect(fallbackScene(story, reply, previous).characters.map((c) => c.image.id)).toEqual(["e1", "c2-cover"]);
+  });
+
+  it("with generation on, offers imageless characters and reads 'new' requests (one background, one per character)", () => {
+    const nobodyReply = `${reply} Nobody waves.`;
+    const [system, user] = scenePrompt(story, nobodyReply, undefined, true);
+    expect(system.content).toContain("background: new");
+    expect(user.content).toContain("Nobody:\n  (no images yet)");
+    const answer = "background: new Rooftop at sunset\nbackground: new Library\nEllen: 2\nNobody: new Nobody is waving\nAyano: new Ayano is annoyed\nStranger: new Stranger is here";
+    expect(parseRequests(answer, story, nobodyReply)).toEqual([
+      { kind: "background", caption: "Rooftop at sunset" },
+      { kind: "character", character: "Nobody", caption: "Nobody is waving" },
+      { kind: "character", character: "Ayano Kikuchi", caption: "Ayano is annoyed" },
+    ]);
+    expect(parseScene(answer, story, nobodyReply).characters.map((c) => c.image.id)).toEqual(["e2"]);
+  });
+
+  it("merges generated art into the story and onto a scene, and redraws characters from their first look", () => {
+    const media: StoryMedia[] = [
+      { id: "g1", kind: "background", url: "/api/media/g1.png", caption: "Rooftop at sunset" },
+      { id: "g2", kind: "character", character: "ayano kikuchi", url: "/api/media/g2.png", caption: "Ayano is annoyed" },
+    ];
+    const merged = withStoryMedia(story, media);
+    expect(merged.backgrounds?.map((b) => b.id)).toEqual(["b1", "b2", "g1"]);
+    expect(looks(merged.characters[1]).map((i) => i.id)).toEqual(["c2-cover", "g2"]);
+    expect(withStoryMedia(story, [])).toBe(story);
+
+    const scene = applyMedia({ background: img("b1", "Inside classroom"), characters: [{ name: "Ellen Walker", image: img("e1", "x") }] }, [
+      { ...media[0] },
+      { ...media[1], character: "Ayano Kikuchi" },
+    ]);
+    expect(scene.background?.id).toBe("g1");
+    expect(scene.characters.map((c) => [c.name, c.image.id])).toEqual([["Ellen Walker", "e1"], ["Ayano Kikuchi", "g2"]]);
+
+    expect(mediaPrompt(story, { kind: "character", character: "Ayano Kikuchi", caption: "Ayano is annoyed" })).toMatchObject({ reference: "https://s3.example/ayano.webp" });
+    const fresh = mediaPrompt(story, { kind: "character", character: "Nobody", caption: "Nobody is waving" });
+    expect(fresh.reference).toBeUndefined();
+    expect(fresh.prompt).toContain("plain white background");
+    expect(mediaPrompt(story, { kind: "background", caption: "Rooftop at sunset" }).prompt).toContain("no creatures");
   });
 
   it("splits a reply into beats by paragraph", () => {

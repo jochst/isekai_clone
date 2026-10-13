@@ -3,7 +3,7 @@ import "server-only";
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { CONTINUE_SENTINEL, type ChatMemory, type ChatMessage, type ChatSession, type ChatSummary } from "@/types/isekaizero";
+import { CONTINUE_SENTINEL, type ChatMemory, type ChatMessage, type ChatSession, type ChatSummary, type StoryMedia } from "@/types/isekaizero";
 import { localizeMedia } from "./media";
 
 /**
@@ -32,7 +32,9 @@ export function openChatDb(): DatabaseSync {
       seq INTEGER NOT NULL, body TEXT NOT NULL, PRIMARY KEY (chat_id, id)
     );
     CREATE INDEX IF NOT EXISTS messages_by_seq ON messages (chat_id, seq);
-    CREATE TABLE IF NOT EXISTS memory (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);`);
+    CREATE TABLE IF NOT EXISTS memory (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS story_media (id TEXT PRIMARY KEY, storyline_id TEXT NOT NULL, body TEXT NOT NULL, created INTEGER NOT NULL);
+    CREATE INDEX IF NOT EXISTS story_media_by_story ON story_media (storyline_id, created);`);
   return db;
 }
 
@@ -140,4 +142,13 @@ export function saveChat(db: DatabaseSync, session: ChatSession): void {
   applyChatPatch(db, session.id, { meta, order: messages.map((m) => m.id), upsert: messages });
   // Creating or branching a chat may carry memory (a branch keeps the chapters before its cut).
   if (memory) saveMemory(db, session.id, memory);
+}
+
+/* Visual Novel art generated for a story (Phase 5c). Kept per story, not per chat, so every chat of it reuses the art. */
+export function listStoryMedia(db: DatabaseSync, storylineId: string): StoryMedia[] {
+  return db.prepare("SELECT body FROM story_media WHERE storyline_id = ? ORDER BY created, rowid").all(storylineId).map((row) => JSON.parse(String(row.body)) as StoryMedia);
+}
+
+export function addStoryMedia(db: DatabaseSync, storylineId: string, media: StoryMedia): void {
+  db.prepare("INSERT INTO story_media (id, storyline_id, body, created) VALUES (?, ?, ?, ?)").run(media.id, storylineId, JSON.stringify(media), Date.now());
 }
