@@ -1,11 +1,11 @@
 "use client";
 
-import { Bookmark, BookOpen, Clapperboard, Copy, Film, Image as ImageIcon, Info, Pencil, Split, Trash2, type LucideIcon } from "lucide-react";
+import { Bookmark, BookOpen, Clapperboard, Copy, Film, Image as ImageIcon, Info, Music, Pencil, Split, Trash2, type LucideIcon } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-export type MessageAction = "info" | "edit" | "delete" | "branch" | "copy" | "save" | "illustration" | "animate" | "manga" | "visualNovel";
+export type MessageAction = "info" | "edit" | "delete" | "branch" | "copy" | "save" | "illustration" | "animate" | "music" | "manga" | "visualNovel";
 
 export interface MessagePopoverProps {
   open: boolean;
@@ -27,6 +27,7 @@ const ITEMS: { action: MessageAction; label: string; icon: LucideIcon }[] = [
   { action: "save", label: "Save", icon: Bookmark },
   { action: "illustration", label: "Illustration", icon: ImageIcon },
   { action: "animate", label: "Animate", icon: Clapperboard },
+  { action: "music", label: "Music", icon: Music },
   { action: "manga", label: "Manga", icon: BookOpen },
   { action: "visualNovel", label: "Visual Novel", icon: Film },
 ];

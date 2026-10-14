@@ -298,7 +298,13 @@ The gap: Default Chat Settings could only really use models from the site's buil
     - A second illustration chained from the first: same temple, monster, lighting and outfits, $0.051.
   - Also fixed: scene prompts ended mid-sentence ("She .") and listed "Name: ;" for catalog characters without appearance text.
   - Not done: appearance loadouts (several outfits per character) need a chat-local cast, which lands with Phase 3.
-- [ ] **Manga:** 1–8 panels per page, up to 2 pages; per-page edit, regenerate and revert. Built from an LLM panel script plus NanoGPT images.
+- [x] **Manga (5g):** More → Manga on a reply: 1–2 pages (Chat Settings → Manga Generation, default 2) of up to 8 panels; per-page Edit, Regenerate and Page History (revert).
+  - A script call (the chat's text model) writes `page N / panel: <shot> | <Name: "line">`; each page is one image from the chat's image model, drawn in order.
+  - Page 1 chains from the last manga page of an earlier reply, page 2 from page 1; the named cast's art is referenced too (labelled in the prompt). Edit sends the page itself as reference 1 with the instruction.
+  - Pages and their history are copied to `data/media` like images and videos.
+  - Live on the monster scene (Seedream 5.0 Pro, 2026-10-14): two 6-panel black-and-white pages with speech bubbles, about 2 min and $0.05 each; Elen, Mira and Lyra stayed consistent across both pages.
+  - Known limit: lettering can come out garbled ("it'll lclil come"). An Edit asking to fix that bubble kept the page intact but did not fix the text; small text is a weakness of the image model.
+  - Not done: the site's confirm about cost per generation (here a confirm only appears when replacing existing pages).
 - [x] **Video scenes (5e):** Animate on a message plans 1–2 beats and chains them; Animate on one image still animates just that image.
   - A director call (the chat's text model) writes `beat: <seconds> | <prompt>` lines; lengths snap to the model's options and are capped by the Duration picked in Scene Videos (video is priced per second).
   - Beat 1 animates the reply's illustration, or is text-to-video with the cast's art as `reference_images` on models that take them (Seedance 2.0; flagged from the catalog).
@@ -319,9 +325,12 @@ The gap: Default Chat Settings could only really use models from the site's buil
   - The direct ElevenLabs path (with speaking rate) was tested live on 2026-10-13 with the key from `.env.local`: all four preset voices (Rachel, Bella, Antoni, Josh) returned valid MP3s, each 2.6–3.1 s of audio, in about 1–2 s.
   - Known ceiling: in a paragraph naming several characters, a quote can be given to the wrong one. The site uses an AI script-writer call; add one if that matters.
   - Not done: Audiobook mode (a narrator voicing every role) and voice design/cloning (Phase 6 studio).
-- [ ] **Music:** via NanoGPT.
-  - Most music models are synchronous on `/v1/audio/speech`.
-  - Some, e.g. `Elevenlabs-Music-V1`, are async and polled through `/api/tts/status`.
+- [x] **Music (5f):** More → Music on a reply; NanoGPT first, ElevenLabs Music as the backup.
+  - A music brief (the chat's text model) writes `style / vocals / lyrics`; Chat Settings → Music Generation sets Vocals (Auto / Instrumental / Sing), provider, model, length and instructions, like the site.
+  - NanoGPT music is `POST /api/v1/audio/speech` with `input` = the prompt. It answers with audio, or with `{ runId }` (charged on submit) to poll at `GET /api/tts/status?runId=&model=`. `duration` must be sent as a string; MiniMax Music needs a `lyrics` field.
+  - ElevenLabs Music (`POST /v1/music`, `music_length_ms`, `force_instrumental`, key from `.env.local`) is used when chosen, or automatically when NanoGPT fails. Retries on 429 (ElevenLabs limits concurrent requests).
+  - Live (2026-10-14): Lyria 3.5 returned full 3-minute songs for $0.1045 in about 55 s (it ignores length); ACE-Step 1.5 Turbo 30 s for $0.003; ElevenLabs direct 15 s with lyrics in 5 s. A transient Lyria failure fell back to ElevenLabs on its own, and so did an unknown model id. The in-app run wrote "orchestral, epic percussion, strings, 140 BPM, heroic and desperate" and saved a 3-minute instrumental on the reply.
+  - Not done: the site makes two takes per song; this makes one (half the cost). No lyrics-language setting; lyrics follow the story's language.
 - **Exit:** one story plays fully in VN mode with voices.
 
 ### Phase 6: Creation studio

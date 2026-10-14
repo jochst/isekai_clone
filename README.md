@@ -4,7 +4,7 @@ A local, single-user clone of **[isekaizero.ai](https://www.isekaizero.ai)**, th
 
 Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript (strict)**, **Tailwind CSS v4** and **SQLite**.
 
-The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2 and 5a–5e, as of PR #30.
+The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2 and 5 (all of 5a–5g), as of PR #32.
 
 ---
 
@@ -22,7 +22,7 @@ npm install
 
 ```bash
 NANOGPT_API_KEY="..."      # chat, images, video
-ELEVENLABS_API_KEY="..."   # voice (optional)
+ELEVENLABS_API_KEY="..."   # voice and backup music (optional)
 DATABASE_URL="file:./dev.db"
 ```
 
@@ -139,6 +139,21 @@ Turns each reply into a scene: background, characters and text you tap through, 
   - A second click can't start a duplicate image or video.
   - Rate-limited requests (HTTP 429) wait and retry automatically, up to 3 times.
 
+### Manga
+**More → Manga** on a reply turns the scene into manga pages:
+- A short script splits the moment into 1–2 pages of up to 8 panels with speech bubbles. Set the page count in **Chat Settings → Manga Generation**.
+- Each page is one image from your image model: about $0.05 and about 2 minutes on Seedream 5.0 Pro. It chains from the previous manga page and uses the characters' art, so they stay consistent.
+- Each page has **Edit** (describe the change), **Regenerate** and **Page History** to go back to an earlier version.
+- Lettering can come out garbled. In testing, an Edit asking to fix one bubble kept the page but not the text, so Regenerate the page if a bubble matters.
+
+### Music
+**More → Music** on a reply scores that moment with a song:
+- A short music brief picks the style and, in **Auto**, whether it's sung (with lyrics) or instrumental.
+- Settings are in **Chat Settings → Music Generation**: Vocals, provider, model, length and your own music instructions.
+- **NanoGPT** is used first, defaulting to Google Lyria 3.5: about $0.11 for a full song, taking about a minute. Cheaper models are in the list.
+- **ElevenLabs Music** is the backup. Pick it directly, or it takes over automatically when NanoGPT fails, as long as `ELEVENLABS_API_KEY` is set.
+- Songs are saved in `data/media` and play from the reply.
+
 ### Voice
 Set the speech provider and model in **Settings → Providers → Voice (TTS)**: ElevenLabs, any OpenAI-compatible text-to-speech service, a local Kokoro server, or the browser's built-in voice. NanoGPT's `Kokoro-82m` works over the OpenAI-compatible option, with no extra key. Then, per chat, open **Chat Settings → Voice Narration**:
 - **Voice & Narration Enabled** and **Auto Play on New Messages**.
@@ -194,7 +209,8 @@ Then go to **Settings → Providers → Voice (TTS) → Local / Kokoro**, base U
 | 5c | Visual Novel art drawn when a story lacks it: backgrounds and character expressions, cut out and saved per story | Done (#28) |
 | 5d | Illustrations chained from the previous image, with the cast's art as references | Done (#29) |
 | 5e | Video scenes: 1–2 planned beats, chained from the last frame | Done (#30) |
-| 5f+ | Manga, music via NanoGPT | Next |
+| 5f | Music: a brief, then NanoGPT music with ElevenLabs Music as the backup | Done (#31) |
+| 5g | Manga: scripted pages of panels, chained, with edit / regenerate / history | Done (#32) |
 | 3 | Codex (story lore), Dungeon Mind v2 tools (dice, stats, inventory), characters saved to the cast, story endings | Planned (moved after Phase 5) |
 | 4 | Composer parity: slash commands, Improvise, RETRY+, OOC, personas, Honor mode, history tools | Planned |
 | 6 | Creation studio: your own stories and characters | Planned |

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, MoreHorizontal, Pause, Play, RefreshCw, Volume2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, MoreHorizontal, Music, Pause, Play, RefreshCw, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -12,6 +12,7 @@ import type { ChatMessage } from "@/types/isekaizero";
 import { MessagePopover, type MessageAction } from "./MessagePopover";
 import { SceneImage } from "./SceneImage";
 import { SceneVideo } from "./SceneVideo";
+import { MangaPages, type MangaPageAction } from "./MangaPages";
 
 export interface MessageBubbleProps {
   message: ChatMessage;
@@ -30,6 +31,7 @@ export interface MessageBubbleProps {
   onAnimateImage: (imageId: string) => void;
   onRegenerateVideo: (videoId: string) => void;
   onCheckVideo: (videoId: string) => void;
+  onMangaPage?: (pageId: string, action: MangaPageAction) => void;
   onEdit: (content: string) => void;
   /** Swipes a retried reply to another version. */
   onSelectChoice: (index: number) => void;
@@ -80,6 +82,7 @@ export function MessageBubble({
   onRegenerateImage,
   onAnimate,
   onAnimateImage,
+  onMangaPage,
   onRegenerateVideo,
   onCheckVideo,
   onEdit,
@@ -279,6 +282,29 @@ export function MessageBubble({
       ))}
       {message.videos?.map((v) => (
         <SceneVideo key={v.id} video={v} onRegenerate={() => onRegenerateVideo(v.id)} onCheckAgain={() => onCheckVideo(v.id)} />
+      ))}
+      {message.manga?.length ? <MangaPages pages={message.manga} onAction={(pageId, action) => onMangaPage?.(pageId, action)} /> : null}
+      {message.music?.map((song) => (
+        <div key={song.id} className="mt-2 rounded-[12px] border border-white/10 bg-white/[0.04] p-3 text-[12px] text-white/70">
+          <div className="flex items-center gap-2 font-semibold text-white/85">
+            <Music size={14} /> {song.instrumental ? "Instrumental" : "Song"}
+            <span className="font-normal text-white/45">
+              {song.provider === "elevenlabs" ? "ElevenLabs Music" : song.model}
+              {song.cost ? ` · $${song.cost.toFixed(3)}` : ""}
+            </span>
+          </div>
+          {song.status === "generating" ? (
+            <p className="mt-1 flex items-center gap-1 text-white/55">
+              <Loader2 size={12} className="animate-spin" /> Composing… this can take a few minutes
+            </p>
+          ) : song.status === "error" ? (
+            <p className="mt-1 text-[#ffb4ab]">{song.error}</p>
+          ) : (
+            <audio controls src={song.url} className="mt-2 h-9 w-full" />
+          )}
+          {song.prompt ? <p className="mt-1 text-white/45">{song.prompt}</p> : null}
+          {song.lyrics ? <p className="mt-1 whitespace-pre-line italic text-white/55">{song.lyrics}</p> : null}
+        </div>
       ))}
 
       <div className="mt-2 flex flex-wrap items-center gap-[6px] opacity-85">

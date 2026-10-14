@@ -39,6 +39,13 @@ import {
   resolveTextModel,
   resolveVideoModel,
   completeChat,
+  mangaPagePrompt,
+  mangaReferences,
+  mangaScriptPrompt,
+  parseMangaScript,
+  generateMusic,
+  musicBriefPrompt,
+  parseMusicBrief,
   generateStoryMedia,
   lastFrame,
   parseVideoBeats,
@@ -55,7 +62,7 @@ import { chapterPlan } from "@/lib/chats/memory";
 import { applyMedia, fallbackScene, withStoryMedia } from "@/lib/chats/scene";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { isProviderConfigured, resolvePortraitModel, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatMessage, ChatSession, MediaRequest, SceneImage as SceneImageModel, SceneVideo as SceneVideoModel, StoryMedia, VideoParamValue, VnScene } from "@/types/isekaizero";
+import type { ChatMessage, ChatSession, MangaPage, MediaRequest, SceneImage as SceneImageModel, SceneMusic, SceneVideo as SceneVideoModel, StoryMedia, VideoParamValue, VnScene } from "@/types/isekaizero";
 
 import { useProviderCatalog } from "../image-generation/use-provider-catalog";
 import { useModelCatalog } from "../llms/use-model-catalog";
@@ -445,6 +452,173 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     [sessionId, storyline, provider, model.id, catalogStatus, videoSupported, videoReason, videoCatalog, showToast, startClip],
   );
 
+  /**
+   * Music: a music brief (style, sung or instrumental, lyrics) from the moment, then one song from NanoGPT, or from
+   * ElevenLabs Music when chosen or when NanoGPT fails. One song per message at a time.
+   */
+  const makeMusic = useCallback(
+    async (messageId: string) => {
+      const current = getChatSession(sessionId);
+      if (!current || !storyline) return;
+      const index = current.messages.findIndex((m) => m.id === messageId);
+      if (index === -1) return;
+      if (current.messages[index].music?.some((m) => m.status === "generating")) {
+        showToast("A song for this message is already being made");
+        return;
+      }
+      const { musicVocals = "auto", musicInstructions, musicModel, musicProvider = "nano-gpt", musicSeconds = 60 } = current.settings;
+      const song: SceneMusic = { id: newId(), status: "generating", url: "", prompt: "", instrumental: true, model: musicModel || "google/lyria-3.5", provider: musicProvider, createdAt: Date.now() };
+      const setSong = (patch: Partial<SceneMusic>) =>
+        update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === messageId ? { ...m, music: (m.music ?? []).map((x) => (x.id === song.id ? { ...x, ...patch } : x)) } : m)) }), { touch: false });
+      update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === messageId ? { ...m, music: [...(m.music ?? []), song] } : m)) }), { touch: false });
+      showToast("Writing the music brief…");
+      const recent = current.messages.slice(0, index + 1);
+      const fallbackStyle = `Anime soundtrack for "${storyline.title}", ${storyline.category}, cinematic, emotional`;
+      let brief = parseMusicBrief("", musicVocals, fallbackStyle);
+      try {
+        const text = await completeChat({ settings: provider, model: model.id, messages: musicBriefPrompt(storyline, recent, { vocals: musicVocals, instructions: musicInstructions }), temperature: 0.7, maxTokens: 400 });
+        brief = parseMusicBrief(text, musicVocals, fallbackStyle);
+      } catch {
+        /* keep the fallback brief */
+      }
+      setSong({ prompt: brief.style, lyrics: brief.lyrics, instrumental: brief.instrumental });
+      try {
+        const made = await generateMusic({ settings: provider, prompt: brief.style, lyrics: brief.lyrics, instrumental: brief.instrumental, model: musicModel, seconds: musicSeconds, provider: musicProvider });
+        setSong({ status: "done", url: made.url, provider: made.provider, model: made.model, cost: made.cost });
+        addUsage({ cost: made.cost ?? 0 });
+        if (made.fellBackFrom) showToast(`NanoGPT music failed (${made.fellBackFrom}); used ElevenLabs Music instead`);
+      } catch (e) {
+        setSong({ status: "error", error: errorMessage(e, "Music generation failed.") });
+      }
+    },
+    [sessionId, storyline, provider, model.id, update, showToast],
+  );
+
+  /* ---------------------------------------------------------------- manga */
+
+  const setMangaPage = useCallback(
+    (messageId: string, pageId: string, patch: (page: MangaPage) => Partial<MangaPage>) =>
+      update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === messageId ? { ...m, manga: (m.manga ?? []).map((p) => (p.id === pageId ? { ...p, ...patch(p) } : p)) } : m)) }), { touch: false }),
+    [update],
+  );
+
+  /** Draws one page with its references; returns the image URL ("" on failure, which is shown on the page). */
+  const drawMangaPage = useCallback(
+    async (messageId: string, page: MangaPage, refs: { urls: string[]; note: string }): Promise<string> => {
+      try {
+        const result = await generateSceneImage({
+          settings: provider,
+          model: page.model,
+          prompt: refs.note ? `${page.prompt} ${refs.note}` : page.prompt,
+          size: resolveImageSize(imageById(page.model), provider),
+          referenceImages: refs.urls.length > 0 ? refs.urls : undefined,
+        });
+        setMangaPage(messageId, page.id, () => ({ status: "done", url: result.url, cost: result.cost, error: undefined }));
+        addUsage({ images: 1, cost: result.cost ?? 0, remainingBalance: result.remainingBalance });
+        return result.url;
+      } catch (e) {
+        setMangaPage(messageId, page.id, () => ({ status: "error", error: errorMessage(e, "Could not draw this page.") }));
+        return "";
+      }
+    },
+    [provider, imageById, setMangaPage],
+  );
+
+  /**
+   * Manga: a script call turns the reply into 1–2 pages of panels, then each page is drawn in order. Page 1 chains
+   * from the last manga page of an earlier reply, page 2 from page 1; the named cast's art is referenced too.
+   */
+  const makeManga = useCallback(
+    async (messageId: string) => {
+      const current = getChatSession(sessionId);
+      if (!current || !storyline) return;
+      const index = current.messages.findIndex((m) => m.id === messageId);
+      if (index === -1) return;
+      const existing = current.messages[index].manga ?? [];
+      if (existing.some((p) => p.status === "generating")) {
+        showToast("This manga is already being drawn");
+        return;
+      }
+      if (existing.length > 0 && !window.confirm("Generate new manga scene? This will create a new set of pages.")) return;
+      const imageModel = resolveImageModel(current.settings, provider).id;
+      if (!provider.apiKey || !imageModel) {
+        showToast("Pick an image model in Settings → Providers first");
+        return;
+      }
+      showToast("Writing the manga script…");
+      const pageCount = current.settings.mangaPages ?? 2;
+      let script: ReturnType<typeof parseMangaScript> = [];
+      try {
+        const text = await completeChat({
+          settings: provider,
+          model: model.id,
+          messages: mangaScriptPrompt(storyline, current.messages.slice(0, index + 1), { pages: pageCount, perspective: current.settings.illustrationPerspective }),
+          temperature: 0.7,
+          maxTokens: 1200,
+        });
+        script = parseMangaScript(text, pageCount);
+      } catch (e) {
+        showToast(errorMessage(e, "Could not write the manga script."));
+        return;
+      }
+      if (script.length === 0) {
+        showToast("The manga script came back empty; try again");
+        return;
+      }
+      const pages: MangaPage[] = script.map((panels, i) => ({
+        id: newId(),
+        page: i + 1,
+        status: "generating",
+        url: "",
+        prompt: mangaPagePrompt(storyline, panels, i + 1),
+        model: imageModel,
+        createdAt: Date.now(),
+      }));
+      update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === messageId ? { ...m, manga: pages } : m)) }), { touch: false });
+      let previous: string | undefined;
+      for (const page of pages) {
+        const latest = getChatSession(sessionId);
+        if (!latest) return;
+        previous = (await drawMangaPage(messageId, page, mangaReferences(storyline, latest.messages, index, previous))) || previous;
+      }
+    },
+    [sessionId, storyline, provider, model.id, update, showToast, drawMangaPage],
+  );
+
+  /** Page tools: regenerate, edit with a prompt (the page itself is the reference), or revert to an earlier version. */
+  const mangaPageAction = useCallback(
+    (messageId: string, pageId: string, action: { type: "regenerate" } | { type: "edit"; text: string } | { type: "revert"; version: number }) => {
+      const current = getChatSession(sessionId);
+      const index = current?.messages.findIndex((m) => m.id === messageId) ?? -1;
+      const pages = current?.messages[index]?.manga ?? [];
+      const page = pages.find((p) => p.id === pageId);
+      if (!current || !storyline || !page || page.status === "generating") return;
+      const keep = page.url ? [...(page.versions ?? []), { url: page.url, prompt: page.prompt }] : page.versions;
+      if (action.type === "revert") {
+        const target = page.versions?.[action.version];
+        if (!target) return;
+        const versions = [...(page.versions ?? [])];
+        versions.splice(action.version, 1, { url: page.url, prompt: page.prompt });
+        setMangaPage(messageId, pageId, () => ({ url: target.url, prompt: target.prompt, versions, status: "done", error: undefined }));
+        return;
+      }
+      const before = pages.find((p) => p.page === page.page - 1)?.url;
+      const cast = mangaReferences(storyline, current.messages, index, before);
+      if (action.type === "edit") {
+        if (!page.url) return;
+        const edited: MangaPage = { ...page, prompt: `Edit this manga page: ${action.text.trim()}. Keep everything else exactly the same: layout, panels, characters, lettering and style.` };
+        setMangaPage(messageId, pageId, () => ({ status: "generating", versions: keep, prompt: edited.prompt, error: undefined }));
+        // The page to edit goes first; the cast's art follows so faces stay right.
+        const castUrls = cast.urls.filter((u) => u !== before);
+        void drawMangaPage(messageId, edited, { urls: [page.url, ...castUrls], note: "Reference image 1 is the page to edit; any others are the characters' looks." });
+        return;
+      }
+      setMangaPage(messageId, pageId, () => ({ status: "generating", versions: keep, error: undefined }));
+      void drawMangaPage(messageId, page, cast);
+    },
+    [sessionId, storyline, setMangaPage, drawMangaPage],
+  );
+
   /* Beat 2 of a video scene starts from beat 1's last frame as soon as beat 1 is done. */
   const chainBeat = useCallback(
     async (job: VideoJob) => {
@@ -769,7 +943,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           showToast("Saving messages is not part of this demo");
           return;
         case "manga":
-          showToast("Manga generation is not part of this demo");
+          void makeManga(message.id);
           return;
         case "visualNovel":
           // Switch the chat to Visual Novel play mode and stage this reply.
@@ -783,11 +957,14 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         case "animate":
           animate(message.id);
           return;
+        case "music":
+          void makeMusic(message.id);
+          return;
         default:
           return;
       }
     },
-    [sessionId, update, router, showToast, illustrate, animate, pickSceneFor],
+    [sessionId, update, router, showToast, illustrate, animate, pickSceneFor, makeMusic, makeManga],
   );
 
   /* ---------------------------------------------------------------- render */
@@ -884,6 +1061,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
                 onRegenerateImage={(imageId) => regenerateImage(message.id, imageId)}
                 onAnimate={() => animate(message.id)}
                 onAnimateImage={(imageId) => animate(message.id, imageId)}
+                onMangaPage={(pageId, action) => mangaPageAction(message.id, pageId, action)}
                 onRegenerateVideo={(videoId) => regenerateVideo(message.id, videoId)}
                 onCheckVideo={(videoId) => checkVideo(message.id, videoId)}
                 onEdit={(content) => editMessage(message.id, content)}

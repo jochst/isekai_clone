@@ -16,6 +16,7 @@ const MAX_MEDIA_BYTES = 200 * 1024 * 1024;
 
 const EXT_BY_MIME: Record<string, string> = {
   "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/gif": "gif",
+  "audio/mpeg": "mp3", "audio/wav": "wav",
   "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov",
 };
 const MIME_BY_EXT = Object.fromEntries(Object.entries(EXT_BY_MIME).map(([mime, ext]) => [ext, mime]));

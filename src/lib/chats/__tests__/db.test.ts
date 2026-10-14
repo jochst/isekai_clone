@@ -64,6 +64,15 @@ describe("chat storage", () => {
     expect(inlineLocalMedia(stored.images![0].url)).toBe(png);
     expect(inlineLocalMedia("https://cdn.example/x.png")).toBe("https://cdn.example/x.png");
   });
+
+  it("stores manga pages and their history locally too", async () => {
+    const png = (s: string) => `data:image/png;base64,${Buffer.from(s).toString("base64")}`;
+    const page = { id: "p", page: 1, status: "done" as const, url: png("page v2"), prompt: "p", model: "m", createdAt: 1, versions: [{ url: png("page v1"), prompt: "old" }] };
+    const [stored] = await localizeMessages([{ ...msg("m", "assistant", "x"), manga: [page, { ...page, id: "q", status: "generating", url: "", versions: undefined }] }]);
+    expect(stored.manga?.[0].url).toMatch(/^\/api\/media\/[a-f0-9]{32}\.png$/);
+    expect(stored.manga?.[0].versions?.[0].url).toMatch(/^\/api\/media\/[a-f0-9]{32}\.png$/);
+    expect(stored.manga?.[1].url).toBe("");
+  });
 });
 
 describe("story media", () => {
