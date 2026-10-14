@@ -1,13 +1,15 @@
 import "server-only";
 
 import type { ChatMessage, ChatSettings, Storyline } from "@/types/isekaizero";
-import { dungeonMindPrompt } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-builder";
+import { castKeeperPrompt, dungeonMindPrompt } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-builder";
+import type { OpenAiTool } from "@/lib/sites/isekaizero-ai-0e4f18da/ai-tools";
 import { authHeaders, fetchWithRetry, providerErrorMessage, reasoningParams, type ProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
+import { withChatCast } from "./cast";
 import { runServerTool, type ToolEvents, type ToolState } from "./server-tools";
 
-const MAX_DM_ROUNDS = 4;
-const DM_MAX_TOKENS = 1200;
-/** A ruling that only declines (no tools used) means the DM model refused the scene; the story model takes over. */
+const MAX_ROUNDS = 4;
+const MAX_TOKENS = 1200;
+/** An answer that only declines (no tools used) means the model refused the scene; the story model takes over. */
 const REFUSAL = /^(i('m| am) (sorry|not able|unable)|i can(no|')t|i won'?t|sorry,? (but )?i)/i;
 
 interface Completion {
@@ -15,38 +17,33 @@ interface Completion {
   usage?: { prompt_tokens?: number; completion_tokens?: number; cost?: number };
 }
 
-export interface DungeonMindResult {
-  ruling: string;
+export interface AgentResult {
+  text: string;
   state: ToolState;
   usage: { promptTokens: number; completionTokens: number; cost?: number };
 }
 
-/**
- * Isekai Zero's Dungeon Mind: a separate tool-reliable model (default Claude Haiku) resolves the player's action
- * BEFORE the story model writes: dice, sheet changes, records. Its tool results land in `events` and the returned
- * state; the ruling is handed to the story model. Throws when the call fails or the model refuses, so the caller
- * can fall back to letting the story model use the tools.
- */
-export async function runDungeonMind(opts: {
+interface AgentOptions {
   ctx: ProviderContext;
   model: string;
   storyline: Storyline;
-  history: ChatMessage[];
   settings: ChatSettings;
   state: ToolState;
   events: ToolEvents;
   signal?: AbortSignal;
-}): Promise<DungeonMindResult> {
-  const prompt = dungeonMindPrompt(opts.storyline, opts.history, opts.settings, opts.state.codex);
-  let messages: unknown[] = prompt.messages;
+}
+
+/** One tool-using helper call: up to 4 non-streaming rounds, server tools run between them. Throws on refusal. */
+async function runAgent(opts: AgentOptions, request: { messages: unknown[]; tools: OpenAiTool[] }): Promise<AgentResult> {
+  let messages = request.messages;
   let state = opts.state;
   let usedTools = false;
   const usage = { promptTokens: 0, completionTokens: 0, cost: undefined as number | undefined };
-  for (let round = 0; round < MAX_DM_ROUNDS; round++) {
+  for (let round = 0; round < MAX_ROUNDS; round++) {
     const res = await fetchWithRetry(`${opts.ctx.baseUrl}/chat/completions`, {
       method: "POST",
       headers: authHeaders(opts.ctx),
-      body: JSON.stringify({ model: opts.model, messages, tools: prompt.tools, temperature: 0.3, max_tokens: DM_MAX_TOKENS, stream: false, ...reasoningParams(opts.ctx, false) }),
+      body: JSON.stringify({ model: opts.model, messages, tools: request.tools, temperature: 0.3, max_tokens: MAX_TOKENS, stream: false, ...reasoningParams(opts.ctx, false) }),
       signal: opts.signal,
     });
     if (!res.ok) throw new Error(await providerErrorMessage(res));
@@ -60,8 +57,8 @@ export async function runDungeonMind(opts: {
       .map((c, i) => ({ id: c.id || `dm_${round}_${i}`, type: "function" as const, function: { name: c.function!.name!, arguments: c.function!.arguments ?? "{}" } }));
     const text = (message?.content ?? "").trim();
     if (calls.length === 0) {
-      if (!usedTools && REFUSAL.test(text)) throw new Error(`the Dungeon Mind model declined this scene ("${text.slice(0, 80)}")`);
-      return { ruling: text || "No ruling.", state, usage };
+      if (!usedTools && REFUSAL.test(text)) throw new Error(`the model declined this scene ("${text.slice(0, 80)}")`);
+      return { text, state, usage };
     }
     usedTools = true;
     const results = calls.map((call) => {
@@ -71,6 +68,27 @@ export async function runDungeonMind(opts: {
     });
     messages = [...messages, { role: "assistant", content: message?.content ?? null, tool_calls: calls }, ...results];
   }
-  // Out of rounds: what was applied stands; the narrator still needs a summary.
-  return { ruling: "Resolve the action from the dice results and sheet changes already recorded this turn.", state, usage };
+  // Out of rounds: what was applied stands.
+  return { text: "", state, usage };
+}
+
+/**
+ * Isekai Zero's Dungeon Mind: a separate tool-reliable model (default Claude Haiku) resolves the player's action
+ * BEFORE the story model writes: dice, sheet changes, records. Returns the ruling handed to the story model. Throws
+ * when the call fails or the model refuses, so the caller can let the story model use the tools instead.
+ */
+export async function runDungeonMind(opts: AgentOptions & { history: ChatMessage[] }): Promise<AgentResult & { ruling: string }> {
+  // The DM sees the cast as it stands in this chat (characters the AI created, renamed or wrote out).
+  const prompt = dungeonMindPrompt(withChatCast(opts.storyline, opts.state.cast), opts.history, opts.settings, opts.state.codex);
+  const result = await runAgent(opts, prompt);
+  return { ...result, ruling: result.text || "Resolve the action from the dice results and sheet changes already recorded this turn." };
+}
+
+/**
+ * After the reply: the same model keeps the cast (create/edit/disable_character) and calls end_story if the reply is
+ * the definitive ending, for story models that don't use those tools themselves. Throws on failure or refusal.
+ */
+export async function runCastKeeper(opts: AgentOptions & { reply: string }): Promise<AgentResult> {
+  const prompt = castKeeperPrompt(withChatCast(opts.storyline, opts.state.cast), opts.reply, opts.settings);
+  return runAgent(opts, prompt);
 }

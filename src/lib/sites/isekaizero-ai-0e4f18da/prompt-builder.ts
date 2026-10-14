@@ -13,6 +13,7 @@ import { memoryText, memoryView } from "@/lib/chats/memory";
 import { looks, presentCharacters } from "@/lib/chats/scene";
 import { CODEX_TOOL_NAMES, codexPrompt, codexView, emptyCodex, type CodexState } from "@/lib/chats/codex";
 import { statSchemaPrompt } from "@/lib/chats/dm";
+import { CAST_TOOL_NAMES } from "@/lib/chats/cast";
 
 export { CONTINUE_SENTINEL } from "@/types/isekaizero";
 import { CONTINUE_SENTINEL } from "@/types/isekaizero";
@@ -183,9 +184,6 @@ export function buildSystemPrompt(storyline: Storyline, session: ChatSession, op
       : "Never speak or act for the player.",
     "Stay in character; keep dialogue in quotes and actions in italics using *asterisks*.",
     "End each reply at a moment that invites the player to act.",
-    // Real Isekai Zero tool instructions, sent alongside the matching functions (see toolsForSettings).
-    settings.autoIllustrate ? toolInstruction("scene-illustrator") : "",
-    settings.autoCreateCharacter || settings.autoEditCharacter ? toolInstruction("character-manager") : "",
     settings.guidancePrompt?.trim() ? `\n[Guidance Prompt]\n${settings.guidancePrompt.trim()}` : "",
     importedPrompt(storyline, session),
   ];
@@ -509,15 +507,6 @@ export function toApiMessages(systemPrompt: string, messages: ChatMessage[], pos
 
 /* ------------------------------------------------------------------ full request */
 
-/** Functions offered to the story AI, matching the instructions buildSystemPrompt adds for them. */
-export function toolsForSettings(settings: ChatSettings): OpenAiTool[] {
-  return [
-    settings.autoIllustrate ? ILLUSTRATE_SCENE_TOOL : null,
-    settings.autoCreateCharacter ? CREATE_CHARACTER_TOOL : null,
-    settings.autoEditCharacter ? EDIT_CHARACTER_TOOL : null,
-  ].filter((t): t is OpenAiTool => t !== null);
-}
-
 const REASONING_HEADROOM = 4000;
 /** "max" is Isekai Zero's "prevent truncation" setting: a ceiling high enough that replies are never cut off. */
 const MAX_RESPONSE_TOKENS = 8192;
@@ -556,22 +545,36 @@ export function toolEnabled(storyline: Storyline, settings: ChatSettings, toolId
 }
 
 /**
- * The tools the server runs (codex, dice, character sheets): their instructions for the system prompt, with the
- * creator's extra instruction and context (codex index, stat schema), and the functions the story allows.
+ * Which tools a request gets: "all" (no Dungeon Mind), "story" (the story model while a Dungeon Mind resolves dice
+ * and stats) or "mechanics" (the Dungeon Mind itself: codex, dice, sheets).
  */
-function serverToolSection(storyline: Storyline, settings: ChatSettings, codex: CodexState = emptyCodex(), mechanics = true): { text: string; tools: OpenAiTool[] } {
+type ToolScope = "all" | "story" | "mechanics" | "cast";
+
+/**
+ * The story's AI tools (Isekai Zero ai-tools): each enabled tool's instruction for the system prompt, with the
+ * creator's extra instruction and context (codex index, stat schema), and the functions the story allows. Tools the
+ * story doesn't list fall back to the chat's own switches (Auto Illustrate, Auto-Generate Characters).
+ */
+function toolSection(storyline: Storyline, settings: ChatSettings, codex: CodexState = emptyCodex(), scope: ToolScope = "all"): { text: string; tools: OpenAiTool[] } {
   const parts: string[] = [];
   const tools: OpenAiTool[] = [];
-  const add = (toolId: Parameters<typeof toolInstruction>[0], names: readonly string[], context: string) => {
+  const add = (toolId: Parameters<typeof toolInstruction>[0], names: readonly string[], context = "") => {
     const setting = storyline.toolSettings?.find((t) => t.toolId === toolId);
     const allowed = setting?.enabledFunctions?.length ? names.filter((n) => setting.enabledFunctions!.includes(n)) : names;
     parts.push(toolInstruction(toolId), setting?.instruction ? `Creator's instruction for this tool: ${setting.instruction}` : "", context);
     tools.push(...allowed.map((name) => toolFunction(name)));
   };
+  const on = (toolId: string, fallback = false) => toolEnabled(storyline, settings, toolId, fallback);
   const hasCodex = (storyline.codex?.length ?? 0) > 0 || Object.keys(codex.entries).length > 0;
-  if (hasCodex && toolEnabled(storyline, settings, "codex", true)) add("codex", CODEX_TOOL_NAMES, codexPrompt(codexView(storyline.codex ?? [], codex), codex));
-  if (mechanics && toolEnabled(storyline, settings, "dice-roll")) add("dice-roll", ["roll_dice"], "");
-  if (mechanics && toolEnabled(storyline, settings, "stats-manager")) add("stats-manager", ["read_character_stats", "update_character_stats"], statSchemaPrompt(storyline.statSchema ?? []));
+  const mechanics = scope === "all" || scope === "mechanics";
+  if (scope !== "cast" && hasCodex && on("codex", true)) add("codex", CODEX_TOOL_NAMES, codexPrompt(codexView(storyline.codex ?? [], codex), codex));
+  if (mechanics && on("dice-roll")) add("dice-roll", ["roll_dice"]);
+  if (mechanics && on("stats-manager")) add("stats-manager", ["read_character_stats", "update_character_stats"], statSchemaPrompt(storyline.statSchema ?? []));
+  if (scope === "mechanics") return { text: parts.filter(Boolean).join("\n\n"), tools };
+  if (scope !== "cast" && on("scene-illustrator", settings.autoIllustrate)) add("scene-illustrator", ["illustrate_scene"]);
+  if (on("character-manager", Boolean(settings.autoCreateCharacter || settings.autoEditCharacter))) add("character-manager", CAST_TOOL_NAMES);
+  if (scope !== "cast" && on("character-name-generator")) add("character-name-generator", ["generate_character_name"]);
+  if (on("story-ending")) add("story-ending", ["end_story"]);
   return { text: parts.filter(Boolean).join("\n\n"), tools };
 }
 
@@ -591,11 +594,42 @@ export function dungeonMindModel(storyline: Storyline, settings: ChatSettings): 
 const DM_SCENE_CHARS = 1500;
 
 /**
+ * The model that keeps the cast after each reply (the Dungeon Mind model), or undefined when it's off or the chat
+ * uses neither the character manager nor story endings.
+ */
+export function castKeeperModel(storyline: Storyline, settings: ChatSettings): string | undefined {
+  if (settings.dmModel === "off") return undefined;
+  const cast = toolEnabled(storyline, settings, "character-manager", Boolean(settings.autoCreateCharacter || settings.autoEditCharacter));
+  if (!cast && !toolEnabled(storyline, settings, "story-ending")) return undefined;
+  return settings.dmModel?.trim() || DEFAULT_DM_MODEL;
+}
+
+/** The cast keeper's request: the current cast, the new reply, and only the character and ending tools. */
+export function castKeeperPrompt(storyline: Storyline, reply: string, settings: ChatSettings): { messages: { role: "system" | "user"; content: string }[]; tools: OpenAiTool[] } {
+  const tools = toolSection(storyline, settings, emptyCodex(), "cast");
+  const cast = storyline.characters.map((c) => `- ${c.name}${c.role ? ` (${c.role})` : ""}`).join("\n");
+  const system = [
+    `You keep the cast for the interactive story "${storyline.title}". A narrator just wrote the reply below; you never write prose.`,
+    "Read it and record what changed: create_character for each new individual who appears and is not in the cast list (one call each), edit_character when a name is revealed or a character permanently changes, disable_character only when someone leaves the story for good. Call end_story only if this reply is the story's definitive conclusion.",
+    "If nothing changed, answer exactly: No changes.",
+    `Current cast:\n${cast || "(none)"}`,
+    tools.text,
+  ];
+  return {
+    tools: tools.tools,
+    messages: [
+      { role: "system", content: system.filter(Boolean).join("\n\n") },
+      { role: "user", content: `The narrator's reply:\n${reply.slice(-4000)}` },
+    ],
+  };
+}
+
+/**
  * The Dungeon Mind's own request: the rules, the story's mechanics tools and only the context it needs (the end of
  * the last scene and the player's action), so the story's prose and the rest of the chat stay with the story model.
  */
 export function dungeonMindPrompt(storyline: Storyline, history: ChatMessage[], settings: ChatSettings, codex: CodexState = emptyCodex()): { messages: { role: "system" | "user"; content: string }[]; tools: OpenAiTool[] } {
-  const tools = serverToolSection(storyline, settings, codex);
+  const tools = toolSection(storyline, settings, codex, "mechanics");
   const action = [...history].reverse().find((m) => m.role === "user" && m.content.trim() && m.content !== CONTINUE_SENTINEL);
   const scene = [...history].reverse().find((m) => m.role === "assistant" && m.content.trim());
   const cast = storyline.characters.map((c) => c.name).join(", ");
@@ -661,7 +695,8 @@ export function assemblePrompt(storyline: Storyline, session: ChatSession, opts:
   const post = postHistory ? built.slice(-1) : [];
   let history = built.slice(1, built.length - post.length);
   let parts = memory.parts;
-  const serverTools = serverToolSection(storyline, settings, opts.codex, opts.dmRuling === undefined);
+  // The real Isekai Zero tool instructions ride with the matching functions.
+  const serverTools = toolSection(storyline, settings, opts.codex, opts.dmRuling === undefined ? "all" : "story");
   const system = () => ({ role: "system" as const, content: [base, serverTools.text, memoryText(parts)].filter(Boolean).join("\n\n") });
   // The reply needs room too: the request must fit in (context window - max reply tokens).
   const budget = limit - maxTokens;
@@ -691,7 +726,7 @@ export function assemblePrompt(storyline: Storyline, session: ChatSession, opts:
       totalChapters: memory.parts.length,
       full: estimated > budget,
     },
-    tools: [...toolsForSettings(settings), ...serverTools.tools],
+    tools: serverTools.tools,
     temperature: TEMPERATURE_MAP[settings.temperature],
     maxTokens,
     reasoning: settings.reasoning,

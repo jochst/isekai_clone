@@ -4,7 +4,7 @@ A local, single-user clone of **[isekaizero.ai](https://www.isekaizero.ai)**, th
 
 Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript (strict)**, **Tailwind CSS v4** and **SQLite**.
 
-The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2, 3a, 3b and 5, as of PR #34.
+The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2, 3 and 5, as of PR #35.
 
 ---
 
@@ -182,6 +182,12 @@ Stories with game rules let the AI roll real dice and keep character sheets:
   - Cost: about $0.002 a turn in testing. The reply starts about 20 s after sending, because the rules run first.
   - If the Dungeon Mind fails or declines a scene (Claude may refuse explicit content), your story model handles the dice that turn, and a notice tells you.
 
+### Cast and story endings
+- **New characters join the cast.** When someone new appears, the AI adds them to this chat's cast, and a chip shows on the reply. With **Auto-Generate Characters** on, a portrait is drawn too (portrait model). Renames and character notes are kept, and characters who leave for good drop out of the story.
+- Open **Chat Settings → Cast** (or tap a chip) to see the story's characters, everyone met along the way, extras, and who has left.
+- **Endings:** stories with the ending tool can conclude with an ending card (title, tone and epilogue). After that the chat is locked; **Erase** or **Retry** the last reply to keep going.
+- If your story model doesn't record characters itself, the **Dungeon Mind** model does it after each reply.
+
 ### Imports
 - **The Import library** (`/imports`) adds personal character cards and stories from Isekai Zero, Chub, JanitorAI and anime.gf links, or from exported files. See [docs/IMPORTING.md](docs/IMPORTING.md).
 
@@ -231,7 +237,7 @@ Then go to **Settings → Providers → Voice (TTS) → Local / Kokoro**, base U
 | 5g | Manga: scripted pages of panels, chained, with edit / regenerate / history | Done (#32) |
 | 3a | Codex: index, on-demand reads, AI-kept records, codex browser | Done (#33) |
 | 3b | Dice and character sheets, story tool settings | Done (#34) |
-| 3c | Characters saved to the cast, story endings, remaining tool settings, fallback for models without tools | Next |
+| 3c | Characters saved to the cast, story endings, remaining tool settings, fallback for models without tools | Done (#35) |
 | 4 | Composer parity: slash commands, Improvise, RETRY+, OOC, personas, Honor mode, history tools | Planned |
 | 6 | Creation studio: your own stories and characters | Planned |
 | 7 | Remaining pages and visual polish | Planned |

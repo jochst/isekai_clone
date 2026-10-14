@@ -123,6 +123,21 @@ export interface StatChange {
   changes: string[];
 }
 
+/** A change to the chat's cast during one reply (create/edit/disable_character), shown on the message. */
+export interface CastEvent {
+  action: "create" | "edit" | "disable";
+  name: string;
+  /** e.g. "now known as Mira", "Fell in the siege of Karth". */
+  detail?: string;
+}
+
+/** Isekai Zero end_story: the ending card on the final reply. After it the chat can't continue (Erase or Retry undo it). */
+export interface StoryEnding {
+  title: string;
+  endingType: "happy" | "bittersweet" | "tragic" | "neutral" | "true" | "secret";
+  epilogue?: string;
+}
+
 /** What the AI did with the codex during one reply, shown on the message. */
 export interface CodexEvent {
   action: "read" | "update" | "create" | "delete";
@@ -439,6 +454,10 @@ export interface ChatMessage {
   rolls?: DiceRoll[];
   /** Character sheet changes made in this reply. */
   statChanges?: StatChange[];
+  /** Characters created, edited or written out in this reply. */
+  cast?: CastEvent[];
+  /** The story ended with this reply. */
+  ending?: StoryEnding;
   /** Character speaking, when derivable. */
   speaker?: string;
   /** Visual Novel stage for this reply: background and character images. */

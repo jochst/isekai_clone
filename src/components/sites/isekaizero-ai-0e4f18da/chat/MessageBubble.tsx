@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { generateSpeech, stopBrowserSpeech } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { estimateTokens } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatMessage, DiceRoll } from "@/types/isekaizero";
+import type { ChatMessage, DiceRoll, StoryEnding } from "@/types/isekaizero";
 
 import { MessagePopover, type MessageAction } from "./MessagePopover";
 import { SceneImage } from "./SceneImage";
@@ -36,6 +36,8 @@ export interface MessageBubbleProps {
   onOpenCodex?: () => void;
   /** Opens the character sheets (from the stat changes on a reply). */
   onOpenSheets?: () => void;
+  /** Opens the cast panel (from the character chips on a reply). */
+  onOpenCast?: () => void;
   onEdit: (content: string) => void;
   /** Swipes a retried reply to another version. */
   onSelectChoice: (index: number) => void;
@@ -44,6 +46,30 @@ export interface MessageBubbleProps {
 }
 
 /** Codex chips on a reply (what the AI did with the story's knowledge base while writing it). */
+/** Character chips on a reply (create/edit/disable_character). */
+const CAST_VERBS = { create: "＋ New character:", edit: "✎", disable: "✕" } as const;
+
+/** Isekai Zero end_story: labels for the ending's tone. */
+const ENDING_LABELS: Record<StoryEnding["endingType"], string> = {
+  happy: "Happy ending",
+  bittersweet: "Bittersweet ending",
+  tragic: "Tragic ending",
+  neutral: "Ending",
+  true: "True ending",
+  secret: "Secret ending",
+};
+
+/** The ending card on the final reply. */
+function EndingCard({ ending }: { ending: StoryEnding }) {
+  return (
+    <div className="mt-4 rounded-[16px] border border-[#ffcf8a]/30 bg-gradient-to-b from-[#ffcf8a]/10 to-transparent px-5 py-6 text-center">
+      <div className="text-[11px] font-bold uppercase tracking-[2px] text-[#ffcf8a]">The End · {ENDING_LABELS[ending.endingType]}</div>
+      <div className="mt-2 text-[22px] font-semibold text-white">{ending.title}</div>
+      {ending.epilogue ? <p className="mx-auto mt-2 max-w-[520px] text-[14px] italic leading-6 text-white/70">{ending.epilogue}</p> : null}
+    </div>
+  );
+}
+
 const CODEX_VERBS = { read: "📖 Read:", update: "✎ Updated:", create: "＋ New entry:", delete: "✕ Removed:" } as const;
 
 const TOKEN_RE = /(\*[^*\n]+\*|"[^"\n]+"|“[^”\n]+”)/g;
@@ -92,6 +118,7 @@ export function MessageBubble({
   onMangaPage,
   onOpenCodex,
   onOpenSheets,
+  onOpenCast,
   onRegenerateVideo,
   onCheckVideo,
   onEdit,
@@ -303,6 +330,16 @@ export function MessageBubble({
           ))}
         </button>
       ) : null}
+      {message.cast?.length ? (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {message.cast.map((e, i) => (
+            <button key={i} type="button" onClick={onOpenCast} className="rounded-[12px] border border-[#ffcf8a]/25 bg-[#ffcf8a]/10 px-2 py-0.5 text-[11px] text-[#ffe2b3] hover:bg-[#ffcf8a]/20">
+              {CAST_VERBS[e.action]} {e.name}
+              {e.detail ? <span className="text-white/50"> · {e.detail}</span> : null}
+            </button>
+          ))}
+        </div>
+      ) : null}
       {message.codex?.length ? (
         <div className="mt-2 flex flex-wrap gap-1.5">
           {[...new Map(message.codex.map((e) => [`${e.action}:${e.slug}`, e])).values()].map((e) => (
@@ -335,6 +372,8 @@ export function MessageBubble({
           {song.lyrics ? <p className="mt-1 whitespace-pre-line italic text-white/55">{song.lyrics}</p> : null}
         </div>
       ))}
+
+      {message.ending ? <EndingCard ending={message.ending} /> : null}
 
       <div className="mt-2 flex flex-wrap items-center gap-[6px] opacity-85">
         <button type="button" onClick={onIllustrate} disabled={streaming} className={PILL}>

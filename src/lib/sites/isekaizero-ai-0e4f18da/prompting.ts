@@ -5,6 +5,7 @@
 import type { ChatMessage, ChatSession, MediaRequest, ProviderSettings, StoryMedia, Storyline, VideoParamValue, VnScene } from "@/types/isekaizero";
 import { fallbackScene, parseRequests, parseScene, presentCharacters, scenePrompt } from "@/lib/chats/scene";
 import type { TurnRequest } from "@/lib/chats/turn";
+import type { ChatCast } from "@/lib/chats/cast";
 
 import { providerHeaders } from "./provider-settings";
 import type { VideoStatusResult } from "./provider-catalog";
@@ -400,6 +401,32 @@ export async function lastFrame(videoUrl: string): Promise<string> {
   const res = await fetch("/api/media/last-frame", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: videoUrl }) });
   if (!res.ok) await readErrorResponse(res);
   return ((await res.json()) as { url: string }).url;
+}
+
+/** One person in the chat's cast panel. */
+export interface CastPerson {
+  name: string;
+  fromStory: boolean;
+  imageUrl?: string;
+  role?: string;
+  description?: string;
+  note?: string;
+  extra: boolean;
+  /** Written out of the story, with the reason. */
+  disabled?: string;
+}
+
+/** The chat's cast: raw changes (merged into the story with withChatCast) and everyone with their status. */
+export async function getChatCast(chatId: string, signal?: AbortSignal): Promise<{ cast: ChatCast; people: CastPerson[] }> {
+  const res = await fetch(`/api/chats/${encodeURIComponent(chatId)}/cast`, { cache: "no-store", signal });
+  if (!res.ok) await readErrorResponse(res);
+  return (await res.json()) as { cast: ChatCast; people: CastPerson[] };
+}
+
+/** Saves a created character's portrait to the chat's cast. */
+export async function setCastPortrait(chatId: string, name: string, portraitUrl: string): Promise<void> {
+  const res = await fetch(`/api/chats/${encodeURIComponent(chatId)}/cast`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, portraitUrl }) });
+  if (!res.ok) await readErrorResponse(res);
 }
 
 /** Visual Novel art already generated for a story. */

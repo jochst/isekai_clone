@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import type { ChatSession } from "@/types/isekaizero";
 import { STORYLINES } from "../mock-data";
 import { toolInstruction } from "../ai-tools";
-import { CREATE_CHARACTER_TOOL, EDIT_CHARACTER_TOOL, ILLUSTRATE_SCENE_TOOL, buildIllustrationBriefPrompt, buildSystemPrompt } from "../prompting";
+import { CREATE_CHARACTER_TOOL, EDIT_CHARACTER_TOOL, ILLUSTRATE_SCENE_TOOL, assemblePrompt, buildIllustrationBriefPrompt, buildSystemPrompt } from "../prompting";
+import { DEFAULT_CHAT_SETTINGS } from "../chat-store";
 
 const storyline = STORYLINES[0];
 const params = (tool: typeof ILLUSTRATE_SCENE_TOOL) => tool.function.parameters as { required: string[]; properties: Record<string, unknown> };
@@ -17,13 +18,15 @@ describe("real Isekai Zero tool schemas", () => {
   });
 
   it("puts the real tool instructions in the system prompt only when the tool is on", () => {
-    const session = { settings: { perspective: "2nd", responseLength: "medium", autoIllustrate: true }, playerName: "You", messages: [] } as unknown as ChatSession;
-    const on = buildSystemPrompt(storyline, session);
-    expect(on).toContain(toolInstruction("scene-illustrator"));
-    expect(on).not.toContain(toolInstruction("character-manager"));
-    expect(on).not.toContain("🪄");
-    const off = buildSystemPrompt(storyline, { ...session, settings: { ...session.settings, autoIllustrate: false } });
-    expect(off).not.toContain(toolInstruction("scene-illustrator"));
+    const session = { settings: { ...DEFAULT_CHAT_SETTINGS, perspective: "2nd", responseLength: "medium", autoIllustrate: true }, playerName: "You", messages: [] } as unknown as ChatSession;
+    const on = assemblePrompt(storyline, session);
+    expect(on.messages[0].content).toContain(toolInstruction("scene-illustrator"));
+    expect(on.messages[0].content).not.toContain(toolInstruction("character-manager"));
+    expect(on.messages[0].content).not.toContain("🪄");
+    expect(on.tools.map((t) => t.function.name)).toEqual(["illustrate_scene"]);
+    const off = assemblePrompt(storyline, { ...session, settings: { ...session.settings, autoIllustrate: false } });
+    expect(off.messages[0].content).not.toContain(toolInstruction("scene-illustrator"));
+    expect(buildSystemPrompt(storyline, session)).not.toContain(toolInstruction("scene-illustrator"));
   });
 
   it("draws the story AI's brief with the named characters' looks", () => {
