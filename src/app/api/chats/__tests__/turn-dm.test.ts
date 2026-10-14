@@ -79,7 +79,7 @@ describe("Dungeon Mind", () => {
     const fetchMock = vi.fn(async () => replies.shift()!);
     vi.stubGlobal("fetch", fetchMock);
     const out = await events(await turn("d2"));
-    expect(String(out.at(-1)?.notice)).toContain("Dungeon Mind (anthropic/claude-haiku-latest) unavailable: the Dungeon Mind model declined this scene");
+    expect(String(out.at(-1)?.notice)).toContain("Dungeon Mind (anthropic/claude-haiku-latest) unavailable: the model declined this scene");
     expect(bodies(fetchMock)[1].tools?.map((t) => t.function.name)).toEqual(["roll_dice", "read_character_stats", "update_character_stats"]);
 
     newChat("d3");

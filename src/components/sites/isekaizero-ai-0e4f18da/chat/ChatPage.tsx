@@ -44,6 +44,8 @@ import {
   mangaScriptPrompt,
   parseMangaScript,
   generateMusic,
+  getChatCast,
+  setCastPortrait,
   musicBriefPrompt,
   parseMusicBrief,
   generateStoryMedia,
@@ -60,6 +62,7 @@ import {
 import { planTurn, settleOutcome, type TurnRequest } from "@/lib/chats/turn";
 import { chapterPlan } from "@/lib/chats/memory";
 import { applyMedia, fallbackScene, withStoryMedia } from "@/lib/chats/scene";
+import { withChatCast, type ChatCast } from "@/lib/chats/cast";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { isProviderConfigured, resolvePortraitModel, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import type { ChatMessage, ChatSession, MangaPage, MediaRequest, SceneImage as SceneImageModel, SceneMusic, SceneVideo as SceneVideoModel, StoryMedia, VideoParamValue, VnScene } from "@/types/isekaizero";
@@ -72,6 +75,7 @@ import { ChatHeader } from "./ChatHeader";
 import { MemorySheet } from "./MemorySheet";
 import { CodexSheet } from "./CodexSheet";
 import { SheetsSheet } from "./SheetsSheet";
+import { CastSheet } from "./CastSheet";
 import { narratorVoice, playSpeech, speechParts } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { VisualNovelStage } from "./VisualNovelStage";
 import { ChatSettingsSheet } from "./ChatSettingsSheet";
@@ -156,6 +160,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const [memoryOpen, setMemoryOpen] = useState(false);
   const [codexOpen, setCodexOpen] = useState(false);
   const [sheetsOpen, setSheetsOpen] = useState(false);
+  const [castOpen, setCastOpen] = useState(false);
   /** In Visual Novel play mode, the text log is one tap away from the stage. */
   const [showLog, setShowLog] = useState(false);
   const [sendOnEnter] = useState(readSendOnEnter);
@@ -177,10 +182,20 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       .catch(() => {});
     return () => controller.abort();
   }, [storyId]);
-  const storyline = useMemo(
-    () => (baseStoryline && storyMedia?.id === baseStoryline.id ? withStoryMedia(baseStoryline, storyMedia.media) : baseStoryline),
-    [baseStoryline, storyMedia],
-  );
+  // The chat's own cast (characters the AI created, renamed or wrote out), refreshed as the chat grows.
+  const [chatCast, setChatCast] = useState<{ key: string; cast: ChatCast }>();
+  const castKey = `${sessionId}:${session?.messages.length ?? 0}`;
+  useEffect(() => {
+    const controller = new AbortController();
+    getChatCast(sessionId, controller.signal)
+      .then(({ cast }) => setChatCast({ key: castKey, cast }))
+      .catch(() => {});
+    return () => controller.abort();
+  }, [sessionId, castKey]);
+  const storyline = useMemo(() => {
+    const withMedia = baseStoryline && storyMedia?.id === baseStoryline.id ? withStoryMedia(baseStoryline, storyMedia.media) : baseStoryline;
+    return withMedia && chatCast?.cast.length ? withChatCast(withMedia, chatCast.cast) : withMedia;
+  }, [baseStoryline, storyMedia, chatCast]);
   const drawingScenes = useRef(new Set<string>());
   const configured = isProviderConfigured(provider);
   const model = useMemo(() => resolveTextModel(session?.settings ?? DEFAULT_CHAT_SETTINGS, provider), [session?.settings, provider]);
@@ -326,7 +341,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       const draw = (prompt: string, model = imageModel, references?: string[]) => {
         const image: SceneImageModel = { id: newId(), url: "", prompt, model, createdAt: Date.now(), status: "generating" };
         attachSceneImage(sessionId, messageId, image);
-        void runImage(messageId, image, references);
+        return runImage(messageId, image, references).then(() => getChatSession(sessionId)?.messages.find((m) => m.id === messageId)?.images?.find((i) => i.id === image.id)?.url);
       };
       if (name === "illustrate_scene") {
         const perspective =
@@ -336,20 +351,20 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         const opts = { perspective, defaultInstructions: current.settings.lightNovelPromptInstructions } as const;
         const brief = str(args.description);
         const characters = Array.isArray(args.characters) ? args.characters.filter((c): c is string => typeof c === "string") : [];
-        draw(brief ? buildIllustrationBriefPrompt(storyline, brief, characters, opts) : buildScenePrompt(storyline, recentMessages, opts));
+        void draw(brief ? buildIllustrationBriefPrompt(storyline, brief, characters, opts) : buildScenePrompt(storyline, recentMessages, opts));
       } else if (name === "create_character" && current.settings.autoCreateCharacter) {
         // Portraits are high volume, so they use the portrait model (qwen-image, in the NanoGPT subscription).
         const prompt = str(args.imagePrompt) || str(args.imageDescription);
         // A new character: earlier scene images as references would pull the portrait toward whoever was drawn last.
-        if (prompt) draw(prompt, resolvePortraitModel(provider), []);
-      } else if (name === "edit_character" && current.settings.autoEditCharacter) {
-        // ponytail: rename/note is only announced; a chat-local cast to store it lands with ADR Phase 3.
-        const from = str(args.characterName);
-        const to = str(args.newName);
-        if (from) showToast(to && to !== from ? `${from} is now known as ${to}` : `${from}'s character note was updated`);
+        // The server already added them to the cast; the portrait becomes their picture there (VN stage, cast panel).
+        const who = str(args.name);
+        if (prompt)
+          void draw(prompt, resolvePortraitModel(provider), []).then((url) => {
+            if (url && who) void setCastPortrait(sessionId, who, url).catch(() => {});
+          });
       }
     },
-    [sessionId, storyline, provider, runImage, showToast],
+    [sessionId, storyline, provider, runImage],
   );
 
   /* ---------------------------------------------------------------- videos */
@@ -1004,6 +1019,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const visualNovel = session.settings.playMode === "visualNovel";
   const composer = (
     <Composer
+      ended={Boolean(session.messages.findLast((m) => m.role === "assistant")?.ending)}
       configured={configured}
       streaming={streaming}
       modelName={model.name}
@@ -1069,6 +1085,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
                 onMangaPage={(pageId, action) => mangaPageAction(message.id, pageId, action)}
                 onOpenCodex={() => setCodexOpen(true)}
                 onOpenSheets={() => setSheetsOpen(true)}
+                onOpenCast={() => setCastOpen(true)}
                 onRegenerateVideo={(videoId) => regenerateVideo(message.id, videoId)}
                 onCheckVideo={(videoId) => checkVideo(message.id, videoId)}
                 onEdit={(content) => editMessage(message.id, content)}
@@ -1094,8 +1111,10 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         onOpenMemory={() => (setSettingsOpen(false), setMemoryOpen(true))}
         onOpenCodex={() => (setSettingsOpen(false), setCodexOpen(true))}
         onOpenSheets={() => (setSettingsOpen(false), setSheetsOpen(true))}
+        onOpenCast={() => (setSettingsOpen(false), setCastOpen(true))}
         storyline={storyline}
       />
+      <CastSheet open={castOpen} onClose={() => setCastOpen(false)} chatId={sessionId} version={session.messages.length} />
       <SheetsSheet open={sheetsOpen} onClose={() => setSheetsOpen(false)} chatId={sessionId} version={session.messages.length} />
       <CodexSheet
         open={codexOpen}

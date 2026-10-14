@@ -27,6 +27,8 @@ export interface ComposerProps {
   /** Resolves with up to three suggested actions ("Choose Your Destiny"). */
   onRequestDestinies: () => Promise<string[]>;
   onError: (message: string) => void;
+  /** The story ended (end_story): nothing more can be sent; Erase (or Retry on the reply) reopens it. */
+  ended?: boolean;
 }
 
 const QUICK_PILL =
@@ -49,7 +51,10 @@ export function Composer({
   canErase,
   onRequestDestinies,
   onError,
+  ended = false,
 }: ComposerProps) {
+  // An ended story takes no new turns; Erase stays available to reopen it.
+  const open = configured && !ended;
   const [draft, setDraft] = useState("");
   const [destinies, setDestinies] = useState<string[]>([]);
   const [destinyLoading, setDestinyLoading] = useState(false);
@@ -63,16 +68,16 @@ export function Composer({
     };
   }, []);
 
-  const canSend = configured && !streaming && draft.trim().length > 0;
+  const canSend = open && !streaming && draft.trim().length > 0;
 
   const submit = useCallback(() => {
     const text = draft.trim();
-    if (!text || streaming || !configured) return;
+    if (!text || streaming || !open) return;
     onSend(text);
     setDraft("");
     setDestinies([]);
     textareaRef.current?.focus();
-  }, [draft, streaming, configured, onSend]);
+  }, [draft, streaming, open, onSend]);
 
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key !== "Enter" || e.nativeEvent.isComposing) return;
@@ -131,7 +136,7 @@ export function Composer({
         ) : null}
 
         <div className="flex items-center gap-2">
-          <button type="button" onClick={onContinue} disabled={!configured || streaming} className={QUICK_PILL}>
+          <button type="button" onClick={onContinue} disabled={!open || streaming} className={QUICK_PILL}>
             <Play size={14} /> Continue
           </button>
           <button type="button" onClick={onErase} disabled={streaming || !canErase} className={QUICK_PILL}>
@@ -140,7 +145,7 @@ export function Composer({
           <button
             type="button"
             onClick={requestDestinies}
-            disabled={!configured || streaming || destinyLoading}
+            disabled={!open || streaming || destinyLoading}
             className={cn(QUICK_PILL, "border-[rgba(255,168,168,0.5)]")}
           >
             {destinyLoading ? <Loader2 size={14} className="animate-spin" /> : <Dices size={14} />}
@@ -160,9 +165,9 @@ export function Composer({
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={onKeyDown}
             rows={1}
-            placeholder="Write your action or dialogue…"
+            placeholder={ended ? "This story has ended. Erase or Retry the last reply to continue it." : "Write your action or dialogue…"}
             aria-label="Message"
-            disabled={!configured}
+            disabled={!open}
             className="iz-scroll-thin block max-h-[160px] w-full resize-none bg-transparent text-[15px] leading-[22px] text-white outline-none placeholder:text-white/40 [field-sizing:content] disabled:cursor-not-allowed"
           />
           {streaming ? (

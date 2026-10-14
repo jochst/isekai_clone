@@ -48,11 +48,12 @@ export interface ChatSettingsSheetProps {
   onOpenMemory: () => void;
   onOpenCodex: () => void;
   onOpenSheets: () => void;
+  onOpenCast: () => void;
   /** The story, for per-character voices. */
   storyline: Storyline;
 }
 
-export function ChatSettingsSheet({ open, onClose, session, provider, model, context, onChange, onOpenMemory, onOpenCodex, onOpenSheets, storyline }: ChatSettingsSheetProps) {
+export function ChatSettingsSheet({ open, onClose, session, provider, model, context, onChange, onOpenMemory, onOpenCodex, onOpenSheets, onOpenCast, storyline }: ChatSettingsSheetProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const { settings } = session;
   const [, updateProvider] = useProviderSettings();
@@ -232,6 +233,9 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
               description="Automatically create new looks when character outfits or appearances change"
               right={<Toggle checked={Boolean(settings.autoEditCharacter)} onChange={(autoEditCharacter) => onChange({ autoEditCharacter })} label="Auto-Create Appearances" />}
             />
+            <button type="button" onClick={onOpenCast} className="mb-2 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10">
+              Cast: characters in this chat
+            </button>
             <button type="button" onClick={() => setPickerOpen(true)} className="flex h-[49px] w-full items-center justify-between gap-3 text-left">
               <span className="min-w-0">
                 <span className="block text-[18px] font-semibold">Image Model</span>
@@ -488,6 +492,10 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
 const GAME_TOOLS = [
   { id: "dice-roll", label: "Dice Roll", description: "Real dice decide uncertain actions; the roll card shows the result." },
   { id: "stats-manager", label: "Character Stats", description: "Keeps character sheets (stats, inventory, skills) in sync with the story." },
+  { id: "character-manager", label: "Character Manager", description: "New characters join the cast; renames, notes and departures are kept for this chat." },
+  { id: "character-name-generator", label: "Character Name Generator", description: "Fresh names for new characters, avoiding the commonly reused ones." },
+  { id: "story-ending", label: "Story Ending", description: "The AI can end the story with an ending card when it truly concludes." },
+  { id: "scene-illustrator", label: "Scene Illustrator", description: "The AI commissions illustrations of key moments." },
 ];
 
 const MUSIC_MODELS = [

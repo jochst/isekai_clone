@@ -6,6 +6,7 @@ import { dirname, resolve } from "node:path";
 import { CONTINUE_SENTINEL, type ChatMemory, type ChatMessage, type ChatSession, type ChatSummary, type StoryMedia } from "@/types/isekaizero";
 import { emptyCodex, type CodexState } from "./codex";
 import type { Sheets } from "./dm";
+import type { ChatCast } from "./cast";
 import { localizeMedia } from "./media";
 
 /**
@@ -37,6 +38,7 @@ export function openChatDb(): DatabaseSync {
     CREATE TABLE IF NOT EXISTS memory (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS codex (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS sheets (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS chat_cast (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS story_media (id TEXT PRIMARY KEY, storyline_id TEXT NOT NULL, body TEXT NOT NULL, created INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS story_media_by_story ON story_media (storyline_id, created);`);
   return db;
@@ -184,4 +186,14 @@ export function getSheets(db: DatabaseSync, chatId: string): Sheets {
 
 export function saveSheets(db: DatabaseSync, chatId: string, sheets: Sheets): void {
   db.prepare("INSERT INTO sheets (chat_id, body) VALUES (?, ?) ON CONFLICT(chat_id) DO UPDATE SET body = excluded.body").run(chatId, JSON.stringify(sheets));
+}
+
+/* The chat's cast (Phase 3c): characters the AI created, and this chat's changes to the story's characters. */
+export function getCast(db: DatabaseSync, chatId: string): ChatCast {
+  const row = db.prepare("SELECT body FROM chat_cast WHERE chat_id = ?").get(chatId);
+  return row ? (JSON.parse(String(row.body)) as ChatCast) : [];
+}
+
+export function saveCast(db: DatabaseSync, chatId: string, cast: ChatCast): void {
+  db.prepare("INSERT INTO chat_cast (chat_id, body) VALUES (?, ?) ON CONFLICT(chat_id) DO UPDATE SET body = excluded.body").run(chatId, JSON.stringify(cast));
 }
