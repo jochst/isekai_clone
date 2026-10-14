@@ -45,11 +45,12 @@ export interface ChatSettingsSheetProps {
   onChange: (patch: Partial<ChatSettings>) => void;
   /** Opens the Memory (chapters and arcs) panel. */
   onOpenMemory: () => void;
+  onOpenCodex: () => void;
   /** The story, for per-character voices. */
   storyline: Storyline;
 }
 
-export function ChatSettingsSheet({ open, onClose, session, provider, model, context, onChange, onOpenMemory, storyline }: ChatSettingsSheetProps) {
+export function ChatSettingsSheet({ open, onClose, session, provider, model, context, onChange, onOpenMemory, onOpenCodex, storyline }: ChatSettingsSheetProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const { settings } = session;
   const [, updateProvider] = useProviderSettings();
@@ -388,6 +389,17 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
             <p className="mt-2 text-[11px] leading-4 text-white/50">
               With NanoGPT, ElevenLabs Music is the automatic backup if NanoGPT fails (needs ELEVENLABS_API_KEY). Lyria writes a full song whatever the length.
             </p>
+          </AccordionCard>
+
+          <AccordionCard title="Codex" description="The story's knowledge base: lore the AI reads on demand and records it keeps updated">
+            <SettingRow
+              title="Codex tools"
+              description={storyline?.codex?.length ? `${storyline.codex.length} entries in this story` : "This story has no codex; the AI can still start entries"}
+              right={<Toggle label="Codex tools" checked={settings.codexEnabled !== false} onChange={(codexEnabled) => onChange({ codexEnabled })} />}
+            />
+            <button type="button" onClick={onOpenCodex} className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10">
+              Open Codex
+            </button>
           </AccordionCard>
 
           <AccordionCard title="Memory" description="Chapters and arcs">

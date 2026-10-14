@@ -34,6 +34,45 @@ export interface StoryImage {
   caption: string;
 }
 
+/** Isekai Zero codex categories (the create_codex enum). */
+export type CodexCategory = "lore" | "character" | "location" | "faction" | "item" | "event" | "rule" | "record" | "quest" | "achievement" | "relationship" | "technology" | "creature" | "ability" | "document";
+
+/**
+ * One codex entry: the story's knowledge base (Isekai Zero "Codex"). The catalog only exposes each entry's index line,
+ * so `content` is usually empty for catalog stories; writable entries are then filled in by the AI during play.
+ */
+export interface CodexEntry {
+  slug: string;
+  title: string;
+  /** The one-line index description: what the entry covers and when to read it. */
+  description: string;
+  category: CodexCategory;
+  content: string;
+  /** "AI can update": its latest content always rides in context. */
+  writable: boolean;
+  /** Shown to the player as an expanded card when the AI reads it. */
+  readOut: boolean;
+  /** One-shot: consumed the first time the AI reads it in a chat. */
+  readOnce: boolean;
+  /** "???" in the player's codex until the AI reads it. */
+  unlockable: boolean;
+  /** AI-only content; the player only ever sees the title. */
+  hidden: boolean;
+  /** Behind a tap-through warning in the player's codex. */
+  spoiler: boolean;
+  /** Player-facing teaser on locked rows; never sent to the AI. */
+  hint?: string;
+  /** Made by the AI with create_codex in this chat (only these can be deleted). */
+  createdByAi?: boolean;
+}
+
+/** What the AI did with the codex during one reply, shown on the message. */
+export interface CodexEvent {
+  action: "read" | "update" | "create" | "delete";
+  slug: string;
+  title: string;
+}
+
 /** Visual Novel art drawn for a story that lacked it, stored per story so each image is paid for once. */
 export interface StoryMedia extends StoryImage {
   kind: "background" | "character";
@@ -108,6 +147,8 @@ export interface Storyline {
   prompt?: { plot?: string; guideline?: string; reminder?: string; outputReminder?: string };
   /** Creator-uploaded backgrounds with captions, for Visual Novel mode. */
   backgrounds?: StoryImage[];
+  /** The story's codex (knowledge base); per-chat changes live on the server. */
+  codex?: CodexEntry[];
   /** Creator's default chat settings, applied to new chats unless the player overrides creator settings. */
   defaultChatSettings?: Partial<ChatSettings>;
   scenarios: { title: string; summary: string }[];
@@ -329,6 +370,8 @@ export interface ChatMessage {
   music?: SceneMusic[];
   /** Manga pages adapting this reply (Isekai Zero "Manga Generation"). */
   manga?: MangaPage[];
+  /** Codex reads and edits the AI made while writing this reply. */
+  codex?: CodexEvent[];
   /** Character speaking, when derivable. */
   speaker?: string;
   /** Visual Novel stage for this reply: background and character images. */
@@ -415,6 +458,8 @@ export interface ChatSettings {
   musicSeconds?: number;
   /** Manga pages per scene: "2 pages is recommended but slower and more expensive". */
   mangaPages?: number;
+  /** Codex tools for this chat (on unless turned off, when the story has a codex). */
+  codexEnabled?: boolean;
   /** "Voice & Narration Enabled": speak replies (narrator only in Narration mode, character voices in Visual Novel). */
   voiceEnabled?: boolean;
   /** "Auto Play on New Messages". */

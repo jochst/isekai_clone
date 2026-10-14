@@ -11,6 +11,7 @@ import type { VideoParamValue } from "@/types/isekaizero";
 import { toolFunction, toolInstruction, type OpenAiTool } from "./ai-tools";
 import { memoryText, memoryView } from "@/lib/chats/memory";
 import { looks, presentCharacters } from "@/lib/chats/scene";
+import { CODEX_TOOL_NAMES, codexPrompt, codexView, emptyCodex, type CodexState } from "@/lib/chats/codex";
 
 export { CONTINUE_SENTINEL } from "@/types/isekaizero";
 
@@ -531,6 +532,14 @@ export interface AssembleOptions extends SystemPromptOptions {
   retryInstruction?: string;
   /** The model's context window (or the chat's override); defaults to 128k. */
   contextLimit?: number;
+  /** The chat's codex changes (server only); without it the story's own codex is used as-is. */
+  codex?: CodexState;
+}
+
+/** Codex tools are on when the chat allows them and there is a codex (the story's, or entries the AI made). */
+function codexSection(storyline: Storyline, settings: ChatSettings, state: CodexState = emptyCodex()): string {
+  if (settings.codexEnabled === false || ((storyline.codex?.length ?? 0) === 0 && Object.keys(state.entries).length === 0)) return "";
+  return [toolInstruction("codex"), codexPrompt(codexView(storyline.codex ?? [], state), state)].filter(Boolean).join("\n\n");
 }
 
 /** How the request fits the context window (Isekai Zero's "Estimated Context" and "x/y trimmed"). */
@@ -574,7 +583,8 @@ export function assemblePrompt(storyline: Storyline, session: ChatSession, opts:
   const post = postHistory ? built.slice(-1) : [];
   let history = built.slice(1, built.length - post.length);
   let parts = memory.parts;
-  const system = () => ({ role: "system" as const, content: [base, memoryText(parts)].filter(Boolean).join("\n\n") });
+  const codex = codexSection(storyline, settings, opts.codex);
+  const system = () => ({ role: "system" as const, content: [base, codex, memoryText(parts)].filter(Boolean).join("\n\n") });
   // The reply needs room too: the request must fit in (context window - max reply tokens).
   const budget = limit - maxTokens;
   let estimated = estimatePromptTokens([system(), ...history, ...post]);
@@ -603,7 +613,7 @@ export function assemblePrompt(storyline: Storyline, session: ChatSession, opts:
       totalChapters: memory.parts.length,
       full: estimated > budget,
     },
-    tools: toolsForSettings(settings),
+    tools: [...toolsForSettings(settings), ...(codex ? CODEX_TOOL_NAMES.map((name) => toolFunction(name)) : [])],
     temperature: TEMPERATURE_MAP[settings.temperature],
     maxTokens,
     reasoning: settings.reasoning,

@@ -249,7 +249,12 @@ The gap: Default Chat Settings could only really use models from the site's buil
   - Context dropped to 4.6k / 16k, with no warning needed.
 
 ### Phase 3: Codex, DM v2 tools and character state
-- [ ] Load each story's `codexJson`: index always included; in-context entries in full; the others via `read_codex`. Support writable entries and unlockable/hidden/spoiler flags.
+- [x] **Codex (3a):** each story's codex is loaded; the index is always in the prompt, writable entries ride in full, the rest are read with `read_codex`. `update_codex` (exact edits or full content), `create_codex` and `delete_codex` (AI-made entries only) work; readOnce entries are consumed after one read.
+  - **The catalog has no codex text.** All 9,840 entries in 455 stories carry only their index line, flags and hint; the site keeps the content server-side. 3,692 locked entries have no slug or title and are skipped. Reading a text-less entry tells the AI to stay consistent with its description. Writable entries (Quest Log, Bestiary, Faction Standing…) start empty and are filled in by the AI, so they work fully; the user's own stories (Phase 6) will carry real text.
+  - **Server tool loop:** the turn route runs codex tools on the server, sends the results back to the model and keeps streaming, up to 4 rounds per reply, as one reply with summed usage. Other tool calls still go to the client. Per-chat codex state lives in `chats.sqlite` (`codex` table), written only by the turn engine. Phase 3b's dice and stats will use the same loop.
+  - **Player side:** chips on the reply ("📖 Read: …", "✎ Updated: …") and a Codex browser (Chat Settings → Codex, or tap a chip) that masks entries like the site: locked "???" with the hint until read, hidden sealed, spoilers behind a tap. A Codex tools toggle per chat.
+  - Live on "Crash Into Another World" (deepseek-latest): with a nudge, one turn read six entries, wrote "Goblins at the Mill [in progress] … Reward: 15 silver" into the Quest Log and continued the scene (3 rounds, $0.0003). Without the nudge, the first turn used no codex tools: proactive use depends on the model.
+  - Not done: readOut entries show as a chip, not an expanded card.
 - [ ] Tool runtime from `ai-tools.json` (ADR-6): dice, stats deltas with a server-side running total, create/edit/disable character (**actually saved to the cast**), codex CRUD, `end_story` with an ending card, `illustrate_scene`.
 - [ ] Per-story `toolSettings` (default-on/off/required, custom instruction) and the per-chat toggle.
 - [ ] Character sheet UI: stats bars, inventory, skills, character note, extras vs. cast.

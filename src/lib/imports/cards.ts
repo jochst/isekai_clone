@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { inflateSync } from "node:zlib";
 import { load } from "cheerio";
-import type { Character, ChatSettings, StoryCategory, StoryImage, Storyline } from "@/types/isekaizero";
+import type { Character, ChatSettings, CodexEntry, StoryCategory, StoryImage, Storyline } from "@/types/isekaizero";
 import { record, string, strings, type ImportedEntry, type ImportSource } from "./types";
 
 export const MAX_IMPORT_BYTES = 20 * 1024 * 1024;
@@ -139,6 +139,7 @@ export function normalizeImport(raw: unknown, origin: { source?: ImportSource; u
     cover: { gradient: ["#423a70", "#233354", "#09172e"], glyph: kind === "story" ? "✧" : "✦", pattern: "stars", imageUrl: coverUrl },
     ...creatorPrompt(d),
     backgrounds: storyImages(d.media, "background"),
+    ...(storyCodex(d.codex).length > 0 ? { codex: storyCodex(d.codex) } : {}),
     tokens: { storyline: Math.ceil(plot.length / 4), characters: Math.ceil(cast.map(c => character(c, 0).persona).join("").length / 4), scenario: Math.ceil(opening.length / 4) },
     imported: {
       kind, source, sourceUrl, contentRating: rating, warnings, alternateGreetings,
@@ -157,6 +158,30 @@ export function storyImages(media: unknown, composition: "background" | "foregro
     const url = safeImageUrl(m.url);
     if (m.type !== "image" || m.compositionType !== composition || m.hidden === true || !url) return [];
     return [{ id: string(m._id) || url, url, caption: plainText(m.description).trim() }];
+  });
+}
+
+const CODEX_CATEGORIES = new Set(["lore", "character", "location", "faction", "item", "event", "rule", "record", "quest", "achievement", "relationship", "technology", "creature", "ability", "document"]);
+
+/**
+ * An Isekai Zero story's codex. The public data carries each entry's index line and flags but never its text, and
+ * locked entries come without a slug or title; those can't be referenced and are skipped.
+ */
+export function storyCodex(codex: unknown): CodexEntry[] {
+  if (!Array.isArray(codex)) return [];
+  return codex.flatMap((value) => {
+    const e = record(value);
+    const slug = string(e.slug).trim();
+    const title = plainText(e.title).trim();
+    if (!slug || !title) return [];
+    const text = Array.isArray(e.assets) ? e.assets.map((a) => string(record(a).text || record(a).content)).filter(Boolean).join("\n\n") : "";
+    return [{
+      slug, title, description: plainText(e.description).trim(),
+      category: (CODEX_CATEGORIES.has(string(e.category)) ? string(e.category) : "lore") as CodexEntry["category"],
+      content: text, writable: e.writable === true, readOut: e.readOut === true, readOnce: e.readOnce === true,
+      unlockable: e.unlockable === true, hidden: e.hidden === true, spoiler: e.spoiler === true,
+      ...(string(e.hint).trim() ? { hint: plainText(e.hint).trim() } : {}),
+    }];
   });
 }
 

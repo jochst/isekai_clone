@@ -4,7 +4,7 @@ A local, single-user clone of **[isekaizero.ai](https://www.isekaizero.ai)**, th
 
 Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript (strict)**, **Tailwind CSS v4** and **SQLite**.
 
-The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2 and 5 (all of 5a–5g), as of PR #32.
+The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2, 3a and 5, as of PR #33.
 
 ---
 
@@ -164,6 +164,13 @@ Set the speech provider and model in **Settings → Providers → Voice (TTS)**:
 - **Narration mode:** the narrator reads each reply. The **Narrate** button works on any message.
 - **Visual Novel mode:** dialogue is spoken in each character's voice and the rest by the narrator. The stage moves to the next paragraph when its audio ends. **Play voice** / **Stop voice** sit at the top of the stage.
 
+### Codex (story lore)
+Stories with a codex give the AI an index of entries (places, factions, rules, quests). It reads entries before the story touches them, and keeps writable ones, like the **Quest Log**, up to date.
+- Chips under a reply show what it read or changed. Tap one, or use **Chat Settings → Codex**, to open the Codex browser.
+- Locked entries show as "???" until the story reaches them, hidden ones stay sealed, and spoilers sit behind a tap. Codex tools can be turned off per chat.
+- The catalog only includes each entry's index line, not its text. Lore entries therefore work as descriptions, while records the AI writes (quests, bestiary, factions) work fully.
+- How often the AI checks the codex on its own depends on the model. Asking out of character ("(OOC: update the quest log)") always works.
+
 ### Imports
 - **The Import library** (`/imports`) adds personal character cards and stories from Isekai Zero, Chub, JanitorAI and anime.gf links, or from exported files. See [docs/IMPORTING.md](docs/IMPORTING.md).
 
@@ -211,7 +218,8 @@ Then go to **Settings → Providers → Voice (TTS) → Local / Kokoro**, base U
 | 5e | Video scenes: 1–2 planned beats, chained from the last frame | Done (#30) |
 | 5f | Music: a brief, then NanoGPT music with ElevenLabs Music as the backup | Done (#31) |
 | 5g | Manga: scripted pages of panels, chained, with edit / regenerate / history | Done (#32) |
-| 3 | Codex (story lore), Dungeon Mind v2 tools (dice, stats, inventory), characters saved to the cast, story endings | Planned (moved after Phase 5) |
+| 3a | Codex: index, on-demand reads, AI-kept records, codex browser | Done (#33) |
+| 3b–3c | Dungeon Mind v2 tools (dice, stats, inventory), characters saved to the cast, story endings | Next |
 | 4 | Composer parity: slash commands, Improvise, RETRY+, OOC, personas, Honor mode, history tools | Planned |
 | 6 | Creation studio: your own stories and characters | Planned |
 | 7 | Remaining pages and visual polish | Planned |

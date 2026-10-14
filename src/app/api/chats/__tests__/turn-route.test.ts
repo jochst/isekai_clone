@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { getChat, saveChat, withChatDb } from "@/lib/chats/db";
+import { getChat, getCodexState, saveChat, saveCodexState, withChatDb } from "@/lib/chats/db";
 import { DEFAULT_CHAT_SETTINGS } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
 import { STORYLINES } from "@/lib/sites/isekaizero-ai-0e4f18da/mock-data";
 import { POST } from "../[id]/turn/route";
@@ -85,6 +85,46 @@ describe("POST /api/chats/[id]/turn", () => {
     expect(res.status).toBe(413);
     expect((await res.json()).error).toMatch(/^Context Full/);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("runs codex tools on the server between rounds and keeps one reply", async () => {
+    withChatDb((db) => {
+      saveChat(db, { id: "c2", storylineId: STORYLINES[0].id, title: "T", createdAt: 1, updatedAt: 1, playerName: "Kai", settings: DEFAULT_CHAT_SETTINGS, messages: [{ id: "o", role: "assistant", content: "Opening.", createdAt: 1 }] });
+      saveCodexState(db, "c2", { entries: { "quest-log": { createdByAi: true, title: "Quest Log", description: "Running quests", writable: true, content: "- Find the gate" } }, read: [] });
+    });
+    const call = (name: string, args: unknown) => ({ choices: [{ delta: { tool_calls: [{ index: 0, id: `id_${name}`, function: { name, arguments: JSON.stringify(args) } }] }, finish_reason: "tool_calls" }] });
+    const replies = [
+      sse({ choices: [{ delta: { content: "You look around." } }] }, call("read_codex", { slugs: ["quest-log"] }), { usage: { prompt_tokens: 100, completion_tokens: 5 } }),
+      sse(call("update_codex", { slug: "quest-log", edits: [{ oldText: "- Find the gate", newText: "- Find the gate (found)" }] }), { usage: { prompt_tokens: 120, completion_tokens: 6 } }),
+      sse({ choices: [{ delta: { content: "The gate creaks." } }] }, { usage: { prompt_tokens: 130, completion_tokens: 4 } }),
+    ];
+    const fetchMock = vi.fn(async () => replies.shift()!);
+    vi.stubGlobal("fetch", fetchMock);
+    const res = await POST(
+      new Request("http://localhost:3000/api/chats/c2/turn", {
+        method: "POST",
+        headers: { host: "localhost:3000", "Content-Type": "application/json", "x-iz-base-url": "https://nano-gpt.com/api/v1", "x-iz-api-key": "k", "x-iz-preset": "nano-gpt" },
+        body: JSON.stringify({ type: "take-turn", content: "I search.", model: "m", userMessageId: "u", replyId: "r" }),
+      }),
+      { params: Promise.resolve({ id: "c2" }) },
+    );
+    const out = await events(res);
+    expect(out.filter((e) => e.type === "codex")).toHaveLength(2);
+    expect(out.at(-1)).toMatchObject({ type: "done", usage: { promptTokens: 350, completionTokens: 15 } });
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+
+    const bodies = (fetchMock.mock.calls as unknown as [string, RequestInit][]).map(([, init]) => JSON.parse(String(init.body)) as { messages: { role: string; content: string | null; tool_call_id?: string }[]; tools: { function: { name: string } }[] });
+    expect(bodies[0].messages[0].content).toContain("- quest-log [lore] [writable] Quest Log: Running quests");
+    expect(bodies[0].tools.map((t) => t.function.name)).toEqual(["read_codex", "update_codex", "create_codex", "delete_codex"]);
+    expect(bodies[1].messages.at(-1)).toMatchObject({ role: "tool", tool_call_id: "id_read_codex", content: "[quest-log] Quest Log\n- Find the gate" });
+    expect(bodies[2].messages.at(-1)).toMatchObject({ role: "tool", content: 'Updated "Quest Log".' });
+
+    const reply = withChatDb((db) => getChat(db, "c2"))!.messages.at(-1)!;
+    expect(reply.content).toBe("You look around.\n\nThe gate creaks.");
+    expect(reply.codex?.map((e) => e.action)).toEqual(["read", "update"]);
+    const state = withChatDb((db) => getCodexState(db, "c2"));
+    expect(state.entries["quest-log"].content).toBe("- Find the gate (found)");
+    expect(state.read).toEqual(["quest-log"]);
   });
 
   it("rejects bad requests and unknown chats", async () => {
