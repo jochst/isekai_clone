@@ -5,6 +5,7 @@ import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { CONTINUE_SENTINEL, type ChatMemory, type ChatMessage, type ChatSession, type ChatSummary, type StoryMedia } from "@/types/isekaizero";
 import { emptyCodex, type CodexState } from "./codex";
+import type { Sheets } from "./dm";
 import { localizeMedia } from "./media";
 
 /**
@@ -35,6 +36,7 @@ export function openChatDb(): DatabaseSync {
     CREATE INDEX IF NOT EXISTS messages_by_seq ON messages (chat_id, seq);
     CREATE TABLE IF NOT EXISTS memory (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS codex (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS sheets (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS story_media (id TEXT PRIMARY KEY, storyline_id TEXT NOT NULL, body TEXT NOT NULL, created INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS story_media_by_story ON story_media (storyline_id, created);`);
   return db;
@@ -172,4 +174,14 @@ export function getCodexState(db: DatabaseSync, chatId: string): CodexState {
 
 export function saveCodexState(db: DatabaseSync, chatId: string, state: CodexState): void {
   db.prepare("INSERT INTO codex (chat_id, body) VALUES (?, ?) ON CONFLICT(chat_id) DO UPDATE SET body = excluded.body").run(chatId, JSON.stringify(state));
+}
+
+/* The chat's character sheets (Phase 3b): starting sheets come from the story; this holds the chat's copies. */
+export function getSheets(db: DatabaseSync, chatId: string): Sheets {
+  const row = db.prepare("SELECT body FROM sheets WHERE chat_id = ?").get(chatId);
+  return row ? (JSON.parse(String(row.body)) as Sheets) : {};
+}
+
+export function saveSheets(db: DatabaseSync, chatId: string, sheets: Sheets): void {
+  db.prepare("INSERT INTO sheets (chat_id, body) VALUES (?, ?) ON CONFLICT(chat_id) DO UPDATE SET body = excluded.body").run(chatId, JSON.stringify(sheets));
 }

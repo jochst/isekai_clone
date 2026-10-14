@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { generateSpeech, stopBrowserSpeech } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { estimateTokens } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatMessage } from "@/types/isekaizero";
+import type { ChatMessage, DiceRoll } from "@/types/isekaizero";
 
 import { MessagePopover, type MessageAction } from "./MessagePopover";
 import { SceneImage } from "./SceneImage";
@@ -34,6 +34,8 @@ export interface MessageBubbleProps {
   onMangaPage?: (pageId: string, action: MangaPageAction) => void;
   /** Opens the codex browser (from the codex chips on a reply). */
   onOpenCodex?: () => void;
+  /** Opens the character sheets (from the stat changes on a reply). */
+  onOpenSheets?: () => void;
   onEdit: (content: string) => void;
   /** Swipes a retried reply to another version. */
   onSelectChoice: (index: number) => void;
@@ -89,6 +91,7 @@ export function MessageBubble({
   onAnimateImage,
   onMangaPage,
   onOpenCodex,
+  onOpenSheets,
   onRegenerateVideo,
   onCheckVideo,
   onEdit,
@@ -289,6 +292,17 @@ export function MessageBubble({
       {message.videos?.map((v) => (
         <SceneVideo key={v.id} video={v} onRegenerate={() => onRegenerateVideo(v.id)} onCheckAgain={() => onCheckVideo(v.id)} />
       ))}
+      {message.rolls?.length ? <DiceRolls rolls={message.rolls} /> : null}
+      {message.statChanges?.length ? (
+        <button type="button" onClick={onOpenSheets} className="mt-2 flex w-full flex-col gap-0.5 rounded-[12px] border border-white/10 bg-white/[0.03] px-3 py-2 text-left text-[12px] text-white/75 hover:bg-white/[0.06]">
+          {message.statChanges.map((c, i) => (
+            <span key={i}>
+              <span className="font-semibold text-white/90">{c.characterName}</span>: {c.changes.join(", ")}
+              {c.reason ? <span className="text-white/45"> · {c.reason}</span> : null}
+            </span>
+          ))}
+        </button>
+      ) : null}
       {message.codex?.length ? (
         <div className="mt-2 flex flex-wrap gap-1.5">
           {[...new Map(message.codex.map((e) => [`${e.action}:${e.slug}`, e])).values()].map((e) => (
@@ -389,6 +403,51 @@ export function MessageBubble({
           #{index + 1} · {formatTime(message.createdAt)}
         </span>
       </div>
+    </div>
+  );
+}
+
+/** Roll cards: rolls that decide outcomes get their own card; supporting rolls fold into one list (dice-roll "minor"). */
+function DiceRolls({ rolls }: { rolls: DiceRoll[] }) {
+  const featured = rolls.filter((r) => !r.minor);
+  const minor = rolls.filter((r) => r.minor);
+  const math = (r: DiceRoll) =>
+    `${r.die} ${r.rolls.length > 1 ? `[${r.rolls.join(", ")}] → ` : ""}${r.value}${r.modifier ? ` ${r.modifier > 0 ? "+" : "−"} ${Math.abs(r.modifier)} = ${r.total}` : ""}${r.dc !== undefined ? ` vs DC ${r.dc}` : ""}`;
+  return (
+    <div className="mt-2 flex flex-col gap-1.5">
+      {featured.map((r, i) => (
+        <div key={i} className="rounded-[12px] border border-white/10 bg-white/[0.04] px-3 py-2 text-[12px]">
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-semibold text-white/90">
+              🎲 {r.reason}
+              {r.characterName ? <span className="font-normal text-white/50"> · {r.characterName}</span> : null}
+            </span>
+            {r.success !== undefined ? (
+              <span className={cn("rounded-[8px] px-2 py-0.5 text-[11px] font-bold", r.success ? "bg-[#4ade80]/15 text-[#4ade80]" : "bg-[#f87171]/15 text-[#f87171]")}>
+                {r.critical === "success" ? "Critical success" : r.critical === "failure" ? "Critical failure" : r.success ? "Success" : "Fail"}
+              </span>
+            ) : r.critical ? (
+              <span className="text-[11px] font-bold text-[#ffcf8a]">Natural {r.value}</span>
+            ) : null}
+          </div>
+          <div className="mt-0.5 text-white/60">
+            {math(r)}
+            {r.modifierBreakdown ? <span className="text-white/40"> ({r.modifierBreakdown})</span> : null}
+          </div>
+        </div>
+      ))}
+      {minor.length ? (
+        <details className="rounded-[12px] border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[12px] text-white/60">
+          <summary className="cursor-pointer">🎲 {minor.length} supporting roll{minor.length > 1 ? "s" : ""}</summary>
+          <ul className="mt-1 flex flex-col gap-0.5">
+            {minor.map((r, i) => (
+              <li key={i}>
+                {r.reason}: {math(r)}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
     </div>
   );
 }

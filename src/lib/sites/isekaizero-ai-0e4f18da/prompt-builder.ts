@@ -12,6 +12,7 @@ import { toolFunction, toolInstruction, type OpenAiTool } from "./ai-tools";
 import { memoryText, memoryView } from "@/lib/chats/memory";
 import { looks, presentCharacters } from "@/lib/chats/scene";
 import { CODEX_TOOL_NAMES, codexPrompt, codexView, emptyCodex, type CodexState } from "@/lib/chats/codex";
+import { statSchemaPrompt } from "@/lib/chats/dm";
 
 export { CONTINUE_SENTINEL } from "@/types/isekaizero";
 
@@ -536,10 +537,36 @@ export interface AssembleOptions extends SystemPromptOptions {
   codex?: CodexState;
 }
 
-/** Codex tools are on when the chat allows them and there is a codex (the story's, or entries the AI made). */
-function codexSection(storyline: Storyline, settings: ChatSettings, state: CodexState = emptyCodex()): string {
-  if (settings.codexEnabled === false || ((storyline.codex?.length ?? 0) === 0 && Object.keys(state.entries).length === 0)) return "";
-  return [toolInstruction("codex"), codexPrompt(codexView(storyline.codex ?? [], state), state)].filter(Boolean).join("\n\n");
+/**
+ * Whether one of the story's AI tools is on in this chat: "required" is always on; otherwise the chat's own choice,
+ * then the story's default (`fallback` when the story doesn't list the tool).
+ */
+export function toolEnabled(storyline: Storyline, settings: ChatSettings, toolId: string, fallback = false): boolean {
+  const setting = storyline.toolSettings?.find((t) => t.toolId === toolId);
+  if (setting?.mode === "required") return true;
+  const choice = settings.tools?.[toolId] ?? (toolId === "codex" ? settings.codexEnabled : undefined);
+  if (choice !== undefined) return choice;
+  return setting ? setting.mode === "default-on" : fallback;
+}
+
+/**
+ * The tools the server runs (codex, dice, character sheets): their instructions for the system prompt, with the
+ * creator's extra instruction and context (codex index, stat schema), and the functions the story allows.
+ */
+function serverToolSection(storyline: Storyline, settings: ChatSettings, codex: CodexState = emptyCodex()): { text: string; tools: OpenAiTool[] } {
+  const parts: string[] = [];
+  const tools: OpenAiTool[] = [];
+  const add = (toolId: Parameters<typeof toolInstruction>[0], names: readonly string[], context: string) => {
+    const setting = storyline.toolSettings?.find((t) => t.toolId === toolId);
+    const allowed = setting?.enabledFunctions?.length ? names.filter((n) => setting.enabledFunctions!.includes(n)) : names;
+    parts.push(toolInstruction(toolId), setting?.instruction ? `Creator's instruction for this tool: ${setting.instruction}` : "", context);
+    tools.push(...allowed.map((name) => toolFunction(name)));
+  };
+  const hasCodex = (storyline.codex?.length ?? 0) > 0 || Object.keys(codex.entries).length > 0;
+  if (hasCodex && toolEnabled(storyline, settings, "codex", true)) add("codex", CODEX_TOOL_NAMES, codexPrompt(codexView(storyline.codex ?? [], codex), codex));
+  if (toolEnabled(storyline, settings, "dice-roll")) add("dice-roll", ["roll_dice"], "");
+  if (toolEnabled(storyline, settings, "stats-manager")) add("stats-manager", ["read_character_stats", "update_character_stats"], statSchemaPrompt(storyline.statSchema ?? []));
+  return { text: parts.filter(Boolean).join("\n\n"), tools };
 }
 
 /** How the request fits the context window (Isekai Zero's "Estimated Context" and "x/y trimmed"). */
@@ -583,8 +610,8 @@ export function assemblePrompt(storyline: Storyline, session: ChatSession, opts:
   const post = postHistory ? built.slice(-1) : [];
   let history = built.slice(1, built.length - post.length);
   let parts = memory.parts;
-  const codex = codexSection(storyline, settings, opts.codex);
-  const system = () => ({ role: "system" as const, content: [base, codex, memoryText(parts)].filter(Boolean).join("\n\n") });
+  const serverTools = serverToolSection(storyline, settings, opts.codex);
+  const system = () => ({ role: "system" as const, content: [base, serverTools.text, memoryText(parts)].filter(Boolean).join("\n\n") });
   // The reply needs room too: the request must fit in (context window - max reply tokens).
   const budget = limit - maxTokens;
   let estimated = estimatePromptTokens([system(), ...history, ...post]);
@@ -613,7 +640,7 @@ export function assemblePrompt(storyline: Storyline, session: ChatSession, opts:
       totalChapters: memory.parts.length,
       full: estimated > budget,
     },
-    tools: [...toolsForSettings(settings), ...(codex ? CODEX_TOOL_NAMES.map((name) => toolFunction(name)) : [])],
+    tools: [...toolsForSettings(settings), ...serverTools.tools],
     temperature: TEMPERATURE_MAP[settings.temperature],
     maxTokens,
     reasoning: settings.reasoning,

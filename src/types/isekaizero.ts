@@ -66,6 +66,63 @@ export interface CodexEntry {
   createdByAi?: boolean;
 }
 
+/** One stat in a story's stat schema (Isekai Zero "Stat Schema"). */
+export interface StatDef {
+  name: string;
+  type: "number" | "text" | "enum" | "boolean";
+  description?: string;
+  /** Number stats drawn as a current/max bar (HP, MP). */
+  bar?: boolean;
+  barColor?: string;
+  defaultValue?: string;
+  enumValues?: string[];
+}
+
+/** A character sheet: tracked stats (effective = value + modifier), possessions, abilities and a free-text section. */
+export interface CharacterSheet {
+  stats: { name: string; value: string; modifier?: number }[];
+  inventory: { name: string; quantity: number; description?: string; equipped?: boolean }[];
+  skills: { name: string; description?: string }[];
+  custom: string;
+}
+
+/** A story's setting for one AI tool (Isekai Zero "toolSettings"). */
+export interface ToolSetting {
+  toolId: string;
+  mode: "required" | "default-on" | "default-off";
+  /** The creator's extra instruction for this tool. */
+  instruction?: string;
+  enabledFunctions?: string[];
+}
+
+/** One roll_dice result, judged on the server. */
+export interface DiceRoll {
+  reason: string;
+  die: "d4" | "d6" | "d8" | "d10" | "d12" | "d20";
+  /** The kept die value (with advantage, the higher of the two). */
+  value: number;
+  /** Both dice when rolled with advantage or disadvantage. */
+  rolls: number[];
+  advantage: "none" | "advantage" | "disadvantage";
+  modifier: number;
+  modifierBreakdown?: string;
+  total: number;
+  dc?: number;
+  success?: boolean;
+  critical?: "success" | "failure";
+  characterName?: string;
+  /** Supporting roll: listed collapsed rather than as its own card. */
+  minor: boolean;
+}
+
+/** One update_character_stats entry as shown on the reply. */
+export interface StatChange {
+  characterName: string;
+  reason?: string;
+  /** Readable changes, e.g. "HP 41/48 (-7)", "+ Healing Potion", "learned Fireball". */
+  changes: string[];
+}
+
 /** What the AI did with the codex during one reply, shown on the message. */
 export interface CodexEvent {
   action: "read" | "update" | "create" | "delete";
@@ -97,6 +154,8 @@ export interface Character {
   imageUrl?: string;
   /** Foreground images (expressions, poses) with captions; Visual Novel mode picks among them. */
   images?: StoryImage[];
+  /** The creator's starting character sheet (Dungeon Mind stories). */
+  sheet?: CharacterSheet;
   id: string;
   name: string;
   /** Short role line shown under the name in the casts strip. */
@@ -149,6 +208,10 @@ export interface Storyline {
   backgrounds?: StoryImage[];
   /** The story's codex (knowledge base); per-chat changes live on the server. */
   codex?: CodexEntry[];
+  /** Stats every character sheet tracks. */
+  statSchema?: StatDef[];
+  /** Which AI tools the story uses, and how (required, on or off by default). */
+  toolSettings?: ToolSetting[];
   /** Creator's default chat settings, applied to new chats unless the player overrides creator settings. */
   defaultChatSettings?: Partial<ChatSettings>;
   scenarios: { title: string; summary: string }[];
@@ -372,6 +435,10 @@ export interface ChatMessage {
   manga?: MangaPage[];
   /** Codex reads and edits the AI made while writing this reply. */
   codex?: CodexEvent[];
+  /** Dice the AI rolled for this reply. */
+  rolls?: DiceRoll[];
+  /** Character sheet changes made in this reply. */
+  statChanges?: StatChange[];
   /** Character speaking, when derivable. */
   speaker?: string;
   /** Visual Novel stage for this reply: background and character images. */
@@ -460,6 +527,8 @@ export interface ChatSettings {
   mangaPages?: number;
   /** Codex tools for this chat (on unless turned off, when the story has a codex). */
   codexEnabled?: boolean;
+  /** Per-chat on/off for the story's optional AI tools, by tool id (required tools are always on). */
+  tools?: Record<string, boolean>;
   /** "Voice & Narration Enabled": speak replies (narrator only in Narration mode, character voices in Visual Novel). */
   voiceEnabled?: boolean;
   /** "Auto Play on New Messages". */
