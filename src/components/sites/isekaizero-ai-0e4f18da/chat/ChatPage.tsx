@@ -71,6 +71,7 @@ import { useVideoGeneration, type VideoJob } from "../video-generation/use-video
 import { ChatHeader } from "./ChatHeader";
 import { MemorySheet } from "./MemorySheet";
 import { CodexSheet } from "./CodexSheet";
+import { SheetsSheet } from "./SheetsSheet";
 import { narratorVoice, playSpeech, speechParts } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { VisualNovelStage } from "./VisualNovelStage";
 import { ChatSettingsSheet } from "./ChatSettingsSheet";
@@ -154,6 +155,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [memoryOpen, setMemoryOpen] = useState(false);
   const [codexOpen, setCodexOpen] = useState(false);
+  const [sheetsOpen, setSheetsOpen] = useState(false);
   /** In Visual Novel play mode, the text log is one tap away from the stage. */
   const [showLog, setShowLog] = useState(false);
   const [sendOnEnter] = useState(readSendOnEnter);
@@ -844,6 +846,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
 
         const afterTurn = getChatSession(sessionId);
         let illustratedByTool = false;
+        if (done?.notice) showToast(done.notice);
         for (const tc of saved.toolCalls) {
           dispatchToolCall(plan.reply.id, tc, afterTurn?.messages ?? []);
           if (tc.function.name === "illustrate_scene") illustratedByTool = true;
@@ -1065,6 +1068,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
                 onAnimateImage={(imageId) => animate(message.id, imageId)}
                 onMangaPage={(pageId, action) => mangaPageAction(message.id, pageId, action)}
                 onOpenCodex={() => setCodexOpen(true)}
+                onOpenSheets={() => setSheetsOpen(true)}
                 onRegenerateVideo={(videoId) => regenerateVideo(message.id, videoId)}
                 onCheckVideo={(videoId) => checkVideo(message.id, videoId)}
                 onEdit={(content) => editMessage(message.id, content)}
@@ -1089,8 +1093,10 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         onChange={(patch) => update((s) => ({ ...s, settings: { ...s.settings, ...patch } }), { touch: false })}
         onOpenMemory={() => (setSettingsOpen(false), setMemoryOpen(true))}
         onOpenCodex={() => (setSettingsOpen(false), setCodexOpen(true))}
+        onOpenSheets={() => (setSettingsOpen(false), setSheetsOpen(true))}
         storyline={storyline}
       />
+      <SheetsSheet open={sheetsOpen} onClose={() => setSheetsOpen(false)} chatId={sessionId} version={session.messages.length} />
       <CodexSheet
         open={codexOpen}
         onClose={() => setCodexOpen(false)}

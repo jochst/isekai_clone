@@ -109,7 +109,7 @@ describe("POST /api/chats/[id]/turn", () => {
       { params: Promise.resolve({ id: "c2" }) },
     );
     const out = await events(res);
-    expect(out.filter((e) => e.type === "codex")).toHaveLength(2);
+    expect(out.filter((e) => e.type === "tools")).toHaveLength(2);
     expect(out.at(-1)).toMatchObject({ type: "done", usage: { promptTokens: 350, completionTokens: 15 } });
     expect(fetchMock).toHaveBeenCalledTimes(3);
 
@@ -120,11 +120,21 @@ describe("POST /api/chats/[id]/turn", () => {
     expect(bodies[2].messages.at(-1)).toMatchObject({ role: "tool", content: 'Updated "Quest Log".' });
 
     const reply = withChatDb((db) => getChat(db, "c2"))!.messages.at(-1)!;
-    expect(reply.content).toBe("You look around.\n\nThe gate creaks.");
+    expect(reply.content).toBe("The gate creaks.");
     expect(reply.codex?.map((e) => e.action)).toEqual(["read", "update"]);
     const state = withChatDb((db) => getCodexState(db, "c2"));
     expect(state.entries["quest-log"].content).toBe("- Find the gate (found)");
     expect(state.read).toEqual(["quest-log"]);
+  });
+
+  it("keeps earlier text when the last tool round writes nothing", async () => {
+    const call = { choices: [{ delta: { tool_calls: [{ index: 0, id: "d1", function: { name: "roll_dice", arguments: JSON.stringify({ rolls: [{ reason: "Luck" }] }) } }] }, finish_reason: "tool_calls" }] };
+    const replies = [sse({ choices: [{ delta: { content: "The dice tumble." } }] }, call), sse({ choices: [{ delta: { content: "" } }] })];
+    vi.stubGlobal("fetch", vi.fn(async () => replies.shift()!));
+    await events(await turn({ type: "take-turn", content: "I gamble.", model: "m", userMessageId: "u9", replyId: "r9" }));
+    const reply = withChatDb((db) => getChat(db, "c1"))!.messages.at(-1)!;
+    expect(reply.content).toBe("The dice tumble.");
+    expect(reply.rolls).toHaveLength(1);
   });
 
   it("rejects bad requests and unknown chats", async () => {

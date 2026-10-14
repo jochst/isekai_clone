@@ -84,6 +84,7 @@ export function playerDefaults(d: DefaultChatSettings): Partial<ChatSettings> {
     autoCreateCharacter: d.autoCreateCharacter ?? false,
     autoEditCharacter: d.autoEditCharacter ?? false,
     imageGenPerspective: d.imageGenPerspective ?? "3rd-person",
+    ...(d.dmModel ? { dmModel: d.dmModel } : {}),
   };
 }
 

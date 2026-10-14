@@ -8,7 +8,8 @@ import { ImageModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/imag
 import { useProviderCatalog } from "@/components/sites/isekaizero-ai-0e4f18da/image-generation/use-provider-catalog";
 import { VideoModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoModelPicker";
 import { VideoParamsForm, paramSummary } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoParamsForm";
-import { resolveImageModel, resolveVideoModel, type ContextReport, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
+import { DEFAULT_DM_MODEL, resolveImageModel, resolveVideoModel, toolEnabled, type ContextReport, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
+import { DM_MODELS } from "@/lib/sites/isekaizero-ai-0e4f18da/dm-models";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import type { ChatSession, ChatSettings, ProviderSettings, ReasoningEffort, Storyline, VideoParamValue } from "@/types/isekaizero";
@@ -46,11 +47,12 @@ export interface ChatSettingsSheetProps {
   /** Opens the Memory (chapters and arcs) panel. */
   onOpenMemory: () => void;
   onOpenCodex: () => void;
+  onOpenSheets: () => void;
   /** The story, for per-character voices. */
   storyline: Storyline;
 }
 
-export function ChatSettingsSheet({ open, onClose, session, provider, model, context, onChange, onOpenMemory, onOpenCodex, storyline }: ChatSettingsSheetProps) {
+export function ChatSettingsSheet({ open, onClose, session, provider, model, context, onChange, onOpenMemory, onOpenCodex, onOpenSheets, storyline }: ChatSettingsSheetProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const { settings } = session;
   const [, updateProvider] = useProviderSettings();
@@ -391,6 +393,52 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
             </p>
           </AccordionCard>
 
+          {storyline && GAME_TOOLS.some((t) => storyline.toolSettings?.some((s) => s.toolId === t.id)) ? (
+            <AccordionCard title="Functions" description="The story's game tools: dice and character stats (Dungeon Mind)">
+              {GAME_TOOLS.filter((t) => storyline.toolSettings?.some((s) => s.toolId === t.id)).map((t) => {
+                const setting = storyline.toolSettings!.find((s) => s.toolId === t.id)!;
+                const required = setting.mode === "required";
+                return (
+                  <SettingRow
+                    key={t.id}
+                    title={t.label}
+                    description={required ? `${t.description} Required by this story.` : t.description}
+                    right={
+                      <Toggle
+                        label={t.label}
+                        checked={toolEnabled(storyline, settings, t.id)}
+                        disabled={required}
+                        onChange={(on) => onChange({ tools: { ...settings.tools, [t.id]: on } })}
+                      />
+                    }
+                  />
+                );
+              })}
+              <label className="mt-3 block text-[13px] text-white/70">
+                Dungeon Mind model
+                <select
+                  value={settings.dmModel || DEFAULT_DM_MODEL}
+                  onChange={(e) => onChange({ dmModel: e.target.value })}
+                  className="mt-1 block h-10 w-full rounded-[10px] border border-white/15 bg-[#0b0f2e] px-2 text-[13px] text-white"
+                >
+                  {DM_MODELS.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+                <span className="mt-1 block text-[11px] leading-4 text-white/50">
+                  Resolves dice and sheets before the story model writes, so any story model gets working mechanics. Your story model still writes every word. If it declines a scene, the story model handles the tools that turn.
+                </span>
+              </label>
+              {storyline.statSchema?.length || storyline.characters.some((c) => c.sheet) ? (
+                <button type="button" onClick={onOpenSheets} className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10">
+                  Character Sheets
+                </button>
+              ) : null}
+            </AccordionCard>
+          ) : null}
+
           <AccordionCard title="Codex" description="The story's knowledge base: lore the AI reads on demand and records it keeps updated">
             <SettingRow
               title="Codex tools"
@@ -436,6 +484,12 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
 }
 
 /** NanoGPT music models (live-checked 2026-10-14; prices from /api/v1/audio-models). */
+/** Game tools the story can turn on (Isekai Zero toolSettings ids; labels from ai-tools.json). */
+const GAME_TOOLS = [
+  { id: "dice-roll", label: "Dice Roll", description: "Real dice decide uncertain actions; the roll card shows the result." },
+  { id: "stats-manager", label: "Character Stats", description: "Keeps character sheets (stats, inventory, skills) in sync with the story." },
+];
+
 const MUSIC_MODELS = [
   { id: "google/lyria-3.5", label: "Google Lyria 3.5 · $0.11 per song (full length)" },
   { id: "elevenlabs/music", label: "ElevenLabs Music · $0.01 per second" },

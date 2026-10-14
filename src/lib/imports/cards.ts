@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { inflateSync } from "node:zlib";
 import { load } from "cheerio";
-import type { Character, ChatSettings, CodexEntry, StoryCategory, StoryImage, Storyline } from "@/types/isekaizero";
+import type { Character, CharacterSheet, ChatSettings, CodexEntry, StatDef, StoryCategory, StoryImage, Storyline, ToolSetting } from "@/types/isekaizero";
 import { record, string, strings, type ImportedEntry, type ImportSource } from "./types";
 
 export const MAX_IMPORT_BYTES = 20 * 1024 * 1024;
@@ -93,7 +93,46 @@ function character(value: unknown, index: number): Character {
     persona: [plainText(d.promptDescription || d.description), string(d.personality), string(d.exampleDialogue)].filter(Boolean).join("\n\n"),
     appearance: string(d.appearance), gradient: ["#423a70", "#182441"], glyph: "✦",
     imageUrl: safeImageUrl(record(d.cover).url || d.avatar),
+    ...(characterSheet(d.sheets) ? { sheet: characterSheet(d.sheets) } : {}),
   };
+}
+
+/** A character's starting sheet from Isekai Zero's `sheets` (stats with a base value, inventory, skills, custom). */
+export function characterSheet(value: unknown): CharacterSheet | undefined {
+  const s = record(value);
+  const list = (v: unknown) => (Array.isArray(v) ? v.map(record) : []);
+  const sheet: CharacterSheet = {
+    stats: list(s.stats).filter((x) => string(x.name)).map((x) => ({ name: string(x.name), value: x.base === undefined || x.base === null ? "" : String(x.base) })),
+    inventory: list(s.inventory).filter((x) => string(x.name)).map((x) => ({ name: string(x.name), quantity: typeof x.quantity === "number" ? x.quantity : 1, ...(string(x.description) ? { description: string(x.description) } : {}), ...(x.equipped === true ? { equipped: true } : {}) })),
+    skills: list(s.skills).filter((x) => string(x.name)).map((x) => ({ name: string(x.name), ...(string(x.description) ? { description: string(x.description) } : {}) })),
+    custom: string(s.custom),
+  };
+  return sheet.stats.length || sheet.inventory.length || sheet.skills.length || sheet.custom ? sheet : undefined;
+}
+
+const STAT_TYPES = new Set(["number", "text", "enum", "boolean"]);
+const TOOL_MODES = new Set(["required", "default-on", "default-off"]);
+
+/** A story's stat schema and AI tool settings (Dungeon Mind stories). */
+function gameRules(d: Record<string, unknown>): Pick<Storyline, "statSchema" | "toolSettings"> {
+  const list = (v: unknown) => (Array.isArray(v) ? v.map(record) : []);
+  const statSchema: StatDef[] = list(d.statSchema)
+    .filter((x) => string(x.name) && STAT_TYPES.has(string(x.type)))
+    .map((x) => ({
+      name: string(x.name), type: string(x.type) as StatDef["type"],
+      ...(string(x.description) ? { description: string(x.description) } : {}),
+      ...(x.bar === true ? { bar: true } : {}), ...(string(x.barColor) ? { barColor: string(x.barColor) } : {}),
+      ...(x.defaultValue !== undefined && x.defaultValue !== null ? { defaultValue: String(x.defaultValue) } : {}),
+      ...(strings(x.enumValues).length ? { enumValues: strings(x.enumValues) } : {}),
+    }));
+  const toolSettings: ToolSetting[] = list(d.toolSettings)
+    .filter((x) => string(x.toolId) && TOOL_MODES.has(string(x.mode)))
+    .map((x) => ({
+      toolId: string(x.toolId), mode: string(x.mode) as ToolSetting["mode"],
+      ...(string(x.instruction).trim() ? { instruction: string(x.instruction).trim() } : {}),
+      ...(strings(x.enabledFunctions).length ? { enabledFunctions: strings(x.enabledFunctions) } : {}),
+    }));
+  return { ...(statSchema.length ? { statSchema } : {}), ...(toolSettings.length ? { toolSettings } : {}) };
 }
 
 export const categories: StoryCategory[] = ["fantasy", "isekai", "sciFi", "mecha", "horror", "thriller", "academy", "romance", "comedy", "adventure", "supernatural", "sports", "psychological", "betrayal", "action", "romantasy", "drama", "mystery", "sliceOfLife", "martialArts", "cultivation", "historical"];
@@ -140,6 +179,7 @@ export function normalizeImport(raw: unknown, origin: { source?: ImportSource; u
     ...creatorPrompt(d),
     backgrounds: storyImages(d.media, "background"),
     ...(storyCodex(d.codex).length > 0 ? { codex: storyCodex(d.codex) } : {}),
+    ...gameRules(d),
     tokens: { storyline: Math.ceil(plot.length / 4), characters: Math.ceil(cast.map(c => character(c, 0).persona).join("").length / 4), scenario: Math.ceil(opening.length / 4) },
     imported: {
       kind, source, sourceUrl, contentRating: rating, warnings, alternateGreetings,

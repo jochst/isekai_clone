@@ -8,6 +8,9 @@ import { LLM_CATALOG } from "@/lib/sites/isekaizero-ai-0e4f18da/catalog";
 import { useModelCatalog } from "../llms/use-model-catalog";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 
+import { DEFAULT_DM_MODEL } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-builder";
+import { DM_MODELS } from "@/lib/sites/isekaizero-ai-0e4f18da/dm-models";
+
 import { SettingsShell, type SettingsTab } from "./SettingsShell";
 import { AccordionCard, InfoNote, SegmentedControl, SettingCard, SettingRow, type SegmentedOption } from "./ui";
 import {
@@ -292,6 +295,23 @@ export function DefaultChatSettingsPage() {
                 onChange={(autoEditCharacter) => update({ autoEditCharacter })}
               />
             </div>
+          </SettingCard>
+
+          <SettingCard
+            title="Dungeon Mind Model"
+            description="For stories with dice and stats: this model resolves the mechanics before your story model writes, so any story model gets working dice and character sheets"
+          >
+            <select
+              value={settings.dmModel || DEFAULT_DM_MODEL}
+              onChange={(e) => update({ dmModel: e.target.value })}
+              className="block h-10 w-full rounded-[10px] border border-white/15 bg-[#0b0f2e] px-2 text-[13px] text-white"
+            >
+              {DM_MODELS.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
           </SettingCard>
 
           <SettingCard

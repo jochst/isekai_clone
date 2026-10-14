@@ -3,7 +3,7 @@ import { normalizeImport } from "@/lib/imports/cards";
 import type { ChatMessage, ChatSession, Storyline } from "@/types/isekaizero";
 import { DEFAULT_CHAT_SETTINGS, resolveNewChatSettings } from "../chat-store";
 import { DEFAULT_CHAT_SETTINGS as PLAYER_DEFAULTS } from "@/components/sites/isekaizero-ai-0e4f18da/settings/use-default-chat-settings";
-import { assemblePrompt, buildScenePrompt, illustrationReferences, mangaPagePrompt, mangaReferences, mangaScriptPrompt, musicBriefPrompt, parseMangaScript, parseMusicBrief, parseVideoBeats, resolveTextModel, videoScenePlanPrompt } from "../prompt-builder";
+import { assemblePrompt, toolEnabled, buildScenePrompt, illustrationReferences, mangaPagePrompt, mangaReferences, mangaScriptPrompt, musicBriefPrompt, parseMangaScript, parseMusicBrief, parseVideoBeats, resolveTextModel, videoScenePlanPrompt } from "../prompt-builder";
 import { STORYLINES } from "../mock-data";
 import { DEFAULT_PROVIDER_SETTINGS } from "../provider-settings";
 import { LLM_CATALOG } from "../catalog";
@@ -239,3 +239,30 @@ describe("manga", () => {
 });
 
 const parseManga = (t: string) => parseMangaScript(t, 2);
+
+describe("story tool settings", () => {
+  const game: Storyline = {
+    ...STORYLINES[0],
+    statSchema: [{ name: "HP", type: "number", bar: true }],
+    toolSettings: [
+      { toolId: "dice-roll", mode: "required" },
+      { toolId: "stats-manager", mode: "default-off" },
+      { toolId: "codex", mode: "default-on", enabledFunctions: ["read_codex", "update_codex"], instruction: "Track the heist plan." },
+    ],
+    codex: [{ slug: "plan", title: "Plan", description: "The heist", category: "record", content: "", writable: true, readOut: false, readOnce: false, unlockable: false, hidden: false, spoiler: false }],
+  };
+  const session = (tools?: Record<string, boolean>): ChatSession => ({ id: "s", storylineId: game.id, title: "t", createdAt: 1, updatedAt: 1, playerName: "Kai", settings: { ...DEFAULT_CHAT_SETTINGS, tools }, messages: [] });
+  const names = (s: ChatSession) => assemblePrompt(game, s).tools.map((t) => t.function.name);
+
+  it("required tools stay on, the chat's choice beats the story default, and only the story's functions are offered", () => {
+    expect(names(session())).toEqual(["read_codex", "update_codex", "roll_dice"]);
+    expect(names(session({ "dice-roll": false, "stats-manager": true, codex: false }))).toEqual(["roll_dice", "read_character_stats", "update_character_stats"]);
+    expect(toolEnabled(STORYLINES[0], DEFAULT_CHAT_SETTINGS, "dice-roll")).toBe(false);
+  });
+
+  it("adds the creator's instruction and the stat schema to the system prompt", () => {
+    const system = assemblePrompt(game, session({ "stats-manager": true })).messages[0].content;
+    expect(system).toContain("Creator's instruction for this tool: Track the heist plan.");
+    expect(system).toContain("- HP (number, depleting: value is the maximum)");
+  });
+});

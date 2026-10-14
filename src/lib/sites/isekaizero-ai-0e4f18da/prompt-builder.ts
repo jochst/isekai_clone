@@ -12,8 +12,10 @@ import { toolFunction, toolInstruction, type OpenAiTool } from "./ai-tools";
 import { memoryText, memoryView } from "@/lib/chats/memory";
 import { looks, presentCharacters } from "@/lib/chats/scene";
 import { CODEX_TOOL_NAMES, codexPrompt, codexView, emptyCodex, type CodexState } from "@/lib/chats/codex";
+import { statSchemaPrompt } from "@/lib/chats/dm";
 
 export { CONTINUE_SENTINEL } from "@/types/isekaizero";
+import { CONTINUE_SENTINEL } from "@/types/isekaizero";
 
 export const TEMPERATURE_MAP: Record<ChatSettings["temperature"], number> = { low: 0.5, medium: 0.9, high: 1.1, max: 1.3 };
 export const MAX_TOKENS_MAP: Record<ChatSettings["responseLength"], number> = { short: 220, medium: 450, long: 800 };
@@ -534,12 +536,84 @@ export interface AssembleOptions extends SystemPromptOptions {
   contextLimit?: number;
   /** The chat's codex changes (server only); without it the story's own codex is used as-is. */
   codex?: CodexState;
+  /**
+   * The Dungeon Mind resolved this turn's mechanics: the story model gets its ruling instead of the dice and stats
+   * tools. Undefined when no Dungeon Mind ran (the story model then calls those tools itself).
+   */
+  dmRuling?: string;
 }
 
-/** Codex tools are on when the chat allows them and there is a codex (the story's, or entries the AI made). */
-function codexSection(storyline: Storyline, settings: ChatSettings, state: CodexState = emptyCodex()): string {
-  if (settings.codexEnabled === false || ((storyline.codex?.length ?? 0) === 0 && Object.keys(state.entries).length === 0)) return "";
-  return [toolInstruction("codex"), codexPrompt(codexView(storyline.codex ?? [], state), state)].filter(Boolean).join("\n\n");
+/**
+ * Whether one of the story's AI tools is on in this chat: "required" is always on; otherwise the chat's own choice,
+ * then the story's default (`fallback` when the story doesn't list the tool).
+ */
+export function toolEnabled(storyline: Storyline, settings: ChatSettings, toolId: string, fallback = false): boolean {
+  const setting = storyline.toolSettings?.find((t) => t.toolId === toolId);
+  if (setting?.mode === "required") return true;
+  const choice = settings.tools?.[toolId] ?? (toolId === "codex" ? settings.codexEnabled : undefined);
+  if (choice !== undefined) return choice;
+  return setting ? setting.mode === "default-on" : fallback;
+}
+
+/**
+ * The tools the server runs (codex, dice, character sheets): their instructions for the system prompt, with the
+ * creator's extra instruction and context (codex index, stat schema), and the functions the story allows.
+ */
+function serverToolSection(storyline: Storyline, settings: ChatSettings, codex: CodexState = emptyCodex(), mechanics = true): { text: string; tools: OpenAiTool[] } {
+  const parts: string[] = [];
+  const tools: OpenAiTool[] = [];
+  const add = (toolId: Parameters<typeof toolInstruction>[0], names: readonly string[], context: string) => {
+    const setting = storyline.toolSettings?.find((t) => t.toolId === toolId);
+    const allowed = setting?.enabledFunctions?.length ? names.filter((n) => setting.enabledFunctions!.includes(n)) : names;
+    parts.push(toolInstruction(toolId), setting?.instruction ? `Creator's instruction for this tool: ${setting.instruction}` : "", context);
+    tools.push(...allowed.map((name) => toolFunction(name)));
+  };
+  const hasCodex = (storyline.codex?.length ?? 0) > 0 || Object.keys(codex.entries).length > 0;
+  if (hasCodex && toolEnabled(storyline, settings, "codex", true)) add("codex", CODEX_TOOL_NAMES, codexPrompt(codexView(storyline.codex ?? [], codex), codex));
+  if (mechanics && toolEnabled(storyline, settings, "dice-roll")) add("dice-roll", ["roll_dice"], "");
+  if (mechanics && toolEnabled(storyline, settings, "stats-manager")) add("stats-manager", ["read_character_stats", "update_character_stats"], statSchemaPrompt(storyline.statSchema ?? []));
+  return { text: parts.filter(Boolean).join("\n\n"), tools };
+}
+
+/** Claude Haiku: reliable with tools and cheap, so it keeps the game mechanics whatever model writes the story. */
+export const DEFAULT_DM_MODEL = "anthropic/claude-haiku-latest";
+
+/**
+ * The model that resolves this chat's game mechanics (Isekai Zero's separate "Dungeon Mind"), or undefined when the
+ * story has no dice or stats on, or the player turned it off ("off": the story model calls the tools itself).
+ */
+export function dungeonMindModel(storyline: Storyline, settings: ChatSettings): string | undefined {
+  if (settings.dmModel === "off") return undefined;
+  if (!toolEnabled(storyline, settings, "dice-roll") && !toolEnabled(storyline, settings, "stats-manager")) return undefined;
+  return settings.dmModel?.trim() || DEFAULT_DM_MODEL;
+}
+
+const DM_SCENE_CHARS = 1500;
+
+/**
+ * The Dungeon Mind's own request: the rules, the story's mechanics tools and only the context it needs (the end of
+ * the last scene and the player's action), so the story's prose and the rest of the chat stay with the story model.
+ */
+export function dungeonMindPrompt(storyline: Storyline, history: ChatMessage[], settings: ChatSettings, codex: CodexState = emptyCodex()): { messages: { role: "system" | "user"; content: string }[]; tools: OpenAiTool[] } {
+  const tools = serverToolSection(storyline, settings, codex);
+  const action = [...history].reverse().find((m) => m.role === "user" && m.content.trim() && m.content !== CONTINUE_SENTINEL);
+  const scene = [...history].reverse().find((m) => m.role === "assistant" && m.content.trim());
+  const cast = storyline.characters.map((c) => c.name).join(", ");
+  const system = [
+    `You are the Dungeon Mind (DM): the rules engine for the interactive story "${storyline.title}". A separate narrator writes the story; you never write prose.`,
+    "Resolve the player's latest action mechanically BEFORE the narrator writes: roll dice for uncertain outcomes (including enemies' attacks on the party), apply damage, healing, items, gold and other sheet changes, and keep records up to date. Read sheets before changing them.",
+    "When done, answer with a short ruling for the narrator (under 80 words): each outcome with its numbers and every change you made. If nothing needs resolving, answer exactly: No ruling.",
+    `Story cast: ${cast || "none listed"}. The player is "You" unless their message names who acts.`,
+    tools.text,
+  ];
+  const user = [scene ? `Last scene (end):\n${scene.content.slice(-DM_SCENE_CHARS)}` : "", action ? `Player's action:\n${action.content}` : "The player asked the story to continue."];
+  return {
+    tools: tools.tools,
+    messages: [
+      { role: "system", content: system.filter(Boolean).join("\n\n") },
+      { role: "user", content: user.filter(Boolean).join("\n\n") },
+    ],
+  };
 }
 
 /** How the request fits the context window (Isekai Zero's "Estimated Context" and "x/y trimmed"). */
@@ -573,7 +647,11 @@ export function assemblePrompt(storyline: Storyline, session: ChatSession, opts:
   const { settings } = session;
   const reminder = [settings.userInputPrompt, storyline.prompt?.outputReminder].filter((x) => x?.trim()).join("\n");
   const retry = opts.retryInstruction?.trim() ? `Write the next reply following this direction from the player: ${opts.retryInstruction.trim()}` : "";
-  const postHistory = [importedPostHistory(storyline, session), retry].filter(Boolean).join("\n\n");
+  const ruling =
+    opts.dmRuling && !/^no ruling\.?$/i.test(opts.dmRuling.trim())
+      ? `Dungeon Mind ruling for this turn (the dice are rolled and the sheets updated): ${opts.dmRuling.trim()}\nNarrate these outcomes exactly; don't contradict the numbers or roll anything else.`
+      : "";
+  const postHistory = [importedPostHistory(storyline, session), retry, ruling].filter(Boolean).join("\n\n");
   // Summarized messages are replaced by the chapter/arc memory; only the messages after it go as history.
   const memory = memoryView(session);
   const maxTokens = responseTokenCap(settings);
@@ -583,8 +661,8 @@ export function assemblePrompt(storyline: Storyline, session: ChatSession, opts:
   const post = postHistory ? built.slice(-1) : [];
   let history = built.slice(1, built.length - post.length);
   let parts = memory.parts;
-  const codex = codexSection(storyline, settings, opts.codex);
-  const system = () => ({ role: "system" as const, content: [base, codex, memoryText(parts)].filter(Boolean).join("\n\n") });
+  const serverTools = serverToolSection(storyline, settings, opts.codex, opts.dmRuling === undefined);
+  const system = () => ({ role: "system" as const, content: [base, serverTools.text, memoryText(parts)].filter(Boolean).join("\n\n") });
   // The reply needs room too: the request must fit in (context window - max reply tokens).
   const budget = limit - maxTokens;
   let estimated = estimatePromptTokens([system(), ...history, ...post]);
@@ -613,7 +691,7 @@ export function assemblePrompt(storyline: Storyline, session: ChatSession, opts:
       totalChapters: memory.parts.length,
       full: estimated > budget,
     },
-    tools: [...toolsForSettings(settings), ...(codex ? CODEX_TOOL_NAMES.map((name) => toolFunction(name)) : [])],
+    tools: [...toolsForSettings(settings), ...serverTools.tools],
     temperature: TEMPERATURE_MAP[settings.temperature],
     maxTokens,
     reasoning: settings.reasoning,

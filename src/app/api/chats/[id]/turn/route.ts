@@ -1,10 +1,11 @@
 import { guardImportRequest, importError } from "@/lib/imports/http";
-import { applyChatPatch, getChat, getCodexState, saveCodexState, withChatDb, type ChatMeta } from "@/lib/chats/db";
-import type { ChatSession, CodexEvent, MessageUsage } from "@/types/isekaizero";
+import { applyChatPatch, getChat, getCodexState, getSheets, saveCodexState, saveSheets, withChatDb, type ChatMeta } from "@/lib/chats/db";
+import type { ChatMessage, ChatSession, MessageUsage } from "@/types/isekaizero";
 import { findStoryline } from "@/lib/chats/storyline";
-import { CODEX_TOOL_NAMES, runCodexTool } from "@/lib/chats/codex";
+import { noEvents, runServerTool, SERVER_TOOL_NAMES, type ToolState } from "@/lib/chats/server-tools";
 import { parseTurnRequest, planTurn, readCompletionStream, settleOutcome, type StreamOutcome, type ToolCall } from "@/lib/chats/turn";
-import { assemblePrompt } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-builder";
+import { assemblePrompt, dungeonMindModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-builder";
+import { runDungeonMind } from "@/lib/chats/dungeon-mind";
 import { authHeaders, fetchWithRetry, providerErrorMessage, readProviderContext, reasoningParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 export const runtime = "nodejs";
@@ -13,13 +14,13 @@ export const maxDuration = 300;
 
 /** Server tools run here and their results go back to the model; this bounds the back-and-forth per reply. */
 const MAX_TOOL_ROUNDS = 4;
-const SERVER_TOOLS = new Set<string>(CODEX_TOOL_NAMES);
 
 /**
  * One story turn, built and saved on the server (ADR-3). Streams Server-Sent Events:
- * `{type:"delta", content}` with the reply so far, `{type:"codex", events}` when the AI reads or edits the codex,
+ * `{type:"delta", content}` with the reply so far, `{type:"tools", codex, rolls, statChanges}` after server tools run,
  * then `{type:"done", messages, order, toolCalls, usage}` with the saved messages, or `{type:"error", error}`.
- * Codex tools run on the server between rounds; other tool calls (illustrations, characters) go to the client.
+ * Codex, dice and character-sheet tools run on the server between rounds; other tool calls (illustrations,
+ * characters) go to the client.
  * Stopping (client abort) keeps whatever text arrived.
  */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -44,12 +45,32 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const plan = planTurn(chat, turn);
   if (typeof plan === "string") return Response.json({ error: plan }, { status: 400 });
 
-  let codexState = withChatDb((db) => getCodexState(db, chatId));
+  let toolState: ToolState = withChatDb((db) => ({ codex: getCodexState(db, chatId), sheets: getSheets(db, chatId) }));
   const contextLimit = chat.settings.contextLimitOverride || turn.contextLimit;
-  const prompt = assemblePrompt(storyline, { ...chat, messages: plan.history }, { takeTurn: turn.takeTurn, retryInstruction: turn.instruction, contextLimit, codex: codexState });
+  const promptOptions = { takeTurn: turn.takeTurn, retryInstruction: turn.instruction, contextLimit };
+  let prompt = assemblePrompt(storyline, { ...chat, messages: plan.history }, { ...promptOptions, codex: toolState.codex });
   if (prompt.context.full) {
     // Isekai Zero's "Context Full" (contextFullError.description).
     return Response.json({ error: "Context Full: the conversation has exceeded this model's memory limit. Please switch to a model with a larger memory or summarize the story to free up space." }, { status: 413 });
+  }
+  // The Dungeon Mind (a tool-reliable model, default Claude Haiku) resolves dice and sheets before the story model
+  // writes, so any story model gets working mechanics. If it fails or declines, the story model uses the tools itself.
+  const started = Date.now();
+  const events = noEvents();
+  const dmModel = dungeonMindModel(storyline, chat.settings);
+  let dmUsage: StreamOutcome["usage"];
+  let notice: string | undefined;
+  if (dmModel) {
+    try {
+      const dm = await runDungeonMind({ ctx, model: dmModel, storyline, history: plan.history, settings: chat.settings, state: toolState, events, signal: request.signal });
+      toolState = dm.state;
+      dmUsage = dm.usage;
+      prompt = assemblePrompt(storyline, { ...chat, messages: plan.history }, { ...promptOptions, codex: toolState.codex, dmRuling: dm.ruling });
+    } catch (e) {
+      if (request.signal.aborted) return new Response(null, { status: 499 });
+      Object.assign(events, noEvents()); // nothing a failed Dungeon Mind did is kept
+      notice = `Dungeon Mind (${dmModel}) unavailable: ${e instanceof Error ? e.message : "request failed"}. The story model handled dice and stats this turn.`;
+    }
   }
   const complete = (messages: unknown[]) =>
     fetchWithRetry(`${ctx.baseUrl}/chat/completions`, {
@@ -67,20 +88,24 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       }),
       signal: request.signal,
     });
-  const started = Date.now();
   let firstTokenMs: number | undefined;
   const first = await complete(prompt.messages).catch((e: unknown) => e as Error);
   if (first instanceof Error) return Response.json({ error: `Could not reach provider: ${first.message}` }, { status: 502 });
   if (!first.ok || !first.body) return Response.json({ error: await providerErrorMessage(first) }, { status: first.status || 502 });
 
-  const codexEvents: CodexEvent[] = [];
   const save = (outcome: StreamOutcome) => {
     const usage: MessageUsage = { model: turn.model, ...outcome.usage, firstTokenMs, totalMs: Date.now() - started };
     const result = settleOutcome(chat, plan, outcome.content, outcome.toolCalls.length > 0, usage);
-    const upsert = codexEvents.length > 0 ? result.upsert.map((m) => (m.role === "assistant" && m.id === result.order.at(-1) ? { ...m, codex: codexEvents } : m)) : result.upsert;
+    const extra: Partial<ChatMessage> = {
+      ...(events.codex.length > 0 ? { codex: events.codex } : {}),
+      ...(events.rolls.length > 0 ? { rolls: events.rolls } : {}),
+      ...(events.statChanges.length > 0 ? { statChanges: events.statChanges } : {}),
+    };
+    const upsert = Object.keys(extra).length > 0 ? result.upsert.map((m) => (m.role === "assistant" && m.id === result.order.at(-1) ? { ...m, ...extra } : m)) : result.upsert;
     withChatDb((db) => {
       if (upsert.length > 0) applyChatPatch(db, chatId, { meta: { ...meta(chat), updatedAt: Date.now() }, order: result.order, upsert });
-      if (codexEvents.length > 0) saveCodexState(db, chatId, codexState);
+      if (events.codex.length > 0) saveCodexState(db, chatId, toolState.codex);
+      if (events.statChanges.length > 0) saveSheets(db, chatId, toolState.sheets);
     });
     return { order: result.order, messages: upsert, empty: result.empty };
   };
@@ -95,51 +120,56 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           /* client went away; the turn is still saved */
         }
       };
-      let text = ""; // the reply so far, across tool rounds
-      let usage: StreamOutcome["usage"];
+      // The reply is the last round's text: text written alongside tool calls is usually the model talking to itself
+      // ("let me check the sheets…"), and it writes the full narration once it has the results. If the last round
+      // writes nothing, the earlier text is kept rather than losing the reply.
+      let text = "";
+      let earlier = "";
+      let usage: StreamOutcome["usage"] = dmUsage;
       const clientCalls: ToolCall[] = [];
       try {
         let body = first.body!;
         let messages: unknown[] = prompt.messages;
         let outcome: StreamOutcome;
         for (let round = 0; ; round++) {
-          const before = text;
           outcome = await readCompletionStream(body, (content) => {
             firstTokenMs ??= Date.now() - started;
-            text = joinParts(before, content);
+            text = content;
             send({ type: "delta", content: text });
           });
-          text = joinParts(before, outcome.content);
+          text = outcome.content;
           usage = addUsage(usage, outcome.usage);
           const calls = outcome.toolCalls.map((c, i) => ({ ...c, id: c.id || `call_${round}_${i}` }));
-          clientCalls.push(...calls.filter((c) => !SERVER_TOOLS.has(c.function.name)));
-          const serverCalls = calls.filter((c) => SERVER_TOOLS.has(c.function.name));
+          clientCalls.push(...calls.filter((c) => !SERVER_TOOL_NAMES.has(c.function.name)));
+          const serverCalls = calls.filter((c) => SERVER_TOOL_NAMES.has(c.function.name));
           if (serverCalls.length === 0 || round >= MAX_TOOL_ROUNDS - 1) break;
 
           // Run the server tools; every call in the round needs an answer, so client tools get an acknowledgement.
           const results = calls.map((call) => {
-            if (!SERVER_TOOLS.has(call.function.name)) return { role: "tool", tool_call_id: call.id, content: "Done." };
-            const ran = runCodexTool(call.function.name, call.function.arguments, storyline.codex ?? [], codexState);
-            codexState = ran.state;
-            codexEvents.push(...ran.events);
+            if (!SERVER_TOOL_NAMES.has(call.function.name)) return { role: "tool", tool_call_id: call.id, content: "Done." };
+            const ran = runServerTool(call.function.name, call.function.arguments, storyline, toolState, events);
+            toolState = ran.state;
             return { role: "tool", tool_call_id: call.id, content: ran.output };
           });
-          send({ type: "codex", events: codexEvents });
+          send({ type: "tools", ...events });
+          earlier = joinParts(earlier, text);
+          text = "";
           messages = [...messages, { role: "assistant", content: outcome.content || null, tool_calls: calls }, ...results];
           const next = await complete(messages);
           if (!next.ok || !next.body) throw new Error(await providerErrorMessage(next));
           body = next.body;
         }
+        text = text.trim() ? text : earlier;
         const saved = save({ content: text, toolCalls: clientCalls, usage, finishReason: outcome.finishReason });
         if (saved.empty && outcome.finishReason === "length") {
           // The cap ran out before any text: usually a reasoning model thinking through the whole budget.
           send({ type: "error", error: "The model used its whole token limit before writing anything (most likely reasoning). Turn Reasoning off, raise the response token limit, or pick a non-reasoning model." });
         } else {
-          send({ type: "done", ...saved, toolCalls: clientCalls, usage });
+          send({ type: "done", ...saved, toolCalls: clientCalls, usage, ...(notice ? { notice } : {}) });
         }
       } catch (e) {
         if (request.signal.aborted) {
-          save({ content: text, toolCalls: [] }); // Stop keeps the partial reply, as on Isekai Zero
+          save({ content: text.trim() ? text : earlier, toolCalls: [] }); // Stop keeps the partial reply, as on Isekai Zero
         } else {
           send({ type: "error", error: e instanceof Error ? e.message : "The provider stream failed." });
         }
@@ -157,7 +187,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   });
 }
 
-/** Text written before a tool call and after it reads as one reply. */
+/** Text from earlier rounds, kept only as a fallback when the last round writes nothing. */
 function joinParts(before: string, after: string): string {
   return before && after ? `${before.trimEnd()}\n\n${after.trimStart()}` : before || after;
 }

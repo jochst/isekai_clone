@@ -4,7 +4,7 @@ A local, single-user clone of **[isekaizero.ai](https://www.isekaizero.ai)**, th
 
 Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript (strict)**, **Tailwind CSS v4** and **SQLite**.
 
-The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2, 3a and 5, as of PR #33.
+The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2, 3a, 3b and 5, as of PR #34.
 
 ---
 
@@ -171,6 +171,17 @@ Stories with a codex give the AI an index of entries (places, factions, rules, q
 - The catalog only includes each entry's index line, not its text. Lore entries therefore work as descriptions, while records the AI writes (quests, bestiary, factions) work fully.
 - How often the AI checks the codex on its own depends on the model. Asking out of character ("(OOC: update the quest log)") always works.
 
+### Dice and character sheets (Dungeon Mind stories)
+Stories with game rules let the AI roll real dice and keep character sheets:
+- **Rolls** are decided on the server and shown as a card on the reply: the die, the bonus, the DC, and **Success / Fail / Critical**. Supporting rolls are folded away.
+- **Sheets** start from the creator's sheets (stats, inventory, skills) and change as the story plays: damage, healing, gold, items, new skills. The reply lists what changed.
+- Open **Chat Settings → Functions → Character Sheets** (or tap a stat line) to see HP/MP bars, stats, inventory and skills.
+- **Functions** lists the story's tools. The story's required tools stay on; the rest you can switch per chat.
+- **The Dungeon Mind handles the mechanics.** A separate, tool-reliable model (default **Claude Haiku**) rolls the dice and updates the sheets before your story model writes. Your story model (DeepSeek or anything else) only narrates the outcome, so mechanics work with any story model.
+  - Change it, or turn it off, in **Chat Settings → Functions → Dungeon Mind model** or **Default Chat Settings**.
+  - Cost: about $0.002 a turn in testing. The reply starts about 20 s after sending, because the rules run first.
+  - If the Dungeon Mind fails or declines a scene (Claude may refuse explicit content), your story model handles the dice that turn, and a notice tells you.
+
 ### Imports
 - **The Import library** (`/imports`) adds personal character cards and stories from Isekai Zero, Chub, JanitorAI and anime.gf links, or from exported files. See [docs/IMPORTING.md](docs/IMPORTING.md).
 
@@ -219,7 +230,8 @@ Then go to **Settings → Providers → Voice (TTS) → Local / Kokoro**, base U
 | 5f | Music: a brief, then NanoGPT music with ElevenLabs Music as the backup | Done (#31) |
 | 5g | Manga: scripted pages of panels, chained, with edit / regenerate / history | Done (#32) |
 | 3a | Codex: index, on-demand reads, AI-kept records, codex browser | Done (#33) |
-| 3b–3c | Dungeon Mind v2 tools (dice, stats, inventory), characters saved to the cast, story endings | Next |
+| 3b | Dice and character sheets, story tool settings | Done (#34) |
+| 3c | Characters saved to the cast, story endings, remaining tool settings, fallback for models without tools | Next |
 | 4 | Composer parity: slash commands, Improvise, RETRY+, OOC, personas, Honor mode, history tools | Planned |
 | 6 | Creation studio: your own stories and characters | Planned |
 | 7 | Remaining pages and visual polish | Planned |
