@@ -298,7 +298,13 @@ The gap: Default Chat Settings could only really use models from the site's buil
     - A second illustration chained from the first: same temple, monster, lighting and outfits, $0.051.
   - Also fixed: scene prompts ended mid-sentence ("She .") and listed "Name: ;" for catalog characters without appearance text.
   - Not done: appearance loadouts (several outfits per character) need a chat-local cast, which lands with Phase 3.
-- [ ] **Manga:** 1–8 panels per page, up to 2 pages; per-page edit, regenerate and revert. Built from an LLM panel script plus NanoGPT images.
+- [x] **Manga (5g):** More → Manga on a reply: 1–2 pages (Chat Settings → Manga Generation, default 2) of up to 8 panels; per-page Edit, Regenerate and Page History (revert).
+  - A script call (the chat's text model) writes `page N / panel: <shot> | <Name: "line">`; each page is one image from the chat's image model, drawn in order.
+  - Page 1 chains from the last manga page of an earlier reply, page 2 from page 1; the named cast's art is referenced too (labelled in the prompt). Edit sends the page itself as reference 1 with the instruction.
+  - Pages and their history are copied to `data/media` like images and videos.
+  - Live on the monster scene (Seedream 5.0 Pro, 2026-10-14): two 6-panel black-and-white pages with speech bubbles, about 2 min and $0.05 each; Elen, Mira and Lyra stayed consistent across both pages.
+  - Known limit: lettering can come out garbled ("it'll lclil come"). An Edit asking to fix that bubble kept the page intact but did not fix the text; small text is a weakness of the image model.
+  - Not done: the site's confirm about cost per generation (here a confirm only appears when replacing existing pages).
 - [x] **Video scenes (5e):** Animate on a message plans 1–2 beats and chains them; Animate on one image still animates just that image.
   - A director call (the chat's text model) writes `beat: <seconds> | <prompt>` lines; lengths snap to the model's options and are capped by the Duration picked in Scene Videos (video is priced per second).
   - Beat 1 animates the reply's illustration, or is text-to-video with the cast's art as `reference_images` on models that take them (Seedance 2.0; flagged from the catalog).

@@ -313,6 +313,21 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
             </p>
           </AccordionCard>
 
+          <AccordionCard title="Manga Generation" description="Adapts the scene into manga pages and panels (More → Manga on a reply)">
+            <SegmentedControl
+              label="Max Pages per Scene"
+              value={String(settings.mangaPages ?? 2)}
+              onChange={(v) => onChange({ mangaPages: Number(v) })}
+              options={[
+                { value: "1", label: "1 page" },
+                { value: "2", label: "2 pages" },
+              ]}
+            />
+            <p className="mt-2 text-[11px] leading-4 text-white/50">
+              Each page generates around 1-8 panels and is one image from your image model (Seedream 5.0 Pro: about $0.05 a page). 2 pages is recommended but slower and more expensive. Pages chain from the last manga page for continuity.
+            </p>
+          </AccordionCard>
+
           <AccordionCard title="Music Generation" description="Scores the story moment with an AI-composed song (More → Music on a reply)">
             <SegmentedControl
               label="Vocals"

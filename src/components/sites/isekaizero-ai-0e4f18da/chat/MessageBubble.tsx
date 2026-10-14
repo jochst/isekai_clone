@@ -12,6 +12,7 @@ import type { ChatMessage } from "@/types/isekaizero";
 import { MessagePopover, type MessageAction } from "./MessagePopover";
 import { SceneImage } from "./SceneImage";
 import { SceneVideo } from "./SceneVideo";
+import { MangaPages, type MangaPageAction } from "./MangaPages";
 
 export interface MessageBubbleProps {
   message: ChatMessage;
@@ -30,6 +31,7 @@ export interface MessageBubbleProps {
   onAnimateImage: (imageId: string) => void;
   onRegenerateVideo: (videoId: string) => void;
   onCheckVideo: (videoId: string) => void;
+  onMangaPage?: (pageId: string, action: MangaPageAction) => void;
   onEdit: (content: string) => void;
   /** Swipes a retried reply to another version. */
   onSelectChoice: (index: number) => void;
@@ -80,6 +82,7 @@ export function MessageBubble({
   onRegenerateImage,
   onAnimate,
   onAnimateImage,
+  onMangaPage,
   onRegenerateVideo,
   onCheckVideo,
   onEdit,
@@ -280,6 +283,7 @@ export function MessageBubble({
       {message.videos?.map((v) => (
         <SceneVideo key={v.id} video={v} onRegenerate={() => onRegenerateVideo(v.id)} onCheckAgain={() => onCheckVideo(v.id)} />
       ))}
+      {message.manga?.length ? <MangaPages pages={message.manga} onAction={(pageId, action) => onMangaPage?.(pageId, action)} /> : null}
       {message.music?.map((song) => (
         <div key={song.id} className="mt-2 rounded-[12px] border border-white/10 bg-white/[0.04] p-3 text-[12px] text-white/70">
           <div className="flex items-center gap-2 font-semibold text-white/85">

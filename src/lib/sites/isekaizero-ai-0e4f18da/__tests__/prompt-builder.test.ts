@@ -3,7 +3,7 @@ import { normalizeImport } from "@/lib/imports/cards";
 import type { ChatMessage, ChatSession, Storyline } from "@/types/isekaizero";
 import { DEFAULT_CHAT_SETTINGS, resolveNewChatSettings } from "../chat-store";
 import { DEFAULT_CHAT_SETTINGS as PLAYER_DEFAULTS } from "@/components/sites/isekaizero-ai-0e4f18da/settings/use-default-chat-settings";
-import { assemblePrompt, buildScenePrompt, illustrationReferences, musicBriefPrompt, parseMusicBrief, parseVideoBeats, resolveTextModel, videoScenePlanPrompt } from "../prompt-builder";
+import { assemblePrompt, buildScenePrompt, illustrationReferences, mangaPagePrompt, mangaReferences, mangaScriptPrompt, musicBriefPrompt, parseMangaScript, parseMusicBrief, parseVideoBeats, resolveTextModel, videoScenePlanPrompt } from "../prompt-builder";
 import { STORYLINES } from "../mock-data";
 import { DEFAULT_PROVIDER_SETTINGS } from "../provider-settings";
 import { LLM_CATALOG } from "../catalog";
@@ -206,3 +206,36 @@ describe("music brief", () => {
     expect(parseMusicBrief("garbage", "auto", "fallback")).toEqual({ style: "fallback", instrumental: true });
   });
 });
+
+describe("manga", () => {
+  it("asks for the requested pages and panel form", () => {
+    const [system] = mangaScriptPrompt(STORYLINES[0], [{ id: "1", role: "assistant", content: "The beast roars.", createdAt: 1 }], { pages: 2, perspective: "pov" });
+    expect(system.content).toContain("2 manga pages");
+    expect(system.content).toContain("never draw them");
+  });
+
+  it("parses pages of panels, caps pages and panels, and drops 'none' dialogue", () => {
+    const panels = Array.from({ length: 10 }, (_, i) => `panel: Shot ${i + 1} | none`).join("\n");
+    const text = `Sure!\n**Page 1**\npanel: Mira runs | Mira: "Run!"\n- Panel 2: Elen turns | none\npage 2\n${panels}\npage 3\npanel: extra | none`;
+    const pages = parseMangaScript(text, 2);
+    expect(pages).toHaveLength(2);
+    expect(pages[0]).toEqual([{ shot: "Mira runs", dialogue: 'Mira: "Run!"' }, { shot: "Elen turns", dialogue: "" }]);
+    expect(pages[1]).toHaveLength(8);
+    expect(parseManga("nothing here")).toEqual([]);
+    expect(mangaPagePrompt(STORYLINES[0], pages[0], 1)).toContain('2 panels in a dynamic layout');
+    expect(mangaPagePrompt(STORYLINES[0], pages[0], 1)).toContain('Panel 1: Mira runs Speech bubble: Mira: "Run!"');
+  });
+
+  it("chains from this reply's previous page, else the latest earlier manga page", () => {
+    const page = (url: string, status: "done" | "error" = "done") => ({ id: url, page: 1, status, url, prompt: "", model: "m", createdAt: 1 });
+    const messages: ChatMessage[] = [
+      { id: "1", role: "assistant", content: "Before.", createdAt: 1, manga: [page("/api/media/a.png"), page("/api/media/b.png", "error")] },
+      { id: "2", role: "assistant", content: "Now.", createdAt: 1 },
+    ];
+    expect(mangaReferences(STORYLINES[0], messages, 1).urls[0]).toBe("/api/media/a.png");
+    expect(mangaReferences(STORYLINES[0], messages, 1, "https://x/p1.png").urls[0]).toBe("https://x/p1.png");
+    expect(mangaReferences(STORYLINES[0], messages, 1).note).toContain("1. the previous manga page");
+  });
+});
+
+const parseManga = (t: string) => parseMangaScript(t, 2);
