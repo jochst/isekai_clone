@@ -93,13 +93,22 @@ export function deleteChat(db: DatabaseSync, id: string): void {
   db.prepare("DELETE FROM chats WHERE id = ?").run(id);
 }
 
-/** Copies generated images and finished videos to `data/media/` so they outlive the provider's URLs. */
+/** Copies generated images, finished videos and manga pages (with their history) to `data/media/` so they outlive the provider's URLs. */
 export async function localizeMessages(messages: ChatMessage[]): Promise<ChatMessage[]> {
   return Promise.all(
     messages.map(async (m) => ({
       ...m,
       images: m.images && (await Promise.all(m.images.map(async (img) => (img.status === "done" ? { ...img, url: await localizeMedia(img.url) } : img)))),
       videos: m.videos && (await Promise.all(m.videos.map(async (v) => (v.status === "done" ? { ...v, url: await localizeMedia(v.url) } : v)))),
+      manga:
+        m.manga &&
+        (await Promise.all(
+          m.manga.map(async (p) => ({
+            ...p,
+            url: p.url && (await localizeMedia(p.url)),
+            versions: p.versions && (await Promise.all(p.versions.map(async (v) => ({ ...v, url: await localizeMedia(v.url) })))),
+          })),
+        )),
     })),
   );
 }

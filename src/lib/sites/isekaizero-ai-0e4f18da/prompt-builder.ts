@@ -343,6 +343,90 @@ export function videoScenePlanPrompt(storyline: Storyline, lastMessages: ChatMes
   ];
 }
 
+/** One manga panel: what is drawn, and the speech bubble ("" for none). */
+export interface MangaPanel {
+  shot: string;
+  dialogue: string;
+}
+
+const MAX_PANELS = 8;
+
+/**
+ * Isekai Zero "Manga Generation": the scene becomes 1–2 pages of 1–8 panels ("2 pages is recommended"). A script call
+ * writes the panels; each page is then drawn as one image.
+ */
+export function mangaScriptPrompt(storyline: Storyline, lastMessages: ChatMessage[], opts: { pages: number; perspective?: ChatSettings["illustrationPerspective"] }): { role: "system" | "user"; content: string }[] {
+  const { cast } = sceneParts(storyline, lastMessages, "third");
+  const reply = [...lastMessages].reverse().find((m) => m.role === "assistant" && m.content.trim())?.content ?? storyline.opening;
+  const scene = reply.replace(/\s+/g, " ").trim().slice(-2500);
+  return [
+    {
+      role: "system",
+      content: [
+        `You are a manga artist adapting a story moment into ${opts.pages === 1 ? "one manga page" : `${opts.pages} manga pages`}. Each page has 3 to ${MAX_PANELS} panels that follow the moment in order.`,
+        "Answer only in this form:",
+        "page 1",
+        "panel: <shot, action and expressions, under 30 words> | <Name: \"short line\"> or none",
+        opts.pages > 1 ? "page 2\npanel: …" : "",
+        "Keep dialogue short (under 12 words per bubble) and in the story's language. More than 4 characters on one page draws poorly.",
+        opts.perspective === "pov" ? "The player is the viewer: show the scene through their eyes and never draw them." : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    },
+    { role: "user", content: `Story: "${storyline.title}". Characters present: ${cast}.\n\nMoment:\n${scene}` },
+  ];
+}
+
+/** Reads the script into pages of panels (at most `pages`, each 1–8 panels). Nothing readable gives no pages. */
+export function parseMangaScript(text: string, pages: number): MangaPanel[][] {
+  const result: MangaPanel[][] = [];
+  for (const line of text.split("\n")) {
+    if (/^\s*\**\s*page\s*\d+/i.test(line)) {
+      if (result.length >= pages) break;
+      result.push([]);
+      continue;
+    }
+    const panel = /^\s*[-*]?\s*panel\s*\d*\s*:\s*(.+?)\s*$/i.exec(line);
+    if (!panel) continue;
+    if (result.length === 0) result.push([]);
+    const [shot, ...rest] = panel[1].split("|");
+    const dialogue = rest.join("|").trim();
+    const current = result[result.length - 1];
+    if (current.length < MAX_PANELS && shot.trim()) current.push({ shot: shot.trim(), dialogue: /^none\.?$/i.test(dialogue) ? "" : dialogue });
+  }
+  return result.filter((p) => p.length > 0);
+}
+
+/** The image prompt for one page: layout, then each panel's art and speech bubble. */
+export function mangaPagePrompt(storyline: Storyline, panels: MangaPanel[], page: number): string {
+  const list = panels.map((p, i) => `Panel ${i + 1}: ${p.shot}${p.dialogue ? ` Speech bubble: ${p.dialogue}` : ""}`).join(" ");
+  return `Manga page ${page} from "${storyline.title}": black-and-white Japanese manga with screentone shading and clean ink lines, ${panels.length} panels in a dynamic layout with clear gutters, read top to bottom. ${list} Lettering in speech bubbles exactly as written, no other text, no watermark.`;
+}
+
+/**
+ * References for a manga page: the previous manga page (this reply's last page, else the latest earlier one) for
+ * continuity of style and designs, then the named cast's art. `note` says which image is which.
+ */
+export function mangaReferences(storyline: Storyline, messages: ChatMessage[], index: number, previousPage?: string): { urls: string[]; note: string } {
+  const previous =
+    previousPage ||
+    messages
+      .slice(0, index)
+      .flatMap((m) => m.manga ?? [])
+      .filter((p) => p.status === "done" && REFERENCE_URL.test(p.url))
+      .at(-1)?.url;
+  const cast = presentCharacters(storyline, messages[index]?.content ?? "")
+    .map((c) => ({ name: c.name, url: looks(c)[0]?.url ?? "" }))
+    .filter((c) => REFERENCE_URL.test(c.url))
+    .slice(0, MAX_CAST_REFERENCES);
+  const labels = [...(previous ? ["the previous manga page (keep its art style, character designs and outfits)"] : []), ...cast.map((c) => c.name)];
+  return {
+    urls: [...(previous ? [previous] : []), ...cast.map((c) => c.url)],
+    note: labels.length > 0 ? `Reference images, in order: ${labels.map((l, i) => `${i + 1}. ${l}`).join("; ")}. Draw each named character to match their reference.` : "",
+  };
+}
+
 export interface MusicBrief {
   style: string;
   instrumental: boolean;

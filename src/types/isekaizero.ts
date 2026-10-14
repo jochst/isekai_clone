@@ -283,6 +283,23 @@ export interface SceneVideo {
   error?: string;
 }
 
+/** One manga page: a single image holding its panels, drawn from the page's script. */
+export interface MangaPage {
+  id: string;
+  /** 1-based page number within the reply. */
+  page: number;
+  status: "generating" | "done" | "error";
+  url: string;
+  /** The image prompt (the page script rendered as panel directions). */
+  prompt: string;
+  model: string;
+  /** Earlier versions, oldest first ("Page History"); the current one is url/prompt. */
+  versions?: { url: string; prompt: string }[];
+  cost?: number;
+  error?: string;
+  createdAt: number;
+}
+
 /** A song for one story moment: NanoGPT music, or ElevenLabs Music as the backup. */
 export interface SceneMusic {
   id: string;
@@ -310,6 +327,8 @@ export interface ChatMessage {
   videos?: SceneVideo[];
   /** Songs scoring this moment (Isekai Zero "Music Generation"). */
   music?: SceneMusic[];
+  /** Manga pages adapting this reply (Isekai Zero "Manga Generation"). */
+  manga?: MangaPage[];
   /** Character speaking, when derivable. */
   speaker?: string;
   /** Visual Novel stage for this reply: background and character images. */
@@ -394,6 +413,8 @@ export interface ChatSettings {
   musicProvider?: "nano-gpt" | "elevenlabs";
   /** Requested length; models that ignore it (Lyria) write a full song. */
   musicSeconds?: number;
+  /** Manga pages per scene: "2 pages is recommended but slower and more expensive". */
+  mangaPages?: number;
   /** "Voice & Narration Enabled": speak replies (narrator only in Narration mode, character voices in Visual Novel). */
   voiceEnabled?: boolean;
   /** "Auto Play on New Messages". */
