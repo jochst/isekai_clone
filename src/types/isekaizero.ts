@@ -529,6 +529,11 @@ export interface ChatSettings {
   codexEnabled?: boolean;
   /** Per-chat on/off for the story's optional AI tools, by tool id (required tools are always on). */
   tools?: Record<string, boolean>;
+  /**
+   * Dungeon Mind model: a separate tool-reliable model resolves dice, stats and records before the story model
+   * writes (default Claude Haiku). "off" lets the story model call those tools itself.
+   */
+  dmModel?: string;
   /** "Voice & Narration Enabled": speak replies (narrator only in Narration mode, character voices in Visual Novel). */
   voiceEnabled?: boolean;
   /** "Auto Play on New Messages". */

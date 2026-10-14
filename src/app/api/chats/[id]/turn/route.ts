@@ -4,7 +4,8 @@ import type { ChatMessage, ChatSession, MessageUsage } from "@/types/isekaizero"
 import { findStoryline } from "@/lib/chats/storyline";
 import { noEvents, runServerTool, SERVER_TOOL_NAMES, type ToolState } from "@/lib/chats/server-tools";
 import { parseTurnRequest, planTurn, readCompletionStream, settleOutcome, type StreamOutcome, type ToolCall } from "@/lib/chats/turn";
-import { assemblePrompt } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-builder";
+import { assemblePrompt, dungeonMindModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-builder";
+import { runDungeonMind } from "@/lib/chats/dungeon-mind";
 import { authHeaders, fetchWithRetry, providerErrorMessage, readProviderContext, reasoningParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 export const runtime = "nodejs";
@@ -46,10 +47,30 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   let toolState: ToolState = withChatDb((db) => ({ codex: getCodexState(db, chatId), sheets: getSheets(db, chatId) }));
   const contextLimit = chat.settings.contextLimitOverride || turn.contextLimit;
-  const prompt = assemblePrompt(storyline, { ...chat, messages: plan.history }, { takeTurn: turn.takeTurn, retryInstruction: turn.instruction, contextLimit, codex: toolState.codex });
+  const promptOptions = { takeTurn: turn.takeTurn, retryInstruction: turn.instruction, contextLimit };
+  let prompt = assemblePrompt(storyline, { ...chat, messages: plan.history }, { ...promptOptions, codex: toolState.codex });
   if (prompt.context.full) {
     // Isekai Zero's "Context Full" (contextFullError.description).
     return Response.json({ error: "Context Full: the conversation has exceeded this model's memory limit. Please switch to a model with a larger memory or summarize the story to free up space." }, { status: 413 });
+  }
+  // The Dungeon Mind (a tool-reliable model, default Claude Haiku) resolves dice and sheets before the story model
+  // writes, so any story model gets working mechanics. If it fails or declines, the story model uses the tools itself.
+  const started = Date.now();
+  const events = noEvents();
+  const dmModel = dungeonMindModel(storyline, chat.settings);
+  let dmUsage: StreamOutcome["usage"];
+  let notice: string | undefined;
+  if (dmModel) {
+    try {
+      const dm = await runDungeonMind({ ctx, model: dmModel, storyline, history: plan.history, settings: chat.settings, state: toolState, events, signal: request.signal });
+      toolState = dm.state;
+      dmUsage = dm.usage;
+      prompt = assemblePrompt(storyline, { ...chat, messages: plan.history }, { ...promptOptions, codex: toolState.codex, dmRuling: dm.ruling });
+    } catch (e) {
+      if (request.signal.aborted) return new Response(null, { status: 499 });
+      Object.assign(events, noEvents()); // nothing a failed Dungeon Mind did is kept
+      notice = `Dungeon Mind (${dmModel}) unavailable: ${e instanceof Error ? e.message : "request failed"}. The story model handled dice and stats this turn.`;
+    }
   }
   const complete = (messages: unknown[]) =>
     fetchWithRetry(`${ctx.baseUrl}/chat/completions`, {
@@ -67,13 +88,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       }),
       signal: request.signal,
     });
-  const started = Date.now();
   let firstTokenMs: number | undefined;
   const first = await complete(prompt.messages).catch((e: unknown) => e as Error);
   if (first instanceof Error) return Response.json({ error: `Could not reach provider: ${first.message}` }, { status: 502 });
   if (!first.ok || !first.body) return Response.json({ error: await providerErrorMessage(first) }, { status: first.status || 502 });
 
-  const events = noEvents();
   const save = (outcome: StreamOutcome) => {
     const usage: MessageUsage = { model: turn.model, ...outcome.usage, firstTokenMs, totalMs: Date.now() - started };
     const result = settleOutcome(chat, plan, outcome.content, outcome.toolCalls.length > 0, usage);
@@ -106,7 +125,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       // writes nothing, the earlier text is kept rather than losing the reply.
       let text = "";
       let earlier = "";
-      let usage: StreamOutcome["usage"];
+      let usage: StreamOutcome["usage"] = dmUsage;
       const clientCalls: ToolCall[] = [];
       try {
         let body = first.body!;
@@ -146,7 +165,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           // The cap ran out before any text: usually a reasoning model thinking through the whole budget.
           send({ type: "error", error: "The model used its whole token limit before writing anything (most likely reasoning). Turn Reasoning off, raise the response token limit, or pick a non-reasoning model." });
         } else {
-          send({ type: "done", ...saved, toolCalls: clientCalls, usage });
+          send({ type: "done", ...saved, toolCalls: clientCalls, usage, ...(notice ? { notice } : {}) });
         }
       } catch (e) {
         if (request.signal.aborted) {

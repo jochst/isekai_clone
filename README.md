@@ -177,7 +177,10 @@ Stories with game rules let the AI roll real dice and keep character sheets:
 - **Sheets** start from the creator's sheets (stats, inventory, skills) and change as the story plays: damage, healing, gold, items, new skills. The reply lists what changed.
 - Open **Chat Settings → Functions → Character Sheets** (or tap a stat line) to see HP/MP bars, stats, inventory and skills.
 - **Functions** lists the story's tools. The story's required tools stay on; the rest you can switch per chat.
-- **Pick a model that uses tools well.** In testing, DeepSeek rolled dice but never updated sheets, while Claude Haiku 5.5 did everything (about $0.003 a turn).
+- **The Dungeon Mind handles the mechanics.** A separate, tool-reliable model (default **Claude Haiku**) rolls the dice and updates the sheets before your story model writes. Your story model (DeepSeek or anything else) only narrates the outcome, so mechanics work with any story model.
+  - Change it, or turn it off, in **Chat Settings → Functions → Dungeon Mind model** or **Default Chat Settings**.
+  - Cost: about $0.002 a turn in testing. The reply starts about 20 s after sending, because the rules run first.
+  - If the Dungeon Mind fails or declines a scene (Claude may refuse explicit content), your story model handles the dice that turn, and a notice tells you.
 
 ### Imports
 - **The Import library** (`/imports`) adds personal character cards and stories from Isekai Zero, Chub, JanitorAI and anime.gf links, or from exported files. See [docs/IMPORTING.md](docs/IMPORTING.md).

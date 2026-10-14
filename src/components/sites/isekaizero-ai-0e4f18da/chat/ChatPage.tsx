@@ -846,6 +846,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
 
         const afterTurn = getChatSession(sessionId);
         let illustratedByTool = false;
+        if (done?.notice) showToast(done.notice);
         for (const tc of saved.toolCalls) {
           dispatchToolCall(plan.reply.id, tc, afterTurn?.messages ?? []);
           if (tc.function.name === "illustrate_scene") illustratedByTool = true;

@@ -8,7 +8,8 @@ import { ImageModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/imag
 import { useProviderCatalog } from "@/components/sites/isekaizero-ai-0e4f18da/image-generation/use-provider-catalog";
 import { VideoModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoModelPicker";
 import { VideoParamsForm, paramSummary } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoParamsForm";
-import { resolveImageModel, resolveVideoModel, toolEnabled, type ContextReport, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
+import { DEFAULT_DM_MODEL, resolveImageModel, resolveVideoModel, toolEnabled, type ContextReport, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
+import { DM_MODELS } from "@/lib/sites/isekaizero-ai-0e4f18da/dm-models";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import type { ChatSession, ChatSettings, ProviderSettings, ReasoningEffort, Storyline, VideoParamValue } from "@/types/isekaizero";
@@ -413,6 +414,23 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
                   />
                 );
               })}
+              <label className="mt-3 block text-[13px] text-white/70">
+                Dungeon Mind model
+                <select
+                  value={settings.dmModel || DEFAULT_DM_MODEL}
+                  onChange={(e) => onChange({ dmModel: e.target.value })}
+                  className="mt-1 block h-10 w-full rounded-[10px] border border-white/15 bg-[#0b0f2e] px-2 text-[13px] text-white"
+                >
+                  {DM_MODELS.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+                <span className="mt-1 block text-[11px] leading-4 text-white/50">
+                  Resolves dice and sheets before the story model writes, so any story model gets working mechanics. Your story model still writes every word. If it declines a scene, the story model handles the tools that turn.
+                </span>
+              </label>
               {storyline.statSchema?.length || storyline.characters.some((c) => c.sheet) ? (
                 <button type="button" onClick={onOpenSheets} className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10">
                   Character Sheets
