@@ -3,7 +3,7 @@ import { normalizeImport } from "@/lib/imports/cards";
 import type { ChatMessage, ChatSession, Storyline } from "@/types/isekaizero";
 import { DEFAULT_CHAT_SETTINGS, resolveNewChatSettings } from "../chat-store";
 import { DEFAULT_CHAT_SETTINGS as PLAYER_DEFAULTS } from "@/components/sites/isekaizero-ai-0e4f18da/settings/use-default-chat-settings";
-import { assemblePrompt, buildScenePrompt, illustrationReferences, parseVideoBeats, resolveTextModel, videoScenePlanPrompt } from "../prompt-builder";
+import { assemblePrompt, buildScenePrompt, illustrationReferences, musicBriefPrompt, parseMusicBrief, parseVideoBeats, resolveTextModel, videoScenePlanPrompt } from "../prompt-builder";
 import { STORYLINES } from "../mock-data";
 import { DEFAULT_PROVIDER_SETTINGS } from "../provider-settings";
 import { LLM_CATALOG } from "../catalog";
@@ -188,5 +188,21 @@ describe("video scene beats", () => {
     expect(beats[0].prompt).toMatch(/^Mira stumbles back\. Anime style/);
     expect(parseVideoBeats("no plan", [5, 10], "fallback")).toEqual([{ prompt: "fallback", seconds: 5 }]);
     expect(parseVideoBeats("beat: 8 | Go.", [], "f")[0].seconds).toBe(0);
+  });
+});
+
+describe("music brief", () => {
+  it("passes the vocals choice and the player's instructions", () => {
+    const [system] = musicBriefPrompt(STORYLINES[0], [{ id: "1", role: "assistant", content: "The duel begins.", createdAt: 1 }], { vocals: "instrumental", instructions: "taiko drums" });
+    expect(system.content).toContain("answer `vocals: instrumental`");
+    expect(system.content).toContain("taiko drums");
+  });
+
+  it("reads style, vocals and lyrics; the Vocals setting wins", () => {
+    const text = "style: Epic orchestral, 140 BPM\nvocals: sung\nlyrics: Stand your ground / The night is long";
+    expect(parseMusicBrief(text, "auto", "f")).toEqual({ style: "Epic orchestral, 140 BPM", instrumental: false, lyrics: "Stand your ground\nThe night is long" });
+    expect(parseMusicBrief(text, "instrumental", "f")).toEqual({ style: "Epic orchestral, 140 BPM", instrumental: true });
+    expect(parseMusicBrief("style: Calm\nvocals: instrumental\nlyrics: none", "auto", "f")).toEqual({ style: "Calm", instrumental: true });
+    expect(parseMusicBrief("garbage", "auto", "fallback")).toEqual({ style: "fallback", instrumental: true });
   });
 });

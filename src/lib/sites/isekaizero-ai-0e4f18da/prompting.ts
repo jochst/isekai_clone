@@ -375,6 +375,24 @@ export async function pickScene(opts: PickSceneOptions): Promise<{ scene: VnScen
   return { scene: parseScene(text, storyline, reply, previous), requests: generate ? parseRequests(text, storyline, reply) : [] };
 }
 
+export interface GenerateMusicOptions {
+  settings: ProviderSettings;
+  prompt: string;
+  lyrics?: string;
+  instrumental: boolean;
+  model?: string;
+  seconds?: number;
+  provider?: "nano-gpt" | "elevenlabs";
+}
+
+/** One song via /api/music (NanoGPT, with ElevenLabs Music as the backup). Can take a few minutes. */
+export async function generateMusic(opts: GenerateMusicOptions): Promise<{ url: string; provider: "nano-gpt" | "elevenlabs"; model: string; cost?: number; fellBackFrom?: string }> {
+  const { settings, ...body } = opts;
+  const res = await fetch("/api/music", { method: "POST", headers: { "Content-Type": "application/json", ...providerHeaders(settings) }, body: JSON.stringify(body) });
+  if (!res.ok) await readErrorResponse(res);
+  return (await res.json()) as { url: string; provider: "nano-gpt" | "elevenlabs"; model: string; cost?: number; fellBackFrom?: string };
+}
+
 /** A video's last frame, saved locally (`/api/media/…png`), so the next beat can start from it. */
 export async function lastFrame(videoUrl: string): Promise<string> {
   const res = await fetch("/api/media/last-frame", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: videoUrl }) });

@@ -39,6 +39,9 @@ import {
   resolveTextModel,
   resolveVideoModel,
   completeChat,
+  generateMusic,
+  musicBriefPrompt,
+  parseMusicBrief,
   generateStoryMedia,
   lastFrame,
   parseVideoBeats,
@@ -55,7 +58,7 @@ import { chapterPlan } from "@/lib/chats/memory";
 import { applyMedia, fallbackScene, withStoryMedia } from "@/lib/chats/scene";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { isProviderConfigured, resolvePortraitModel, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatMessage, ChatSession, MediaRequest, SceneImage as SceneImageModel, SceneVideo as SceneVideoModel, StoryMedia, VideoParamValue, VnScene } from "@/types/isekaizero";
+import type { ChatMessage, ChatSession, MediaRequest, SceneImage as SceneImageModel, SceneMusic, SceneVideo as SceneVideoModel, StoryMedia, VideoParamValue, VnScene } from "@/types/isekaizero";
 
 import { useProviderCatalog } from "../image-generation/use-provider-catalog";
 import { useModelCatalog } from "../llms/use-model-catalog";
@@ -445,6 +448,48 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     [sessionId, storyline, provider, model.id, catalogStatus, videoSupported, videoReason, videoCatalog, showToast, startClip],
   );
 
+  /**
+   * Music: a music brief (style, sung or instrumental, lyrics) from the moment, then one song from NanoGPT, or from
+   * ElevenLabs Music when chosen or when NanoGPT fails. One song per message at a time.
+   */
+  const makeMusic = useCallback(
+    async (messageId: string) => {
+      const current = getChatSession(sessionId);
+      if (!current || !storyline) return;
+      const index = current.messages.findIndex((m) => m.id === messageId);
+      if (index === -1) return;
+      if (current.messages[index].music?.some((m) => m.status === "generating")) {
+        showToast("A song for this message is already being made");
+        return;
+      }
+      const { musicVocals = "auto", musicInstructions, musicModel, musicProvider = "nano-gpt", musicSeconds = 60 } = current.settings;
+      const song: SceneMusic = { id: newId(), status: "generating", url: "", prompt: "", instrumental: true, model: musicModel || "google/lyria-3.5", provider: musicProvider, createdAt: Date.now() };
+      const setSong = (patch: Partial<SceneMusic>) =>
+        update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === messageId ? { ...m, music: (m.music ?? []).map((x) => (x.id === song.id ? { ...x, ...patch } : x)) } : m)) }), { touch: false });
+      update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === messageId ? { ...m, music: [...(m.music ?? []), song] } : m)) }), { touch: false });
+      showToast("Writing the music brief…");
+      const recent = current.messages.slice(0, index + 1);
+      const fallbackStyle = `Anime soundtrack for "${storyline.title}", ${storyline.category}, cinematic, emotional`;
+      let brief = parseMusicBrief("", musicVocals, fallbackStyle);
+      try {
+        const text = await completeChat({ settings: provider, model: model.id, messages: musicBriefPrompt(storyline, recent, { vocals: musicVocals, instructions: musicInstructions }), temperature: 0.7, maxTokens: 400 });
+        brief = parseMusicBrief(text, musicVocals, fallbackStyle);
+      } catch {
+        /* keep the fallback brief */
+      }
+      setSong({ prompt: brief.style, lyrics: brief.lyrics, instrumental: brief.instrumental });
+      try {
+        const made = await generateMusic({ settings: provider, prompt: brief.style, lyrics: brief.lyrics, instrumental: brief.instrumental, model: musicModel, seconds: musicSeconds, provider: musicProvider });
+        setSong({ status: "done", url: made.url, provider: made.provider, model: made.model, cost: made.cost });
+        addUsage({ cost: made.cost ?? 0 });
+        if (made.fellBackFrom) showToast(`NanoGPT music failed (${made.fellBackFrom}); used ElevenLabs Music instead`);
+      } catch (e) {
+        setSong({ status: "error", error: errorMessage(e, "Music generation failed.") });
+      }
+    },
+    [sessionId, storyline, provider, model.id, update, showToast],
+  );
+
   /* Beat 2 of a video scene starts from beat 1's last frame as soon as beat 1 is done. */
   const chainBeat = useCallback(
     async (job: VideoJob) => {
@@ -783,11 +828,14 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         case "animate":
           animate(message.id);
           return;
+        case "music":
+          void makeMusic(message.id);
+          return;
         default:
           return;
       }
     },
-    [sessionId, update, router, showToast, illustrate, animate, pickSceneFor],
+    [sessionId, update, router, showToast, illustrate, animate, pickSceneFor, makeMusic],
   );
 
   /* ---------------------------------------------------------------- render */

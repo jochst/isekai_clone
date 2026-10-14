@@ -283,6 +283,23 @@ export interface SceneVideo {
   error?: string;
 }
 
+/** A song for one story moment: NanoGPT music, or ElevenLabs Music as the backup. */
+export interface SceneMusic {
+  id: string;
+  status: "generating" | "done" | "error";
+  /** Local `/api/media/…mp3` once done. */
+  url: string;
+  /** The music brief's style prompt. */
+  prompt: string;
+  lyrics?: string;
+  instrumental: boolean;
+  model: string;
+  provider: "nano-gpt" | "elevenlabs";
+  cost?: number;
+  createdAt: number;
+  error?: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant" | "system";
@@ -291,6 +308,8 @@ export interface ChatMessage {
   streaming?: boolean;
   images?: SceneImage[];
   videos?: SceneVideo[];
+  /** Songs scoring this moment (Isekai Zero "Music Generation"). */
+  music?: SceneMusic[];
   /** Character speaking, when derivable. */
   speaker?: string;
   /** Visual Novel stage for this reply: background and character images. */
@@ -366,6 +385,15 @@ export interface ChatSettings {
   playMode?: "narration" | "visualNovel";
   /** Visual Novel: draw a background or expression when the story has none that fits (on unless turned off). */
   vnGenerateMedia?: boolean;
+  /** Music: "Auto" lets the music brief choose sung or instrumental per moment. */
+  musicVocals?: "auto" | "instrumental" | "vocal";
+  /** Optional guidance for every song in this chat (style, instruments, vocals, mood). */
+  musicInstructions?: string;
+  /** NanoGPT music model (default Lyria 3.5), or ElevenLabs Music directly. */
+  musicModel?: string;
+  musicProvider?: "nano-gpt" | "elevenlabs";
+  /** Requested length; models that ignore it (Lyria) write a full song. */
+  musicSeconds?: number;
   /** "Voice & Narration Enabled": speak replies (narrator only in Narration mode, character voices in Visual Novel). */
   voiceEnabled?: boolean;
   /** "Auto Play on New Messages". */

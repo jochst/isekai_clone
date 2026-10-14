@@ -343,6 +343,49 @@ export function videoScenePlanPrompt(storyline: Storyline, lastMessages: ChatMes
   ];
 }
 
+export interface MusicBrief {
+  style: string;
+  instrumental: boolean;
+  lyrics?: string;
+}
+
+/**
+ * Isekai Zero "Music Generation": "A music brief is written from the storyline and recent messages", then a music
+ * model turns it into a song. `vocals` "auto" lets the brief pick sung or instrumental for the moment.
+ */
+export function musicBriefPrompt(storyline: Storyline, lastMessages: ChatMessage[], opts: { vocals: ChatSettings["musicVocals"]; instructions?: string }): { role: "system" | "user"; content: string }[] {
+  const reply = [...lastMessages].reverse().find((m) => m.role === "assistant" && m.content.trim())?.content ?? storyline.opening;
+  const moment = reply.replace(/\s+/g, " ").trim().slice(-1500);
+  const vocals =
+    opts.vocals === "instrumental" ? "The song is instrumental: answer `vocals: instrumental`." : opts.vocals === "vocal" ? "The song is sung: answer `vocals: sung`." : "Choose `vocals: sung` only when a song with words suits the moment; otherwise `vocals: instrumental`.";
+  return [
+    {
+      role: "system",
+      content: [
+        "You are the music director for an anime story. Write a brief for a song that scores the latest moment. Keep the style under 60 words.",
+        "Answer exactly in this form, nothing else:",
+        "style: <genre, instruments, tempo in BPM, mood>",
+        "vocals: <sung | instrumental>",
+        "lyrics: <if sung, 4 to 8 short lines in the story's language, separated by ' / '; if instrumental, none>",
+        vocals,
+        opts.instructions?.trim() ? `The player's music instructions, follow them: ${opts.instructions.trim()}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    },
+    { role: "user", content: `Story: "${storyline.title}" (${storyline.category}). ${storyline.tagline}\n\nMoment:\n${moment}` },
+  ];
+}
+
+/** Reads the brief; the player's Vocals setting wins over the brief's choice. Unreadable answers fall back to `fallbackStyle`. */
+export function parseMusicBrief(text: string, vocals: ChatSettings["musicVocals"], fallbackStyle: string): MusicBrief {
+  const field = (name: string) => new RegExp(`^\\s*${name}\\s*:\\s*(.+)$`, "im").exec(text)?.[1].trim() ?? "";
+  const style = field("style") || fallbackStyle;
+  const sung = vocals === "vocal" || (vocals !== "instrumental" && /^sung/i.test(field("vocals")));
+  const lyrics = field("lyrics").split(/\s*\/\s*/).filter((l) => l && !/^none$/i.test(l)).join("\n");
+  return sung && lyrics ? { style, instrumental: false, lyrics } : { style, instrumental: true };
+}
+
 /** Reads the director's beats; lengths snap to the nearest allowed value. Anything unreadable falls back to one beat. */
 export function parseVideoBeats(text: string, durations: number[], fallbackPrompt: string): VideoBeat[] {
   const nearest = (n: number) => (durations.length === 0 ? 0 : durations.reduce((best, d) => (Math.abs(d - n) < Math.abs(best - n) ? d : best)));

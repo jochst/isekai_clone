@@ -313,6 +313,68 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
             </p>
           </AccordionCard>
 
+          <AccordionCard title="Music Generation" description="Scores the story moment with an AI-composed song (More → Music on a reply)">
+            <SegmentedControl
+              label="Vocals"
+              value={settings.musicVocals ?? "auto"}
+              onChange={(musicVocals) => onChange({ musicVocals })}
+              options={[
+                { value: "auto", label: "Auto" },
+                { value: "instrumental", label: "Instrumental" },
+                { value: "vocal", label: "Sing" },
+              ]}
+            />
+            <div className="mt-3">
+              <SegmentedControl
+                label="Provider"
+                value={settings.musicProvider ?? "nano-gpt"}
+                onChange={(musicProvider) => onChange({ musicProvider })}
+                options={[
+                  { value: "nano-gpt", label: "NanoGPT" },
+                  { value: "elevenlabs", label: "ElevenLabs" },
+                ]}
+              />
+            </div>
+            {(settings.musicProvider ?? "nano-gpt") === "nano-gpt" ? (
+              <label className="mt-3 block text-[13px] text-white/70">
+                Music model
+                <select
+                  value={settings.musicModel || "google/lyria-3.5"}
+                  onChange={(e) => onChange({ musicModel: e.target.value })}
+                  className="mt-1 block h-10 w-full rounded-[10px] border border-white/15 bg-[#0b0f2e] px-2 text-[13px] text-white"
+                >
+                  {MUSIC_MODELS.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+            <div className="mt-3">
+              <SegmentedControl
+                label="Length"
+                value={String(settings.musicSeconds ?? 60)}
+                onChange={(v) => onChange({ musicSeconds: Number(v) })}
+                options={[
+                  { value: "30", label: "30 s" },
+                  { value: "60", label: "1 min" },
+                  { value: "120", label: "2 min" },
+                ]}
+              />
+            </div>
+            <textarea
+              value={settings.musicInstructions ?? ""}
+              onChange={(e) => onChange({ musicInstructions: e.target.value })}
+              placeholder="e.g. Prefer epic orchestral with taiko drums, female vocals"
+              rows={2}
+              className="mt-3 block w-full resize-y rounded-[10px] border border-white/15 bg-white/[0.06] p-2.5 text-[13px] leading-5 text-white outline-none placeholder:text-white/30 focus:border-[#a7b9ff]"
+            />
+            <p className="mt-2 text-[11px] leading-4 text-white/50">
+              With NanoGPT, ElevenLabs Music is the automatic backup if NanoGPT fails (needs ELEVENLABS_API_KEY). Lyria writes a full song whatever the length.
+            </p>
+          </AccordionCard>
+
           <AccordionCard title="Memory" description="Chapters and arcs">
             <p className="text-[13px] leading-[18px] text-white/70">Condense your story into chapters and arcs to save tokens while keeping continuity</p>
             <button
@@ -345,6 +407,14 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
     </>
   );
 }
+
+/** NanoGPT music models (live-checked 2026-10-14; prices from /api/v1/audio-models). */
+const MUSIC_MODELS = [
+  { id: "google/lyria-3.5", label: "Google Lyria 3.5 · $0.11 per song (full length)" },
+  { id: "elevenlabs/music", label: "ElevenLabs Music · $0.01 per second" },
+  { id: "Minimax-Music-2.6", label: "MiniMax Music 2.6 · from $0.15 (sung only)" },
+  { id: "ACE-Step-v1.5-Turbo", label: "ACE-Step 1.5 Turbo · about $0.003 per 30 s" },
+];
 
 const RATE_OPTIONS = [
   { value: "0.8", label: "0.8×" },
