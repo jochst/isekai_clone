@@ -436,8 +436,8 @@ export function deleteSession(id: string): void {
   void api(`/api/chats/${encodeURIComponent(id)}`, { method: "DELETE" }).catch((e) => console.warn("Could not delete chat", e));
 }
 
-/** Duplicates `id` keeping messages up to and including `messageId`; returns the copy. */
-export function branchSession(id: string, messageId: string): ChatSession | undefined {
+/** Duplicates `id` keeping messages up to and including `messageId` (optionally renamed); returns the copy. */
+export function branchSession(id: string, messageId: string, title?: string): ChatSession | undefined {
   const source = getChatSession(id);
   if (!source) return undefined;
   const cut = source.messages.findIndex((m) => m.id === messageId);
@@ -446,6 +446,7 @@ export function branchSession(id: string, messageId: string): ChatSession | unde
   const copy: ChatSession = {
     ...source,
     id: newId(),
+    ...(title?.trim() ? { title: title.trim() } : {}),
     createdAt: now,
     updatedAt: now,
     messages: source.messages.slice(0, cut + 1).map((m) => ({ ...m, streaming: false })),

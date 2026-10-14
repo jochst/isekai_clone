@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import { cn } from "@/lib/utils";
+import { matchCommands, parseInput, type CommandName } from "@/lib/chats/commands";
 
 import { Toggle } from "./primitives";
 
@@ -29,6 +30,10 @@ export interface ComposerProps {
   onError: (message: string) => void;
   /** The story ended (end_story): nothing more can be sent; Erase (or Retry on the reply) reopens it. */
   ended?: boolean;
+  /** A chat command ("/name input") was sent. */
+  onCommand?: (name: CommandName, input: string) => void;
+  /** Text to put in the box (e.g. a command picked in the guide); a new nonce applies it again. */
+  prefill?: { text: string; nonce: number };
 }
 
 const QUICK_PILL =
@@ -52,10 +57,19 @@ export function Composer({
   onRequestDestinies,
   onError,
   ended = false,
+  onCommand,
+  prefill,
 }: ComposerProps) {
   // An ended story takes no new turns; Erase stays available to reopen it.
   const open = configured && !ended;
   const [draft, setDraft] = useState("");
+  // A picked command fills the box (render-time adjust, so no effect is needed).
+  const [seenPrefill, setSeenPrefill] = useState(prefill?.nonce);
+  if (prefill && prefill.nonce !== seenPrefill) {
+    setSeenPrefill(prefill.nonce);
+    setDraft(prefill.text);
+  }
+  const suggestions = matchCommands(draft);
   const [destinies, setDestinies] = useState<string[]>([]);
   const [destinyLoading, setDestinyLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -68,18 +82,40 @@ export function Composer({
     };
   }, []);
 
-  const canSend = open && !streaming && draft.trim().length > 0;
+  const canSend = configured && !streaming && draft.trim().length > 0 && (open || draft.trim().startsWith("/"));
 
   const submit = useCallback(() => {
-    const text = draft.trim();
-    if (!text || streaming || !open) return;
+    if (!draft.trim() || streaming) return;
+    const parsed = parseInput(draft);
+    if (parsed.kind === "error") {
+      onError(parsed.message);
+      return;
+    }
+    // Commands work in an ended story too (/undo, /retry, /recap …); the page decides what each may do.
+    if (parsed.kind === "command") {
+      onCommand?.(parsed.name, parsed.input);
+      setDraft("");
+      return;
+    }
+    const text = parsed.text;
+    if (!text || !open) return;
     onSend(text);
     setDraft("");
     setDestinies([]);
     textareaRef.current?.focus();
-  }, [draft, streaming, open, onSend]);
+  }, [draft, streaming, open, onSend, onCommand, onError]);
+
+  const pickCommand = (name: string) => {
+    setDraft(`/${name} `);
+    textareaRef.current?.focus();
+  };
 
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Tab" && suggestions.length > 0) {
+      e.preventDefault();
+      pickCommand(suggestions[0].name);
+      return;
+    }
     if (e.key !== "Enter" || e.nativeEvent.isComposing) return;
     const wantsSend = sendOnEnter ? !e.shiftKey : e.ctrlKey || e.metaKey;
     if (!wantsSend) return;
@@ -117,6 +153,18 @@ export function Composer({
             <Link href="/settings/providers" className="shrink-0 font-semibold text-[#a7b9ff] hover:underline">
               Open Providers ›
             </Link>
+          </div>
+        ) : null}
+
+        {suggestions.length > 0 ? (
+          <div role="listbox" aria-label="Chat commands" className="iz-scroll-thin max-h-[240px] overflow-y-auto rounded-[12px] border border-white/12 bg-[#151745] p-1 shadow-lg">
+            {suggestions.map((c) => (
+              <button key={c.name} type="button" role="option" aria-selected={false} onClick={() => pickCommand(c.name)} className="flex w-full items-baseline gap-2 rounded-[8px] px-3 py-1.5 text-left hover:bg-white/[0.08]">
+                <span className="shrink-0 text-[13px] font-semibold text-white">/{c.name}</span>
+                {c.hint ? <span className="shrink-0 text-[12px] text-white/40">{c.hint}</span> : null}
+                <span className="truncate text-[12px] text-white/55">{c.description}</span>
+              </button>
+            ))}
           </div>
         ) : null}
 
@@ -165,9 +213,9 @@ export function Composer({
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={onKeyDown}
             rows={1}
-            placeholder={ended ? "This story has ended. Erase or Retry the last reply to continue it." : "Write your action or dialogue…"}
+            placeholder={ended ? "This story has ended. Erase or Retry the last reply to continue it." : "Write your action or dialogue… (type / for commands)"}
             aria-label="Message"
-            disabled={!open}
+            disabled={!configured}
             className="iz-scroll-thin block max-h-[160px] w-full resize-none bg-transparent text-[15px] leading-[22px] text-white outline-none placeholder:text-white/40 [field-sizing:content] disabled:cursor-not-allowed"
           />
           {streaming ? (

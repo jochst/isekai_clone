@@ -103,6 +103,14 @@ describe("cast, endings and tool fallback", () => {
     expect(withChatDb((db) => getChat(db, "p1"))!.messages.at(-1)!.content).toBe("Mira runs home.");
   });
 
+  it("refuses retries in Honor mode", async () => {
+    withChatDb((db) => saveChat(db, { id: "h1", storylineId: story.id, title: "T", createdAt: 1, updatedAt: 1, playerName: "Kai", settings: { ...DEFAULT_CHAT_SETTINGS, honorMode: true }, messages: [{ id: "o", role: "assistant", content: "Go.", createdAt: 1 }, { id: "u", role: "user", content: "Hi", createdAt: 2 }, { id: "r", role: "assistant", content: "Hello.", createdAt: 3 }] }));
+    vi.stubGlobal("fetch", vi.fn());
+    const res = await turn("h1", { type: "retry" });
+    expect(res.status).toBe(409);
+    expect((await res.json()).error).toContain("Honor mode");
+  });
+
   it("plays the turn without tools when the model rejects them, and says so", async () => {
     newChat("c3");
     const fetchMock = vi

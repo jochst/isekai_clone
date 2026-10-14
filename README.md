@@ -4,7 +4,7 @@ A local, single-user clone of **[isekaizero.ai](https://www.isekaizero.ai)**, th
 
 Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript (strict)**, **Tailwind CSS v4** and **SQLite**.
 
-The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2, 3 and 5, as of PR #35.
+The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2, 3, 4a and 5, as of PR #36.
 
 ---
 
@@ -188,6 +188,16 @@ Stories with game rules let the AI roll real dice and keep character sheets:
 - **Endings:** stories with the ending tool can conclude with an ending card (title, tone and epilogue). After that the chat is locked; **Erase** or **Retry** the last reply to keep going.
 - If your story model doesn't record characters itself, the **Dungeon Mind** model does it after each reply.
 
+### Chat commands
+Type **/** in the message box for the command palette (**Tab** completes), or **/help** for the full guide. The highlights:
+- **Steering the story:** `/steer what should happen`, `/skip three days`, `/cut the harbor at dawn`, `/end how it ends`, `/continue`, `/improvise your idea`, and `/retry what to change` (rewrite with an instruction). The reply gets a badge showing what shaped it.
+- **Rolling your own dice:** `/roll 2d6+3 adv dc 15 pick the lock`. The result becomes your turn, and the AI must honor it.
+- **Talking to the AI:** `/ooc your question` asks out of character (kept out of the story), and `/recap` gives a "Previously..." summary.
+- **Media and memory:** `/illustrate`, `/manga`, `/music`, `/video`, `/vn`, `/narrate`, `/chapter` and `/arc`, most with optional guidance.
+- **Chat:** `/undo`, `/branch name`, `/search words`, `/model`, `/pov 2nd`, `/length short` and `/settings`.
+- **Honor mode** (Chat Settings, before your first turn) makes the run forward-only: no retries, edits, erasing or branches.
+- Start a message with **//** to send a literal slash.
+
 ### Imports
 - **The Import library** (`/imports`) adds personal character cards and stories from Isekai Zero, Chub, JanitorAI and anime.gf links, or from exported files. See [docs/IMPORTING.md](docs/IMPORTING.md).
 
@@ -238,7 +248,8 @@ Then go to **Settings → Providers → Voice (TTS) → Local / Kokoro**, base U
 | 3a | Codex: index, on-demand reads, AI-kept records, codex browser | Done (#33) |
 | 3b | Dice and character sheets, story tool settings | Done (#34) |
 | 3c | Characters saved to the cast, story endings, remaining tool settings, fallback for models without tools | Done (#35) |
-| 4 | Composer parity: slash commands, Improvise, RETRY+, OOC, personas, Honor mode, history tools | Planned |
+| 4a | Chat commands (all 28), RETRY+, OOC, recap, player dice, Honor mode | Done (#36) |
+| 4b–4c | Personas, guidance prompt, UI settings, chat history (archive, trash, saved messages, export) | Next |
 | 6 | Creation studio: your own stories and characters | Planned |
 | 7 | Remaining pages and visual polish | Planned |
 

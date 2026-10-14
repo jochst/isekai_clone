@@ -10,6 +10,7 @@ import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider
 import type { ChatMessage, DiceRoll, StoryEnding } from "@/types/isekaizero";
 
 import { MessagePopover, type MessageAction } from "./MessagePopover";
+import { DIRECTION_BADGES } from "@/lib/chats/commands";
 import { SceneImage } from "./SceneImage";
 import { SceneVideo } from "./SceneVideo";
 import { MangaPages, type MangaPageAction } from "./MangaPages";
@@ -38,6 +39,8 @@ export interface MessageBubbleProps {
   onOpenSheets?: () => void;
   /** Opens the cast panel (from the character chips on a reply). */
   onOpenCast?: () => void;
+  /** Actions removed from the menu (Honor mode: no edit, delete or branch). */
+  lockedActions?: MessageAction[];
   onEdit: (content: string) => void;
   /** Swipes a retried reply to another version. */
   onSelectChoice: (index: number) => void;
@@ -119,6 +122,7 @@ export function MessageBubble({
   onOpenCodex,
   onOpenSheets,
   onOpenCast,
+  lockedActions = [],
   onRegenerateVideo,
   onCheckVideo,
   onEdit,
@@ -273,16 +277,18 @@ export function MessageBubble({
 
   if (message.role === "user") {
     return (
-      <div className="flex max-w-[78%] flex-col items-end self-end">
-        <div className="iz-btn-primary w-full rounded-[16px_16px_4px_16px] px-4 py-3 text-[15px] leading-[22px]">
+      <div id={`msg-${message.id}`} className="flex max-w-[78%] flex-col items-end self-end">
+        <div className={cn("w-full rounded-[16px_16px_4px_16px] px-4 py-3 text-[15px] leading-[22px]", message.ooc ? "border border-dashed border-white/30 bg-white/[0.06]" : "iz-btn-primary")}>
+          {message.ooc ? <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.6px] text-white/60">Out of character</div> : null}
           {editing ? editor : <p className="whitespace-pre-wrap break-words">{message.content}</p>}
           {infoLine}
         </div>
+        {message.rolls?.length ? <div className="w-full"><DiceRolls rolls={message.rolls} /></div> : null}
         <div className="mt-1 flex items-center gap-[6px] opacity-85">
           <span className="text-[11px] text-white/40">
             #{index + 1} · {formatTime(message.createdAt)}
           </span>
-          <MessagePopover open={menuOpen} onClose={() => setMenuOpen(false)} onAction={handleAction} hidden={["illustration", "animate", "manga", "visualNovel"]}>
+          <MessagePopover open={menuOpen} onClose={() => setMenuOpen(false)} onAction={handleAction} hidden={["illustration", "animate", "manga", "visualNovel", ...lockedActions]}>
             <button type="button" aria-label="More" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)} className={cn(PILL, "px-2")}>
               <MoreHorizontal size={14} />
             </button>
@@ -297,8 +303,19 @@ export function MessageBubble({
   const choiceIndex = message.choiceIndex ?? choiceCount - 1;
 
   return (
-    <div className="w-full max-w-full self-start rounded-[16px] border border-[rgba(167,185,255,0.18)] bg-[rgba(17,18,60,0.75)] px-4 py-[14px]">
-      <div className="mb-[6px] text-[11px] font-bold uppercase tracking-[0.5px] text-[#a7b9ff]">{message.speaker || "Narrator"}</div>
+    <div
+      id={`msg-${message.id}`}
+      className={cn("w-full max-w-full self-start rounded-[16px] px-4 py-[14px]", message.ooc ? "border border-dashed border-white/25 bg-white/[0.04]" : "border border-[rgba(167,185,255,0.18)] bg-[rgba(17,18,60,0.75)]")}
+    >
+      <div className="mb-[6px] flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-[0.5px] text-[#a7b9ff]">
+        {message.ooc ? "Out of character" : message.speaker || "Narrator"}
+        {message.direction ? (
+          <span className="rounded-[8px] bg-[#a7b9ff]/12 px-2 py-0.5 text-[10px] normal-case tracking-normal text-[#c9d4ff]" title={message.direction.text}>
+            {DIRECTION_BADGES[message.direction.kind]}
+            {message.direction.text ? `: ${message.direction.text.length > 60 ? `${message.direction.text.slice(0, 60)}…` : message.direction.text}` : ""}
+          </span>
+        ) : null}
+      </div>
       {editing ? (
         editor
       ) : (
@@ -433,7 +450,7 @@ export function MessageBubble({
             <RefreshCw size={14} /> Retry
           </button>
         ) : null}
-        <MessagePopover open={menuOpen} onClose={() => setMenuOpen(false)} onAction={handleAction} hidden={streaming ? ["edit", "branch", "illustration", "animate"] : []}>
+        <MessagePopover open={menuOpen} onClose={() => setMenuOpen(false)} onAction={handleAction} hidden={streaming ? ["edit", "branch", "illustration", "animate", ...lockedActions] : lockedActions}>
           <button type="button" aria-label="More" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)} className={PILL}>
             <MoreHorizontal size={14} /> More
           </button>

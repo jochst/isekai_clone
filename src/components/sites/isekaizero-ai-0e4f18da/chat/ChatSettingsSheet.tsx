@@ -127,6 +127,20 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
             />
           </AccordionCard>
 
+          <AccordionCard title="Honor mode" description="One run, forward only: no retries, no edits, no erasing messages, no branches. You can still restart or delete the chat.">
+            <SettingRow
+              title="Honor mode"
+              description={
+                session.messages.some((m) => m.role === "user" && !m.ooc)
+                  ? "Decided at the start: locked once the story begins"
+                  : settings.honorMode
+                    ? "Tap to turn off before your first turn"
+                    : "Tap to enable before your first turn"
+              }
+              right={<Toggle label="Honor mode" checked={Boolean(settings.honorMode)} disabled={session.messages.some((m) => m.role === "user" && !m.ooc)} onChange={(honorMode) => onChange({ honorMode })} />}
+            />
+          </AccordionCard>
+
           <AccordionCard title="Voice Narration" description="Generate voice narration for each character in the story">
             <VoiceSettings settings={settings} provider={provider} storyline={storyline} onChange={onChange} />
           </AccordionCard>
