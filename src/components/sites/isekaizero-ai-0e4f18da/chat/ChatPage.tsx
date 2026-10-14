@@ -70,6 +70,7 @@ import { useVideoGeneration, type VideoJob } from "../video-generation/use-video
 
 import { ChatHeader } from "./ChatHeader";
 import { MemorySheet } from "./MemorySheet";
+import { CodexSheet } from "./CodexSheet";
 import { narratorVoice, playSpeech, speechParts } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { VisualNovelStage } from "./VisualNovelStage";
 import { ChatSettingsSheet } from "./ChatSettingsSheet";
@@ -152,6 +153,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const [takeTurn, setTakeTurn] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [memoryOpen, setMemoryOpen] = useState(false);
+  const [codexOpen, setCodexOpen] = useState(false);
   /** In Visual Novel play mode, the text log is one tap away from the stage. */
   const [showLog, setShowLog] = useState(false);
   const [sendOnEnter] = useState(readSendOnEnter);
@@ -1062,6 +1064,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
                 onAnimate={() => animate(message.id)}
                 onAnimateImage={(imageId) => animate(message.id, imageId)}
                 onMangaPage={(pageId, action) => mangaPageAction(message.id, pageId, action)}
+                onOpenCodex={() => setCodexOpen(true)}
                 onRegenerateVideo={(videoId) => regenerateVideo(message.id, videoId)}
                 onCheckVideo={(videoId) => checkVideo(message.id, videoId)}
                 onEdit={(content) => editMessage(message.id, content)}
@@ -1085,7 +1088,16 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         context={context ?? { estimated: 0, limit: contextLimit, trimmedMessages: 0, totalMessages: 0, trimmedChapters: 0, totalChapters: 0, full: false }}
         onChange={(patch) => update((s) => ({ ...s, settings: { ...s.settings, ...patch } }), { touch: false })}
         onOpenMemory={() => (setSettingsOpen(false), setMemoryOpen(true))}
+        onOpenCodex={() => (setSettingsOpen(false), setCodexOpen(true))}
         storyline={storyline}
+      />
+      <CodexSheet
+        open={codexOpen}
+        onClose={() => setCodexOpen(false)}
+        chatId={sessionId}
+        version={session.messages.length}
+        enabled={session.settings.codexEnabled !== false}
+        onSettingsChange={(patch) => update((s) => ({ ...s, settings: { ...s.settings, ...patch } }), { touch: false })}
       />
       <MemorySheet
         open={memoryOpen}

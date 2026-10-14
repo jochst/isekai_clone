@@ -32,12 +32,17 @@ export interface MessageBubbleProps {
   onRegenerateVideo: (videoId: string) => void;
   onCheckVideo: (videoId: string) => void;
   onMangaPage?: (pageId: string, action: MangaPageAction) => void;
+  /** Opens the codex browser (from the codex chips on a reply). */
+  onOpenCodex?: () => void;
   onEdit: (content: string) => void;
   /** Swipes a retried reply to another version. */
   onSelectChoice: (index: number) => void;
   /** Popover actions other than Info/Edit (handled inline) and Illustration (→ onIllustrate). */
   onAction: (action: MessageAction) => void;
 }
+
+/** Codex chips on a reply (what the AI did with the story's knowledge base while writing it). */
+const CODEX_VERBS = { read: "📖 Read:", update: "✎ Updated:", create: "＋ New entry:", delete: "✕ Removed:" } as const;
 
 const TOKEN_RE = /(\*[^*\n]+\*|"[^"\n]+"|“[^”\n]+”)/g;
 
@@ -83,6 +88,7 @@ export function MessageBubble({
   onAnimate,
   onAnimateImage,
   onMangaPage,
+  onOpenCodex,
   onRegenerateVideo,
   onCheckVideo,
   onEdit,
@@ -283,6 +289,15 @@ export function MessageBubble({
       {message.videos?.map((v) => (
         <SceneVideo key={v.id} video={v} onRegenerate={() => onRegenerateVideo(v.id)} onCheckAgain={() => onCheckVideo(v.id)} />
       ))}
+      {message.codex?.length ? (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {[...new Map(message.codex.map((e) => [`${e.action}:${e.slug}`, e])).values()].map((e) => (
+            <button key={`${e.action}:${e.slug}`} type="button" onClick={onOpenCodex} className="rounded-[12px] border border-[#a7b9ff]/25 bg-[#a7b9ff]/10 px-2 py-0.5 text-[11px] text-[#c9d4ff] hover:bg-[#a7b9ff]/20">
+              {CODEX_VERBS[e.action]} {e.title}
+            </button>
+          ))}
+        </div>
+      ) : null}
       {message.manga?.length ? <MangaPages pages={message.manga} onAction={(pageId, action) => onMangaPage?.(pageId, action)} /> : null}
       {message.music?.map((song) => (
         <div key={song.id} className="mt-2 rounded-[12px] border border-white/10 bg-white/[0.04] p-3 text-[12px] text-white/70">

@@ -4,6 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { CONTINUE_SENTINEL, type ChatMemory, type ChatMessage, type ChatSession, type ChatSummary, type StoryMedia } from "@/types/isekaizero";
+import { emptyCodex, type CodexState } from "./codex";
 import { localizeMedia } from "./media";
 
 /**
@@ -33,6 +34,7 @@ export function openChatDb(): DatabaseSync {
     );
     CREATE INDEX IF NOT EXISTS messages_by_seq ON messages (chat_id, seq);
     CREATE TABLE IF NOT EXISTS memory (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS codex (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS story_media (id TEXT PRIMARY KEY, storyline_id TEXT NOT NULL, body TEXT NOT NULL, created INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS story_media_by_story ON story_media (storyline_id, created);`);
   return db;
@@ -160,4 +162,14 @@ export function listStoryMedia(db: DatabaseSync, storylineId: string): StoryMedi
 
 export function addStoryMedia(db: DatabaseSync, storylineId: string, media: StoryMedia): void {
   db.prepare("INSERT INTO story_media (id, storyline_id, body, created) VALUES (?, ?, ?, ?)").run(media.id, storylineId, JSON.stringify(media), Date.now());
+}
+
+/* The chat's codex changes (Phase 3a). Written only by the turn engine, so a client sync never overwrites them. */
+export function getCodexState(db: DatabaseSync, chatId: string): CodexState {
+  const row = db.prepare("SELECT body FROM codex WHERE chat_id = ?").get(chatId);
+  return row ? (JSON.parse(String(row.body)) as CodexState) : emptyCodex();
+}
+
+export function saveCodexState(db: DatabaseSync, chatId: string, state: CodexState): void {
+  db.prepare("INSERT INTO codex (chat_id, body) VALUES (?, ?) ON CONFLICT(chat_id) DO UPDATE SET body = excluded.body").run(chatId, JSON.stringify(state));
 }
