@@ -12,11 +12,11 @@ import { DEFAULT_DM_MODEL } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-buil
 import { DM_MODELS } from "@/lib/sites/isekaizero-ai-0e4f18da/dm-models";
 
 import { SettingsShell, type SettingsTab } from "./SettingsShell";
+import { UiSettingsPanel } from "./UiSettingsPanel";
 import { AccordionCard, InfoNote, SegmentedControl, SettingCard, SettingRow, type SegmentedOption } from "./ui";
 import {
   useDefaultChatSettings,
   type ContinueBehavior,
-  type FontSize,
   type Perspective,
   type ResponseLength,
   type TemperatureLevel,
@@ -72,12 +72,6 @@ const PERSPECTIVE_OPTIONS: readonly SegmentedOption<Perspective>[] = [
 const CONTINUE_OPTIONS: readonly SegmentedOption<ContinueBehavior>[] = [
   { value: "control", label: "Control" },
   { value: "dont-control", label: "Don't Control" },
-];
-
-const FONT_SIZE_OPTIONS: readonly SegmentedOption<FontSize>[] = [
-  { value: "small", label: "Small" },
-  { value: "medium", label: "Medium" },
-  { value: "large", label: "Large" },
 ];
 
 const AUTO_TITLE = "Auto (recommended)";
@@ -329,71 +323,7 @@ export function DefaultChatSettingsPage() {
         </>
       ) : null}
 
-      {tab === "ui" ? (
-        <>
-          <SettingCard>
-            <div className="divide-y divide-[rgba(255,255,255,0.08)]">
-              <SettingRow
-                title="Send Message on Enter (Shift+Enter for New Line)"
-                checked={settings.ui.sendOnEnter}
-                onChange={(sendOnEnter) => update({ ui: { ...settings.ui, sendOnEnter } })}
-                className="pt-0"
-              />
-              <SettingRow
-                title="Auto Scroll to Bottom During Streaming"
-                checked={settings.ui.autoScroll}
-                onChange={(autoScroll) => update({ ui: { ...settings.ui, autoScroll } })}
-              />
-              <SettingRow
-                title="Always Auto Expand Thinking"
-                checked={settings.ui.autoExpandThinking}
-                onChange={(autoExpandThinking) => update({ ui: { ...settings.ui, autoExpandThinking } })}
-              />
-              <SettingRow
-                title="Parallax Effect"
-                checked={settings.ui.parallax}
-                onChange={(parallax) => update({ ui: { ...settings.ui, parallax } })}
-              />
-              <SettingRow
-                title="Hide Choose Your Destiny Button"
-                checked={settings.ui.hideDestiny}
-                onChange={(hideDestiny) => update({ ui: { ...settings.ui, hideDestiny } })}
-                className="pb-0"
-              />
-            </div>
-          </SettingCard>
-
-          <SettingCard title="Font Size">
-            <SegmentedControl
-              label="Font Size"
-              options={FONT_SIZE_OPTIONS}
-              value={settings.ui.fontSize}
-              onChange={(fontSize) => update({ ui: { ...settings.ui, fontSize } })}
-            />
-          </SettingCard>
-
-          <SettingCard title="Background Image Opacity">
-            <div className="flex items-center gap-3">
-              <label htmlFor="iz-bg-opacity" className="sr-only">
-                Background Image Opacity
-              </label>
-              <input
-                id="iz-bg-opacity"
-                type="range"
-                min={0}
-                max={100}
-                step={1}
-                value={settings.ui.backgroundOpacity}
-                onChange={(e) => update({ ui: { ...settings.ui, backgroundOpacity: Number(e.target.value) } })}
-                className="h-1 w-full cursor-pointer accent-[rgb(167,185,255)]"
-              />
-              <span className="w-10 shrink-0 text-right text-[13px] tabular-nums text-[rgba(255,255,255,0.7)]">
-                {settings.ui.backgroundOpacity}%
-              </span>
-            </div>
-          </SettingCard>
-        </>
-      ) : null}
+      {tab === "ui" ? <UiSettingsPanel /> : null}
     </SettingsShell>
   );
 }

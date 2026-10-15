@@ -81,25 +81,12 @@ import { CommandGuideSheet, RecapSheet, SearchSheet } from "./CommandSheets";
 import { narratorVoice, playSpeech, speechParts } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { VisualNovelStage } from "./VisualNovelStage";
 import { ChatSettingsSheet } from "./ChatSettingsSheet";
+import { useDefaultChatSettings } from "../settings/use-default-chat-settings";
+import { chatStyleVars } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-colors";
 import { Composer } from "./Composer";
 import { MessageBubble } from "./MessageBubble";
 import type { MessageAction } from "./MessagePopover";
 import { ToastView, useToast } from "./primitives";
-
-const DEFAULT_SETTINGS_KEY = "iz.default-chat-settings.v1";
-
-/** "Send Message on Enter" from the Default Chat Settings page (defaults to on). */
-function readSendOnEnter(): boolean {
-  if (typeof window === "undefined") return true;
-  try {
-    const raw = window.localStorage.getItem(DEFAULT_SETTINGS_KEY);
-    if (!raw) return true;
-    const parsed = JSON.parse(raw) as { sendOnEnter?: unknown };
-    return typeof parsed.sendOnEnter === "boolean" ? parsed.sendOnEnter : true;
-  } catch {
-    return true;
-  }
-}
 
 function errorMessage(e: unknown, fallback: string): string {
   return e instanceof Error && e.message ? e.message : fallback;
@@ -165,7 +152,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const [castOpen, setCastOpen] = useState(false);
   /** In Visual Novel play mode, the text log is one tap away from the stage. */
   const [showLog, setShowLog] = useState(false);
-  const [sendOnEnter] = useState(readSendOnEnter);
+  const [{ ui }] = useDefaultChatSettings();
 
   const abortRef = useRef<AbortController | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -235,10 +222,20 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     [],
   );
 
-  /* Keep the list pinned to the bottom while the user hasn't scrolled up. Runs after every render (streaming deltas). */
+  /*
+   * Keep the list pinned to the bottom while the user hasn't scrolled up (during streaming only with Auto Scroll on).
+   * A #msg-<id> link (Chats → Saved) jumps to that message once instead. Runs after every render (streaming deltas).
+   */
+  const jumpedRef = useRef(false);
   useEffect(() => {
     const el = listRef.current;
-    if (el && stickToBottomRef.current) el.scrollTop = el.scrollHeight;
+    if (!el) return;
+    const target = !jumpedRef.current && window.location.hash.startsWith("#msg-") ? document.getElementById(window.location.hash.slice(1)) : null;
+    if (el.childElementCount) jumpedRef.current = true;
+    if (target) {
+      stickToBottomRef.current = false;
+      target.scrollIntoView({ block: "center" });
+    } else if (stickToBottomRef.current && (ui.autoScroll || !streaming)) el.scrollTop = el.scrollHeight;
   });
 
   const onListScroll = () => {
@@ -977,7 +974,8 @@ export function ChatPage({ sessionId }: ChatPageProps) {
             .catch(() => showToast("Could not copy"));
           return;
         case "save":
-          showToast("Saving messages is not part of this demo");
+          update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === message.id ? { ...m, saved: !m.saved } : m)) }), { touch: false });
+          showToast(message.saved ? "Removed from Saved" : "Saved. Find it on Chats → Saved.");
           return;
         case "manga":
           void makeManga(message.id);
@@ -1233,7 +1231,9 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       tokenEstimate={tokenEstimate}
       contextLimit={context?.limit ?? contextLimit}
       autoIllustrate={session.settings.autoIllustrate}
-      sendOnEnter={sendOnEnter}
+      sendOnEnter={ui.sendOnEnter}
+      hideDestiny={ui.hideDestiny}
+      hideShortcuts={ui.hideShortcuts}
       takeTurn={takeTurn}
       onTakeTurnChange={setTakeTurn}
       onSend={send}
@@ -1253,8 +1253,8 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const messageCount = session.messages.filter((m) => m.role !== "system").length;
 
   return (
-    <div className="relative isolate flex h-screen flex-col bg-[#020920] text-white">
-      <AppBackdrop className="opacity-[0.18]" />
+    <div style={chatStyleVars(ui)} className="relative isolate flex h-screen flex-col bg-[color:var(--iz-tint,#020920)] text-white">
+      <AppBackdrop className="opacity-[var(--iz-backdrop,0.18)]" />
       <ChatHeader
         storyline={storyline}
         modelName={model.name}
@@ -1283,6 +1283,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
                 key={message.id}
                 message={message}
                 index={i}
+                dimmed={streaming && ui.fadePrevious && i < visible.length - 1}
                 canRetry={message.id === lastAssistantId && hasUserTurn && !session.settings.honorMode}
                 lockedActions={session.settings.honorMode ? ["edit", "delete", "branch"] : []}
                 modelName={model.name}

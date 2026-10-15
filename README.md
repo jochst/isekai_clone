@@ -4,7 +4,7 @@ A local, single-user clone of **[isekaizero.ai](https://www.isekaizero.ai)**, th
 
 Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript (strict)**, **Tailwind CSS v4** and **SQLite**.
 
-The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2, 3, 4a, 4b and 5, as of PR #37.
+The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0, 1, 2, 3, 4 and 5, as of PR #38.
 
 ---
 
@@ -73,7 +73,9 @@ Chats are kept separate from `dev.db` on purpose: `npm run db:restore` replaces 
   - the creator's AI-only "advanced mode" fields: plot, guideline, AI reminder, output reminder
   - perspective, length, memory
 - **Message box:** send a turn, **Continue**, **Choose Your Destiny** (three suggested next moves), **Take Turn** (play as a cast member), **Erase** (take back the latest message) and **Stop** (keeps the text that already arrived).
-- **On each message:** **Retry** adds a new version of the reply; arrows (`‹ 1/2 ›`) swipe between versions. Edit, delete, branch (copies the chat up to that message) and copy also work.
+- **On each message:** **Retry** adds a new version of the reply; arrows (`‹ 1/2 ›`) swipe between versions. Edit, delete, branch (copies the chat up to that message), copy and **Save** (bookmark; listed on Chats → Saved) also work.
+- **Chat Settings → History** lists the story's chats and branches (sort, filter, rename, archive, delete, start new, export as JSON). Deleted chats stay 30 days in **Recently deleted** (`/chats/deleted`).
+- **UI/UX** (Chat Settings or Default Chat Settings): font size, background opacity, chat colours with presets, fade earlier messages while streaming, auto scroll, send on Enter, hide Destiny or the shortcut buttons.
 - **Story AI tools use Isekai Zero's real definitions** (`ai-tools.json`): `illustrate_scene`, `create_character` and `edit_character`.
 
 ### Models and cost controls
@@ -250,8 +252,8 @@ Then go to **Settings → Providers → Voice (TTS) → Local / Kokoro**, base U
 | 3c | Characters saved to the cast, story endings, remaining tool settings, fallback for models without tools | Done (#35) |
 | 4a | Chat commands (all 28), RETRY+, OOC, recap, player dice, Honor mode | Done (#36) |
 | 4b | Personas: recommended characters, your persona library, switching mid-chat; guidance prompt and output reminder | Done (#37) |
-| 4c | UI settings, chat history (branches, archive, trash, saved messages, export) | Next |
-| 6 | Creation studio: your own stories and characters | Planned |
+| 4c | UI/UX settings and chat colours; chat history: branches, archive, Recently deleted (30 days), saved messages, export | Done (#38) |
+| 6 | Creation studio: your own stories and characters | Next |
 | 7 | Remaining pages and visual polish | Planned |
 
 Details, decisions and test results for each phase are in [ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md).

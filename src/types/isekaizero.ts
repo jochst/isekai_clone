@@ -467,6 +467,8 @@ export interface ChatMessage {
   content: string;
   createdAt: number;
   streaming?: boolean;
+  /** Bookmarked with Save; listed on /chats → Saved. */
+  saved?: boolean;
   images?: SceneImage[];
   videos?: SceneVideo[];
   /** Songs scoring this moment (Isekai Zero "Music Generation"). */
@@ -638,6 +640,9 @@ export interface ChatMemory {
 /** Hidden user turn sent by the Composer's "Continue" action. */
 export const CONTINUE_SENTINEL = "(continue the scene)";
 
+/** Deleted chats stay in Recently deleted this many days, then are deleted for good. */
+export const BIN_DAYS = 30;
+
 export interface ChatSession {
   storylineCover?: Storyline["cover"];
   id: string;
@@ -650,9 +655,18 @@ export interface ChatSession {
   playerName: string;
   /** The persona being played; its description tells the AI who the player is. */
   persona?: Persona;
+  /** The chat this one was branched from. */
+  branchOf?: string;
   /** Chapters and arcs; written only through /api/chats/[id]/memory, never by the client's PATCH sync. */
   memory?: ChatMemory;
 }
 
 /** A chat as listed on /chats: everything but the messages. */
-export type ChatSummary = Omit<ChatSession, "messages"> & { messageCount: number; preview: string };
+export type ChatSummary = Omit<ChatSession, "messages"> & {
+  messageCount: number;
+  preview: string;
+  /** Archived: kept out of the Activity list until restored. */
+  archived?: boolean;
+  /** In Recently deleted since (ms). */
+  deletedAt?: number;
+};

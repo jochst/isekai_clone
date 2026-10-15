@@ -8,6 +8,7 @@ export { SceneImage, type SceneImageProps } from "./SceneImage";
 export { SceneVideo, type SceneVideoProps } from "./SceneVideo";
 export { ChatSettingsSheet, type ChatSettingsSheetProps } from "./ChatSettingsSheet";
 export { ChatsListPage, relativeTime } from "./ChatsListPage";
+export { RecentlyDeletedPage } from "./RecentlyDeletedPage";
 export {
   Toggle,
   SettingRow,

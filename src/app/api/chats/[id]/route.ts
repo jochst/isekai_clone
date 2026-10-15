@@ -1,5 +1,5 @@
 import { boundedBody, guardImportRequest, importError } from "@/lib/imports/http";
-import { applyChatPatch, deleteChat, getChat, localizeMessages, withChatDb, type ChatPatch } from "@/lib/chats/db";
+import { applyChatPatch, getChat, localizeMessages, setChatStatus, withChatDb, type ChatPatch } from "@/lib/chats/db";
 import { isChatPatch } from "@/lib/chats/validate";
 
 export const runtime = "nodejs";
@@ -31,11 +31,12 @@ export async function PATCH(request: Request, { params }: Params) {
   } catch (error) { return importError(error); }
 }
 
+/** Moves the chat to Recently deleted (kept 30 days); `POST /status` restores it. */
 export async function DELETE(request: Request, { params }: Params) {
   try {
     guardImportRequest(request, true);
     const { id } = await params;
-    withChatDb((db) => deleteChat(db, id));
+    withChatDb((db) => setChatStatus(db, id, { deleted: true }));
     return new Response(null, { status: 204 });
   } catch (error) { return importError(error); }
 }

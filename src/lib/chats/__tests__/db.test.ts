@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { DEFAULT_CHAT_SETTINGS } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
 import type { ChatMessage, ChatSession } from "@/types/isekaizero";
-import { addStoryMedia, applyChatPatch, deleteChat, getChat, listChats, listStoryMedia, localizeMessages, saveChat, withChatDb } from "../db";
+import { addStoryMedia, applyChatPatch, getChat, listChats, listSavedMessages, setChatStatus, listStoryMedia, localizeMessages, saveChat, withChatDb } from "../db";
 import { inlineLocalMedia } from "../media";
 
 let dir = "";
@@ -50,8 +50,31 @@ describe("chat storage", () => {
       applyChatPatch(db, "a", { upsert: [msg("ghost", "user", "x")] });
       expect(ids(getChat(db, "a"))).not.toContain("ghost");
       expect(() => applyChatPatch(db, "nope", { order: [] })).toThrow("Chat not found.");
-      deleteChat(db, "b");
+      setChatStatus(db, "b", { deleted: true });
       expect(getChat(db, "b")).toBeUndefined();
+      setChatStatus(db, "b", { deleted: false });
+      expect(getChat(db, "b")).toBeDefined();
+    });
+  });
+
+  it("keeps a bin for 30 days, archives, renames and lists saved messages", () => {
+    withChatDb((db) => {
+      saveChat(db, chat("bin", [msg("1", "assistant", "Opening"), { ...msg("2", "assistant", "A line worth keeping"), saved: true }], 3));
+      expect(listSavedMessages(db).map((s) => [s.chatId, s.message.id])).toEqual([["bin", "2"]]);
+      expect(setChatStatus(db, "bin", { archived: true, title: "Renamed" })).toBe(true);
+      expect(listChats(db).find((c) => c.id === "bin")).toMatchObject({ archived: true, title: "Renamed" });
+      setChatStatus(db, "bin", { deleted: true });
+      expect(listChats(db).some((c) => c.id === "bin")).toBe(false);
+      expect(listSavedMessages(db)).toEqual([]);
+      expect(listChats(db, true).map((c) => c.id)).toEqual(["bin"]);
+      expect(listChats(db, true)[0].deletedAt).toBeGreaterThan(0);
+      // A client sync of the deleted chat doesn't bring it back.
+      applyChatPatch(db, "bin", { meta: { ...chat("bin", []), messages: undefined } as never });
+      expect(getChat(db, "bin")).toBeUndefined();
+      db.prepare("UPDATE chats SET deleted = ? WHERE id = 'bin'").run(Date.now() - 31 * 86_400_000);
+      expect(listChats(db, true)).toEqual([]);
+      expect(db.prepare("SELECT COUNT(*) AS n FROM messages WHERE chat_id = 'bin'").get()?.n).toBe(0);
+      expect(setChatStatus(db, "bin", { deleted: false })).toBe(false);
     });
   });
 

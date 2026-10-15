@@ -11,6 +11,8 @@ import { VideoParamsForm, paramSummary } from "@/components/sites/isekaizero-ai-
 import { DEFAULT_DM_MODEL, resolveImageModel, resolveVideoModel, toolEnabled, type ContextReport, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { DM_MODELS } from "@/lib/sites/isekaizero-ai-0e4f18da/dm-models";
 import { PersonaPicker } from "../persona/PersonaPicker";
+import { UiSettingsPanel } from "../settings/UiSettingsPanel";
+import { HistoryPanel } from "./HistoryPanel";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import type { ChatSession, ChatSettings, Persona, ProviderSettings, ReasoningEffort, Storyline, VideoParamValue } from "@/types/isekaizero";
@@ -129,6 +131,10 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
               description="When nothing fits, draw a new background or expression with your character portrait model. Saved with the story and reused."
               right={<Toggle label="Generate Missing Art" checked={settings.vnGenerateMedia !== false} onChange={(vnGenerateMedia) => onChange({ vnGenerateMedia })} />}
             />
+          </AccordionCard>
+
+          <AccordionCard title="History" description="This story's chats and branches: switch, rename, archive, delete or export">
+            <HistoryPanel session={session} storyline={storyline} onNavigate={onClose} />
           </AccordionCard>
 
           <AccordionCard title="Persona" description={`You are playing as ${session.persona?.name ?? session.playerName}`} defaultOpen>
@@ -535,6 +541,12 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
             >
               Open Memory
             </button>
+          </AccordionCard>
+
+          <AccordionCard title="UI/UX" description="How every chat looks and behaves on this device">
+            <div className="flex flex-col gap-3">
+              <UiSettingsPanel />
+            </div>
           </AccordionCard>
         </div>
       </SideSheet>

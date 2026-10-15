@@ -9,6 +9,10 @@ export type TemperatureLevel = "low" | "mid" | "high" | "max";
 export type Perspective = "none" | "1st" | "2nd" | "3rd";
 export type ContinueBehavior = "control" | "dont-control";
 export type FontSize = "small" | "medium" | "large";
+/** Recolourable chat text (chatSettings.ui.textColor.*) plus the background tint. */
+export type ChatColorKey = "narration" | "dialogue" | "thoughts" | "bold" | "tracker" | "tint";
+/** A CSS colour per key; a missing key uses the default colour. */
+export type ChatColors = Partial<Record<ChatColorKey, string>>;
 
 export interface DefaultChatSettings {
   /** "auto" follows the recommended model; otherwise an `LlmModel.id` from the catalog. */
@@ -34,15 +38,19 @@ export interface DefaultChatSettings {
   imageGenPerspective?: "pov" | "3rd-person";
   /** Dungeon Mind model for stories with dice and stats ("off" = the story model uses the tools). */
   dmModel?: string;
+  /** Applies to every chat on this device. */
   ui: {
     sendOnEnter: boolean;
     autoScroll: boolean;
-    autoExpandThinking: boolean;
-    parallax: boolean;
+    /** Dim earlier messages while a reply streams ("Disable Fade Previous Messages During Streaming" turns it off). */
+    fadePrevious: boolean;
     hideDestiny: boolean;
+    /** Hides Continue and Erase above the message box. */
+    hideShortcuts: boolean;
     fontSize: FontSize;
     /** 0–100 */
     backgroundOpacity: number;
+    colors: ChatColors;
   };
 }
 
@@ -65,11 +73,12 @@ export const DEFAULT_CHAT_SETTINGS: DefaultChatSettings = {
   ui: {
     sendOnEnter: true,
     autoScroll: true,
-    autoExpandThinking: false,
-    parallax: true,
+    fadePrevious: true,
     hideDestiny: false,
+    hideShortcuts: false,
     fontSize: "medium",
     backgroundOpacity: 60,
+    colors: {},
   },
 };
 
