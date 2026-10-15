@@ -86,9 +86,12 @@ export async function runDungeonMind(opts: AgentOptions & { history: ChatMessage
 
 /**
  * After the reply: the same model keeps the cast (create/edit/disable_character) and calls end_story if the reply is
- * the definitive ending, for story models that don't use those tools themselves. Throws on failure or refusal.
+ * the definitive ending, for story models that don't use those tools themselves, and records codex changes (the story
+ * model only reads the codex when a keeper is on). `castDone`: the story model kept the cast; only the codex is left.
+ * Throws on failure or refusal.
  */
-export async function runCastKeeper(opts: AgentOptions & { reply: string }): Promise<AgentResult> {
-  const prompt = castKeeperPrompt(withChatCast(opts.storyline, opts.state.cast), opts.reply, opts.settings);
+export async function runCastKeeper(opts: AgentOptions & { reply: string; castDone?: boolean }): Promise<AgentResult> {
+  const prompt = castKeeperPrompt(withChatCast(opts.storyline, opts.state.cast), opts.reply, opts.settings, opts.state.codex, opts.castDone);
+  if (prompt.tools.length === 0) return { text: "", state: opts.state, usage: { promptTokens: 0, completionTokens: 0 } };
   return runAgent(opts, prompt);
 }

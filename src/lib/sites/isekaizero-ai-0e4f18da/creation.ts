@@ -1,4 +1,7 @@
-import type { Storyline } from "@/types/isekaizero";
+import type { Character, CreatedCharacter, Storyline } from "@/types/isekaizero";
+
+import { generateSceneImage } from "./prompting";
+import { readProviderSettings, resolvePortraitModel } from "./provider-settings";
 
 /** A My Storylines card. */
 export type CreatedStorylineCard = Pick<Storyline, "id" | "title" | "tagline" | "category" | "cover" | "updatedAt"> & { characters: number };
@@ -33,4 +36,27 @@ export function readImageFile(file: File): Promise<string> {
     reader.onerror = () => reject(new Error("Could not read that file."));
     reader.readAsDataURL(file);
   });
+}
+
+export const listMyCharacters = () => call<{ characters: CreatedCharacter[] }>("/api/creation/characters").then((r) => r.characters);
+
+export const getMyCharacter = (id: string) => call<{ character: CreatedCharacter }>(`/api/creation/characters/${encodeURIComponent(id)}`).then((r) => r.character);
+
+/** Creates (no id yet) or updates a My Characters entry; resolves with the stored version. */
+export function saveMyCharacter(draft: Partial<CreatedCharacter>, id?: string): Promise<CreatedCharacter> {
+  return call<{ character: CreatedCharacter }>(id ? `/api/creation/characters/${encodeURIComponent(id)}` : "/api/creation/characters", { method: id ? "PUT" : "POST", body: JSON.stringify(draft) }).then((r) => r.character);
+}
+
+export const deleteMyCharacter = (id: string) => call<void>(`/api/creation/characters/${encodeURIComponent(id)}`, { method: "DELETE" });
+
+/** A story-cast copy of a My Characters character, remembering which version it was taken from. */
+export function linkCharacter(created: CreatedCharacter, existingId?: string): Character {
+  return { ...created.character, id: existingId ?? crypto.randomUUID(), linkedFrom: { id: created.character.id, version: created.version } };
+}
+
+/** Draws a portrait or a cover (both 3:4) with the portrait model: subscription qwen-image on NanoGPT by default. */
+export async function generateArt(prompt: string): Promise<string> {
+  const settings = readProviderSettings();
+  const image = await generateSceneImage({ settings, model: resolvePortraitModel(settings), prompt, size: "768x1024" });
+  return image.url;
 }

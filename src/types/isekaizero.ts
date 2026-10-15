@@ -189,6 +189,12 @@ export interface VnScene {
 }
 
 export interface Character {
+  /** Description Summary: the card line players read (not used by the AI). */
+  summary?: string;
+  /** Example dialogue: how the character speaks. */
+  exampleDialogue?: string;
+  /** A snapshot of a My Characters character, and which version of it (storylines keep the version they saved). */
+  linkedFrom?: { id: string; version: number };
   imageUrl?: string;
   /** Foreground images (expressions, poses) with captions; Visual Novel mode picks among them. */
   images?: StoryImage[];
@@ -670,3 +676,15 @@ export type ChatSummary = Omit<ChatSession, "messages"> & {
   /** In Recently deleted since (ms). */
   deletedAt?: number;
 };
+
+/** A standalone character from My Characters (Creator Centre); storylines link snapshots of it. */
+export interface CreatedCharacter {
+  character: Character;
+  /** Description (User): what players read when Advanced Mode splits it from the AI's description (`character.persona`). */
+  userDescription?: string;
+  tags: string[];
+  contentRating: "sfw" | "m17" | "18+";
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}

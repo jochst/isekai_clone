@@ -1,12 +1,12 @@
 "use client";
 
-import { ImagePlus, UserRound, X } from "lucide-react";
-import { useRef } from "react";
+import { ImagePlus, Loader2, Sparkles, UserRound, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import { useModelCatalog } from "@/components/sites/isekaizero-ai-0e4f18da/llms/use-model-catalog";
-import { readImageFile } from "@/lib/sites/isekaizero-ai-0e4f18da/creation";
+import { generateArt, linkCharacter, listMyCharacters, readImageFile } from "@/lib/sites/isekaizero-ai-0e4f18da/creation";
 import { GAME_TOOLS } from "@/lib/sites/isekaizero-ai-0e4f18da/game-tools";
-import type { Character, ChatSettings, CodexCategory, CodexEntry, StatDef, Storyline, ToolSetting } from "@/types/isekaizero";
+import type { Character, ChatSettings, CreatedCharacter, CodexCategory, CodexEntry, StatDef, Storyline, ToolSetting } from "@/types/isekaizero";
 
 import { AddButton, Card, Choice, Input, Label, RemoveButton, TextArea, patchAt, INPUT } from "./fields";
 
@@ -17,7 +17,7 @@ export interface SectionProps {
 }
 
 /** A file picker that hands back data URLs. */
-function ImagePicker({ label, multiple, onPick, onError }: { label: string; multiple?: boolean; onPick: (urls: string[]) => void; onError: (m: string) => void }) {
+export function ImagePicker({ label, multiple, onPick, onError }: { label: string; multiple?: boolean; onPick: (urls: string[]) => void; onError: (m: string) => void }) {
   const ref = useRef<HTMLInputElement>(null);
   return (
     <>
@@ -40,6 +40,33 @@ function ImagePicker({ label, multiple, onPick, onError }: { label: string; mult
   );
 }
 
+/** Draws art from a prompt with the portrait model (no per-image charge on NanoGPT's subscription qwen-image). */
+export function GenerateButton({ label, prompt, onImage, onError }: { label: string; prompt: () => string; onImage: (url: string) => void; onError: (m: string) => void }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <button
+      type="button"
+      disabled={busy}
+      onClick={() => {
+        const text = prompt().trim();
+        if (!text) return onError("Describe it first: the appearance (or plot summary) is the image prompt.");
+        setBusy(true);
+        generateArt(text)
+          .then(onImage)
+          .catch((e) => onError(e instanceof Error ? e.message : "Could not generate the image."))
+          .finally(() => setBusy(false));
+      }}
+      className="flex h-9 items-center gap-1.5 rounded-[18px] border border-[rgba(167,185,255,0.4)] bg-[rgba(42,65,228,0.18)] px-3 text-[13px] font-semibold hover:bg-[rgba(42,65,228,0.3)] disabled:opacity-60"
+    >
+      {busy ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />} {busy ? "Generating..." : label}
+    </button>
+  );
+}
+
+/** Portrait prompt from a character's look. */
+export const portraitPrompt = (c: { name: string; appearance: string }) =>
+  c.appearance.trim() ? `Character portrait, upper body, facing the viewer, detailed anime illustration, soft cinematic light, plain dark background. ${c.name}: ${c.appearance.trim()}` : "";
+
 /* ------------------------------------------------------------------ Media */
 
 export function MediaSection({ draft, set, onError }: SectionProps) {
@@ -58,6 +85,12 @@ export function MediaSection({ draft, set, onError }: SectionProps) {
           </div>
           <div className="flex flex-col gap-2">
             <ImagePicker label={draft.cover.imageUrl ? "Replace cover" : "Upload cover"} onPick={([url]) => set({ cover: { ...draft.cover, imageUrl: url } })} onError={onError} />
+            <GenerateButton
+              label="Generate cover"
+              prompt={() => (draft.title.trim() ? `Book cover illustration, vertical, no text or lettering, detailed anime art, dramatic lighting. ${draft.title}: ${draft.tagline || draft.plot.slice(0, 400)}` : "")}
+              onImage={(url) => set({ cover: { ...draft.cover, imageUrl: url } })}
+              onError={onError}
+            />
             {draft.cover.imageUrl ? (
               <button type="button" onClick={() => set({ cover: { ...draft.cover, imageUrl: undefined } })} className="text-left text-[12px] text-white/55 hover:text-white">
                 Remove cover
@@ -94,13 +127,32 @@ const blankCharacter = (): Character => ({ id: crypto.randomUUID(), name: "", ro
 export function CastsSection({ draft, set, onError }: SectionProps) {
   const cast = draft.characters;
   const patch = (i: number, p: Partial<Character>) => set({ characters: patchAt(cast, i, p) });
+  const [mine, setMine] = useState<CreatedCharacter[]>();
+  const [linking, setLinking] = useState(false);
+  useEffect(() => {
+    listMyCharacters()
+      .then(setMine)
+      .catch(() => setMine([]));
+  }, []);
+  const latest = (c: Character) => (c.linkedFrom ? mine?.find((m) => m.character.id === c.linkedFrom!.id) : undefined);
   return (
     <Card
       title="Characters"
-      hint="Characters that only exist in this story. It's optional: you may build a story without characters and just write them into the plot."
+      hint="Link characters from My Characters, or create ones that only exist in this story. It's optional: you may build a story without characters and just write them into the plot."
     >
       {cast.map((c, i) => (
         <div key={c.id} className="rounded-[12px] border border-white/10 bg-black/15 p-3">
+          {c.linkedFrom ? (
+            <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] text-white/55">
+              <span className="rounded-[6px] bg-[rgba(167,185,255,0.15)] px-1.5 font-semibold text-[#c9d4ff]">Linked</span>
+              Snapshot of version {c.linkedFrom.version}: changes here apply only to this story.
+              {latest(c) && latest(c)!.version > c.linkedFrom.version ? (
+                <button type="button" onClick={() => patch(i, linkCharacter(latest(c)!, c.id))} className="font-semibold text-[#ffcf8a] hover:underline">
+                  Update to version {latest(c)!.version}
+                </button>
+              ) : null}
+            </div>
+          ) : null}
           <div className="flex gap-3">
             <div className="flex shrink-0 flex-col items-center gap-1.5">
               <div className="flex h-[96px] w-[72px] items-center justify-center overflow-hidden rounded-[10px] bg-white/5 text-white/30">
@@ -119,7 +171,10 @@ export function CastsSection({ draft, set, onError }: SectionProps) {
                 <RemoveButton label={`Remove ${c.name || "character"}`} onClick={() => set({ characters: cast.filter((_, j) => j !== i) })} />
               </div>
               <Input value={c.role} onChange={(role) => patch(i, { role })} placeholder="Role, e.g. Loyal knight and reluctant mentor" maxLength={200} />
-              <ImagePicker label={c.imageUrl ? "Replace portrait" : "Upload portrait"} onPick={([imageUrl]) => patch(i, { imageUrl })} onError={onError} />
+              <div className="flex flex-wrap gap-2">
+                <ImagePicker label={c.imageUrl ? "Replace portrait" : "Upload portrait"} onPick={([imageUrl]) => patch(i, { imageUrl })} onError={onError} />
+                <GenerateButton label="Generate portrait" prompt={() => portraitPrompt(c)} onImage={(imageUrl) => patch(i, { imageUrl })} onError={onError} />
+              </div>
             </div>
           </div>
           <Label title="Description" hint="Personality, history, how they speak. The AI plays them from this." className="mt-3">
@@ -130,7 +185,39 @@ export function CastsSection({ draft, set, onError }: SectionProps) {
           </Label>
         </div>
       ))}
-      <AddButton label="Create Story Character" onClick={() => set({ characters: [...cast, blankCharacter()] })} />
+      {linking ? (
+        <div className="rounded-[12px] border border-white/10 bg-black/20 p-3">
+          <div className="mb-2 flex items-center justify-between text-[13px] font-semibold">
+            Link Character
+            <button type="button" aria-label="Close" onClick={() => setLinking(false)} className="text-white/50 hover:text-white">
+              <X size={14} />
+            </button>
+          </div>
+          {!mine?.length ? <p className="text-[12px] text-white/50">No characters yet. Create one in Creator Centre → My Characters.</p> : null}
+          {mine?.map((m) => {
+            const linked = cast.some((c) => c.linkedFrom?.id === m.character.id);
+            return (
+              <div key={m.character.id} className="flex items-center gap-2 py-1.5">
+                <div className="flex h-10 w-8 shrink-0 items-center justify-center overflow-hidden rounded-[6px] bg-white/5 text-white/30">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {m.character.imageUrl ? <img src={m.character.imageUrl} alt="" className="h-full w-full object-cover object-top" /> : <UserRound size={16} />}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[13px] font-semibold">{m.character.name}</div>
+                  <div className="truncate text-[11px] text-white/50">{m.character.summary || m.character.role}</div>
+                </div>
+                <button type="button" disabled={linked} onClick={() => set({ characters: [...cast, linkCharacter(m)] })} className="h-8 rounded-[16px] border border-white/15 px-3 text-[12px] font-semibold hover:bg-white/10 disabled:opacity-50">
+                  {linked ? "Linked" : "Add"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+      <div className="grid grid-cols-2 gap-2">
+        <AddButton label="Link Character" onClick={() => setLinking(true)} />
+        <AddButton label="Create Story Character" onClick={() => set({ characters: [...cast, blankCharacter()] })} />
+      </div>
     </Card>
   );
 }

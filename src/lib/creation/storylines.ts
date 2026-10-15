@@ -6,10 +6,9 @@ import type { DatabaseSync } from "node:sqlite";
 import { localizeMedia } from "@/lib/chats/media";
 import { categories } from "@/lib/imports/cards";
 import type { ImportedEntry } from "@/lib/imports/types";
+import { CONTENT_RATINGS, cleanCharacter } from "./characters";
 import type { Character, CodexEntry, Persona, StatDef, StoryImage, Storyline, ToolSetting } from "@/types/isekaizero";
 
-/** Content ratings from the site's editor (storylineEdit.contentRatingOptions). */
-export const CONTENT_RATINGS = ["sfw", "m17", "18+"] as const;
 
 const clip = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 const list = <T>(v: unknown, max: number): T[] => (Array.isArray(v) ? (v.slice(0, max) as T[]) : []);
@@ -48,20 +47,8 @@ export async function buildCreated(draft: Partial<Storyline> & { contentRating?:
 
   const characters: Character[] = [];
   for (const c of list<Character>(draft.characters, 40)) {
-    const name = clip(c?.name, 80);
-    if (!name) continue;
-    characters.push({
-      id: clip(c.id, 80) || randomUUID(),
-      name,
-      role: clip(c.role, 200),
-      persona: clip(c.persona, 20_000),
-      appearance: clip(c.appearance, 4000),
-      gradient: ["#423a70", "#182441"],
-      glyph: name[0].toUpperCase(),
-      ...(await localize(clip(c.imageUrl, 20_000_000)).then((imageUrl) => (imageUrl ? { imageUrl } : {}))),
-      ...(c.images?.length ? { images: await images(c.images, 30) } : {}),
-      ...(c.sheet ? { sheet: c.sheet } : {}),
-    });
+    const clean = await cleanCharacter(c);
+    if (clean) characters.push(clean);
   }
 
   const personas: Persona[] = list<Persona>(draft.personas, 20)
