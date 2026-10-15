@@ -70,6 +70,7 @@ export async function cleanCharacter(c: Partial<Character>): Promise<Character |
     ...(clip(c.summary, 300) ? { summary: clip(c.summary, 300) } : {}),
     ...(clip(c.exampleDialogue, 8000) ? { exampleDialogue: clip(c.exampleDialogue, 8000) } : {}),
     ...(c.linkedFrom && clip(c.linkedFrom.id, 80) ? { linkedFrom: { id: clip(c.linkedFrom.id, 80), version: Math.max(1, Math.floor(Number(c.linkedFrom.version) || 1)) } } : {}),
+    ...(c.voice && clip(c.voice.id, 80) ? { voice: { id: clip(c.voice.id, 80), name: clip(c.voice.name, 80) } } : {}),
     ...(imageUrl ? { imageUrl } : {}),
     ...(images.length ? { images } : {}),
     ...(cleanSheet ? { sheet: cleanSheet } : {}),

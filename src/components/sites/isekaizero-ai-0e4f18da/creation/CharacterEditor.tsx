@@ -11,6 +11,7 @@ import type { CharacterSheet, CreatedCharacter } from "@/types/isekaizero";
 import { ConfirmDialog, ToastView, useToast } from "../chat/primitives";
 import { AddButton, Card, Choice, INPUT, Input, Label, RemoveButton, TextArea, patchAt } from "./fields";
 import { GenerateButton, ImagePicker, portraitPrompt } from "./sections";
+import { VoiceSelect } from "./VoiceSelect";
 
 type Tab = "profile" | "media" | "sheets" | "publish";
 
@@ -165,6 +166,9 @@ export function CharacterEditor({ id }: { id?: string }) {
                   rows={4}
                   placeholder={'Yunari glances up from her book. "Oh! You\'re the new transfer student, right?"'}
                 />
+              </Label>
+              <Label title="Voice" hint="Add a voice for your character. It speaks their lines in Visual Novel mode and dramas.">
+                <VoiceSelect value={c.voice} onChange={(voice) => setChar({ voice })} />
               </Label>
             </Card>
 

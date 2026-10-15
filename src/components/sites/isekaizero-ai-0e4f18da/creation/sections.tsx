@@ -8,6 +8,7 @@ import { generateArt, linkCharacter, listMyCharacters, readImageFile } from "@/l
 import { GAME_TOOLS } from "@/lib/sites/isekaizero-ai-0e4f18da/game-tools";
 import type { Character, ChatSettings, CreatedCharacter, CodexCategory, CodexEntry, StatDef, Storyline, ToolSetting } from "@/types/isekaizero";
 
+import { VoiceSelect } from "./VoiceSelect";
 import { AddButton, Card, Choice, Input, Label, RemoveButton, TextArea, patchAt, INPUT } from "./fields";
 
 export interface SectionProps {
@@ -179,6 +180,9 @@ export function CastsSection({ draft, set, onError }: SectionProps) {
           </div>
           <Label title="Description" hint="Personality, history, how they speak. The AI plays them from this." className="mt-3">
             <TextArea value={c.persona} onChange={(persona) => patch(i, { persona })} rows={4} placeholder="Elen is dry-witted and fiercely loyal..." />
+          </Label>
+          <Label title="Voice" hint="Speaks their lines in Visual Novel mode and dramas." className="mt-3">
+            <VoiceSelect value={c.voice} onChange={(voice) => patch(i, { voice })} />
           </Label>
           <Label title="Appearance" hint="Used for image prompts (portraits, scenes)." className="mt-3">
             <TextArea value={c.appearance} onChange={(appearance) => patch(i, { appearance })} rows={2} placeholder="Silver hair in a braid, scarred chin, worn steel armour" />

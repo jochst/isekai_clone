@@ -285,7 +285,7 @@ The gap: Default Chat Settings could only really use models from the site's buil
   - Story: /continue [direction], /steer, /skip, /cut and /end are a Continue with a hidden direction (the turn engine's instruction), and the reply carries the site's badge (Direction, Time skip, Scene change, The ending). /improvise writes the player's turn from their idea. /retry [change] is RETRY+.
   - /roll [2d6+3] [adv|dis] [dc 15] [what for]: real dice rolled in the browser; the result is the player's turn, shown as a roll card, and the AI is told to honor it.
   - /ooc: an out-of-character exchange shown in the chat (dashed, "Out of character") and never sent as story context. /recap: a "Previously..." panel with Regenerate, not saved.
-  - Media and memory: /narrate, /illustrate [what], /manga [what], /music [brief], /vn, /video (confirms the cost), /chapter and /arc (build, list/view open Memory, regen n). /audiobook and /drama fall back to narration (Audiobook mode isn't built).
+  - Media and memory: /narrate, /illustrate [what], /manga [what], /music [brief], /vn, /video (confirms the cost), /chapter and /arc (build, list/view open Memory, regen n). /audiobook and /drama perform the reply as a cast script with character voices and sound effects (6c).
   - Chat: /undo (asks first), /branch [name], /search (results panel, tap to jump), /model, /pov, /length, /settings.
   - **Honor mode** (chat.honor.*): set in Chat Settings before the first turn, then locked. No Retry, Edit, Delete, Branch or Erase in the UI; the server refuses retries; /end asks first because it is final.
   - Live (DeepSeek): /skip three days opened "Three days have passed." with the Time skip badge; /roll 1d20+2 dc 14 rolled 4 + 2 = 6 (failure) and the patrol heard the player; /ooc answered out of character; /recap summarized the story through the ambush.
@@ -411,8 +411,29 @@ The gap: Default Chat Settings could only really use models from the site's buil
     - The keeper recorded Elen's answer about her death into the writable Passenger Log; that information existed only in the reply.
     - Mara was created with a generated portrait (28 s), linked at version 1, edited to version 2 and updated in the story.
   - Not done: per-character voices in the editor (6c), Image Edit on a portrait, secret mode.
-- [ ] **6c:** Media studio: gallery, voices (ElevenLabs design/clone), audio drama.
-- [ ] **6d (optional):** Michiru helper, an LLM assistant on creation pages.
+- [x] **6c: Voices, Images gallery, /audiobook and /drama.**
+  - **Voices** (`/creation/voices`, voice.*, voiceEdit.*): My Voice lists the ElevenLabs account's own voices (designed and cloned) with previews and Delete.
+    - **Design Voice:** name, a 30-250 character description, an optional sample script. It returns three previews to play and pick from (`/v1/text-to-voice/design`), then Create Voice keeps the chosen one.
+    - **Clone:** one clip (MP3/WAV/M4A/FLAC/OGG/AAC, max 10 MB), instant cloning with background-noise removal.
+  - **A character's own voice:** the Character editor (Profile) and story Casts have a Voice picker from My Voices.
+    - Visual Novel mode and dramas speak that character's lines in it. A voice picked for the character in Chat Settings still wins.
+    - If the narrator uses another provider, those lines still go to ElevenLabs with its own key and model; the speech route used to send the narrator provider's key and model.
+  - **/audiobook and /drama** (were a plain-narration fallback):
+    - The story model adapts the latest reply into a cast script (`NARRATOR:` / `Name:` lines and `[SFX: …]` cues; the audiobook keeps all narration, the drama is mostly dialogue and reactions), taking the command's text as guidance.
+    - Playback: the narrator voice, each character's voice, and 3-second ElevenLabs sound effects (`/api/audio/sfx`).
+  - **Images** (`/creation/gallery`, gallery.*): every image under `data/media` with where it's used (chats, including Recently deleted; story art; my storylines, imports and characters). Filters for All / In use / Unused, a viewer, Download, and Delete only for unused images.
+  - Creator Centre links: Voices, Images, Image generation, Video generation.
+  - Live (ElevenLabs + NanoGPT DeepSeek):
+    - Designed "Elen (Ferry Keeper)": three previews in 13 s, one kept.
+    - Cloned a voice from her 530 KB preview clip (then deleted it).
+    - Gave Elen her voice in "The Lantern Ferry" and ran `/drama eerie and slow`: DeepSeek wrote the script; the narrator read through NanoGPT (nova); two sound effects came back from ElevenLabs; Elen's lines went to ElevenLabs in her designed voice. All requests returned 200.
+    - The gallery listed 18 images (4 unused) with correct usage.
+  - Not done: saving a drama as an audio file, the chat-wide default audiobook instructions, the Community voice library, voice filters by gender/age, the image editor in the gallery.
+- [ ] **6d: Michiru, a side-chat helper that does creation work for you** (your requirements, 2026-10-15):
+  - A chat panel beside the creation pages (and anywhere a persona is picked). You ask in plain words, e.g. "generate a persona for this story", "make a story character based on Star Trek", "draw a cover for this".
+  - Before producing anything, Michiru asks refining questions, the way a coding agent asks about a project (role, tone, era, look, powers, how they meet the player), offering choices plus free text, and only builds once the request is pinned down.
+  - It does the work, not just advice: it fills in personas, characters (all editor fields, portrait included) and storylines, and runs image generation, showing a preview to accept, tweak by asking, or discard. Nothing is saved until you accept.
+  - It knows the context it was opened from (the current story, cast and persona list) so its output fits the story.
 - **Exit:** create a story from scratch, play it, and edit it mid-chat. **Met** (6a, "The Lantern Ferry").
 
 ### Phase 7: Remaining pages and polish
