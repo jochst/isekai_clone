@@ -3,7 +3,7 @@ import "server-only";
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { CONTINUE_SENTINEL, type ChatMemory, type ChatMessage, type ChatSession, type ChatSummary, type Persona, type StoryMedia } from "@/types/isekaizero";
+import { BIN_DAYS, CONTINUE_SENTINEL, type ChatMemory, type ChatMessage, type ChatSession, type ChatSummary, type Persona, type StoryMedia } from "@/types/isekaizero";
 import { emptyCodex, type CodexState } from "./codex";
 import type { Sheets } from "./dm";
 import type { ChatCast } from "./cast";
@@ -42,6 +42,10 @@ export function openChatDb(): DatabaseSync {
     CREATE TABLE IF NOT EXISTS chat_cast (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS story_media (id TEXT PRIMARY KEY, storyline_id TEXT NOT NULL, body TEXT NOT NULL, created INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS story_media_by_story ON story_media (storyline_id, created);`);
+  // Bin and archive flags live outside `meta` so a client meta sync can't undo them.
+  const columns = new Set(db.prepare("PRAGMA table_info(chats)").all().map((c) => String(c.name)));
+  if (!columns.has("deleted")) db.exec("ALTER TABLE chats ADD COLUMN deleted INTEGER");
+  if (!columns.has("archived")) db.exec("ALTER TABLE chats ADD COLUMN archived INTEGER");
   return db;
 }
 
@@ -64,22 +68,61 @@ function transaction<T>(db: DatabaseSync, fn: () => T): T {
 
 const isPreview = (m: ChatMessage) => m.role !== "system" && m.content.trim() !== "" && m.content !== CONTINUE_SENTINEL;
 
-export function listChats(db: DatabaseSync): ChatSummary[] {
+/** Live chats (archived ones flagged), or with `deleted` the bin; newest first. Empties the bin of expired chats. */
+export function listChats(db: DatabaseSync, deleted = false): ChatSummary[] {
+  db.prepare("DELETE FROM chats WHERE deleted < ?").run(Date.now() - BIN_DAYS * 86_400_000);
   const count = db.prepare("SELECT COUNT(*) AS n FROM messages WHERE chat_id = ? AND json_extract(body, '$.role') != 'system'");
   const recent = db.prepare("SELECT body FROM messages WHERE chat_id = ? ORDER BY seq DESC LIMIT 10");
-  return db.prepare("SELECT id, meta FROM chats ORDER BY updated DESC").all().map((row) => {
+  const where = deleted ? "deleted IS NOT NULL ORDER BY deleted DESC" : "deleted IS NULL ORDER BY updated DESC";
+  return db.prepare(`SELECT id, meta, deleted, archived FROM chats WHERE ${where}`).all().map((row) => {
     const id = String(row.id);
     const last = recent.all(id).map((m) => JSON.parse(String(m.body)) as ChatMessage).find(isPreview);
     return {
       ...(JSON.parse(String(row.meta)) as ChatMeta),
       messageCount: Number(count.get(id)?.n ?? 0),
-      preview: last?.content.replace(/\s+/g, " ").trim() ?? "",
+      preview: last?.content.replace(/<tag>[\s\S]*?<\/tag>/g, "").replace(/\s+/g, " ").trim() ?? "",
+      ...(row.archived ? { archived: true } : {}),
+      ...(row.deleted ? { deletedAt: Number(row.deleted) } : {}),
     };
   });
 }
 
+export interface ChatStatusChange {
+  deleted?: boolean;
+  archived?: boolean;
+  title?: string;
+}
+
+/** Moves a chat to the bin or back, archives or unarchives it, or renames it. False if there's no such chat. */
+export function setChatStatus(db: DatabaseSync, id: string, change: ChatStatusChange): boolean {
+  if (!db.prepare("SELECT 1 FROM chats WHERE id = ?").get(id)) return false;
+  if (change.deleted !== undefined) db.prepare("UPDATE chats SET deleted = ? WHERE id = ?").run(change.deleted ? Date.now() : null, id);
+  if (change.archived !== undefined) db.prepare("UPDATE chats SET archived = ? WHERE id = ?").run(change.archived ? 1 : null, id);
+  if (change.title !== undefined) db.prepare("UPDATE chats SET meta = json_set(meta, '$.title', ?) WHERE id = ?").run(change.title, id);
+  return true;
+}
+
+export interface SavedMessage {
+  chatId: string;
+  chatTitle: string;
+  storylineId: string;
+  message: ChatMessage;
+}
+
+/** Bookmarked messages ("Save") across live chats, newest first. */
+export function listSavedMessages(db: DatabaseSync): SavedMessage[] {
+  return db
+    .prepare("SELECT m.chat_id, c.meta, m.body FROM messages m JOIN chats c ON c.id = m.chat_id WHERE c.deleted IS NULL AND json_extract(m.body, '$.saved') = 1")
+    .all()
+    .map((row) => {
+      const meta = JSON.parse(String(row.meta)) as ChatMeta;
+      return { chatId: String(row.chat_id), chatTitle: meta.title, storylineId: meta.storylineId, message: JSON.parse(String(row.body)) as ChatMessage };
+    })
+    .sort((a, b) => b.message.createdAt - a.message.createdAt);
+}
+
 export function getChat(db: DatabaseSync, id: string): ChatSession | undefined {
-  const row = db.prepare("SELECT meta FROM chats WHERE id = ?").get(id);
+  const row = db.prepare("SELECT meta FROM chats WHERE id = ? AND deleted IS NULL").get(id);
   if (!row) return undefined;
   const messages = db.prepare("SELECT body FROM messages WHERE chat_id = ? ORDER BY seq").all(id).map((m) => JSON.parse(String(m.body)) as ChatMessage);
   const memory = getMemory(db, id);
@@ -96,9 +139,6 @@ export function saveMemory(db: DatabaseSync, chatId: string, memory: ChatMemory)
   db.prepare("INSERT INTO memory VALUES (?, ?) ON CONFLICT(chat_id) DO UPDATE SET body = excluded.body").run(chatId, JSON.stringify(memory));
 }
 
-export function deleteChat(db: DatabaseSync, id: string): void {
-  db.prepare("DELETE FROM chats WHERE id = ?").run(id);
-}
 
 /** Copies generated images, finished videos and manga pages (with their history) to `data/media/` so they outlive the provider's URLs. */
 export async function localizeMessages(messages: ChatMessage[]): Promise<ChatMessage[]> {
@@ -128,7 +168,7 @@ export function applyChatPatch(db: DatabaseSync, id: string, patch: ChatPatch): 
     if (patch.meta) {
       const { memory: _memory, ...meta } = patch.meta as ChatMeta & { memory?: unknown };
       void _memory; // memory is never written through a patch
-      db.prepare("INSERT INTO chats VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET meta = excluded.meta, updated = excluded.updated")
+      db.prepare("INSERT INTO chats (id, meta, updated) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET meta = excluded.meta, updated = excluded.updated")
         .run(id, JSON.stringify({ ...meta, id }), meta.updatedAt);
     }
     const order = patch.order ?? (db.prepare("SELECT id FROM messages WHERE chat_id = ? ORDER BY seq").all(id).map((r) => String(r.id)));

@@ -295,10 +295,20 @@ The gap: Default Chat Settings could only really use models from the site's buil
   - Library: saved in `data/chats.sqlite` (`personas` table), reusable on any story, deletable. Chat Settings → Persona shows who you're playing and switches mid-chat (pick, create, or play as yourself), with a toast.
   - Live (DeepSeek): started "May this Dance Never End" as Chiara; the river voice answered "She carries a name." Switched to a new persona, Vesna, mid-chat; it saved to the library and the chat. A new persona Ren with his own opening scene started "I Woke Up in a World of Magic and Monsters" with "Ren wakes in a field of blue grass…".
   - That story lists two Chiaras: the author published two versions (different portraits), so both show, as on the site.
-  - Not done: multi-persona play (the site's group play), and the persona's character sheet isn't linked to the stats tools yet.
+  - Not done: the persona's character sheet isn't linked to the stats tools yet.
+  - **Deferred (decided 2026-10-15): multi-persona / group play.** One model voicing several characters loses each one's flavour and has to hold every character in one context. The better design is to route each character to its own model (e.g. one character on MiMo v2.6, another on DeepSeek R1, whatever the player picks), with the story model as narrator. Revisit after Phase 4.
 - [x] **Guidance prompt and AI output reminder (4b):** Chat Settings → Guidance, with the site's wording (500-character reminder). Live: the reminder "End every reply with one short line of dialogue from the ferryman, in quotes." was followed on the next reply.
-- [ ] UI settings: text-colour presets, font size, streaming speed, fade older messages, show/hide thinking, scene-tracker colouring.
-- [ ] Chat history: branches picker, archive, 30-day trash, message search, saved messages, export.
+- [x] **UI/UX settings (4c):** one panel (chatSettings.ui.*), in Default Chat Settings → UI/UX and Chat Settings → UI/UX, applying to every chat on this device: Send on Enter, Auto Scroll During Streaming, Disable Fade Previous Messages During Streaming, Hide Choose Your Destiny, Hide chat input shortcut buttons, Font Size, Background Image Opacity, and Chat colors (Classic, Ember, Moonlight, Monochrome presets, a colour per narration, dialogue, thoughts, bold, scene tracker and background tint, Reset colors, Reset to Defaults).
+  - Story `<tag>…</tag>` lines (e.g. "May this Dance Never End" tracks day, tension and trust that way) now render as a scene tracker line instead of raw text, and `**bold**` renders as bold. Chat previews hide tracker lines.
+  - Fixed: Send on Enter was never read (the chat looked for it outside `ui`); the other UI switches were stored but unused.
+  - Dropped: Parallax Effect and Always Auto Expand Thinking (the clone has no parallax or thinking display), streaming speed, haptics, the tutorial.
+  - Fixed: the AI Output Reminder is now labelled as a hidden instruction; DeepSeek had echoed a bare "[Reminder: …]" into a reply.
+- [x] **Chat history (4c):** Chat Settings → History lists the story's chats and branches with Sort & Filter (last updated, created, name; today, week, month, year, custom dates), Edit Story Name, Archive / Restore, Delete, Start New Chat, Export Chat (JSON), Delete This Chat (switches to the latest remaining one) and Delete All Chat Histories.
+  - **Recently deleted** (`/chats/deleted`, recycleBin.*): deleting moves a chat to a 30-day bin (Chats and Branches tabs, Expires date, Restore); expired chats are purged when the list loads. The bin and archive flags are columns on `chats`, not in the chat's meta, so a sync from an open tab can't undo them.
+  - **Archive:** archived chats leave the Activity list for a collapsed Archived section; tapping one in History asks to restore it. Locally there is no cold storage, so archiving only files the chat away.
+  - **Saved messages:** More → Save / Unsave bookmarks a message (a bookmark icon shows on it); Chats → Saved lists them, and tapping one opens the chat scrolled to that message.
+  - Branches record the chat they came from ("Branch of …").
+  - Live (DeepSeek): saved a reply and jumped back to it from Saved; started a new chat, renamed it, archived and restored it; branched it and deleted the branch (filed under Branches); deleted a chat and restored it from Recently deleted; Ember colours, Large font and hidden buttons applied at once; during a streamed reply the 6 earlier messages faded and the list kept to the bottom.
 - **Exit:** every chat string in `en_flat.tsv` under the chat namespaces maps to a working control, or to a deliberate ADR-1 omission.
 
 ### Phase 5: Media adaptations (moved ahead of Phase 3 on 2026-10-13, at your request)

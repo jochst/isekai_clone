@@ -18,6 +18,7 @@ import { providerHeaders, readProviderSettings } from "./provider-settings";
 import { readDefaultChatSettings, type DefaultChatSettings } from "@/components/sites/isekaizero-ai-0e4f18da/settings/use-default-chat-settings";
 import { replaceCardMacros } from "@/lib/imports/prompt";
 import { memoryForBranch, type MemoryEdit } from "@/lib/chats/memory";
+import type { ChatStatusChange, SavedMessage } from "@/lib/chats/db";
 
 export const USAGE_STORAGE_KEY = "iz.usage.v1";
 /** Pre-server chat storage; renamed to `…migrated` once its chats are on the server. */
@@ -198,14 +199,14 @@ async function loadSession(id: string): Promise<void> {
 function summarize(s: ChatSession): ChatSummary {
   const { messages, ...meta } = s;
   const last = [...messages].reverse().find((m) => m.role !== "system" && m.content.trim() && m.content !== CONTINUE_SENTINEL);
-  return { ...meta, messageCount: messages.filter((m) => m.role !== "system").length, preview: last?.content.replace(/\s+/g, " ").trim() ?? "" };
+  return { ...meta, messageCount: messages.filter((m) => m.role !== "system").length, preview: last?.content.replace(/<tag>[\s\S]*?<\/tag>/g, "").replace(/\s+/g, " ").trim() ?? "" };
 }
 
 /** Server list overlaid with chats changed (or created) in this tab, newest first. */
 function getSummaries(): ChatSummary[] {
   if (summariesSnapshot) return summariesSnapshot;
   const byId = new Map((serverSummaries ?? []).map((s) => [s.id, s]));
-  for (const s of sessions.values()) byId.set(s.id, summarize(s));
+  for (const s of sessions.values()) byId.set(s.id, { ...summarize(s), ...(byId.get(s.id)?.archived ? { archived: true } : {}) });
   summariesSnapshot = [...byId.values()].sort((a, b) => b.updatedAt - a.updatedAt);
   return summariesSnapshot;
 }
@@ -443,6 +444,37 @@ export function deleteSession(id: string): void {
   void api(`/api/chats/${encodeURIComponent(id)}`, { method: "DELETE" }).catch((e) => console.warn("Could not delete chat", e));
 }
 
+/** Applies a bin, archive or rename change on the server and to the cached list. */
+async function changeStatus(id: string, change: ChatStatusChange): Promise<void> {
+  await api(`/api/chats/${encodeURIComponent(id)}/status`, { method: "POST", body: JSON.stringify(change) });
+  if (serverSummaries) serverSummaries = serverSummaries.map((s) => (s.id === id ? { ...s, ...(change.title ? { title: change.title } : {}), archived: change.archived ?? s.archived } : s));
+  if (change.title) {
+    const cached = sessions.get(id);
+    if (cached) sessions.set(id, { ...cached, title: change.title });
+    const confirmed = synced.get(id);
+    if (confirmed) synced.set(id, { ...confirmed, title: change.title });
+  }
+  emit();
+}
+
+export const archiveSession = (id: string, archived: boolean) => changeStatus(id, { archived });
+export const renameSession = (id: string, title: string) => changeStatus(id, { title });
+
+/** Takes a chat out of Recently deleted. */
+export async function restoreSession(id: string): Promise<void> {
+  await changeStatus(id, { deleted: false });
+  statuses.delete(id);
+  await loadSummaries();
+}
+
+export async function listDeletedSessions(): Promise<ChatSummary[]> {
+  return (await api<{ chats: ChatSummary[] }>("/api/chats?deleted")).chats;
+}
+
+export async function listSavedMessages(): Promise<SavedMessage[]> {
+  return (await api<{ saved: SavedMessage[] }>("/api/chats?saved")).saved;
+}
+
 /** Duplicates `id` keeping messages up to and including `messageId` (optionally renamed); returns the copy. */
 export function branchSession(id: string, messageId: string, title?: string): ChatSession | undefined {
   const source = getChatSession(id);
@@ -453,6 +485,7 @@ export function branchSession(id: string, messageId: string, title?: string): Ch
   const copy: ChatSession = {
     ...source,
     id: newId(),
+    branchOf: source.id,
     ...(title?.trim() ? { title: title.trim() } : {}),
     createdAt: now,
     updatedAt: now,

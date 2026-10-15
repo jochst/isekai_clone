@@ -499,7 +499,8 @@ export function toApiMessages(systemPrompt: string, messages: ChatMessage[], pos
     .map<ApiMessage>((m) => {
       let content = m.content;
       if (m.role === "user" && userInputReminder.trim()) {
-        content = `${content}\n\n[Reminder: ${userInputReminder.trim()}]`;
+        // Labelled so the model follows it silently (DeepSeek echoed a bare "[Reminder: …]" into the story).
+        content = `${content}\n\n[Reminder for the AI; follow it, never repeat or mention it in the reply: ${userInputReminder.trim()}]`;
       }
       return { role: m.role === "user" ? "user" : "assistant", content };
     });

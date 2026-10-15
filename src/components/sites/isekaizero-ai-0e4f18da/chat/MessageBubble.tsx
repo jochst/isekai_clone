@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, MoreHorizontal, Music, Pause, Play, RefreshCw, Volume2 } from "lucide-react";
+import { Bookmark, ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, MoreHorizontal, Music, Pause, Play, RefreshCw, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -18,6 +18,8 @@ import { MangaPages, type MangaPageAction } from "./MangaPages";
 export interface MessageBubbleProps {
   message: ChatMessage;
   index: number;
+  /** Faded while a later reply streams (UI/UX: Fade Previous Messages). */
+  dimmed?: boolean;
   /** Shows the Retry pill (last assistant message with a preceding turn). */
   canRetry: boolean;
   modelName: string;
@@ -75,22 +77,39 @@ function EndingCard({ ending }: { ending: StoryEnding }) {
 
 const CODEX_VERBS = { read: "📖 Read:", update: "✎ Updated:", create: "＋ New entry:", delete: "✕ Removed:" } as const;
 
-const TOKEN_RE = /(\*[^*\n]+\*|"[^"\n]+"|“[^”\n]+”)/g;
+const TOKEN_RE = /(<tag>[\s\S]*?<\/tag>|\*\*[^*\n]+\*\*|\*[^*\n]+\*|"[^"\n]+"|“[^”\n]+”)/g;
 
-/** Renders `*actions*` as muted italics and "dialogue" as bright medium-weight text. */
+/**
+ * Renders `<tag>scene tracker</tag>` lines, `**bold**`, `*thoughts and actions*` as italics and "dialogue",
+ * each in its Chat colors variable (UI/UX settings) with the built-in look as the fallback.
+ */
 export function renderRichText(text: string): ReactNode[] {
   const parts = text.split(TOKEN_RE);
   return parts.map((part, i) => {
+    if (part.startsWith("<tag>") && part.endsWith("</tag>")) {
+      return (
+        <span key={i} className="block font-mono text-[12px] leading-5 text-[color:var(--iz-tracker,#ffcf8a)]">
+          {part.slice(5, -6).trim()}
+        </span>
+      );
+    }
+    if (part.length > 4 && part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={i} className="font-bold text-[color:var(--iz-bold,#fff)]">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
     if (part.length > 1 && part.startsWith("*") && part.endsWith("*")) {
       return (
-        <em key={i} className="text-white/75">
+        <em key={i} className="text-[color:var(--iz-thoughts,rgba(255,255,255,0.75))]">
           {part.slice(1, -1)}
         </em>
       );
     }
     if ((part.startsWith('"') && part.endsWith('"')) || (part.startsWith("“") && part.endsWith("”"))) {
       return (
-        <span key={i} className="font-medium text-white">
+        <span key={i} className="font-medium text-[color:var(--iz-dialogue,#fff)]">
           {part}
         </span>
       );
@@ -109,6 +128,7 @@ const PILL =
 export function MessageBubble({
   message,
   index,
+  dimmed,
   canRetry,
   modelName,
   onIllustrate,
@@ -277,8 +297,8 @@ export function MessageBubble({
 
   if (message.role === "user") {
     return (
-      <div id={`msg-${message.id}`} className="flex max-w-[78%] flex-col items-end self-end">
-        <div className={cn("w-full rounded-[16px_16px_4px_16px] px-4 py-3 text-[15px] leading-[22px]", message.ooc ? "border border-dashed border-white/30 bg-white/[0.06]" : "iz-btn-primary")}>
+      <div id={`msg-${message.id}`} className={cn("flex max-w-[78%] flex-col items-end self-end transition-opacity duration-300", dimmed && "opacity-40")}>
+        <div className={cn("w-full rounded-[16px_16px_4px_16px] px-4 py-3 text-[length:var(--iz-chat-font,15px)] leading-[1.47]", message.ooc ? "border border-dashed border-white/30 bg-white/[0.06]" : "iz-btn-primary")}>
           {message.ooc ? <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.6px] text-white/60">Out of character</div> : null}
           {editing ? editor : <p className="whitespace-pre-wrap break-words">{message.content}</p>}
           {infoLine}
@@ -288,7 +308,7 @@ export function MessageBubble({
           <span className="text-[11px] text-white/40">
             #{index + 1} · {formatTime(message.createdAt)}
           </span>
-          <MessagePopover open={menuOpen} onClose={() => setMenuOpen(false)} onAction={handleAction} hidden={["illustration", "animate", "manga", "visualNovel", ...lockedActions]}>
+          <MessagePopover open={menuOpen} onClose={() => setMenuOpen(false)} onAction={handleAction} saved={message.saved} hidden={["illustration", "animate", "manga", "visualNovel", ...lockedActions]}>
             <button type="button" aria-label="More" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)} className={cn(PILL, "px-2")}>
               <MoreHorizontal size={14} />
             </button>
@@ -305,10 +325,11 @@ export function MessageBubble({
   return (
     <div
       id={`msg-${message.id}`}
-      className={cn("w-full max-w-full self-start rounded-[16px] px-4 py-[14px]", message.ooc ? "border border-dashed border-white/25 bg-white/[0.04]" : "border border-[rgba(167,185,255,0.18)] bg-[rgba(17,18,60,0.75)]")}
+      className={cn("w-full max-w-full self-start rounded-[16px] px-4 py-[14px] transition-opacity duration-300", dimmed && "opacity-40", message.ooc ? "border border-dashed border-white/25 bg-white/[0.04]" : "border border-[rgba(167,185,255,0.18)] bg-[rgba(17,18,60,0.75)]")}
     >
       <div className="mb-[6px] flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-[0.5px] text-[#a7b9ff]">
         {message.ooc ? "Out of character" : message.speaker || "Narrator"}
+        {message.saved ? <Bookmark size={12} aria-label="Saved" className="fill-current" /> : null}
         {message.direction ? (
           <span className="rounded-[8px] bg-[#a7b9ff]/12 px-2 py-0.5 text-[10px] normal-case tracking-normal text-[#c9d4ff]" title={message.direction.text}>
             {DIRECTION_BADGES[message.direction.kind]}
@@ -319,7 +340,7 @@ export function MessageBubble({
       {editing ? (
         editor
       ) : (
-        <p className="whitespace-pre-wrap break-words text-[15px] leading-6 text-white/[0.92]">
+        <p className="whitespace-pre-wrap break-words text-[length:var(--iz-chat-font,15px)] leading-[1.6] text-[color:var(--iz-narration,rgba(255,255,255,0.92))]">
           {message.content ? renderRichText(message.content) : null}
           {streaming ? (
             <span className="iz-cursor-blink ml-[1px] text-[#a7b9ff]" aria-hidden>
@@ -450,7 +471,7 @@ export function MessageBubble({
             <RefreshCw size={14} /> Retry
           </button>
         ) : null}
-        <MessagePopover open={menuOpen} onClose={() => setMenuOpen(false)} onAction={handleAction} hidden={streaming ? ["edit", "branch", "illustration", "animate", ...lockedActions] : lockedActions}>
+        <MessagePopover open={menuOpen} onClose={() => setMenuOpen(false)} onAction={handleAction} saved={message.saved} hidden={streaming ? ["edit", "branch", "illustration", "animate", ...lockedActions] : lockedActions}>
           <button type="button" aria-label="More" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)} className={PILL}>
             <MoreHorizontal size={14} /> More
           </button>

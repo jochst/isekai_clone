@@ -1,5 +1,5 @@
 import { boundedBody, guardImportRequest, importError } from "@/lib/imports/http";
-import { listChats, localizeMessages, saveChat, withChatDb } from "@/lib/chats/db";
+import { listChats, listSavedMessages, localizeMessages, saveChat, withChatDb } from "@/lib/chats/db";
 import { isChatSession } from "@/lib/chats/validate";
 
 export const runtime = "nodejs";
@@ -8,10 +8,13 @@ export const maxDuration = 300;
 
 const MAX_BODY = 64 * 1024 * 1024;
 
+/** Live chats; `?deleted` for Recently deleted; `?saved` for bookmarked messages. */
 export async function GET(request: Request) {
   try {
     guardImportRequest(request);
-    return Response.json({ chats: withChatDb(listChats) }, { headers: { "Cache-Control": "no-store" } });
+    const query = new URL(request.url).searchParams;
+    const body = withChatDb((db) => (query.has("saved") ? { saved: listSavedMessages(db) } : { chats: listChats(db, query.has("deleted")) }));
+    return Response.json(body, { headers: { "Cache-Control": "no-store" } });
   } catch (error) { return importError(error); }
 }
 

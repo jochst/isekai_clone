@@ -13,6 +13,8 @@ export interface MessagePopoverProps {
   onAction: (action: MessageAction) => void;
   /** Hide actions that don't apply (e.g. no Edit on streaming messages). */
   hidden?: MessageAction[];
+  /** The message is bookmarked: Save reads Unsave. */
+  saved?: boolean;
   /** The trigger button; the popover is anchored above it. */
   children: ReactNode;
   className?: string;
@@ -32,7 +34,7 @@ const ITEMS: { action: MessageAction; label: string; icon: LucideIcon }[] = [
   { action: "visualNovel", label: "Visual Novel", icon: Film },
 ];
 
-export function MessagePopover({ open, onClose, onAction, hidden = [], children, className }: MessagePopoverProps) {
+export function MessagePopover({ open, onClose, onAction, hidden = [], saved, children, className }: MessagePopoverProps) {
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -73,7 +75,7 @@ export function MessagePopover({ open, onClose, onAction, hidden = [], children,
               className="flex h-9 w-full items-center gap-[10px] rounded-[8px] px-3 text-left text-[13px] text-white hover:bg-white/[0.08]"
             >
               <Icon size={16} className="shrink-0 text-white/80" />
-              {label}
+              {action === "save" && saved ? "Unsave" : label}
             </button>
           ))}
         </div>

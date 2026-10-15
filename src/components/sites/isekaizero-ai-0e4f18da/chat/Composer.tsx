@@ -1,11 +1,29 @@
 "use client";
 
-import { Dices, Eraser, Image as ImageIcon, Loader2, Play, Send, Square } from "lucide-react";
+import {
+  Dices,
+  Eraser,
+  Image as ImageIcon,
+  Loader2,
+  Play,
+  Send,
+  Square,
+} from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 
 import { cn } from "@/lib/utils";
-import { matchCommands, parseInput, type CommandName } from "@/lib/chats/commands";
+import {
+  matchCommands,
+  parseInput,
+  type CommandName,
+} from "@/lib/chats/commands";
 
 import { Toggle } from "./primitives";
 
@@ -17,6 +35,10 @@ export interface ComposerProps {
   contextLimit: number;
   autoIllustrate: boolean;
   sendOnEnter: boolean;
+  /** UI/UX: Hide Choose Your Destiny Button. */
+  hideDestiny?: boolean;
+  /** UI/UX: Hide chat input shortcut buttons (Continue, Erase). */
+  hideShortcuts?: boolean;
   takeTurn: boolean;
   onTakeTurnChange: (next: boolean) => void;
   onSend: (text: string) => void;
@@ -47,6 +69,8 @@ export function Composer({
   contextLimit,
   autoIllustrate,
   sendOnEnter,
+  hideDestiny,
+  hideShortcuts,
   takeTurn,
   onTakeTurnChange,
   onSend,
@@ -82,7 +106,11 @@ export function Composer({
     };
   }, []);
 
-  const canSend = configured && !streaming && draft.trim().length > 0 && (open || draft.trim().startsWith("/"));
+  const canSend =
+    configured &&
+    !streaming &&
+    draft.trim().length > 0 &&
+    (open || draft.trim().startsWith("/"));
 
   const submit = useCallback(() => {
     if (!draft.trim() || streaming) return;
@@ -130,9 +158,13 @@ export function Composer({
       const list = await onRequestDestinies();
       if (!mountedRef.current) return;
       setDestinies(list);
-      if (list.length === 0) onError("The model returned no suggestions. Try again.");
+      if (list.length === 0)
+        onError("The model returned no suggestions. Try again.");
     } catch (e) {
-      if (mountedRef.current) onError(e instanceof Error ? e.message : "Could not fetch suggestions.");
+      if (mountedRef.current)
+        onError(
+          e instanceof Error ? e.message : "Could not fetch suggestions.",
+        );
     } finally {
       if (mountedRef.current) setDestinyLoading(false);
     }
@@ -145,24 +177,48 @@ export function Composer({
   };
 
   return (
-    <div className="sticky bottom-0 z-[20] bg-[linear-gradient(rgba(2,9,32,0),rgb(2,9,32)_30%)] px-4 pb-4 pt-3">
+    <div className="sticky bottom-0 z-[20] bg-[linear-gradient(transparent,var(--iz-tint,#020920)_30%)] px-4 pb-4 pt-3">
       <div className="mx-auto flex w-full max-w-[860px] flex-col gap-[10px]">
         {!configured ? (
           <div className="flex items-center gap-[10px] rounded-[12px] border border-[rgba(255,168,168,0.4)] bg-[rgba(255,168,168,0.12)] px-[14px] py-[10px] text-[13px]">
-            <span className="flex-1">Connect a provider to start chatting.</span>
-            <Link href="/settings/providers" className="shrink-0 font-semibold text-[#a7b9ff] hover:underline">
+            <span className="flex-1">
+              Connect a provider to start chatting.
+            </span>
+            <Link
+              href="/settings/providers"
+              className="shrink-0 font-semibold text-[#a7b9ff] hover:underline"
+            >
               Open Providers ›
             </Link>
           </div>
         ) : null}
 
         {suggestions.length > 0 ? (
-          <div role="listbox" aria-label="Chat commands" className="iz-scroll-thin max-h-[240px] overflow-y-auto rounded-[12px] border border-white/12 bg-[#151745] p-1 shadow-lg">
+          <div
+            role="listbox"
+            aria-label="Chat commands"
+            className="iz-scroll-thin max-h-[240px] overflow-y-auto rounded-[12px] border border-white/12 bg-[#151745] p-1 shadow-lg"
+          >
             {suggestions.map((c) => (
-              <button key={c.name} type="button" role="option" aria-selected={false} onClick={() => pickCommand(c.name)} className="flex w-full items-baseline gap-2 rounded-[8px] px-3 py-1.5 text-left hover:bg-white/[0.08]">
-                <span className="shrink-0 text-[13px] font-semibold text-white">/{c.name}</span>
-                {c.hint ? <span className="shrink-0 text-[12px] text-white/40">{c.hint}</span> : null}
-                <span className="truncate text-[12px] text-white/55">{c.description}</span>
+              <button
+                key={c.name}
+                type="button"
+                role="option"
+                aria-selected={false}
+                onClick={() => pickCommand(c.name)}
+                className="flex w-full items-baseline gap-2 rounded-[8px] px-3 py-1.5 text-left hover:bg-white/[0.08]"
+              >
+                <span className="shrink-0 text-[13px] font-semibold text-white">
+                  /{c.name}
+                </span>
+                {c.hint ? (
+                  <span className="shrink-0 text-[12px] text-white/40">
+                    {c.hint}
+                  </span>
+                ) : null}
+                <span className="truncate text-[12px] text-white/55">
+                  {c.description}
+                </span>
               </button>
             ))}
           </div>
@@ -184,25 +240,49 @@ export function Composer({
         ) : null}
 
         <div className="flex items-center gap-2">
-          <button type="button" onClick={onContinue} disabled={!open || streaming} className={QUICK_PILL}>
-            <Play size={14} /> Continue
-          </button>
-          <button type="button" onClick={onErase} disabled={streaming || !canErase} className={QUICK_PILL}>
-            <Eraser size={14} /> Erase
-          </button>
-          <button
-            type="button"
-            onClick={requestDestinies}
-            disabled={!open || streaming || destinyLoading}
-            className={cn(QUICK_PILL, "border-[rgba(255,168,168,0.5)]")}
-          >
-            {destinyLoading ? <Loader2 size={14} className="animate-spin" /> : <Dices size={14} />}
-            <span className="hidden sm:inline">Choose Your Destiny</span>
-            <span className="sm:hidden">Destiny</span>
-          </button>
+          {hideShortcuts ? null : (
+            <>
+              <button
+                type="button"
+                onClick={onContinue}
+                disabled={!open || streaming}
+                className={QUICK_PILL}
+              >
+                <Play size={14} /> Continue
+              </button>
+              <button
+                type="button"
+                onClick={onErase}
+                disabled={streaming || !canErase}
+                className={QUICK_PILL}
+              >
+                <Eraser size={14} /> Erase
+              </button>
+            </>
+          )}
+          {hideDestiny ? null : (
+            <button
+              type="button"
+              onClick={requestDestinies}
+              disabled={!open || streaming || destinyLoading}
+              className={cn(QUICK_PILL, "border-[rgba(255,168,168,0.5)]")}
+            >
+              {destinyLoading ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Dices size={14} />
+              )}
+              <span className="hidden sm:inline">Choose Your Destiny</span>
+              <span className="sm:hidden">Destiny</span>
+            </button>
+          )}
           <label className="ml-auto flex items-center gap-2 text-[12px] text-white/60">
             <span className="hidden sm:inline">Take Turn</span>
-            <Toggle checked={takeTurn} onChange={onTakeTurnChange} label="Take Turn" />
+            <Toggle
+              checked={takeTurn}
+              onChange={onTakeTurnChange}
+              label="Take Turn"
+            />
           </label>
         </div>
 
@@ -213,7 +293,11 @@ export function Composer({
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={onKeyDown}
             rows={1}
-            placeholder={ended ? "This story has ended. Erase or Retry the last reply to continue it." : "Write your action or dialogue… (type / for commands)"}
+            placeholder={
+              ended
+                ? "This story has ended. Erase or Retry the last reply to continue it."
+                : "Write your action or dialogue… (type / for commands)"
+            }
             aria-label="Message"
             disabled={!configured}
             className="iz-scroll-thin block max-h-[160px] w-full resize-none bg-transparent text-[15px] leading-[22px] text-white outline-none placeholder:text-white/40 [field-sizing:content] disabled:cursor-not-allowed"
@@ -242,7 +326,8 @@ export function Composer({
 
         <div className="flex items-center justify-between gap-3 text-[11px] text-white/45">
           <span className="truncate">
-            {modelName} · {tokenEstimate.toLocaleString("en-US")} / {contextLimit.toLocaleString("en-US")} tokens in context
+            {modelName} · {tokenEstimate.toLocaleString("en-US")} /{" "}
+            {contextLimit.toLocaleString("en-US")} tokens in context
           </span>
           {autoIllustrate ? (
             <span className="flex shrink-0 items-center gap-1">
