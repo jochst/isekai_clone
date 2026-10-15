@@ -187,13 +187,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         }
         text = text.trim() ? text : earlier;
         // The cast keeper (the Dungeon Mind model) records new characters, renames, departures and the ending
-        // when the story model didn't. It runs after the reply streamed, so it doesn't delay the first words.
+        // when the story model didn't, and the codex changes. It runs after the reply streamed, so it doesn't delay
+        // the first words.
         const keeper = castKeeperModel(storyline, chat.settings);
-        if (keeper && !castHandled && text.trim()) {
+        if (keeper && text.trim()) {
           const before = events.cast.length;
+          const codexBefore = events.codex.length;
           const endingBefore = events.ending;
           try {
-            const kept = await runCastKeeper({ ctx, model: keeper, storyline, settings: chat.settings, state: toolState, events, signal: request.signal, reply: text });
+            const kept = await runCastKeeper({ ctx, model: keeper, storyline, settings: chat.settings, state: toolState, events, signal: request.signal, reply: text, castDone: castHandled });
             toolState = kept.state;
             usage = addUsage(usage, kept.usage);
             // Characters it created get their portrait drawn in the browser, as when the story model creates them.
@@ -203,6 +205,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
             });
           } catch {
             events.cast.splice(before); // a failed keeper changes nothing; the reply still stands
+            events.codex.splice(codexBefore);
             events.ending = endingBefore;
           }
         }

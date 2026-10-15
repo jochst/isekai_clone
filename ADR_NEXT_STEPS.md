@@ -390,8 +390,27 @@ The gap: Default Chat Settings could only really use models from the site's buil
   - Stored with the imports (`imports.sqlite`, `source: "created"`, `import-c-…` ids), so the story page, chats and the turn route load them with no new code; the Import library hides them.
   - **Editing mid-chat:** Chat Settings → Edit Story opens the editor with Back to chat; the turn route reloads the story every turn, so a save applies from the next reply. The story page has Edit Story too.
   - Live (DeepSeek, Haiku as Dungeon Mind): created "The Lantern Ferry" from scratch (cover upload, a character, required dice, a codex entry) and played it: dice rolled (d20 6 vs DC 12, fail) and the codex entry was read. Mid-chat, a Prompt Guideline that Elen speaks only in rhyme was ignored by DeepSeek (it sits early in the system prompt), but the same rule as an AI Reminder (after the history) worked on Retry: every line of hers rhymed.
-  - Not done: generating covers or portraits from the editor (upload only; the image page exists), the Media Picker / music AI notes, soundtrack, character sheets per character, linking standalone characters (6b).
-- [ ] **6b:** Character editor (Profile / Media / Sheets), appearances/loadout, My Characters, linking characters to stories.
+  - Not done: the Media Picker / music AI notes and soundtrack. (Generating covers and portraits, per-character sheets and linking characters came in 6b.)
+- [x] **6b: Character editor and My Characters, plus three prompt fixes.**
+  - **Character editor** (`/creation/characters/new`, `/creation/characters/[id]`, characterEdit.*):
+    - **Profile:** name, role, Description Summary, Description (or Advanced Mode's Description (User) + Prompt Description (AI)), Example Dialogues, tags.
+    - **Media:** portrait (upload or **Generate portrait**), image description, captioned expressions and poses for Visual Novel mode.
+    - **Sheets:** stats, loadout, skills, notes (the starting sheet).
+    - **Publish:** content rating, delete.
+  - Stored in their own `characters` table in `imports.sqlite`, versioned on every save. Creator Centre lists My Characters.
+  - **Linking:** a storyline's Casts tab has Link Character. It copies a snapshot that remembers its version (editing it changes only that story), and offers **Update to version N** when the original is newer, as on the site.
+  - **Generate** (portrait, story cover, cast portraits) uses the portrait model: qwen-image on the NanoGPT subscription, no per-image charge, about 30 s.
+  - A character's example dialogue now reaches the story prompt ("How Mara speaks").
+  - **Prompt fixes:**
+    - The story's Prompt Guideline now goes after the chat history with the AI Reminder, because DeepSeek ignored it at the top of the system prompt.
+    - Playing as yourself no longer turns `{{user}}` into "You" as a name ("You wakes", "You's"): prompts say "the protagonist", and text you read says "you"/"your".
+    - With a keeper model on, the story model only gets `read_codex`. The cast keeper writes codex records after the reply, and runs for that even when the story model kept the cast itself. This saves about 700 tokens of tool definitions per turn and per tool round.
+  - Live (DeepSeek, Haiku keeper), "The Lantern Ferry" with the AI Reminder removed:
+    - In a fresh chat, Elen rhymed from the Prompt Guideline alone, three replies running.
+    - The opening read "That's going to be a problem, you."
+    - The keeper recorded Elen's answer about her death into the writable Passenger Log; that information existed only in the reply.
+    - Mara was created with a generated portrait (28 s), linked at version 1, edited to version 2 and updated in the story.
+  - Not done: per-character voices in the editor (6c), Image Edit on a portrait, secret mode.
 - [ ] **6c:** Media studio: gallery, voices (ElevenLabs design/clone), audio drama.
 - [ ] **6d (optional):** Michiru helper, an LLM assistant on creation pages.
 - **Exit:** create a story from scratch, play it, and edit it mid-chat. **Met** (6a, "The Lantern Ferry").

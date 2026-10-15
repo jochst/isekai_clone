@@ -4,7 +4,7 @@ A local, single-user clone of **[isekaizero.ai](https://www.isekaizero.ai)**, th
 
 Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript (strict)**, **Tailwind CSS v4** and **SQLite**.
 
-The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0–5 and 6a, as of PR #39.
+The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0–5, 6a and 6b, as of PR #40.
 
 ---
 
@@ -201,7 +201,7 @@ Type **/** in the message box for the command palette (**Tab** completes), or **
 - Start a message with **//** to send a literal slash.
 
 ### Imports
-- **Creator Centre** (`/creation`) writes your own storylines: plot and AI prompts, openings, cast, cover and backgrounds, personas, codex, stats, game functions and default chat settings. Edit Story (story page, or Chat Settings mid-chat) changes apply from the next turn.
+- **Creator Centre** (`/creation`) writes your own characters (portrait, expressions, starting sheet; Generate portrait uses the subscription portrait model) and storylines, which link characters as versioned snapshots. Storylines hold: plot and AI prompts, openings, cast, cover and backgrounds, personas, codex, stats, game functions and default chat settings. Edit Story (story page, or Chat Settings mid-chat) changes apply from the next turn.
 - **The Import library** (`/imports`) adds personal character cards and stories from Isekai Zero, Chub, JanitorAI and anime.gf links, or from exported files. See [docs/IMPORTING.md](docs/IMPORTING.md).
 
 ---
@@ -255,7 +255,8 @@ Then go to **Settings → Providers → Voice (TTS) → Local / Kokoro**, base U
 | 4b | Personas: recommended characters, your persona library, switching mid-chat; guidance prompt and output reminder | Done (#37) |
 | 4c | UI/UX settings and chat colours; chat history: branches, archive, Recently deleted (30 days), saved messages, export | Done (#38) |
 | 6a | Creator Centre: storyline editor, My Storylines, editing mid-chat | Done (#39) |
-| 6b–6d | Character editor, media studio and voices, Michiru helper | Next |
+| 6b | Character editor, My Characters, linking with versions, generated portraits and covers; guideline after history, no "You" as a name, codex writes moved to the keeper | Done (#40) |
+| 6c–6d | Media studio and voices, Michiru helper | Next |
 | 7 | Remaining pages and visual polish | Planned |
 
 Details, decisions and test results for each phase are in [ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md).

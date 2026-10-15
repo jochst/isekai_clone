@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { normalizeImport } from "@/lib/imports/cards";
+import { replaceCardMacros } from "@/lib/imports/prompt";
 import type { ChatMessage, ChatSession, Storyline } from "@/types/isekaizero";
 import { DEFAULT_CHAT_SETTINGS, resolveNewChatSettings } from "../chat-store";
 import { DEFAULT_CHAT_SETTINGS as PLAYER_DEFAULTS } from "@/components/sites/isekaizero-ai-0e4f18da/settings/use-default-chat-settings";
-import { assemblePrompt, toolEnabled, buildScenePrompt, illustrationReferences, mangaPagePrompt, mangaReferences, mangaScriptPrompt, musicBriefPrompt, parseMangaScript, parseMusicBrief, parseVideoBeats, resolveTextModel, videoScenePlanPrompt } from "../prompt-builder";
+import { assemblePrompt, castKeeperPrompt, toolEnabled, buildScenePrompt, illustrationReferences, mangaPagePrompt, mangaReferences, mangaScriptPrompt, musicBriefPrompt, parseMangaScript, parseMusicBrief, parseVideoBeats, resolveTextModel, videoScenePlanPrompt } from "../prompt-builder";
 import { STORYLINES } from "../mock-data";
 import { DEFAULT_PROVIDER_SETTINGS } from "../provider-settings";
 import { LLM_CATALOG } from "../catalog";
@@ -36,10 +37,11 @@ describe("Isekai Zero creator fields", () => {
     const { messages, tools, maxTokens } = assemblePrompt(story, session());
     expect(messages[0].role).toBe("system");
     expect(messages[0].content).toContain("Setting: Secret AI plot.");
-    expect(messages[0].content).toContain("Story guideline:\nKeep it grim.");
+    expect(messages[0].content).not.toContain("Keep it grim.");
     expect(messages[0].content).not.toContain("Public plot.");
     expect(messages[2]).toMatchObject({ role: "user", content: expect.stringContaining("<t>Time|Weather</t>") });
-    expect(messages.at(-1)).toEqual({ role: "system", content: "Track the moon." });
+    // The guideline rides after the history with the reminder, where models follow it.
+    expect(messages.at(-1)).toEqual({ role: "system", content: "Story guideline:\nKeep it grim.\n\nTrack the moon." });
     expect(tools).toEqual([]);
     expect(maxTokens).toBe(450);
   });
@@ -255,7 +257,12 @@ describe("story tool settings", () => {
   const names = (s: ChatSession) => assemblePrompt(game, s).tools.map((t) => t.function.name);
 
   it("required tools stay on, the chat's choice beats the story default, and only the story's functions are offered", () => {
-    expect(names(session())).toEqual(["read_codex", "update_codex", "roll_dice"]);
+    // With a keeper model on (the default) the story model only reads the codex; the keeper gets the allowed writes.
+    expect(names(session())).toEqual(["read_codex", "roll_dice"]);
+    expect(castKeeperPrompt(game, "reply", DEFAULT_CHAT_SETTINGS).tools.map((t) => t.function.name)).toEqual(["update_codex"]);
+    expect(castKeeperPrompt(game, "reply", DEFAULT_CHAT_SETTINGS).messages[0].content).toContain("Creator's instruction for this tool: Track the heist plan.");
+    const off = { ...session(), settings: { ...DEFAULT_CHAT_SETTINGS, dmModel: "off" } };
+    expect(names(off)).toEqual(["read_codex", "update_codex", "roll_dice"]);
     expect(names(session({ "dice-roll": false, "stats-manager": true, codex: false }))).toEqual(["roll_dice", "read_character_stats", "update_character_stats"]);
     expect(toolEnabled(STORYLINES[0], DEFAULT_CHAT_SETTINGS, "dice-roll")).toBe(false);
   });
@@ -264,5 +271,18 @@ describe("story tool settings", () => {
     const system = assemblePrompt(game, session({ "stats-manager": true })).messages[0].content;
     expect(system).toContain("Creator's instruction for this tool: Track the heist plan.");
     expect(system).toContain("- HP (number, depleting: value is the maximum)");
+  });
+});
+
+describe("unnamed player", () => {
+  it("never uses 'You' as a name: prompts say the protagonist, text the player reads says you", () => {
+    expect(replaceCardMacros('{{user}} wakes. Elen eyes {{user}}\'s hands. "{{user}}, up!"', "Elen", "You", "the protagonist")).toBe('The protagonist wakes. Elen eyes the protagonist\'s hands. "The protagonist, up!"');
+    expect(replaceCardMacros('"That\'s a problem, {{user}}." {{user}}\'s pulse races.', "Elen", "You")).toBe('"That\'s a problem, you." Your pulse races.');
+    expect(replaceCardMacros("{{user}} wakes.", "Elen", "Kai")).toBe("Kai wakes.");
+    const story: Storyline = { ...STORYLINES[0], plot: "{{user}} wakes aboard a ferry." };
+    const system = assemblePrompt(story, { id: "s", storylineId: story.id, title: "t", createdAt: 1, updatedAt: 1, playerName: "You", settings: DEFAULT_CHAT_SETTINGS, messages: [] }).messages[0].content;
+    expect(system).toContain("Setting: The protagonist wakes aboard a ferry.");
+    expect(system).toContain("The player plays the protagonist, who has no name of their own.");
+    expect(system).not.toMatch(/You (wakes|is|always)|You's/);
   });
 });

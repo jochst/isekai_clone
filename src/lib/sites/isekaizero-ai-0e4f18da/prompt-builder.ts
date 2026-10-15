@@ -4,7 +4,7 @@
 import type { ChatMessage, ChatSession, ChatSettings, ProviderSettings, Storyline } from "@/types/isekaizero";
 
 import { IMAGE_CATALOG, LLM_CATALOG } from "./catalog";
-import { importedPrompt, replaceCardMacros } from "@/lib/imports/prompt";
+import { UNNAMED_PLAYER, importedPrompt, replaceCardMacros } from "@/lib/imports/prompt";
 import type { ProviderImageModel, ProviderVideoModel, VideoParamSpec } from "./provider-catalog";
 import { defaultResolution } from "./provider-catalog";
 import type { VideoParamValue } from "@/types/isekaizero";
@@ -163,9 +163,9 @@ export function buildSystemPrompt(storyline: Storyline, session: ChatSession, op
   const lines = [
     `You are the narrator and every non-player character of the interactive story "${storyline.title}".`,
     `Setting: ${storyline.prompt?.plot || storyline.plot}`,
-    storyline.prompt?.guideline ? `Story guideline:\n${storyline.prompt.guideline}` : "",
     `Characters: ${cast}`,
-    `The player is ${playerName}. {{user}} always refers to the protagonist.`,
+    ...storyline.characters.filter((c) => c.exampleDialogue?.trim()).map((c) => `How ${c.name} speaks (example dialogue):\n${c.exampleDialogue!.trim().slice(0, 2000)}`),
+    playerName === UNNAMED_PLAYER ? "The player plays the protagonist, who has no name of their own." : `The player is ${playerName}. {{user}} always refers to the protagonist.`,
     session.persona?.description.trim() ? `Who ${playerName} is (the player's persona; only the player decides their actions and words):\n${session.persona.description.trim().slice(0, 4000)}` : "",
     opts.takeTurn
       ? `The player currently takes the turn of the character named ${playerName} from the cast; treat their messages as that character's own words and actions.`
@@ -191,13 +191,18 @@ export function buildSystemPrompt(storyline: Storyline, session: ChatSession, op
 
   const prompt = lines.filter(Boolean).join("\n");
   const charName = storyline.characters[0]?.name || storyline.title;
-  return replaceCardMacros(prompt, charName, playerName);
+  return replaceCardMacros(prompt, charName, playerName, "the protagonist");
 }
 
-/** Instructions placed after the chat history: the card's post-history instructions and the creator's AI reminder. */
+/**
+ * Instructions placed after the chat history: the card's post-history instructions, the creator's Prompt Guideline
+ * and AI reminder. The guideline sits here rather than in the system prompt because models like DeepSeek follow the
+ * most recent instructions, and ignored a guideline at the top once the history had set a different pattern.
+ */
 export function importedPostHistory(storyline: Storyline, session: ChatSession): string {
-  const text = [storyline.imported?.postHistoryInstructions, storyline.prompt?.reminder].filter(Boolean).join("\n\n");
-  return replaceCardMacros(text, storyline.characters[0]?.name || storyline.title, session.playerName);
+  const guideline = storyline.prompt?.guideline?.trim() ? `Story guideline:\n${storyline.prompt.guideline.trim()}` : "";
+  const text = [storyline.imported?.postHistoryInstructions, guideline, storyline.prompt?.reminder].filter(Boolean).join("\n\n");
+  return replaceCardMacros(text, storyline.characters[0]?.name || storyline.title, session.playerName, "the protagonist");
 }
 
 function mentions(text: string, character: Storyline["characters"][number]): boolean {
@@ -553,6 +558,17 @@ export function toolEnabled(storyline: Storyline, settings: ChatSettings, toolId
  */
 type ToolScope = "all" | "story" | "mechanics" | "cast";
 
+const CODEX_WRITE_TOOLS = ["update_codex", "create_codex", "delete_codex"] as const;
+const CODEX_READ_INSTRUCTION =
+  "The codex is the story's knowledge base. The index lists each entry with a one-line description that tells you what it covers and when to read it. Whenever the story is about to touch what a description mentions (a place, faction, rule, past event), call read_codex with the relevant slugs BEFORE writing, and never contradict or invent details a codex entry defines. Records are kept up to date for you after each reply.";
+const CODEX_KEEPER_INSTRUCTION =
+  "Also keep the codex current. When the reply changes something a writable entry tracks (quest progress, events, records), call update_codex; for small changes to a long entry send targeted \"edits\" (each oldText copied verbatim) instead of rewriting it, and keep its format. Use create_codex only for a genuinely new lasting element the story will need again, delete_codex only for entries you created that no longer apply. Record only real developments in this reply.";
+
+/** Whether codex records are written after each reply by the cast keeper (any keeper model on), not the story model. */
+export function keeperKeepsCodex(storyline: Storyline, settings: ChatSettings): boolean {
+  return settings.dmModel !== "off" && (storyline.codex?.length ?? 0) > 0 && toolEnabled(storyline, settings, "codex", true);
+}
+
 /**
  * The story's AI tools (Isekai Zero ai-tools): each enabled tool's instruction for the system prompt, with the
  * creator's extra instruction and context (codex index, stat schema), and the functions the story allows. Tools the
@@ -570,7 +586,19 @@ function toolSection(storyline: Storyline, settings: ChatSettings, codex: CodexS
   const on = (toolId: string, fallback = false) => toolEnabled(storyline, settings, toolId, fallback);
   const hasCodex = (storyline.codex?.length ?? 0) > 0 || Object.keys(codex.entries).length > 0;
   const mechanics = scope === "all" || scope === "mechanics";
-  if (scope !== "cast" && hasCodex && on("codex", true)) add("codex", CODEX_TOOL_NAMES, codexPrompt(codexView(storyline.codex ?? [], codex), codex));
+  const codexOn = hasCodex && on("codex", true);
+  const codexContext = () => codexPrompt(codexView(storyline.codex ?? [], codex), codex);
+  // With a keeper on, the story model only reads the codex (~700 fewer tokens a turn); the keeper writes it after the reply.
+  const codexSplit = (part: string, names: readonly string[]) => {
+    const setting = storyline.toolSettings?.find((t) => t.toolId === "codex");
+    const allowed = setting?.enabledFunctions?.length ? names.filter((n) => setting.enabledFunctions!.includes(n)) : names;
+    if (allowed.length === 0) return;
+    parts.push(part, setting?.instruction ? `Creator's instruction for this tool: ${setting.instruction}` : "", codexContext());
+    tools.push(...allowed.map((name) => toolFunction(name)));
+  };
+  if (codexOn && (scope === "all" || scope === "story") && keeperKeepsCodex(storyline, settings)) codexSplit(CODEX_READ_INSTRUCTION, ["read_codex"]);
+  else if (codexOn && scope !== "cast") add("codex", CODEX_TOOL_NAMES, codexContext());
+  if (codexOn && scope === "cast" && keeperKeepsCodex(storyline, settings)) codexSplit(CODEX_KEEPER_INSTRUCTION, CODEX_WRITE_TOOLS);
   if (mechanics && on("dice-roll")) add("dice-roll", ["roll_dice"]);
   if (mechanics && on("stats-manager")) add("stats-manager", ["read_character_stats", "update_character_stats"], statSchemaPrompt(storyline.statSchema ?? []));
   if (scope === "mechanics") return { text: parts.filter(Boolean).join("\n\n"), tools };
@@ -597,29 +625,41 @@ export function dungeonMindModel(storyline: Storyline, settings: ChatSettings): 
 const DM_SCENE_CHARS = 1500;
 
 /**
- * The model that keeps the cast after each reply (the Dungeon Mind model), or undefined when it's off or the chat
- * uses neither the character manager nor story endings.
+ * The model that keeps the cast and the codex records after each reply (the Dungeon Mind model), or undefined when
+ * it's off or the chat uses none of the character manager, story endings or a codex.
  */
 export function castKeeperModel(storyline: Storyline, settings: ChatSettings): string | undefined {
   if (settings.dmModel === "off") return undefined;
   const cast = toolEnabled(storyline, settings, "character-manager", Boolean(settings.autoCreateCharacter || settings.autoEditCharacter));
-  if (!cast && !toolEnabled(storyline, settings, "story-ending")) return undefined;
+  if (!cast && !toolEnabled(storyline, settings, "story-ending") && !keeperKeepsCodex(storyline, settings)) return undefined;
   return settings.dmModel?.trim() || DEFAULT_DM_MODEL;
 }
 
-/** The cast keeper's request: the current cast, the new reply, and only the character and ending tools. */
-export function castKeeperPrompt(storyline: Storyline, reply: string, settings: ChatSettings): { messages: { role: "system" | "user"; content: string }[]; tools: OpenAiTool[] } {
-  const tools = toolSection(storyline, settings, emptyCodex(), "cast");
+/**
+ * The cast keeper's request: the current cast, the new reply, the character and ending tools and the codex write
+ * tools. With `castDone` (the story model kept the cast itself this turn) only the codex part remains.
+ */
+export function castKeeperPrompt(
+  storyline: Storyline,
+  reply: string,
+  settings: ChatSettings,
+  codex: CodexState = emptyCodex(),
+  castDone = false,
+): { messages: { role: "system" | "user"; content: string }[]; tools: OpenAiTool[] } {
+  const section = toolSection(storyline, settings, codex, "cast");
+  const tools = castDone ? section.tools.filter((t) => (CODEX_WRITE_TOOLS as readonly string[]).includes(t.function.name)) : section.tools;
   const cast = storyline.characters.map((c) => `- ${c.name}${c.role ? ` (${c.role})` : ""}`).join("\n");
   const system = [
-    `You keep the cast for the interactive story "${storyline.title}". A narrator just wrote the reply below; you never write prose.`,
-    "Read it and record what changed: create_character for each new individual who appears and is not in the cast list (one call each), edit_character when a name is revealed or a character permanently changes, disable_character only when someone leaves the story for good. Call end_story only if this reply is the story's definitive conclusion.",
+    `You keep the records for the interactive story "${storyline.title}". A narrator just wrote the reply below; you never write prose.`,
+    castDone
+      ? ""
+      : "Read it and record what changed: create_character for each new individual who appears and is not in the cast list (one call each), edit_character when a name is revealed or a character permanently changes, disable_character only when someone leaves the story for good. Call end_story only if this reply is the story's definitive conclusion.",
     "If nothing changed, answer exactly: No changes.",
     `Current cast:\n${cast || "(none)"}`,
-    tools.text,
+    section.text,
   ];
   return {
-    tools: tools.tools,
+    tools,
     messages: [
       { role: "system", content: system.filter(Boolean).join("\n\n") },
       { role: "user", content: `The narrator's reply:\n${reply.slice(-4000)}` },
