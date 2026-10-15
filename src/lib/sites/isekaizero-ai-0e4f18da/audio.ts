@@ -54,6 +54,17 @@ export interface SpeechPart {
   text: string;
   voiceId: string;
   speed: number;
+  /** Set when the voice belongs to another provider than the narrator's (a character's own ElevenLabs voice). */
+  provider?: VoiceProvider;
+  /** A sound effect: `text` describes it (ElevenLabs sound generation) and nothing is spoken. */
+  sfx?: boolean;
+}
+
+/** One sound effect as a playable URL (/api/audio/sfx). */
+async function generateSfx(text: string, signal: AbortSignal): Promise<SpeechResult> {
+  const res = await fetch("/api/audio/sfx", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }), signal });
+  if (!res.ok) throw new Error(((await res.json().catch(() => ({}))) as { error?: string }).error || `Sound effect failed (${res.status})`);
+  return { audioUrl: URL.createObjectURL(await res.blob()) };
 }
 
 /**
@@ -71,7 +82,7 @@ export function playSpeech(parts: SpeechPart[], settings: ProviderSettings, onDo
   let audio: HTMLAudioElement | null = null;
   const controller = new AbortController();
   let reported = false;
-  const once = (p: SpeechPart) => generateSpeech({ text: p.text, settings, voiceId: p.voiceId, speed: p.speed, signal: controller.signal });
+  const once = (p: SpeechPart) => (p.sfx ? generateSfx(p.text, controller.signal) : generateSpeech({ text: p.text, settings, voiceId: p.voiceId, speed: p.speed, provider: p.provider, signal: controller.signal }));
   // One retry for a provider hiccup (seen live: a lone NanoGPT 500), then skip the part so playback goes on.
   const fetchPart = (p: SpeechPart): Promise<SpeechResult> =>
     once(p)
@@ -125,6 +136,8 @@ export interface GenerateSpeechOptions {
   settings: ProviderSettings;
   voiceId?: string;
   speed?: number;
+  /** Overrides the configured provider for this voice (a character's ElevenLabs voice). */
+  provider?: VoiceProvider;
   signal?: AbortSignal;
 }
 
@@ -141,7 +154,8 @@ export async function generateSpeech(opts: GenerateSpeechOptions): Promise<Speec
   const text = cleanTextForSpeech(opts.text);
   if (!text) throw new Error("No readable text found for speech narration");
 
-  const provider = opts.settings.voiceProvider || "openai-compatible";
+  const configured = opts.settings.voiceProvider || "openai-compatible";
+  const provider = opts.provider ?? configured;
   const voiceId = opts.voiceId || opts.settings.voiceId || "nova";
   const speed = opts.speed ?? opts.settings.voiceSpeed ?? 1.0;
 
@@ -166,7 +180,7 @@ export async function generateSpeech(opts: GenerateSpeechOptions): Promise<Speec
     body: JSON.stringify({
       input: text,
       voice: voiceId,
-      model: opts.settings.voiceModel,
+      model: provider === configured ? opts.settings.voiceModel : undefined,
       speed,
       provider,
     }),
@@ -216,11 +230,19 @@ export function narratorVoice(chat: ChatSettings, provider: ProviderSettings): s
   return chat.narratorVoice || provider.voiceId || voicesFor(provider)[0]?.id || "nova";
 }
 
+/** The voice picked for this character in the chat, else the character's own voice (My Voices), else a default. */
+export function characterSpeech(name: string, storyline: Storyline, chat: ChatSettings, provider: ProviderSettings): Pick<SpeechPart, "voiceId" | "provider"> {
+  const own = storyline.characters.find((c) => c.name === name)?.voice;
+  if (!chat.characterVoices?.[name] && own) return { voiceId: own.id, ...((provider.voiceProvider || "openai-compatible") === "elevenlabs" ? {} : { provider: "elevenlabs" as const }) };
+  return { voiceId: characterVoice(name, storyline, chat, provider) };
+}
+
 /** A character's chosen voice, else a stable default of the gender their description suggests. */
 export function characterVoice(name: string, storyline: Storyline, chat: ChatSettings, provider: ProviderSettings): string {
   const chosen = chat.characterVoices?.[name];
   if (chosen) return chosen;
   const character = storyline.characters.find((c) => c.name === name);
+  if (character?.voice && (provider.voiceProvider || "openai-compatible") === "elevenlabs") return character.voice.id;
   return defaultVoiceFor(name, guessGender(`${character?.persona ?? ""} ${character?.appearance ?? ""}`), voicesFor(provider), narratorVoice(chat, provider));
 }
 
@@ -232,6 +254,6 @@ export function speechParts(text: string, storyline: Storyline, chat: ChatSettin
   const narrator = { voiceId: narratorVoice(chat, provider), speed: chat.narratorSpeakingRate ?? 1 };
   if (!opts.visualNovel) return [{ text, ...narrator }];
   return voiceSegments(text, storyline.characters.map((c) => c.name), opts.soleSpeaker).map((seg) =>
-    seg.speaker ? { text: seg.text, voiceId: characterVoice(seg.speaker, storyline, chat, provider), speed: chat.charactersSpeakingRate ?? 1 } : { text: seg.text, ...narrator },
+    seg.speaker ? { text: seg.text, ...characterSpeech(seg.speaker, storyline, chat, provider), speed: chat.charactersSpeakingRate ?? 1 } : { text: seg.text, ...narrator },
   );
 }

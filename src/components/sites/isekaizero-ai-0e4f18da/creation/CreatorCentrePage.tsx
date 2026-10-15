@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, Clapperboard, Image as ImageIcon, Pencil, Play, Plus, UserRound } from "lucide-react";
+import { BookOpen, Clapperboard, Image as ImageIcon, Images, Mic, Pencil, Play, Plus, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -62,11 +62,17 @@ export function CreatorCentrePage() {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
+        <Link href="/creation/voices" className={TOOL}>
+          <Mic size={15} /> Voices
+        </Link>
+        <Link href="/creation/gallery" className={TOOL}>
+          <Images size={15} /> Images
+        </Link>
         <Link href="/creation/generate-image" className={TOOL}>
-          <ImageIcon size={15} /> Images
+          <ImageIcon size={15} /> Image generation
         </Link>
         <Link href="/creation/generate-video" className={TOOL}>
-          <Clapperboard size={15} /> Videos
+          <Clapperboard size={15} /> Video generation
         </Link>
       </div>
 

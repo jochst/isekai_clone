@@ -78,7 +78,8 @@ import { CodexSheet } from "./CodexSheet";
 import { SheetsSheet } from "./SheetsSheet";
 import { CastSheet } from "./CastSheet";
 import { CommandGuideSheet, RecapSheet, SearchSheet } from "./CommandSheets";
-import { narratorVoice, playSpeech, speechParts } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
+import { characterSpeech, narratorVoice, playSpeech, speechParts, type SpeechPart } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
+import { NARRATOR, dramaScriptPrompt, parseDramaScript, type DramaMode } from "@/lib/chats/drama";
 import { VisualNovelStage } from "./VisualNovelStage";
 import { ChatSettingsSheet } from "./ChatSettingsSheet";
 import { useDefaultChatSettings } from "../settings/use-default-chat-settings";
@@ -1026,6 +1027,38 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     }
   }, [sessionId, storyline, provider, model.id, contextLimit]);
 
+  /**
+   * /audiobook and /drama: the story model adapts the reply into a cast script, then it is performed: the narrator,
+   * each character in their own voice (My Voices, the chat's pick, or a default) and ElevenLabs sound effects.
+   */
+  const performScript = useCallback(
+    async (messageId: string, mode: DramaMode, guidance: string) => {
+      const current = getChatSession(sessionId);
+      const reply = current?.messages.find((m) => m.id === messageId)?.content;
+      if (!current || !storyline || !reply) return;
+      showToast(mode === "drama" ? "Adapting the scene into an audio drama…" : "Adapting the scene into an audiobook…");
+      try {
+        const cast = storyline.characters.map((c) => c.name);
+        const script = await completeChat({ settings: provider, model: model.id, messages: dramaScriptPrompt(mode, reply, cast, guidance), temperature: 0.6, maxTokens: 2000 });
+        const lines = parseDramaScript(script, cast);
+        if (lines.length === 0) throw new Error("the model didn't return a script");
+        const narrator = { voiceId: narratorVoice(current.settings, provider), speed: current.settings.narratorSpeakingRate ?? 1 };
+        const parts: SpeechPart[] = lines.map((line) =>
+          "sfx" in line
+            ? { text: line.sfx, voiceId: "", speed: 1, sfx: true }
+            : line.speaker === NARRATOR
+              ? { text: line.text, ...narrator }
+              : { text: line.text, ...characterSpeech(line.speaker, storyline, current.settings, provider), speed: current.settings.charactersSpeakingRate ?? 1 },
+        );
+        stopNarration.current?.();
+        stopNarration.current = playSpeech(parts, provider, undefined, showToast);
+      } catch (e) {
+        showToast(`Couldn't adapt the scene: ${errorMessage(e, "request failed")}`);
+      }
+    },
+    [sessionId, storyline, provider, model.id, showToast],
+  );
+
   /** /ooc: an out-of-character exchange with the AI, shown in the chat but never part of the story. */
   const askOutOfCharacter = useCallback(
     async (question: string) => {
@@ -1090,8 +1123,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           });
         case "audiobook":
         case "drama":
-          showToast(`/${name} isn't built yet; reading the last reply with the narrator instead.`);
-          return runCommand("narrate", "");
+          return needsReply((id) => void performScript(id, name, input));
         case "illustrate":
           return needsReply((id) => illustrate(id, input ? buildIllustrationBriefPrompt(storyline, input, storyline.characters.map((c) => c.name), { perspective: current.settings.illustrationPerspective, defaultInstructions: current.settings.lightNovelPromptInstructions }) : undefined));
         case "manga":
@@ -1189,7 +1221,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           return setCommandSheet({ kind: "help" });
       }
     },
-    [sessionId, storyline, provider, model.id, streaming, runTurn, askOutOfCharacter, writeRecap, illustrate, makeManga, makeMusic, messageAction, animate, erase, update, router, showToast],
+    [sessionId, storyline, provider, model.id, streaming, runTurn, askOutOfCharacter, writeRecap, performScript, illustrate, makeManga, makeMusic, messageAction, animate, erase, update, router, showToast],
   );
 
   /* ---------------------------------------------------------------- render */

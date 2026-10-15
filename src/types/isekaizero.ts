@@ -193,6 +193,8 @@ export interface Character {
   summary?: string;
   /** Example dialogue: how the character speaks. */
   exampleDialogue?: string;
+  /** The character's own voice from My Voices (ElevenLabs), used in Visual Novel mode and dramas. */
+  voice?: { id: string; name: string };
   /** A snapshot of a My Characters character, and which version of it (storylines keep the version they saved). */
   linkedFrom?: { id: string; version: number };
   imageUrl?: string;
