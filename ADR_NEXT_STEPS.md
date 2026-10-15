@@ -281,8 +281,15 @@ The gap: Default Chat Settings could only really use models from the site's buil
 - **Exit:** a `dmV2Ready` story plays with dice rolls and stat changes persisting across turns. **Met** (3b/3c, "Crash Into Another World": dice every fight, HP and gold carried across turns, quest log kept).
 
 ### Phase 4: Composer and gameplay parity
-- [ ] All slash commands (`/continue /improvise /ooc /steer /skip /cut /recap /end /roll … /undo /branch /search /model /pov /length`).
-- [ ] Assist, Improvise, RETRY+ (retry with an instruction), Honor mode, OOC.
+- [x] **Chat commands (4a):** all 28 of the site's commands (chatCommands.list.*) with its wording, hints and errors. Typing / opens a palette (Tab completes); // sends a literal slash; /help opens the command guide.
+  - Story: /continue [direction], /steer, /skip, /cut and /end are a Continue with a hidden direction (the turn engine's instruction), and the reply carries the site's badge (Direction, Time skip, Scene change, The ending). /improvise writes the player's turn from their idea. /retry [change] is RETRY+.
+  - /roll [2d6+3] [adv|dis] [dc 15] [what for]: real dice rolled in the browser; the result is the player's turn, shown as a roll card, and the AI is told to honor it.
+  - /ooc: an out-of-character exchange shown in the chat (dashed, "Out of character") and never sent as story context. /recap: a "Previously..." panel with Regenerate, not saved.
+  - Media and memory: /narrate, /illustrate [what], /manga [what], /music [brief], /vn, /video (confirms the cost), /chapter and /arc (build, list/view open Memory, regen n). /audiobook and /drama fall back to narration (Audiobook mode isn't built).
+  - Chat: /undo (asks first), /branch [name], /search (results panel, tap to jump), /model, /pov, /length, /settings.
+  - **Honor mode** (chat.honor.*): set in Chat Settings before the first turn, then locked. No Retry, Edit, Delete, Branch or Erase in the UI; the server refuses retries; /end asks first because it is final.
+  - Live (DeepSeek): /skip three days opened "Three days have passed." with the Time skip badge; /roll 1d20+2 dc 14 rolled 4 + 2 = 6 (failure) and the patrol heard the player; /ooc answered out of character; /recap summarized the story through the ambush.
+  - Not done: the site's dice builder for a bare /roll (it rolls a d20); instructions for /chapter and /arc are ignored; "Assist" isn't in the site's strings under that name.
 - [ ] Personas: custom persona per story, persona library, switching, multi-persona play.
 - [ ] Guidance prompt and AI output reminder UI (the fields exist but nothing sets them).
 - [ ] UI settings: text-colour presets, font size, streaming speed, fade older messages, show/hide thinking, scene-tracker colouring.

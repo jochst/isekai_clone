@@ -46,6 +46,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!storyline) return Response.json({ error: "This chat's storyline is no longer available." }, { status: 404 });
   const plan = planTurn(chat, turn);
   if (typeof plan === "string") return Response.json({ error: plan }, { status: 400 });
+  // Honor mode is forward-only (chat.honor.description): no retries.
+  if (turn.type === "retry" && chat.settings.honorMode) return Response.json({ error: "Honor mode is forward-only: replies can't be retried." }, { status: 409 });
   // Isekai Zero end_story: nothing more can be written. Retrying (or erasing) the ending reply reopens the story.
   if (turn.type !== "retry" && chat.messages.findLast((m) => m.role === "assistant")?.ending) {
     return Response.json({ error: "This story has ended. Erase or Retry the last reply to continue it." }, { status: 409 });

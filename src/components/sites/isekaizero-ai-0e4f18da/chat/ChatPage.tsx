@@ -60,12 +60,13 @@ import {
   suggestDestinies,
 } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { planTurn, settleOutcome, type TurnRequest } from "@/lib/chats/turn";
-import { chapterPlan } from "@/lib/chats/memory";
+import { EMPTY_MEMORY, MAX_CHAPTERS_PER_ARC, MIN_CHAPTERS_PER_ARC, arcPlan, chapterPlan } from "@/lib/chats/memory";
+import { directionInstruction, parseRoll, rollSpec, type CommandName } from "@/lib/chats/commands";
 import { applyMedia, fallbackScene, withStoryMedia } from "@/lib/chats/scene";
 import { withChatCast, type ChatCast } from "@/lib/chats/cast";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { isProviderConfigured, resolvePortraitModel, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatMessage, ChatSession, MangaPage, MediaRequest, SceneImage as SceneImageModel, SceneMusic, SceneVideo as SceneVideoModel, StoryMedia, VideoParamValue, VnScene } from "@/types/isekaizero";
+import type { ChatMessage, ChatSession, MangaPage, MediaRequest, SceneImage as SceneImageModel, DiceRoll, SceneMusic, SceneVideo as SceneVideoModel, StoryMedia, TurnDirection, VideoParamValue, VnScene } from "@/types/isekaizero";
 
 import { useProviderCatalog } from "../image-generation/use-provider-catalog";
 import { useModelCatalog } from "../llms/use-model-catalog";
@@ -76,6 +77,7 @@ import { MemorySheet } from "./MemorySheet";
 import { CodexSheet } from "./CodexSheet";
 import { SheetsSheet } from "./SheetsSheet";
 import { CastSheet } from "./CastSheet";
+import { CommandGuideSheet, RecapSheet, SearchSheet } from "./CommandSheets";
 import { narratorVoice, playSpeech, speechParts } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { VisualNovelStage } from "./VisualNovelStage";
 import { ChatSettingsSheet } from "./ChatSettingsSheet";
@@ -476,7 +478,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
    * ElevenLabs Music when chosen or when NanoGPT fails. One song per message at a time.
    */
   const makeMusic = useCallback(
-    async (messageId: string) => {
+    async (messageId: string, guidance?: string) => {
       const current = getChatSession(sessionId);
       if (!current || !storyline) return;
       const index = current.messages.findIndex((m) => m.id === messageId);
@@ -495,7 +497,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       const fallbackStyle = `Anime soundtrack for "${storyline.title}", ${storyline.category}, cinematic, emotional`;
       let brief = parseMusicBrief("", musicVocals, fallbackStyle);
       try {
-        const text = await completeChat({ settings: provider, model: model.id, messages: musicBriefPrompt(storyline, recent, { vocals: musicVocals, instructions: musicInstructions }), temperature: 0.7, maxTokens: 400 });
+        const text = await completeChat({ settings: provider, model: model.id, messages: musicBriefPrompt(storyline, recent, { vocals: musicVocals, instructions: [musicInstructions, guidance].filter(Boolean).join(". ") }), temperature: 0.7, maxTokens: 400 });
         brief = parseMusicBrief(text, musicVocals, fallbackStyle);
       } catch {
         /* keep the fallback brief */
@@ -548,7 +550,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
    * from the last manga page of an earlier reply, page 2 from page 1; the named cast's art is referenced too.
    */
   const makeManga = useCallback(
-    async (messageId: string) => {
+    async (messageId: string, guidance?: string) => {
       const current = getChatSession(sessionId);
       if (!current || !storyline) return;
       const index = current.messages.findIndex((m) => m.id === messageId);
@@ -571,7 +573,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         const text = await completeChat({
           settings: provider,
           model: model.id,
-          messages: mangaScriptPrompt(storyline, current.messages.slice(0, index + 1), { pages: pageCount, perspective: current.settings.illustrationPerspective }),
+          messages: mangaScriptPrompt(storyline, current.messages.slice(0, index + 1), { pages: pageCount, perspective: current.settings.illustrationPerspective, instructions: guidance }),
           temperature: 0.7,
           maxTokens: 1200,
         });
@@ -811,15 +813,19 @@ export function ChatPage({ sessionId }: ChatPageProps) {
    * Runs one story turn on the server, which builds the prompt, streams the reply and saves it. Locally the
    * player's message and a streaming placeholder show until the saved messages come back.
    */
+  /**
+   * One story turn. `instruction` is a hidden direction from a command (/steer, /skip, /retry …), `direction` the
+   * badge it leaves on the reply, `userPatch` extra data for the player's message (a /roll's dice).
+   */
   const runTurn = useCallback(
-    async (type: TurnRequest["type"], content?: string) => {
+    async (type: TurnRequest["type"], content?: string, opts: { instruction?: string; direction?: TurnDirection; userPatch?: Partial<ChatMessage> } = {}) => {
       const current = getChatSession(sessionId);
       if (!current || !storyline) return;
       if (!configured) {
         showToast("Connect a provider to start chatting.");
         return;
       }
-      const request: TurnRequest = { type, content, model: model.id, takeTurn, userMessageId: newId(), replyId: newId(), contextLimit };
+      const request: TurnRequest = { type, content, model: model.id, takeTurn, userMessageId: newId(), replyId: newId(), contextLimit, ...(opts.instruction ? { instruction: opts.instruction } : {}) };
       const plan = planTurn(current, request);
       if (typeof plan === "string") {
         showToast(plan);
@@ -851,6 +857,17 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           return { order: local.order, messages: local.upsert, empty: local.empty, toolCalls: [], usage: undefined };
         })();
         acceptServerMessages(sessionId, saved.order, saved.messages);
+        if (opts.direction || opts.userPatch) {
+          update(
+            (s) => ({
+              ...s,
+              messages: s.messages.map((m) =>
+                m.id === plan.reply.id && opts.direction ? { ...m, direction: opts.direction } : plan.user && m.id === plan.user.id && opts.userPatch ? { ...m, ...opts.userPatch } : m,
+              ),
+            }),
+            { touch: false },
+          );
+        }
         if (saved.empty) {
           if (done) showToast("The model returned an empty reply.");
           return;
@@ -987,6 +1004,196 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     [sessionId, update, router, showToast, illustrate, animate, pickSceneFor, makeMusic, makeManga],
   );
 
+  /* ---------------------------------------------------------------- chat commands */
+
+  const [commandSheet, setCommandSheet] = useState<{ kind: "help" } | { kind: "search"; query: string } | { kind: "recap"; text?: string; loading: boolean; error?: string } | null>(null);
+  const [prefill, setPrefill] = useState<{ text: string; nonce: number }>();
+
+  const writeRecap = useCallback(async () => {
+    const current = getChatSession(sessionId);
+    if (!current || !storyline) return;
+    setCommandSheet({ kind: "recap", loading: true });
+    try {
+      const { messages } = assemblePrompt(storyline, current, { contextLimit });
+      const text = await completeChat({
+        settings: provider,
+        model: model.id,
+        messages: [...messages, { role: "user", content: 'Out of character: write a short "Previously..." recap of the story so far, 3 to 5 sentences in past tense. No new events, no questions.' }],
+        temperature: 0.5,
+        maxTokens: 400,
+      });
+      setCommandSheet({ kind: "recap", loading: false, text });
+    } catch (e) {
+      setCommandSheet({ kind: "recap", loading: false, error: errorMessage(e, "") });
+    }
+  }, [sessionId, storyline, provider, model.id, contextLimit]);
+
+  /** /ooc: an out-of-character exchange with the AI, shown in the chat but never part of the story. */
+  const askOutOfCharacter = useCallback(
+    async (question: string) => {
+      const current = getChatSession(sessionId);
+      if (!current || !storyline) return;
+      const asked: ChatMessage = { id: newId(), role: "user", content: question, createdAt: Date.now(), ooc: true };
+      update((s) => ({ ...s, messages: [...s.messages, asked] }));
+      try {
+        const { messages } = assemblePrompt(storyline, current, { contextLimit });
+        const answer = await completeChat({
+          settings: provider,
+          model: model.id,
+          messages: [...messages, { role: "user", content: `Out of character (not part of the story): ${question}\nAnswer the player directly and briefly as the AI running this story. Don't continue the story.` }],
+          temperature: 0.6,
+          maxTokens: 600,
+        });
+        update((s) => ({ ...s, messages: [...s.messages, { id: newId(), role: "assistant", content: answer, createdAt: Date.now(), speaker: "AI", ooc: true }] }));
+      } catch (e) {
+        showToast(errorMessage(e, "The AI could not answer."));
+      }
+    },
+    [sessionId, storyline, provider, model.id, contextLimit, update, showToast],
+  );
+
+  /** Chat commands (en_flat chatCommands.list.*): "/name input" from the message box. */
+  const runCommand = useCallback(
+    (name: CommandName, input: string) => {
+      const current = getChatSession(sessionId);
+      if (!current || !storyline) return;
+      const lastReply = [...current.messages].reverse().find((m) => m.role === "assistant" && !m.ooc);
+      const ended = Boolean(current.messages.findLast((m) => m.role === "assistant")?.ending);
+      const honor = Boolean(current.settings.honorMode);
+      const forwardOnly = () => showToast("Honor mode is forward-only: no retries, edits, erasing or branches.");
+      const needsReply = (run: (id: string) => void) => (lastReply ? run(lastReply.id) : showToast("There is no reply to use yet."));
+      const storyTurn = (kind: "continue" | "improvise" | "steer" | "skip" | "cut" | "end") => {
+        if (streaming) return;
+        if (ended) return showToast("This story has ended. Erase or Retry the last reply to continue it.");
+        const instruction = directionInstruction(kind, input);
+        const direction = { kind, ...(input ? { text: input } : {}) };
+        if (kind === "improvise") void runTurn("take-turn", input, { instruction, direction });
+        else void runTurn("continue", CONTINUE_SENTINEL, { instruction, direction });
+      };
+      switch (name) {
+        case "continue":
+        case "steer":
+        case "skip":
+        case "cut":
+        case "improvise":
+          return storyTurn(name);
+        case "end":
+          if (honor && !window.confirm("Honor mode is forward-only: once the story ends here it cannot be erased or retried. End the story now?")) return;
+          return storyTurn("end");
+        case "ooc":
+          return void askOutOfCharacter(input);
+        case "recap":
+          return void writeRecap();
+        case "narrate":
+          return needsReply((id) => {
+            const text = current.messages.find((m) => m.id === id)?.content ?? "";
+            stopNarration.current?.();
+            stopNarration.current = playSpeech([{ text, voiceId: narratorVoice(current.settings, provider), speed: current.settings.narratorSpeakingRate ?? 1 }], provider, undefined, showToast);
+          });
+        case "audiobook":
+        case "drama":
+          showToast(`/${name} isn't built yet; reading the last reply with the narrator instead.`);
+          return runCommand("narrate", "");
+        case "illustrate":
+          return needsReply((id) => illustrate(id, input ? buildIllustrationBriefPrompt(storyline, input, storyline.characters.map((c) => c.name), { perspective: current.settings.illustrationPerspective, defaultInstructions: current.settings.lightNovelPromptInstructions }) : undefined));
+        case "manga":
+          return needsReply((id) => void makeManga(id, input));
+        case "music":
+          return needsReply((id) => void makeMusic(id, input));
+        case "vn":
+          return needsReply(() => messageAction(lastReply!, "visualNovel"));
+        case "video":
+          return needsReply((id) => {
+            if (window.confirm("Video scenes are expensive (about $0.57 per 5 s beat with Seedance 2.0 Fast). Make one now?")) void animate(id);
+          });
+        case "roll": {
+          if (ended) return showToast("This story has ended. Erase or Retry the last reply to continue it.");
+          const spec = parseRoll(input);
+          const result = rollSpec(spec);
+          const die = `${spec.count > 1 ? spec.count : ""}d${spec.sides}`;
+          const verdict = spec.dc !== undefined ? ` vs DC ${spec.dc}: ${result.success ? "success" : "failure"}` : "";
+          const mod = spec.modifier ? ` ${spec.modifier > 0 ? "+" : "-"} ${Math.abs(spec.modifier)}` : "";
+          const content = `🎲 I roll ${die}${mod}${spec.reason ? ` to ${spec.reason}` : ""}: ${result.dice.join(" + ")}${mod} = ${result.total}${verdict}${result.critical ? ` (natural ${result.dice[0]})` : ""}.`;
+          const roll: DiceRoll = {
+            reason: spec.reason || "Player roll",
+            die: (spec.sides === 100 ? "d20" : `d${spec.sides}`) as DiceRoll["die"],
+            value: result.dice.reduce((a, b) => a + b, 0),
+            rolls: result.dice,
+            advantage: spec.advantage,
+            modifier: spec.modifier,
+            total: result.total,
+            ...(spec.dc !== undefined ? { dc: spec.dc, success: result.success } : {}),
+            ...(result.critical ? { critical: result.critical } : {}),
+            characterName: current.playerName || "You",
+            minor: false,
+          };
+          // The result is the player's turn; the AI must honor it.
+          return void runTurn("take-turn", content, { instruction: "The player rolled real dice for their action (see their message). Honor that result exactly when narrating the outcome.", userPatch: { rolls: [roll] } });
+        }
+        case "chapter":
+        case "arc": {
+          const [verb, num] = input.split(/\s+/);
+          if (verb === "list" || verb === "view") return setMemoryOpen(true);
+          if (verb === "regen") {
+            const items = name === "chapter" ? current.memory?.chapters ?? [] : current.memory?.arcs ?? [];
+            const item = items[Number(num) - 1];
+            if (!item) return showToast(num ? `There is no ${name} ${num}.` : `Say which ${name}: /${name} regen 2`);
+            showToast(`Rewriting ${name} ${num}...`);
+            return void runMemoryAction(sessionId, { action: "regenerate", kind: name, id: item.id, model: current.settings.chapterSummarizerModel || model.id })
+              .then(() => showToast(`${name === "chapter" ? "Chapter" : "Arc"} ${num} rewritten.`))
+              .catch((e: unknown) => showToast(errorMessage(e, "Could not rewrite it.")));
+          }
+          if (name === "chapter") {
+            showToast("Building the next chapter...");
+            return void runMemoryAction(sessionId, { action: "create-chapter", model: current.settings.chapterSummarizerModel || model.id })
+              .then((memory) => showToast(`Chapter ${memory.chapters.length} created.`))
+              .catch((e: unknown) => showToast(errorMessage(e, "Could not build the chapter.")));
+          }
+          const plan = arcPlan(current.memory ?? EMPTY_MEMORY);
+          if (plan.available < MIN_CHAPTERS_PER_ARC) return showToast(`Arcs need at least ${MIN_CHAPTERS_PER_ARC} chapters not yet in an arc. You have ${plan.available}.`);
+          showToast("Building the next arc...");
+          return void runMemoryAction(sessionId, { action: "create-arc", model: current.settings.arcSummarizerModel || model.id, size: Math.min(plan.available, MAX_CHAPTERS_PER_ARC) })
+            .then((memory) => showToast(`Arc ${memory.arcs.length} created.`))
+            .catch((e: unknown) => showToast(errorMessage(e, "Could not build the arc.")));
+        }
+        case "retry":
+          if (honor) return forwardOnly();
+          if (!streaming) void runTurn("retry", undefined, { instruction: directionInstruction("retry", input), ...(input ? { direction: { kind: "retry", text: input } } : {}) });
+          return;
+        case "undo":
+          if (honor) return forwardOnly();
+          if (window.confirm("Erase the last message?")) erase();
+          return;
+        case "branch": {
+          if (honor) return forwardOnly();
+          const last = current.messages.at(-1);
+          const copy = last ? branchSession(sessionId, last.id, input) : undefined;
+          if (!copy) return showToast("Nothing to branch from yet.");
+          return router.push(`/chats/${copy.id}`);
+        }
+        case "search":
+          return setCommandSheet({ kind: "search", query: input });
+        case "model":
+          return router.push(`/chats/${sessionId}/llms`);
+        case "pov": {
+          const perspective = input as ChatSession["settings"]["perspective"];
+          update((s) => ({ ...s, settings: { ...s.settings, perspective } }), { touch: false });
+          return showToast(`Perspective set to ${input}.`);
+        }
+        case "length": {
+          const responseLength = input as ChatSession["settings"]["responseLength"];
+          update((s) => ({ ...s, settings: { ...s.settings, responseLength } }), { touch: false });
+          return showToast(`Reply length set to ${input}.`);
+        }
+        case "settings":
+          return setSettingsOpen(true);
+        case "help":
+          return setCommandSheet({ kind: "help" });
+      }
+    },
+    [sessionId, storyline, provider, model.id, streaming, runTurn, askOutOfCharacter, writeRecap, illustrate, makeManga, makeMusic, messageAction, animate, erase, update, router, showToast],
+  );
+
   /* ---------------------------------------------------------------- render */
 
   if (!hydrated || status === "loading" || imported.loading) {
@@ -1033,7 +1240,9 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       onStop={stop}
       onContinue={() => send(CONTINUE_SENTINEL)}
       onErase={erase}
-      canErase={session.messages.length > 1}
+      canErase={session.messages.length > 1 && !session.settings.honorMode}
+      onCommand={runCommand}
+      prefill={prefill}
       onRequestDestinies={requestDestinies}
       onError={showToast}
     />
@@ -1074,7 +1283,8 @@ export function ChatPage({ sessionId }: ChatPageProps) {
                 key={message.id}
                 message={message}
                 index={i}
-                canRetry={message.id === lastAssistantId && hasUserTurn}
+                canRetry={message.id === lastAssistantId && hasUserTurn && !session.settings.honorMode}
+                lockedActions={session.settings.honorMode ? ["edit", "delete", "branch"] : []}
                 modelName={model.name}
                 onIllustrate={() => illustrate(message.id)}
                 onRetry={retry}
@@ -1113,6 +1323,30 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         onOpenSheets={() => (setSettingsOpen(false), setSheetsOpen(true))}
         onOpenCast={() => (setSettingsOpen(false), setCastOpen(true))}
         storyline={storyline}
+      />
+      <CommandGuideSheet
+        open={commandSheet?.kind === "help"}
+        onClose={() => setCommandSheet(null)}
+        onPick={(name) => (setCommandSheet(null), setPrefill({ text: `/${name} `, nonce: Date.now() }))}
+      />
+      <RecapSheet
+        open={commandSheet?.kind === "recap"}
+        onClose={() => setCommandSheet(null)}
+        loading={commandSheet?.kind === "recap" && commandSheet.loading}
+        text={commandSheet?.kind === "recap" ? commandSheet.text : undefined}
+        error={commandSheet?.kind === "recap" ? commandSheet.error : undefined}
+        onRegenerate={() => void writeRecap()}
+      />
+      <SearchSheet
+        open={commandSheet?.kind === "search"}
+        onClose={() => setCommandSheet(null)}
+        query={commandSheet?.kind === "search" ? commandSheet.query : ""}
+        messages={session.messages}
+        onJump={(id) => {
+          setCommandSheet(null);
+          setShowLog(true);
+          setTimeout(() => document.getElementById(`msg-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
+        }}
       />
       <CastSheet open={castOpen} onClose={() => setCastOpen(false)} chatId={sessionId} version={session.messages.length} />
       <SheetsSheet open={sheetsOpen} onClose={() => setSheetsOpen(false)} chatId={sessionId} version={session.messages.length} />

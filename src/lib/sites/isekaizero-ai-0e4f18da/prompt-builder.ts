@@ -356,7 +356,7 @@ const MAX_PANELS = 8;
  * Isekai Zero "Manga Generation": the scene becomes 1–2 pages of 1–8 panels ("2 pages is recommended"). A script call
  * writes the panels; each page is then drawn as one image.
  */
-export function mangaScriptPrompt(storyline: Storyline, lastMessages: ChatMessage[], opts: { pages: number; perspective?: ChatSettings["illustrationPerspective"] }): { role: "system" | "user"; content: string }[] {
+export function mangaScriptPrompt(storyline: Storyline, lastMessages: ChatMessage[], opts: { pages: number; perspective?: ChatSettings["illustrationPerspective"]; instructions?: string }): { role: "system" | "user"; content: string }[] {
   const { cast } = sceneParts(storyline, lastMessages, "third");
   const reply = [...lastMessages].reverse().find((m) => m.role === "assistant" && m.content.trim())?.content ?? storyline.opening;
   const scene = reply.replace(/\s+/g, " ").trim().slice(-2500);
@@ -371,6 +371,7 @@ export function mangaScriptPrompt(storyline: Storyline, lastMessages: ChatMessag
         opts.pages > 1 ? "page 2\npanel: …" : "",
         "Keep dialogue short (under 12 words per bubble) and in the story's language. More than 4 characters on one page draws poorly.",
         opts.perspective === "pov" ? "The player is the viewer: show the scene through their eyes and never draw them." : "",
+        opts.instructions?.trim() ? `The player's direction for these pages: ${opts.instructions.trim()}` : "",
       ]
         .filter(Boolean)
         .join("\n"),
@@ -677,7 +678,9 @@ export interface AssembledPrompt {
  * (storyteller rules, story, cast, persona, perspective, length, tool instructions, guidance), the history with
  * the output reminder on each player turn, then post-history instructions and the creator's AI reminder.
  */
-export function assemblePrompt(storyline: Storyline, session: ChatSession, opts: AssembleOptions = {}): AssembledPrompt {
+export function assemblePrompt(storyline: Storyline, chat: ChatSession, opts: AssembleOptions = {}): AssembledPrompt {
+  // Out-of-character exchanges (/ooc) are shown in the chat but are never part of the story.
+  const session = chat.messages.some((m) => m.ooc) ? { ...chat, messages: chat.messages.filter((m) => !m.ooc) } : chat;
   const { settings } = session;
   const reminder = [settings.userInputPrompt, storyline.prompt?.outputReminder].filter((x) => x?.trim()).join("\n");
   const retry = opts.retryInstruction?.trim() ? `Write the next reply following this direction from the player: ${opts.retryInstruction.trim()}` : "";

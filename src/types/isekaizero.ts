@@ -123,6 +123,12 @@ export interface StatChange {
   changes: string[];
 }
 
+/** A player command that shaped a reply, shown as its badge (chatCommands.badge.*). */
+export interface TurnDirection {
+  kind: "continue" | "improvise" | "steer" | "skip" | "cut" | "end" | "retry" | "roll";
+  text?: string;
+}
+
 /** A change to the chat's cast during one reply (create/edit/disable_character), shown on the message. */
 export interface CastEvent {
   action: "create" | "edit" | "disable";
@@ -458,6 +464,10 @@ export interface ChatMessage {
   cast?: CastEvent[];
   /** The story ended with this reply. */
   ending?: StoryEnding;
+  /** The command that shaped this reply (/steer, /skip, /cut, /end, /improvise, /retry…). */
+  direction?: TurnDirection;
+  /** An out-of-character exchange (/ooc): shown in the chat, never part of the story. */
+  ooc?: boolean;
   /** Character speaking, when derivable. */
   speaker?: string;
   /** Visual Novel stage for this reply: background and character images. */
@@ -546,6 +556,8 @@ export interface ChatSettings {
   mangaPages?: number;
   /** Codex tools for this chat (on unless turned off, when the story has a codex). */
   codexEnabled?: boolean;
+  /** Honor mode: one forward-only run, no retries, edits, erasing or branches. Decided before the first turn. */
+  honorMode?: boolean;
   /** Per-chat on/off for the story's optional AI tools, by tool id (required tools are always on). */
   tools?: Record<string, boolean>;
   /**
