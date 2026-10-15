@@ -380,12 +380,21 @@ The gap: Default Chat Settings could only really use models from the site's buil
 - **Exit:** one story plays fully in VN mode with voices.
 
 ### Phase 6: Creation studio
-- [ ] Storyline editor (Story / Media / Casts / Advanced / Publish tabs, minus publishing): plot, advanced AI-facing fields, first messages/scenarios, codex editor, stat schema editor, DM v2 tool settings, default chat settings, recommended model.
-- [ ] Character editor (Profile / Media / Sheets), appearances/loadout.
-- [ ] My Storylines / My Characters lists, alongside the existing card importer.
-- [ ] Media studio: image generate/edit/remove-bg (exists in part), video (from the branch), gallery, voices (ElevenLabs design/clone), audio drama.
-- [ ] Michiru helper (optional): an LLM assistant on creation pages.
-- **Exit:** create a story from scratch, play it, and edit it mid-chat.
+- [x] **Storyline editor and My Storylines (6a):** Creator Centre at `/creation` (the sidebar's Creation link) with Create your storyline, My Storylines (Edit / Play), and links to Images and Videos.
+  - Editor (`/creation/storylines/new`, `/creation/storylines/[id]`, storylineEdit.*) with the site's tabs:
+    - **Story:** category, title, plot summary, plot (or Advanced Mode's Plot (User) + Prompt Plot (AI), Prompt Guideline, AI Reminder, AI Output Reminder), first messages (alternate openings), tags, content rating (SFW / M17 / 18+), player personas.
+    - **Media:** cover and captioned backgrounds (uploads, stored in `data/media`).
+    - **Casts:** story characters (name, role, description, appearance, portrait).
+    - **Advanced:** default chat settings (model, length, perspective, temperature), a storyteller prompt (added to the narrator instructions, not replacing them), Dungeon Mind v2 functions (off / default off / default on / required, with an instruction), stat schema, codex editor.
+    - **Publish:** "Publishing on ISEKAI ZERO is not open yet", token summary, Delete Storyline.
+  - Stored with the imports (`imports.sqlite`, `source: "created"`, `import-c-…` ids), so the story page, chats and the turn route load them with no new code; the Import library hides them.
+  - **Editing mid-chat:** Chat Settings → Edit Story opens the editor with Back to chat; the turn route reloads the story every turn, so a save applies from the next reply. The story page has Edit Story too.
+  - Live (DeepSeek, Haiku as Dungeon Mind): created "The Lantern Ferry" from scratch (cover upload, a character, required dice, a codex entry) and played it: dice rolled (d20 6 vs DC 12, fail) and the codex entry was read. Mid-chat, a Prompt Guideline that Elen speaks only in rhyme was ignored by DeepSeek (it sits early in the system prompt), but the same rule as an AI Reminder (after the history) worked on Retry: every line of hers rhymed.
+  - Not done: generating covers or portraits from the editor (upload only; the image page exists), the Media Picker / music AI notes, soundtrack, character sheets per character, linking standalone characters (6b).
+- [ ] **6b:** Character editor (Profile / Media / Sheets), appearances/loadout, My Characters, linking characters to stories.
+- [ ] **6c:** Media studio: gallery, voices (ElevenLabs design/clone), audio drama.
+- [ ] **6d (optional):** Michiru helper, an LLM assistant on creation pages.
+- **Exit:** create a story from scratch, play it, and edit it mid-chat. **Met** (6a, "The Lantern Ferry").
 
 ### Phase 7: Remaining pages and polish
 - [ ] `/characters/[id]` pages, `/chats` tabs (Saved / Likes), `/account` (local settings only), `/default-chat-settings` parity, LLM reviews (local notes only, optional).

@@ -32,7 +32,7 @@ export function saveEntry(db: DatabaseSync, entry: ImportedEntry): void {
 }
 
 export function listEntries(db: DatabaseSync, limit = 500, offset = 0): ImportedEntry[] {
-  return db.prepare("SELECT body FROM entries ORDER BY updated DESC LIMIT ? OFFSET ?").all(limit, offset).map(row => JSON.parse(String(row.body)) as ImportedEntry);
+  return db.prepare("SELECT body FROM entries WHERE json_extract(body, '$.source') != 'created' ORDER BY updated DESC LIMIT ? OFFSET ?").all(limit, offset).map(row => JSON.parse(String(row.body)) as ImportedEntry);
 }
 
 export function getEntry(db: DatabaseSync, id: string): ImportedEntry | undefined {
