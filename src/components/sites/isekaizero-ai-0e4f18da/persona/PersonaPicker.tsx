@@ -5,6 +5,8 @@ import { Loader2, Trash2, UserRound } from "lucide-react";
 
 import { deletePersona, listPersonas, savePersona } from "@/lib/sites/isekaizero-ai-0e4f18da/personas";
 import { cn } from "@/lib/utils";
+import { describeStoryline } from "@/lib/michiru/michiru";
+import { Michiru, type MichiruHost } from "../michiru/Michiru";
 import type { Persona, Storyline } from "@/types/isekaizero";
 
 export interface PersonaPickerProps {
@@ -47,6 +49,31 @@ export function PersonaPicker({ storyline, current, mode, onPick }: PersonaPicke
     } finally {
       setSaving(false);
     }
+  };
+
+  // Michiru saves accepted personas straight to the library (the persona card then offers Start / Switch).
+  const michiru: MichiruHost = {
+    context: {
+      place: `the persona picker for the story “${storyline.title}” (a persona is who the player plays as)`,
+      details: [describeStoryline(storyline), mine?.length ? `The user's saved personas: ${mine.map((p) => p.name).join(", ")}` : ""].filter(Boolean).join("\n"),
+      can: ["persona", "image"],
+    },
+    accept: async (p, imageUrl) => {
+      if (p.kind === "persona") {
+        const d = p.data;
+        const saved = await savePersona({ name: d.name, summary: d.summary, description: d.description, ...(mode === "start" && d.scenario ? { scenario: d.scenario } : {}), storylineId: storyline.id });
+        setMine((list) => [saved, ...(list ?? [])]);
+        return `Saved ${saved.name} to your personas: pick ${mode === "start" ? `“Start as ${saved.name}”` : "Switch"} when ready`;
+      }
+      if (p.kind === "image" && imageUrl) {
+        const target = mine?.find((x) => x.name.toLowerCase() === p.data.forName?.toLowerCase());
+        if (!target) throw new Error(`no saved persona named ${p.data.forName ?? "(no name)"}: accept the persona first`);
+        const saved = await savePersona({ ...target, imageUrl });
+        setMine((list) => list?.map((x) => (x.id === saved.id ? saved : x)));
+        return `Set ${saved.name}'s portrait`;
+      }
+      throw new Error("that doesn't apply to a persona");
+    },
   };
 
   const card = (p: Persona, removable = false) => (
@@ -137,6 +164,7 @@ export function PersonaPicker({ storyline, current, mode, onPick }: PersonaPicke
           <p className="text-[12px] text-white/50">None yet.</p>
         )}
       </section>
+      <Michiru host={michiru} inline label="Make one with Michiru" />
       <div className="flex flex-col gap-2 sm:flex-row">
         <button type="button" onClick={() => setCreating(true)} className="h-10 flex-1 rounded-[20px] border border-[rgba(255,168,168,0.7)] bg-white/[0.05] text-[13px] font-semibold">
           {mode === "start" ? "Create a new persona for this story" : "New persona"}
