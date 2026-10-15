@@ -5,7 +5,8 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Bookmark, Heart, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Storyline } from "@/types/isekaizero";
+import type { Persona, Storyline } from "@/types/isekaizero";
+import { PersonaPicker } from "../persona/PersonaPicker";
 import { createChatSession } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
 
 export interface StartBarProps {
@@ -22,6 +23,8 @@ export function StartBar({ storyline, className }: StartBarProps) {
   const [saved, setSaved] = useState(false);
   const [liked, setLiked] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  // After "Play as Guest": "You are playing as..." (personaSetup.*).
+  const [choosingPersona, setChoosingPersona] = useState(false);
   const [greetingIndex, setGreetingIndex] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -40,10 +43,15 @@ export function StartBar({ storyline, className }: StartBarProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [modalOpen]);
 
-  const playAsGuest = () => {
-    const session = createChatSession(storyline, { greetingIndex });
+  const start = (persona?: Persona) => {
+    const session = createChatSession(storyline, { greetingIndex, persona });
     setModalOpen(false);
+    setChoosingPersona(false);
     router.push(`/chats/${session.id}`);
+  };
+  const close = () => {
+    setModalOpen(false);
+    setChoosingPersona(false);
   };
 
   return (
@@ -88,7 +96,7 @@ export function StartBar({ storyline, className }: StartBarProps) {
         ? createPortal(
             <div
               className="fixed inset-0 z-[100] flex items-center justify-center bg-[rgba(0,0,0,0.6)] px-[16px]"
-              onClick={() => setModalOpen(false)}
+              onClick={close}
             >
               <div
                 role="dialog"
@@ -100,33 +108,46 @@ export function StartBar({ storyline, className }: StartBarProps) {
                 <button
                   type="button"
                   aria-label="Close"
-                  onClick={() => setModalOpen(false)}
+                  onClick={close}
                   className="absolute right-[20px] top-[24px] flex h-[22px] w-[22px] items-center justify-center text-[rgba(255,255,255,0.7)]"
                 >
                   <X size={22} aria-hidden="true" />
                 </button>
-                <h2 id="iz-play-title" className="text-center text-[18px] font-bold leading-[22px]">
-                  How do you want to play?
-                </h2>
-                <p className="mt-[12px] text-center text-[14px] leading-[20px] text-[rgba(255,255,255,0.85)]">
-                  Jump in instantly as a guest, or create an account to keep your stories and progress on all your devices.
-                </p>
-                <div className="mt-[20px] flex flex-col gap-[12px]">
-                  <button
-                    type="button"
-                    onClick={playAsGuest}
-                    className="flex h-[48px] items-center justify-center rounded-[24px] border-[1.5px] border-[rgba(255,168,168,0.8)] bg-[linear-gradient(90deg,rgb(23,36,126),rgb(42,65,228))] text-[15px] font-semibold leading-none"
-                  >
-                    Play as Guest
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setToast("Accounts are not part of this demo")}
-                    className="flex h-[48px] items-center justify-center rounded-[24px] border-[1.5px] border-[rgba(255,168,168,0.8)] bg-[rgba(255,255,255,0.05)] text-[15px] font-semibold leading-none"
-                  >
-                    Sign Up / Log In
-                  </button>
-                </div>
+                {choosingPersona ? (
+                  <>
+                    <h2 id="iz-play-title" className="mb-4 text-center text-[18px] font-bold leading-[22px]">
+                      You are playing as...
+                    </h2>
+                    <div className="iz-scroll-thin max-h-[70vh] overflow-y-auto pr-1">
+                      <PersonaPicker storyline={storyline} mode="start" onPick={start} />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h2 id="iz-play-title" className="text-center text-[18px] font-bold leading-[22px]">
+                      How do you want to play?
+                    </h2>
+                    <p className="mt-[12px] text-center text-[14px] leading-[20px] text-[rgba(255,255,255,0.85)]">
+                      Jump in instantly as a guest, or create an account to keep your stories and progress on all your devices.
+                    </p>
+                    <div className="mt-[20px] flex flex-col gap-[12px]">
+                      <button
+                        type="button"
+                        onClick={() => setChoosingPersona(true)}
+                        className="flex h-[48px] items-center justify-center rounded-[24px] border-[1.5px] border-[rgba(255,168,168,0.8)] bg-[linear-gradient(90deg,rgb(23,36,126),rgb(42,65,228))] text-[15px] font-semibold leading-none"
+                      >
+                        Play as Guest
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setToast("Accounts are not part of this demo")}
+                        className="flex h-[48px] items-center justify-center rounded-[24px] border-[1.5px] border-[rgba(255,168,168,0.8)] bg-[rgba(255,255,255,0.05)] text-[15px] font-semibold leading-none"
+                      >
+                        Sign Up / Log In
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>,
             document.body,

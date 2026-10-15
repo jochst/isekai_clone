@@ -1322,6 +1322,10 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         onOpenCodex={() => (setSettingsOpen(false), setCodexOpen(true))}
         onOpenSheets={() => (setSettingsOpen(false), setSheetsOpen(true))}
         onOpenCast={() => (setSettingsOpen(false), setCastOpen(true))}
+        onPersonaChange={(persona) => {
+          update((s) => ({ ...s, persona, playerName: persona?.name ?? "You" }));
+          showToast(`You are now playing as ${persona?.name ?? "yourself"}.`);
+        }}
         storyline={storyline}
       />
       <CommandGuideSheet

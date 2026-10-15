@@ -123,6 +123,23 @@ export interface StatChange {
   changes: string[];
 }
 
+/** Who the player plays as (Isekai Zero personas): one of the story's recommended characters, or their own. */
+export interface Persona {
+  id: string;
+  name: string;
+  /** One or two lines for the persona card (up to 300 characters). */
+  summary?: string;
+  /** Looks, personality, backstory, how they speak. */
+  description: string;
+  imageUrl?: string;
+  /** Custom personas: an opening scene that replaces the story's own ({{user}} becomes the name). */
+  scenario?: string;
+  sheet?: CharacterSheet;
+  /** Custom personas made for one story (shown first there); usable in any story. */
+  storylineId?: string;
+  source: "story" | "custom";
+}
+
 /** A player command that shaped a reply, shown as its badge (chatCommands.badge.*). */
 export interface TurnDirection {
   kind: "continue" | "improvise" | "steer" | "skip" | "cut" | "end" | "retry" | "roll";
@@ -231,6 +248,8 @@ export interface Storyline {
   codex?: CodexEntry[];
   /** Stats every character sheet tracks. */
   statSchema?: StatDef[];
+  /** Characters the player can play as ("Recommended Characters"). */
+  personas?: Persona[];
   /** Which AI tools the story uses, and how (required, on or off by default). */
   toolSettings?: ToolSetting[];
   /** Creator's default chat settings, applied to new chats unless the player overrides creator settings. */
@@ -629,6 +648,8 @@ export interface ChatSession {
   messages: ChatMessage[];
   settings: ChatSettings;
   playerName: string;
+  /** The persona being played; its description tells the AI who the player is. */
+  persona?: Persona;
   /** Chapters and arcs; written only through /api/chats/[id]/memory, never by the client's PATCH sync. */
   memory?: ChatMemory;
 }

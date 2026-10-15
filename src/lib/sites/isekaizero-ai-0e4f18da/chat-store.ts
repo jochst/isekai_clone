@@ -11,7 +11,7 @@
  */
 import { useCallback, useSyncExternalStore } from "react";
 
-import type { ChatMemory, ChatMessage, ChatSession, ChatSettings, ChatSummary, SceneImage, SceneVideo, Storyline } from "@/types/isekaizero";
+import type { ChatMemory, ChatMessage, ChatSession, ChatSettings, ChatSummary, SceneImage, SceneVideo, Storyline, Persona } from "@/types/isekaizero";
 import { CONTINUE_SENTINEL } from "@/types/isekaizero";
 
 import { providerHeaders, readProviderSettings } from "./provider-settings";
@@ -331,6 +331,8 @@ export interface CreateChatOptions {
   greetingIndex?: number;
   playerName?: string;
   scenarioIndex?: number;
+  /** Play as this persona (a story's recommended character or one of the player's own). */
+  persona?: Persona;
 }
 
 function put(session: ChatSession): void {
@@ -346,7 +348,9 @@ export function createChatSession(storyline: Storyline, opts: CreateChatOptions 
   const scenario = opts.scenarioIndex !== undefined ? storyline.scenarios[opts.scenarioIndex] : undefined;
   const selectedOpening = (opts.greetingIndex && storyline.imported?.alternateGreetings[opts.greetingIndex - 1]) || storyline.opening;
   const opening = scenario ? `${selectedOpening}\n\n*${scenario.title}: ${scenario.summary}*` : selectedOpening;
-  const playerName = opts.playerName?.trim() || "You";
+  // A persona names the player; a custom persona's own opening scene replaces the story's ({{user}} → its name).
+  const playerName = opts.persona?.name.trim() || opts.playerName?.trim() || "You";
+  const personaOpening = opts.persona?.scenario?.trim() ? opts.persona.scenario.replace(/\{\{user\}\}/gi, playerName) : "";
   const session: ChatSession = {
     id: newId(),
     storylineId: storyline.id,
@@ -355,8 +359,11 @@ export function createChatSession(storyline: Storyline, opts: CreateChatOptions 
     createdAt: now,
     updatedAt: now,
     playerName,
+    ...(opts.persona ? { persona: opts.persona } : {}),
     settings: buildDefaultChatSettings(storyline),
-    messages: opening ? [{ id: newId(), role: "assistant", content: storyline.imported ? replaceCardMacros(opening, storyline.characters[0]?.name || storyline.title, playerName) : opening, createdAt: now, speaker: "Narrator" }] : [],
+    messages: personaOpening
+      ? [{ id: newId(), role: "assistant", content: personaOpening, createdAt: now, speaker: "Narrator" }]
+      : opening ? [{ id: newId(), role: "assistant", content: storyline.imported ? replaceCardMacros(opening, storyline.characters[0]?.name || storyline.title, playerName) : opening, createdAt: now, speaker: "Narrator" }] : [],
   };
   put(session);
   return session;

@@ -3,7 +3,7 @@ import "server-only";
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { CONTINUE_SENTINEL, type ChatMemory, type ChatMessage, type ChatSession, type ChatSummary, type StoryMedia } from "@/types/isekaizero";
+import { CONTINUE_SENTINEL, type ChatMemory, type ChatMessage, type ChatSession, type ChatSummary, type Persona, type StoryMedia } from "@/types/isekaizero";
 import { emptyCodex, type CodexState } from "./codex";
 import type { Sheets } from "./dm";
 import type { ChatCast } from "./cast";
@@ -38,6 +38,7 @@ export function openChatDb(): DatabaseSync {
     CREATE TABLE IF NOT EXISTS memory (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS codex (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS sheets (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS personas (id TEXT PRIMARY KEY, body TEXT NOT NULL, updated INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS chat_cast (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS story_media (id TEXT PRIMARY KEY, storyline_id TEXT NOT NULL, body TEXT NOT NULL, created INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS story_media_by_story ON story_media (storyline_id, created);`);
@@ -196,4 +197,17 @@ export function getCast(db: DatabaseSync, chatId: string): ChatCast {
 
 export function saveCast(db: DatabaseSync, chatId: string, cast: ChatCast): void {
   db.prepare("INSERT INTO chat_cast (chat_id, body) VALUES (?, ?) ON CONFLICT(chat_id) DO UPDATE SET body = excluded.body").run(chatId, JSON.stringify(cast));
+}
+
+/* The player's persona library (Phase 4b): custom personas, newest first. */
+export function listPersonas(db: DatabaseSync): Persona[] {
+  return db.prepare("SELECT body FROM personas ORDER BY updated DESC").all().map((row) => JSON.parse(String(row.body)) as Persona);
+}
+
+export function savePersona(db: DatabaseSync, persona: Persona): void {
+  db.prepare("INSERT INTO personas (id, body, updated) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET body = excluded.body, updated = excluded.updated").run(persona.id, JSON.stringify(persona), Date.now());
+}
+
+export function deletePersona(db: DatabaseSync, id: string): void {
+  db.prepare("DELETE FROM personas WHERE id = ?").run(id);
 }
