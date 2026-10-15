@@ -166,6 +166,7 @@ export function buildSystemPrompt(storyline: Storyline, session: ChatSession, op
     storyline.prompt?.guideline ? `Story guideline:\n${storyline.prompt.guideline}` : "",
     `Characters: ${cast}`,
     `The player is ${playerName}. {{user}} always refers to the protagonist.`,
+    session.persona?.description.trim() ? `Who ${playerName} is (the player's persona; only the player decides their actions and words):\n${session.persona.description.trim().slice(0, 4000)}` : "",
     opts.takeTurn
       ? `The player currently takes the turn of the character named ${playerName} from the cast; treat their messages as that character's own words and actions.`
       : "",

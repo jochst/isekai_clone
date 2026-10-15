@@ -290,8 +290,13 @@ The gap: Default Chat Settings could only really use models from the site's buil
   - **Honor mode** (chat.honor.*): set in Chat Settings before the first turn, then locked. No Retry, Edit, Delete, Branch or Erase in the UI; the server refuses retries; /end asks first because it is final.
   - Live (DeepSeek): /skip three days opened "Three days have passed." with the Time skip badge; /roll 1d20+2 dc 14 rolled 4 + 2 = 6 (failure) and the patrol heard the player; /ooc answered out of character; /recap summarized the story through the ambush.
   - Not done: the site's dice builder for a bare /roll (it rolls a d20); instructions for /chapter and /arc are ignored; "Assist" isn't in the site's strings under that name.
-- [ ] Personas: custom persona per story, persona library, switching, multi-persona play.
-- [ ] Guidance prompt and AI output reminder UI (the fields exist but nothing sets them).
+- [x] **Personas (4b):** "Play as Guest" now asks "You are playing as..." (personaSetup.*): the story's Recommended Characters (its `personaSnapshots`, with portrait, summary and card), your persona library (this story's first), "Create a new persona for this story" (name, short description, description, optional opening scene with `{{user}}`), or "Start as yourself".
+  - The persona's description goes in the system prompt as who the player is ("only the player decides their actions and words"); its name becomes `{{user}}`. A custom opening scene replaces the story's opening.
+  - Library: saved in `data/chats.sqlite` (`personas` table), reusable on any story, deletable. Chat Settings → Persona shows who you're playing and switches mid-chat (pick, create, or play as yourself), with a toast.
+  - Live (DeepSeek): started "May this Dance Never End" as Chiara; the river voice answered "She carries a name." Switched to a new persona, Vesna, mid-chat; it saved to the library and the chat. A new persona Ren with his own opening scene started "I Woke Up in a World of Magic and Monsters" with "Ren wakes in a field of blue grass…".
+  - That story lists two Chiaras: the author published two versions (different portraits), so both show, as on the site.
+  - Not done: multi-persona play (the site's group play), and the persona's character sheet isn't linked to the stats tools yet.
+- [x] **Guidance prompt and AI output reminder (4b):** Chat Settings → Guidance, with the site's wording (500-character reminder). Live: the reminder "End every reply with one short line of dialogue from the ferryman, in quotes." was followed on the next reply.
 - [ ] UI settings: text-colour presets, font size, streaming speed, fade older messages, show/hide thinking, scene-tracker colouring.
 - [ ] Chat history: branches picker, archive, 30-day trash, message search, saved messages, export.
 - **Exit:** every chat string in `en_flat.tsv` under the chat namespaces maps to a working control, or to a deliberate ADR-1 omission.

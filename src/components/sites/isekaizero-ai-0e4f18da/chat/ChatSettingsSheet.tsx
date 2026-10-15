@@ -10,9 +10,10 @@ import { VideoModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/vide
 import { VideoParamsForm, paramSummary } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoParamsForm";
 import { DEFAULT_DM_MODEL, resolveImageModel, resolveVideoModel, toolEnabled, type ContextReport, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { DM_MODELS } from "@/lib/sites/isekaizero-ai-0e4f18da/dm-models";
+import { PersonaPicker } from "../persona/PersonaPicker";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatSession, ChatSettings, ProviderSettings, ReasoningEffort, Storyline, VideoParamValue } from "@/types/isekaizero";
+import type { ChatSession, ChatSettings, Persona, ProviderSettings, ReasoningEffort, Storyline, VideoParamValue } from "@/types/isekaizero";
 import { characterVoice, narratorVoice, voicesFor } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 
 import { cn } from "@/lib/utils";
@@ -49,11 +50,14 @@ export interface ChatSettingsSheetProps {
   onOpenCodex: () => void;
   onOpenSheets: () => void;
   onOpenCast: () => void;
+  /** Switch who the player plays as (undefined: themselves). */
+  onPersonaChange: (persona: Persona | undefined) => void;
   /** The story, for per-character voices. */
   storyline: Storyline;
 }
 
-export function ChatSettingsSheet({ open, onClose, session, provider, model, context, onChange, onOpenMemory, onOpenCodex, onOpenSheets, onOpenCast, storyline }: ChatSettingsSheetProps) {
+export function ChatSettingsSheet({ open, onClose, session, provider, model, context, onChange, onOpenMemory, onOpenCodex, onOpenSheets, onOpenCast, onPersonaChange, storyline }: ChatSettingsSheetProps) {
+  const [switchingPersona, setSwitchingPersona] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const { settings } = session;
   const [, updateProvider] = useProviderSettings();
@@ -125,6 +129,60 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
               description="When nothing fits, draw a new background or expression with your character portrait model. Saved with the story and reused."
               right={<Toggle label="Generate Missing Art" checked={settings.vnGenerateMedia !== false} onChange={(vnGenerateMedia) => onChange({ vnGenerateMedia })} />}
             />
+          </AccordionCard>
+
+          <AccordionCard title="Persona" description={`You are playing as ${session.persona?.name ?? session.playerName}`} defaultOpen>
+            {session.persona ? (
+              <div className="text-[13px] text-white/70">
+                <div className="font-semibold text-white">{session.persona.name}</div>
+                {session.persona.summary ? <div>{session.persona.summary}</div> : null}
+              </div>
+            ) : (
+              <p className="text-[13px] text-white/60">Playing as yourself. Pick a persona to tell the AI who you are.</p>
+            )}
+            {switchingPersona ? (
+              <div className="mt-3">
+                <PersonaPicker
+                  storyline={storyline}
+                  current={session.persona}
+                  mode="switch"
+                  onPick={(persona) => {
+                    onPersonaChange(persona);
+                    setSwitchingPersona(false);
+                  }}
+                />
+              </div>
+            ) : (
+              <button type="button" onClick={() => setSwitchingPersona(true)} className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10">
+                Switch persona
+              </button>
+            )}
+          </AccordionCard>
+
+          <AccordionCard title="Guidance" description="Your own instructions for the AI in this chat">
+            <label className="block text-[13px] font-semibold text-white/85">
+              Guidance Prompt
+              <span className="block text-[12px] font-normal text-white/50">Custom instructions included in the system prompt to guide the AI&apos;s responses.</span>
+              <textarea
+                value={settings.guidancePrompt ?? ""}
+                onChange={(e) => onChange({ guidancePrompt: e.target.value })}
+                rows={4}
+                placeholder="e.g. Keep combat gritty and consequences real. Let side characters have their own goals."
+                className="mt-1 block w-full resize-y rounded-[10px] border border-white/15 bg-white/[0.06] p-2.5 text-[13px] font-normal leading-5 text-white outline-none placeholder:text-white/30 focus:border-[#a7b9ff]"
+              />
+            </label>
+            <label className="mt-3 block text-[13px] font-semibold text-white/85">
+              AI Output Reminder
+              <span className="block text-[12px] font-normal text-white/50">Appended to every user message in the user prompt. Works best as reminders. Limited to 500 characters.</span>
+              <textarea
+                value={settings.userInputPrompt ?? ""}
+                maxLength={500}
+                onChange={(e) => onChange({ userInputPrompt: e.target.value })}
+                rows={2}
+                placeholder="e.g. Reply in under 250 words and end on a choice."
+                className="mt-1 block w-full resize-y rounded-[10px] border border-white/15 bg-white/[0.06] p-2.5 text-[13px] font-normal leading-5 text-white outline-none placeholder:text-white/30 focus:border-[#a7b9ff]"
+              />
+            </label>
           </AccordionCard>
 
           <AccordionCard title="Honor mode" description="One run, forward only: no retries, no edits, no erasing messages, no branches. You can still restart or delete the chat.">

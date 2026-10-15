@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { inflateSync } from "node:zlib";
 import { load } from "cheerio";
-import type { Character, CharacterSheet, ChatSettings, CodexEntry, StatDef, StoryCategory, StoryImage, Storyline, ToolSetting } from "@/types/isekaizero";
+import type { Character, CharacterSheet, ChatSettings, CodexEntry, Persona, StatDef, StoryCategory, StoryImage, Storyline, ToolSetting } from "@/types/isekaizero";
 import { record, string, strings, type ImportedEntry, type ImportSource } from "./types";
 
 export const MAX_IMPORT_BYTES = 20 * 1024 * 1024;
@@ -110,6 +110,24 @@ export function characterSheet(value: unknown): CharacterSheet | undefined {
   return sheet.stats.length || sheet.inventory.length || sheet.skills.length || sheet.custom ? sheet : undefined;
 }
 
+/** The story's recommended characters to play as (Isekai Zero personaSnapshots). */
+export function storyPersonas(d: Record<string, unknown>): Persona[] {
+  const list = Array.isArray(d.personaSnapshots) && d.personaSnapshots.length ? d.personaSnapshots : Array.isArray(d.personas) ? d.personas : [];
+  return list.flatMap((value, i) => {
+    const p = record(value);
+    const name = string(p.name).trim();
+    if (!name) return [];
+    const sheet = characterSheet(p.sheets);
+    return [{
+      id: string(p._id) || `persona-${i}`, name, source: "story" as const,
+      summary: plainText(p.descriptionSummary).trim().slice(0, 300) || undefined,
+      description: plainText(p.description || p.descriptionSummary).trim().slice(0, 6000),
+      ...(safeImageUrl(record(p.cover).url) ? { imageUrl: safeImageUrl(record(p.cover).url) } : {}),
+      ...(sheet ? { sheet } : {}),
+    }];
+  });
+}
+
 const STAT_TYPES = new Set(["number", "text", "enum", "boolean"]);
 const TOOL_MODES = new Set(["required", "default-on", "default-off"]);
 
@@ -180,6 +198,7 @@ export function normalizeImport(raw: unknown, origin: { source?: ImportSource; u
     backgrounds: storyImages(d.media, "background"),
     ...(storyCodex(d.codex).length > 0 ? { codex: storyCodex(d.codex) } : {}),
     ...gameRules(d),
+    ...(storyPersonas(d).length > 0 ? { personas: storyPersonas(d) } : {}),
     tokens: { storyline: Math.ceil(plot.length / 4), characters: Math.ceil(cast.map(c => character(c, 0).persona).join("").length / 4), scenario: Math.ceil(opening.length / 4) },
     imported: {
       kind, source, sourceUrl, contentRating: rating, warnings, alternateGreetings,
