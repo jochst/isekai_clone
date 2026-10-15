@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     return withImportDb(db => {
       const entries = listEntries(db, 48, page * 48).map(({ id, kind, source, sourceUrl, contentRating, importedAt, warnings, storyline }) => ({ id, kind, source, sourceUrl, contentRating, importedAt, warnings, title: storyline.title, creator: storyline.creator.handle, imageUrl: storyline.cover.imageUrl }));
       const heartbeat = db.prepare("SELECT heartbeat FROM worker_status WHERE id=1").get( );
-      const total = Number(db.prepare("SELECT count(*) AS n FROM entries").get()?.n ?? 0);
+      const total = Number(db.prepare("SELECT count(*) AS n FROM entries WHERE json_extract(body, '$.source') != 'created'").get()?.n ?? 0);
       return Response.json({ entries, total, page, jobs: listJobs(db), workerOnline: !!heartbeat && Date.now() - Number(heartbeat.heartbeat) < 20_000 }, { headers: { "Cache-Control": "no-store" } });
     });
   } catch (error) { return importError(error); }

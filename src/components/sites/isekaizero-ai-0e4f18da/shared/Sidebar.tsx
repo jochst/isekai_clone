@@ -32,7 +32,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { key: "home", label: "Home", href: "/", icon: { kind: "png", name: "home" } },
   { key: "explore", label: "Explore", href: "/explore", icon: { kind: "png", name: "explore" } },
   { key: "imports", label: "Import library", href: "/imports", icon: { kind: "lucide", Icon: Download, size: 22 } },
-  { key: "creation", label: "Creation", href: "/creation/generate-image", icon: { kind: "png", name: "creation" } },
+  { key: "creation", label: "Creation", href: "/creation", icon: { kind: "png", name: "creation" } },
   { key: "chats", label: "Chats", href: "/chats", icon: { kind: "png", name: "chat" } },
   { key: "music", label: "Music", href: "#", icon: { kind: "lucide", Icon: Music, size: 22 } },
   { key: "store", label: "Arcane Store", href: "#", icon: { kind: "static", src: `${IZ_IMG}/crystal-purple.png`, size: 24 } },

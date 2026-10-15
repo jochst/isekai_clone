@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import type { StoryCardData, Storyline } from "@/types/isekaizero";
 import { CoverCard } from "./CoverCard";
@@ -30,7 +31,13 @@ export function StorylinePage({ storyline, related }: StorylinePageProps) {
     <div className="mx-auto flex w-full max-w-[1056px] flex-col pb-[120px] text-white lg:flex-row lg:items-start lg:gap-[16px] lg:px-[20px] lg:pt-[20px] xl:px-0">
       {/* Left column */}
       <div className="contents lg:block lg:w-[400px] lg:shrink lg:grow-0 lg:basis-[400px]">
-        {storyline.imported && <div className="order-1 mx-3 my-3 rounded-xl border border-white/15 bg-white/5 p-3 text-xs leading-5 lg:mx-0"><p>Personal import · {storyline.imported.source} · {storyline.imported.contentRating}</p><p>Original creator: {storyline.creator.handle}</p>{storyline.imported.sourceUrl && <a href={storyline.imported.sourceUrl} target="_blank" rel="noreferrer" className="text-indigo-200 underline">View original source</a>}{storyline.imported.warnings.map((warning, i) => <p key={i} className="mt-2 text-amber-200">{warning}</p>)}</div>}
+        {storyline.imported?.source === "created" ? (
+          <div className="order-1 mx-3 my-3 flex items-center gap-3 rounded-xl border border-white/15 bg-white/5 p-3 text-xs leading-5 lg:mx-0">
+            <p className="flex-1">Your storyline · {storyline.imported.contentRating.toUpperCase()} · version {storyline.version}</p>
+            <Link href={`/creation/storylines/${storyline.id}`} className="rounded-full border border-white/20 px-3 py-1 font-semibold hover:bg-white/10">Edit Story</Link>
+          </div>
+        ) : null}
+        {storyline.imported && storyline.imported.source !== "created" && <div className="order-1 mx-3 my-3 rounded-xl border border-white/15 bg-white/5 p-3 text-xs leading-5 lg:mx-0"><p>Personal import · {storyline.imported.source} · {storyline.imported.contentRating}</p><p>Original creator: {storyline.creator.handle}</p>{storyline.imported.sourceUrl && <a href={storyline.imported.sourceUrl} target="_blank" rel="noreferrer" className="text-indigo-200 underline">View original source</a>}{storyline.imported.warnings.map((warning, i) => <p key={i} className="mt-2 text-amber-200">{warning}</p>)}</div>}
         <CoverCard
           storyline={storyline}
           selectedIndex={selectedIndex}

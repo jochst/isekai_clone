@@ -1,6 +1,6 @@
 import type { Storyline } from "@/types/isekaizero";
 
-export type ImportSource = "isekaizero" | "chub" | "janitorai" | "animegf" | "file";
+export type ImportSource = "isekaizero" | "chub" | "janitorai" | "animegf" | "file" | "created";
 export interface ImportedEntry {
   id: string;
   kind: "character" | "story";

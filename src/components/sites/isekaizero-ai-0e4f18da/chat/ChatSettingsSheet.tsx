@@ -11,6 +11,7 @@ import { VideoParamsForm, paramSummary } from "@/components/sites/isekaizero-ai-
 import { DEFAULT_DM_MODEL, resolveImageModel, resolveVideoModel, toolEnabled, type ContextReport, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { DM_MODELS } from "@/lib/sites/isekaizero-ai-0e4f18da/dm-models";
 import { PersonaPicker } from "../persona/PersonaPicker";
+import { GAME_TOOLS } from "@/lib/sites/isekaizero-ai-0e4f18da/game-tools";
 import { UiSettingsPanel } from "../settings/UiSettingsPanel";
 import { HistoryPanel } from "./HistoryPanel";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
@@ -80,6 +81,14 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
   return (
     <>
       <SideSheet open={open} onClose={onClose} title="Chat Settings" subtitle="Customize your chat style with response length preferences">
+        {storyline.imported?.source === "created" ? (
+          <Link
+            href={`/creation/storylines/${storyline.id}?from=/chats/${session.id}`}
+            className="mb-3 flex h-10 items-center justify-center gap-2 rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold hover:bg-white/10"
+          >
+            Edit Story <span className="font-normal text-white/50">· changes apply from the next turn</span>
+          </Link>
+        ) : null}
         <Link href={`/chats/${session.id}/llms`} className="iz-border-model block rounded-[12px] p-[2px] transition-[filter] duration-150 hover:brightness-[1.06]">
           <span className="iz-model-card flex items-center rounded-[10px] p-4">
             <span className="iz-border-model flex h-[54px] w-[54px] shrink-0 rounded-[50px] p-[2px]">
@@ -572,16 +581,6 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
 }
 
 /** NanoGPT music models (live-checked 2026-10-14; prices from /api/v1/audio-models). */
-/** Game tools the story can turn on (Isekai Zero toolSettings ids; labels from ai-tools.json). */
-const GAME_TOOLS = [
-  { id: "dice-roll", label: "Dice Roll", description: "Real dice decide uncertain actions; the roll card shows the result." },
-  { id: "stats-manager", label: "Character Stats", description: "Keeps character sheets (stats, inventory, skills) in sync with the story." },
-  { id: "character-manager", label: "Character Manager", description: "New characters join the cast; renames, notes and departures are kept for this chat." },
-  { id: "character-name-generator", label: "Character Name Generator", description: "Fresh names for new characters, avoiding the commonly reused ones." },
-  { id: "story-ending", label: "Story Ending", description: "The AI can end the story with an ending card when it truly concludes." },
-  { id: "scene-illustrator", label: "Scene Illustrator", description: "The AI commissions illustrations of key moments." },
-];
-
 const MUSIC_MODELS = [
   { id: "google/lyria-3.5", label: "Google Lyria 3.5 · $0.11 per song (full length)" },
   { id: "elevenlabs/music", label: "ElevenLabs Music · $0.01 per second" },
