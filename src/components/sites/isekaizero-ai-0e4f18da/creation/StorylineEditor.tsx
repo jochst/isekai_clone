@@ -13,6 +13,8 @@ import type { Persona, StoryCategory, Storyline } from "@/types/isekaizero";
 import { ConfirmDialog, ToastView, useToast } from "../chat/primitives";
 import { AddButton, Card, Choice, Input, Label, RemoveButton, TextArea, patchAt, INPUT } from "./fields";
 import { AdvancedSection, CastsSection, MediaSection } from "./sections";
+import { Michiru, type MichiruHost } from "../michiru/Michiru";
+import { describeStoryline } from "@/lib/michiru/michiru";
 
 type Tab = "story" | "media" | "casts" | "ai" | "publish";
 type Rating = "sfw" | "m17" | "18+";
@@ -127,6 +129,61 @@ export function StorylineEditor({ id, returnTo }: { id?: string; returnTo?: stri
   const leave = () => {
     if (dirty && !window.confirm("Any unsaved changes will be deleted.")) return;
     router.push(returnTo ?? "/creation");
+  };
+
+  // Michiru fills this draft in; nothing is stored until Save Storyline.
+  const unsaved = "not saved yet: press Save Storyline";
+  const michiru: MichiruHost = {
+    context: { place: `the storyline editor for “${draft.title || "a new storyline"}”`, details: describeStoryline(draft), can: ["storyline", "character", "persona", "image"] },
+    accept: async (p, imageUrl) => {
+      switch (p.kind) {
+        case "storyline": {
+          const d = p.data;
+          // In Advanced Mode an AI-only plot overrides the plain one, so a new plot replaces it there too.
+          const nextPrompt = { ...prompt, ...(d.guideline ? { guideline: d.guideline } : {}), ...(d.plot && advanced && prompt.plot ? { plot: d.plot } : {}) };
+          set({
+            ...(d.title ? { title: d.title } : {}),
+            ...(d.tagline ? { tagline: d.tagline } : {}),
+            ...(d.category ? { category: d.category as StoryCategory } : {}),
+            ...(d.plot ? { plot: d.plot, description: d.plot } : {}),
+            ...(d.opening ? { opening: d.opening } : {}),
+            ...(d.tags ? { tags: [...new Set([...draft.tags, ...d.tags])] } : {}),
+            ...(d.guideline || (d.plot && advanced) ? { prompt: nextPrompt } : {}),
+            // Turning Advanced Mode on shows Plot (User): keep the plot there.
+            ...(d.guideline && !advanced && !d.plot ? { description: draft.plot } : {}),
+          });
+          if (d.guideline) setAdvanced(true); // the guideline lives under Advanced Mode
+          return `Updated ${Object.keys(d).join(", ")} (${unsaved})`;
+        }
+        case "character": {
+          const d = p.data;
+          set({ characters: [...draft.characters, { id: crypto.randomUUID(), name: d.name, role: d.role, summary: d.summary, persona: d.description, appearance: d.appearance, exampleDialogue: d.exampleDialogue, gradient: ["#423a70", "#182441"], glyph: d.name[0] ?? "" }] });
+          return `Added ${d.name} to the cast (${unsaved})`;
+        }
+        case "persona": {
+          const d = p.data;
+          set({ personas: [...personas, { id: crypto.randomUUID(), name: d.name, summary: d.summary, description: d.description, scenario: d.scenario, source: "story" }] });
+          return `Added ${d.name} to Player Personas (${unsaved})`;
+        }
+        case "image": {
+          if (!imageUrl) throw new Error("the image isn't ready");
+          if (p.data.target === "cover") {
+            set({ cover: { ...draft.cover, imageUrl } });
+            return `Set the cover (${unsaved})`;
+          }
+          const name = p.data.forName?.toLowerCase();
+          const i = draft.characters.findIndex((c) => c.name.toLowerCase() === name);
+          if (i >= 0) {
+            set({ characters: patchAt(draft.characters, i, { imageUrl }) });
+            return `Set ${draft.characters[i].name}'s portrait (${unsaved})`;
+          }
+          const j = personas.findIndex((x) => x.name.toLowerCase() === name);
+          if (j < 0) throw new Error(`nobody named ${p.data.forName ?? "(no name)"} is in the cast or personas yet: accept the character first`);
+          set({ personas: patchAt(personas, j, { imageUrl }) });
+          return `Set ${personas[j].name}'s portrait (${unsaved})`;
+        }
+      }
+    },
   };
 
   const estimate = {
@@ -353,6 +410,7 @@ export function StorylineEditor({ id, returnTo }: { id?: string; returnTo?: stri
               .catch((e) => showToast(e instanceof Error ? e.message : "Could not delete."));
         }}
       />
+      <Michiru host={michiru} />
       <ToastView toast={toast} />
     </div>
   );

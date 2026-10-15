@@ -429,12 +429,24 @@ The gap: Default Chat Settings could only really use models from the site's buil
     - Gave Elen her voice in "The Lantern Ferry" and ran `/drama eerie and slow`: DeepSeek wrote the script; the narrator read through NanoGPT (nova); two sound effects came back from ElevenLabs; Elen's lines went to ElevenLabs in her designed voice. All requests returned 200.
     - The gallery listed 18 images (4 unused) with correct usage.
   - Not done: saving a drama as an audio file, the chat-wide default audiobook instructions, the Community voice library, voice filters by gender/age, the image editor in the gallery.
-- [ ] **6d: Michiru, a side-chat helper that does creation work for you** (your requirements, 2026-10-15):
-  - A chat panel beside the creation pages (and anywhere a persona is picked). You ask in plain words, e.g. "generate a persona for this story", "make a story character based on Star Trek", "draw a cover for this".
-  - Before producing anything, Michiru asks refining questions, the way a coding agent asks about a project (role, tone, era, look, powers, how they meet the player), offering choices plus free text, and only builds once the request is pinned down.
-  - It does the work, not just advice: it fills in personas, characters (all editor fields, portrait included) and storylines, and runs image generation, showing a preview to accept, tweak by asking, or discard. Nothing is saved until you accept.
-  - It knows the context it was opened from (the current story, cast and persona list) so its output fits the story.
-- **Exit:** create a story from scratch, play it, and edit it mid-chat. **Met** (6a, "The Lantern Ferry").
+- [x] **6d: Michiru, a side-chat helper that does creation work** (your spec, 2026-10-15).
+  - **Ask Michiru** opens a side-chat in the Creator Centre and the storyline and character editors. The persona picker (story start and Chat Settings) has "Make one with Michiru".
+  - She runs in the browser with tools over `/api/chat`. Her model defaults to Claude Haiku (latest) and can be switched in her panel.
+  - **Questions first:** for open requests she calls `ask_questions`: 1-4 refining questions with 2-5 clickable options each, plus free-text answers.
+  - **Then she proposes:** `propose_persona`, `propose_character`, `propose_storyline` (only the fields asked about) or `generate_image` (portrait or cover, drawn with the subscription portrait model). Each shows as a preview card: **Accept** applies it, **Discard** drops it, and typing asks for changes (she proposes the whole thing again).
+  - **What Accept does depends on the page:**
+    - Story editor: fills the draft (fields, a new cast member, a persona, portrait, cover); nothing is saved until Save Storyline.
+    - Character editor: fills the character.
+    - Persona picker: saves straight to your persona library.
+    - Creator Centre: creates new My Characters and My Storylines entries, then their portrait or cover.
+  - She knows where she was opened (story summary, cast, personas, your saved characters) so proposals fit. Fan works are welcome (real franchise species and lore), and she skips disclaimers.
+  - Live (Haiku):
+    - "Generate a story character based on Star Trek": four refining questions (role, tone, species, how you meet). The answers became "Ilen Vašhari-Ross", a science officer; accepting saved her to My Characters, and "draw her portrait" generated it and set it on her card.
+    - On first try Haiku avoided real Star Trek species, citing trademarks. After the fan-works instruction it offered Vulcan, Andorian, Trill and Klingon and TOS/TNG/DS9 eras.
+    - "Generate a persona for this story" on The Lantern Ferry: three story-aware questions, then "Ione Marsh", saved to the library and listed for Start as.
+    - In the story editor, a request for tags and a punchier plot summary filled the draft, unsaved.
+  - Not done: Michiru on the image generation page, chat history that survives closing the page, voices from Michiru.
+- **Exit:** create a story from scratch, play it, and edit it mid-chat. **Met** (6a, "The Lantern Ferry"). Phase 6 complete with 6d.
 
 ### Phase 7: Remaining pages and polish
 - [ ] `/characters/[id]` pages, `/chats` tabs (Saved / Likes), `/account` (local settings only), `/default-chat-settings` parity, LLM reviews (local notes only, optional).

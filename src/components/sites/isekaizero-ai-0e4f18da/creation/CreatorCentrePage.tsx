@@ -2,12 +2,14 @@
 
 import { BookOpen, Clapperboard, Image as ImageIcon, Images, Mic, Pencil, Play, Plus, UserRound } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { StoryCover } from "@/components/sites/isekaizero-ai-0e4f18da/shared/StoryCover";
 import { CATEGORY_META } from "@/components/sites/isekaizero-ai-0e4f18da/shared/category-meta";
-import { listCreatedStorylines, listMyCharacters, type CreatedStorylineCard } from "@/lib/sites/isekaizero-ai-0e4f18da/creation";
-import type { CreatedCharacter } from "@/types/isekaizero";
+import { getCreatedStoryline, listCreatedStorylines, listMyCharacters, saveCreatedStoryline, saveMyCharacter, type CreatedStorylineCard } from "@/lib/sites/isekaizero-ai-0e4f18da/creation";
+import type { CreatedCharacter, StoryCategory } from "@/types/isekaizero";
+
+import { Michiru, type MichiruHost } from "../michiru/Michiru";
 
 import { relativeTime } from "../chat/ChatsListPage";
 
@@ -19,6 +21,7 @@ export function CreatorCentrePage() {
   const [error, setError] = useState("");
   const [characters, setCharacters] = useState<CreatedCharacter[] | null>(null);
   const [now] = useState(() => Date.now());
+  const lastStory = useRef<string>(undefined);
 
   useEffect(() => {
     listMyCharacters()
@@ -34,6 +37,53 @@ export function CreatorCentrePage() {
         setError(e instanceof Error ? e.message : "Could not load your storylines.");
       });
   }, []);
+
+  // Michiru creates new My Characters and My Storylines entries here (saved on Accept; edit them afterwards).
+  const michiru: MichiruHost = {
+    context: {
+      place: "the Creator Centre, where new characters and storylines are made",
+      details: [
+        characters?.length ? `My Characters: ${characters.map((c) => c.character.name).join(", ")}` : "My Characters: (none)",
+        stories?.length ? `My Storylines: ${stories.map((s) => s.title).join(", ")}` : "My Storylines: (none)",
+        "A storyline proposal here creates a new story: give it a title, category, plot summary, plot and first message.",
+      ].join("\n"),
+      can: ["character", "storyline", "image"],
+    },
+    accept: async (p, imageUrl) => {
+      if (p.kind === "character") {
+        const d = p.data;
+        const saved = await saveMyCharacter({ character: { id: "", name: d.name, role: d.role, summary: d.summary, persona: d.description, appearance: d.appearance, exampleDialogue: d.exampleDialogue, gradient: ["#423a70", "#182441"], glyph: "" }, tags: d.tags, contentRating: "sfw" });
+        setCharacters((list) => [saved, ...(list ?? [])]);
+        return `Created ${saved.character.name} in My Characters`;
+      }
+      if (p.kind === "storyline") {
+        const d = p.data;
+        if (!d.title) throw new Error("the story needs a title");
+        const saved = await saveCreatedStoryline(
+          { title: d.title, tagline: d.tagline ?? "", category: (d.category ?? "fantasy") as StoryCategory, plot: d.plot ?? "", description: d.plot ?? "", opening: d.opening ?? "", tags: d.tags ?? [], characters: [], ...(d.guideline ? { prompt: { guideline: d.guideline } } : {}) },
+          "sfw",
+        );
+        lastStory.current = saved.id;
+        setStories((list) => [{ id: saved.id, title: saved.title, tagline: saved.tagline, category: saved.category, cover: saved.cover, updatedAt: saved.updatedAt, characters: 0 }, ...(list ?? [])]);
+        return `Created “${saved.title}” in My Storylines (Edit it to add a cast)`;
+      }
+      if (p.kind === "image" && imageUrl) {
+        if (p.data.target === "cover") {
+          if (!lastStory.current) throw new Error("make the storyline first, then its cover");
+          const { storyline, contentRating } = await getCreatedStoryline(lastStory.current);
+          const saved = await saveCreatedStoryline({ ...storyline, cover: { ...storyline.cover, imageUrl } }, contentRating, storyline.id);
+          setStories((list) => list?.map((s) => (s.id === saved.id ? { ...s, cover: saved.cover } : s)) ?? null);
+          return `Set the cover of “${saved.title}”`;
+        }
+        const target = characters?.find((c) => c.character.name.toLowerCase() === p.data.forName?.toLowerCase());
+        if (!target) throw new Error(`no character named ${p.data.forName ?? "(no name)"} in My Characters: accept the character first`);
+        const saved = await saveMyCharacter({ ...target, character: { ...target.character, imageUrl } }, target.character.id);
+        setCharacters((list) => list?.map((c) => (c.character.id === saved.character.id ? saved : c)) ?? null);
+        return `Set ${saved.character.name}'s portrait`;
+      }
+      throw new Error("that can't be made here");
+    },
+  };
 
   return (
     <div className="mx-auto w-full max-w-[960px] p-4">
@@ -130,6 +180,7 @@ export function CreatorCentrePage() {
           ))
         )}
       </div>
+      <Michiru host={michiru} />
     </div>
   );
 }

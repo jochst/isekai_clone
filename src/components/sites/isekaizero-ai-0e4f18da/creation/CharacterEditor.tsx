@@ -12,6 +12,7 @@ import { ConfirmDialog, ToastView, useToast } from "../chat/primitives";
 import { AddButton, Card, Choice, INPUT, Input, Label, RemoveButton, TextArea, patchAt } from "./fields";
 import { GenerateButton, ImagePicker, portraitPrompt } from "./sections";
 import { VoiceSelect } from "./VoiceSelect";
+import { Michiru, type MichiruHost } from "../michiru/Michiru";
 
 type Tab = "profile" | "media" | "sheets" | "publish";
 
@@ -98,6 +99,37 @@ export function CharacterEditor({ id }: { id?: string }) {
     } finally {
       setSaving(false);
     }
+  };
+
+  // Michiru writes into this draft; nothing is stored until Save Character.
+  const michiru: MichiruHost = {
+    context: {
+      place: `the character editor${c.name ? ` for ${c.name}` : " (a new character)"}`,
+      details: [
+        `Name: ${c.name || "(none yet)"}`,
+        c.role ? `Role: ${c.role}` : "",
+        c.persona ? `Description: ${c.persona.slice(0, 2500)}` : "",
+        c.appearance ? `Appearance: ${c.appearance}` : "",
+        draft.tags.length ? `Tags: ${draft.tags.join(", ")}` : "",
+        "This character is standalone: it can later be linked into any storyline.",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+      can: ["character", "image"],
+    },
+    accept: async (p, imageUrl) => {
+      if (p.kind === "character") {
+        const d = p.data;
+        setDraft((cur) => (cur ? { ...cur, tags: [...new Set([...cur.tags, ...d.tags])], character: { ...cur.character, name: d.name, role: d.role, summary: d.summary, persona: d.description, appearance: d.appearance, ...(d.exampleDialogue ? { exampleDialogue: d.exampleDialogue } : {}) } } : cur));
+        setDirty(true);
+        return `Filled in ${d.name} (not saved yet: press Save Character)`;
+      }
+      if (p.kind === "image" && imageUrl) {
+        setChar({ imageUrl });
+        return "Set the portrait (not saved yet: press Save Character)";
+      }
+      throw new Error("that doesn't apply to a character");
+    },
   };
 
   const leave = () => {
@@ -338,6 +370,7 @@ export function CharacterEditor({ id }: { id?: string }) {
               .catch((e) => showToast(e instanceof Error ? e.message : "Could not delete."));
         }}
       />
+      <Michiru host={michiru} />
       <ToastView toast={toast} />
     </div>
   );

@@ -137,6 +137,25 @@ export async function completeChat(opts: ChatRequestOptions): Promise<string> {
   return (choice?.message?.content ?? choice?.delta?.content ?? "").trim();
 }
 
+/** A tool-calling conversation message (assistant tool calls and tool results), as the provider takes them. */
+export type ToolChatMessage =
+  | ApiMessage
+  | { role: "assistant"; content: string | null; tool_calls: { id: string; type: "function"; function: { name: string; arguments: string } }[] }
+  | { role: "tool"; tool_call_id: string; content: string };
+
+/** Non-streaming completion that may call tools: the reply's text and tool calls. */
+export async function completeChatWithTools(opts: Omit<ChatRequestOptions, "messages"> & { messages: ToolChatMessage[] }): Promise<{ content: string; toolCalls: { id: string; name: string; arguments: string }[] }> {
+  const res = await postChat(opts as ChatRequestOptions, false);
+  if (!res.ok) await readErrorResponse(res);
+  const json = (await res.json()) as { error?: unknown; choices?: { message?: { content?: string | null; tool_calls?: { id?: string; function?: { name?: string; arguments?: string } }[] } }[] };
+  if (json.error !== undefined) throw new ChatApiError(errorText(json.error, "Provider error"), 502);
+  const message = json.choices?.[0]?.message;
+  return {
+    content: message?.content ?? "",
+    toolCalls: (message?.tool_calls ?? []).map((c, i) => ({ id: c.id || `call_${i}`, name: c.function?.name ?? "", arguments: c.function?.arguments ?? "{}" })),
+  };
+}
+
 /* ------------------------------------------------------------------ helpers built on completeChat */
 
 export interface DestinyOptions {
