@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { DEFAULT_CHAT_SETTINGS } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
 import type { ChatMessage, ChatSession } from "@/types/isekaizero";
-import { addStoryMedia, applyChatPatch, getChat, listChats, listSavedMessages, setChatStatus, listStoryMedia, localizeMessages, saveChat, withChatDb } from "../db";
+import { addStoryMedia, applyChatPatch, getChat, listChats, listCollections, listSavedMessages, listSongs, setChatStatus, setCollected, listStoryMedia, localizeMessages, saveChat, withChatDb } from "../db";
 import { inlineLocalMedia } from "../media";
 
 let dir = "";
@@ -75,6 +75,24 @@ describe("chat storage", () => {
       expect(listChats(db, true)).toEqual([]);
       expect(db.prepare("SELECT COUNT(*) AS n FROM messages WHERE chat_id = 'bin'").get()?.n).toBe(0);
       expect(setChatStatus(db, "bin", { deleted: false })).toBe(false);
+    });
+  });
+
+  it("keeps likes and saves, and lists finished songs from live chats", () => {
+    withChatDb((db) => {
+      const story = { list: "likes" as const, kind: "storyline" as const, id: "s1", title: "Ferry", href: "/storylines/s1" };
+      setCollected(db, story, true);
+      setCollected(db, { ...story, list: "saved" }, true);
+      setCollected(db, { ...story, title: "Ferry II" }, true); // re-liking updates the card, not a duplicate
+      expect(listCollections(db).map((i) => [i.list, i.title])).toEqual(expect.arrayContaining([["likes", "Ferry II"], ["saved", "Ferry"]]));
+      setCollected(db, story, false);
+      expect(listCollections(db).map((i) => i.list)).toEqual(["saved"]);
+
+      const song = (id: string, status: "done" | "error", createdAt: number) => ({ id, status, url: `/api/media/${id}.mp3`, prompt: "p", instrumental: true, model: "m", provider: "nano-gpt" as const, createdAt });
+      saveChat(db, chat("music", [{ ...msg("1", "assistant", "x"), music: [song("a", "done", 5), song("b", "error", 6)] }, { ...msg("2", "assistant", "y"), music: [song("c", "done", 9)] }], 4));
+      expect(listSongs(db).map((s) => [s.song.id, s.messageId, s.chatTitle])).toEqual([["c", "2", "Chat music"], ["a", "1", "Chat music"]]);
+      setChatStatus(db, "music", { deleted: true });
+      expect(listSongs(db)).toEqual([]);
     });
   });
 

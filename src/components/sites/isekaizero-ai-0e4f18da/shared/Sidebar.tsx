@@ -34,10 +34,10 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { key: "imports", label: "Import library", href: "/imports", icon: { kind: "lucide", Icon: Download, size: 22 } },
   { key: "creation", label: "Creation", href: "/creation", icon: { kind: "png", name: "creation" } },
   { key: "chats", label: "Chats", href: "/chats", icon: { kind: "png", name: "chat" } },
-  { key: "music", label: "Music", href: "#", icon: { kind: "lucide", Icon: Music, size: 22 } },
+  { key: "music", label: "Music", href: "/music", icon: { kind: "lucide", Icon: Music, size: 22 } },
   { key: "store", label: "Arcane Store", href: "#", icon: { kind: "static", src: `${IZ_IMG}/crystal-purple.png`, size: 24 } },
   { key: "notifications", label: "Notifications", href: "#", icon: { kind: "lucide", Icon: Bell, size: 24 } },
-  { key: "profile", label: "Profile", href: "/default-chat-settings", icon: { kind: "png", name: "profile" } },
+  { key: "profile", label: "Profile", href: "/profile", icon: { kind: "png", name: "profile" } },
 ];
 
 /** The primary items that appear in the TopBar / MobileTabBar. */

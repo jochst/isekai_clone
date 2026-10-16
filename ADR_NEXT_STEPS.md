@@ -449,7 +449,17 @@ The gap: Default Chat Settings could only really use models from the site's buil
 - **Exit:** create a story from scratch, play it, and edit it mid-chat. **Met** (6a, "The Lantern Ferry"). Phase 6 complete with 6d.
 
 ### Phase 7: Remaining pages and polish
-- [ ] `/characters/[id]` pages, `/chats` tabs (Saved / Likes), `/account` (local settings only), `/default-chat-settings` parity, LLM reviews (local notes only, optional).
+- [x] **7a: Remaining pages.**
+  - **`/characters/[id]`** (characters.*): a My Characters character (`char-…`) or a story cast member (`?story=`).
+    - Shows the portrait with an expressions gallery, role, summary, Descriptions / Prompt Description (Advanced Mode) / Example Dialogue tabs, and Sheets (Base, Inventory, Skills).
+    - Detailed Information: estimated tokens, voice, private visibility, rating, tags.
+    - Buttons: Explore Storyline, Edit Character, and Live View for a linked snapshot.
+    - The story page's cover card gets **View character** when a cast member is selected.
+  - **Like and Save** for storylines and characters (story page, character page), stored locally (`collections` in `chats.sqlite`). Chats → **Likes** and **Saved** list them; Saved also keeps saved messages. Comments and Following say they're social features this clone leaves out (ADR-1).
+  - **Music** (`/music`, was a dead sidebar link): every finished song from live chats, with filters (vocal / instrumental, latest / oldest), a player, lyrics and a link to the moment it scored.
+  - **Profile** (`/profile`, local only; the sidebar's Profile link): counts of chats, messages, your storylines, characters and personas, and AI spend; links to every settings page and library; your persona library with delete.
+  - Live: liked and saved a catalog story, opened Elara from its cast and liked her; Likes and Saved listed both; Music and Profile showed real data. Test likes removed afterwards.
+  - Not done: LLM reviews (optional), the Arcane Store and Notifications links (ADR-1), an editable profile name or avatar.
 - [ ] Visual QA pass against `docs/design-references/` at 1440, 768 and 390 widths.
 - [ ] Nightly `update:isekaizero` also refreshes codex, tool settings and media for already-imported stories.
 

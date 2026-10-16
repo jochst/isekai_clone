@@ -4,7 +4,7 @@ A local, single-user clone of **[isekaizero.ai](https://www.isekaizero.ai)**, th
 
 Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript (strict)**, **Tailwind CSS v4** and **SQLite**.
 
-The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0–6, as of PR #42.
+The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0–6 and 7a, as of PR #43.
 
 ---
 
@@ -202,6 +202,7 @@ Type **/** in the message box for the command palette (**Tab** completes), or **
 
 ### Imports
 - **Creator Centre** (`/creation`) writes your own characters (portrait, expressions, starting sheet; Generate portrait uses the subscription portrait model) and storylines, which link characters as versioned snapshots. Storylines hold: plot and AI prompts, openings, cast, cover and backgrounds, personas, codex, stats, game functions and default chat settings. Edit Story (story page, or Chat Settings mid-chat) changes apply from the next turn.
+- **Character pages** (`/characters/…`, from a story's cast or My Characters), **Like / Save** on stories and characters (Chats → Likes / Saved), **Music** (`/music`, every song from your chats) and **Profile** (`/profile`: your stats, personas and every settings page).
 - **Michiru** (Ask Michiru on creation pages, "Make one with Michiru" when picking a persona): say what you want ("a persona for this story", "a character based on Star Trek"); she asks a few refining questions with clickable answers, then shows a preview to Accept, Discard, or change by asking. Portraits and covers too.
 - **Voices** (`/creation/voices`) designs or clones ElevenLabs voices; give one to a character and it speaks their lines in Visual Novel mode and in `/audiobook` / `/drama`, which perform the latest reply as a cast script with sound effects. **Images** (`/creation/gallery`) shows every saved image and where it is used.
 - **The Import library** (`/imports`) adds personal character cards and stories from Isekai Zero, Chub, JanitorAI and anime.gf links, or from exported files. See [docs/IMPORTING.md](docs/IMPORTING.md).
@@ -260,6 +261,7 @@ Then go to **Settings → Providers → Voice (TTS) → Local / Kokoro**, base U
 | 6b | Character editor, My Characters, linking with versions, generated portraits and covers; guideline after history, no "You" as a name, codex writes moved to the keeper | Done (#40) |
 | 6c | Voices (ElevenLabs design and clone, a voice per character), /audiobook and /drama with sound effects, Images gallery | Done (#41) |
 | 6d | Michiru: a side-chat helper that asks refining questions, then builds personas, characters, stories and images | Done (#42) |
-| 7 | Remaining pages and visual polish | Next |
+| 7a | Character pages, Likes and Saved, Music library, Profile | Done (#43) |
+| 7b–7c | Visual QA at three widths; nightly refresh of imported stories | Next |
 
 Details, decisions and test results for each phase are in [ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md).

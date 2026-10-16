@@ -13,6 +13,7 @@ import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider
 import { cn } from "@/lib/utils";
 import type { ChatSummary } from "@/types/isekaizero";
 import type { SavedMessage } from "@/lib/chats/db";
+import { useCollections } from "@/lib/sites/isekaizero-ai-0e4f18da/collections";
 
 import { ConfirmDialog, GradientButton } from "./primitives";
 
@@ -66,6 +67,30 @@ function SavedMessages({ now }: { now: number }) {
       </div>
     </Link>
   ));
+}
+
+/** Liked or saved storylines and characters, as cards. */
+function Collected({ list }: { list: "likes" | "saved" }) {
+  const items = useCollections()?.filter((i) => i.list === list);
+  if (!items) return <div className="iz-skeleton h-[150px] rounded-[12px]" />;
+  if (!items.length)
+    return <p className="p-6 text-center text-[13px] text-white/55">{list === "likes" ? "Nothing liked yet: use Like on a storyline or character page." : "No saved storylines or characters yet."}</p>;
+  return (
+    <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
+      {items.map((i) => (
+        <Link key={`${i.kind}-${i.id}`} href={i.href} className="overflow-hidden rounded-[12px] border border-white/[0.08] bg-white/[0.04] hover:border-[#a7b9ff]">
+          <div className="flex aspect-[3/4] items-center justify-center bg-[#11123c] text-[28px] font-bold text-white/25">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {i.image ? <img src={i.image} alt="" referrerPolicy="no-referrer" className="h-full w-full object-cover object-top" /> : i.title.slice(0, 1)}
+          </div>
+          <div className="p-2">
+            <div className="truncate text-[13px] font-semibold">{i.title}</div>
+            <div className="text-[11px] text-white/45">{i.kind === "character" ? "Character" : "Storyline"}</div>
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
 }
 
 export function ChatsListPage() {
@@ -144,9 +169,15 @@ export function ChatsListPage() {
 
         <div className="mt-4 flex flex-col gap-[10px]">
           {tab === "Saved" ? (
-            <SavedMessages now={now} />
+            <>
+              <Collected list="saved" />
+              <h2 className="mt-2 text-[14px] font-bold text-white/80">Saved messages</h2>
+              <SavedMessages now={now} />
+            </>
+          ) : tab === "Likes" ? (
+            <Collected list="likes" />
           ) : tab !== "Activity" ? (
-            <p className="p-10 text-center text-[14px] text-white/60">Nothing here yet.</p>
+            <p className="p-10 text-center text-[14px] text-white/60">{tab} belong to the online site&apos;s social features, which this local clone leaves out.</p>
           ) : sessions === null ? (
             Array.from({ length: 3 }, (_, i) => <div key={i} className="iz-skeleton h-[84px] rounded-[14px]" />)
           ) : sessions.length === 0 ? (
