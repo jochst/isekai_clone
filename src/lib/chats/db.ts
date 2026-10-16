@@ -3,7 +3,7 @@ import "server-only";
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { BIN_DAYS, CONTINUE_SENTINEL, type ChatMemory, type ChatMessage, type ChatSession, type ChatSummary, type Persona, type StoryMedia } from "@/types/isekaizero";
+import { BIN_DAYS, CONTINUE_SENTINEL, type ChatMemory, type ChatMessage, type ChatSession, type ChatSummary, type Persona, type SceneMusic, type StoryMedia } from "@/types/isekaizero";
 import { emptyCodex, type CodexState } from "./codex";
 import type { Sheets } from "./dm";
 import type { ChatCast } from "./cast";
@@ -41,7 +41,8 @@ export function openChatDb(): DatabaseSync {
     CREATE TABLE IF NOT EXISTS personas (id TEXT PRIMARY KEY, body TEXT NOT NULL, updated INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS chat_cast (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS story_media (id TEXT PRIMARY KEY, storyline_id TEXT NOT NULL, body TEXT NOT NULL, created INTEGER NOT NULL);
-    CREATE INDEX IF NOT EXISTS story_media_by_story ON story_media (storyline_id, created);`);
+    CREATE INDEX IF NOT EXISTS story_media_by_story ON story_media (storyline_id, created);
+    CREATE TABLE IF NOT EXISTS collections (list TEXT NOT NULL, kind TEXT NOT NULL, id TEXT NOT NULL, body TEXT NOT NULL, created INTEGER NOT NULL, PRIMARY KEY (list, kind, id));`);
   // Bin and archive flags live outside `meta` so a client meta sync can't undo them.
   const columns = new Set(db.prepare("PRAGMA table_info(chats)").all().map((c) => String(c.name)));
   if (!columns.has("deleted")) db.exec("ALTER TABLE chats ADD COLUMN deleted INTEGER");
@@ -107,6 +108,45 @@ export interface SavedMessage {
   chatTitle: string;
   storylineId: string;
   message: ChatMessage;
+}
+
+/** A liked or saved storyline or character (Likes / Saved), with what its card shows. */
+export interface CollectionItem {
+  list: "likes" | "saved";
+  kind: "storyline" | "character";
+  id: string;
+  title: string;
+  image?: string;
+  href: string;
+  created: number;
+}
+
+export function listCollections(db: DatabaseSync): CollectionItem[] {
+  return db.prepare("SELECT list, kind, id, body, created FROM collections ORDER BY created DESC").all().map((r) => ({ ...(JSON.parse(String(r.body)) as Pick<CollectionItem, "title" | "image" | "href">), list: String(r.list) as CollectionItem["list"], kind: String(r.kind) as CollectionItem["kind"], id: String(r.id), created: Number(r.created) }));
+}
+
+export function setCollected(db: DatabaseSync, item: Omit<CollectionItem, "created">, on: boolean): void {
+  if (!on) {
+    db.prepare("DELETE FROM collections WHERE list = ? AND kind = ? AND id = ?").run(item.list, item.kind, item.id);
+    return;
+  }
+  db.prepare("INSERT INTO collections VALUES (?, ?, ?, ?, ?) ON CONFLICT DO UPDATE SET body = excluded.body").run(item.list, item.kind, item.id, JSON.stringify({ title: item.title, image: item.image, href: item.href }), Date.now());
+}
+
+export interface SongEntry {
+  chatId: string;
+  chatTitle: string;
+  messageId: string;
+  song: SceneMusic;
+}
+
+/** Every finished song in live chats (the Music library), newest first. */
+export function listSongs(db: DatabaseSync): SongEntry[] {
+  return db
+    .prepare("SELECT m.chat_id, m.id, c.meta, json_extract(m.body, '$.music') AS music FROM messages m JOIN chats c ON c.id = m.chat_id WHERE c.deleted IS NULL AND json_extract(m.body, '$.music') IS NOT NULL")
+    .all()
+    .flatMap((r) => (JSON.parse(String(r.music)) as SceneMusic[]).filter((song) => song.status === "done").map((song) => ({ chatId: String(r.chat_id), chatTitle: (JSON.parse(String(r.meta)) as ChatMeta).title, messageId: String(r.id), song })))
+    .sort((a, b) => b.song.createdAt - a.song.createdAt);
 }
 
 /** Bookmarked messages ("Save") across live chats, newest first. */

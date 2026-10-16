@@ -12,6 +12,7 @@ import {
   MessagesSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LikeSaveButtons } from "../shared/LikeSaveButtons";
 import type { Storyline } from "@/types/isekaizero";
 import { formatCountLower } from "../shared/format";
 import { CATEGORY_META, categoryIcon } from "../shared/category-meta";
@@ -83,6 +84,7 @@ export function StoryInfo({ storyline, className }: StoryInfoProps) {
 
   return (
     <div className={cn("text-white", className)}>
+      <LikeSaveButtons className="mt-[14px]" target={{ kind: "storyline", id, title: storyline.title, image: storyline.cover.imageUrl, href: `/storylines/${id}` }} />
       {/* Tags */}
       <div
         className={cn(

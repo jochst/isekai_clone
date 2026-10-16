@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   BookOpen,
@@ -74,6 +75,14 @@ export function CoverCard({ storyline, selectedIndex, onSelect, className }: Cov
           </button>
         </div>
 
+        {selected ? (
+          <Link
+            href={`/characters/${encodeURIComponent(selected.id)}?story=${encodeURIComponent(storyline.id)}`}
+            className="absolute bottom-[12px] left-[12px] z-10 flex h-[38px] items-center rounded-[19px] bg-black/55 px-4 text-[13px] font-semibold backdrop-blur hover:bg-black/70"
+          >
+            View character
+          </Link>
+        ) : null}
         <button
           type="button"
           aria-label="Next image"
