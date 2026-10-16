@@ -460,7 +460,20 @@ The gap: Default Chat Settings could only really use models from the site's buil
   - **Profile** (`/profile`, local only; the sidebar's Profile link): counts of chats, messages, your storylines, characters and personas, and AI spend; links to every settings page and library; your persona library with delete.
   - Live: liked and saved a catalog story, opened Elara from its cast and liked her; Likes and Saved listed both; Music and Profile showed real data. Test likes removed afterwards.
   - Not done: LLM reviews (optional), the Arcane Store and Notifications links (ADR-1), an editable profile name or avatar.
-- [ ] Visual QA pass against `docs/design-references/` at 1440, 768 and 390 widths.
+- [x] **7b: Visual QA pass** at 390, 768 and 1440 against `docs/design-references/` (real-site home and story captures). Every page was screenshotted and checked for sideways overflow: 17 pages at 390, 10 at 768 and 1440.
+  - No page scrolls sideways at any width; the flagged elements are intentional horizontal strips.
+  - Fixed:
+    - **Story page:**
+      - It opens full-bleed on mobile without the app header, like the site.
+      - Catalog stories now show their real stats row and creator banner. They were hidden because every catalog story carried an `imported` field and was labelled "Personal import · isekaizero"; the label now shows only for real personal imports.
+      - The start bar's Save / Like (beside Start Now, as on the site) now store to Likes / Saved; they were local toggles. 7a's extra pair in the info block was removed.
+      - "0 followers" is hidden.
+    - **Covers and portraits that are animated clips** (`…_thumb.mp4`) rendered as blank cards in the home hero and rows; they now play as muted looping video.
+    - **Character page on mobile:** the thumbnail strip stretched the column several screens wide.
+    - **Mobile header:** the bell overlapped the second currency pill.
+    - **Michiru's floating button** covered Save Storyline / Save Character on mobile; it now sits above the save bar and tab bar.
+    - Plot and character descriptions from HTML catalog cards are tidied (indentation and blank-line runs collapsed).
+  - Kept as is: the 768 layout is the mobile one (the site switches to the sidebar from 1024 up). In the editors on mobile, a strip of the form shows between the save bar and the floating tab bar.
 - [ ] Nightly `update:isekaizero` also refreshes codex, tool settings and media for already-imported stories.
 
 ## 6. Out of scope

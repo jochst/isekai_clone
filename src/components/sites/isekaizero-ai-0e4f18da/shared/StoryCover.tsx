@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { cn } from "@/lib/utils";
+import { isVideoUrl } from "@/lib/text";
 import type { Storyline } from "@/types/isekaizero";
 
 type CoverPattern = Storyline["cover"]["pattern"];
@@ -47,6 +48,10 @@ export interface StoryCoverProps {
  * a bottom vignette and an optional faded title watermark. Real cover art (imported or dev.db) replaces it.
  */
 export function StoryCover({ cover, title, className, mode = "portrait", watermark = true }: StoryCoverProps) {
+  if (cover.imageUrl && isVideoUrl(cover.imageUrl)) {
+    // Some catalog covers are short animated clips (…_thumb.mp4), which an <img> can't show.
+    return <video src={cover.imageUrl} autoPlay muted loop playsInline preload="metadata" aria-hidden className={cn("absolute inset-0 h-full w-full object-cover", className)} />;
+  }
   if (cover.imageUrl) {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={cover.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" className={cn("absolute inset-0 h-full w-full object-cover", className)} />;
