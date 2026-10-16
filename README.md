@@ -4,7 +4,7 @@ A local, single-user clone of **[isekaizero.ai](https://www.isekaizero.ai)**, th
 
 Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript (strict)**, **Tailwind CSS v4** and **SQLite**.
 
-The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0–6 and 7a, as of PR #43.
+The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0–6, 7a and 7b, as of PR #44.
 
 ---
 
@@ -262,6 +262,7 @@ Then go to **Settings → Providers → Voice (TTS) → Local / Kokoro**, base U
 | 6c | Voices (ElevenLabs design and clone, a voice per character), /audiobook and /drama with sound effects, Images gallery | Done (#41) |
 | 6d | Michiru: a side-chat helper that asks refining questions, then builds personas, characters, stories and images | Done (#42) |
 | 7a | Character pages, Likes and Saved, Music library, Profile | Done (#43) |
-| 7b–7c | Visual QA at three widths; nightly refresh of imported stories | Next |
+| 7b | Visual QA at 390 / 768 / 1440: story page parity, animated covers, mobile fixes | Done (#44) |
+| 7c | Nightly refresh of already-imported stories | Next |
 
 Details, decisions and test results for each phase are in [ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md).

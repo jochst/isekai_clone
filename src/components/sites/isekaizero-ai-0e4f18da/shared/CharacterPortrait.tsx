@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { isVideoUrl } from "@/lib/text";
 import type { Character } from "@/types/isekaizero";
 
 export interface CharacterPortraitProps {
@@ -22,6 +23,9 @@ function initials(name: string): string {
  * Fills its parent (`absolute inset-0`). Real portrait art (imported or dev.db) replaces it.
  */
 export function CharacterPortrait({ character, className, showName = false }: CharacterPortraitProps) {
+  if (character.imageUrl && isVideoUrl(character.imageUrl)) {
+    return <video src={character.imageUrl} autoPlay muted loop playsInline preload="metadata" aria-label={character.name} className={cn("absolute inset-0 h-full w-full object-cover", className)} />;
+  }
   if (character.imageUrl) {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={character.imageUrl} alt={character.name} loading="lazy" referrerPolicy="no-referrer" className={cn("absolute inset-0 h-full w-full object-cover", className)} />;

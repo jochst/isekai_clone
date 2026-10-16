@@ -20,6 +20,8 @@ export interface AppShellProps {
   arcane?: number;
   /** Draws the faint "V" crest behind the page content. */
   backdrop?: boolean;
+  /** Set false for pages that open full-bleed on mobile (the story page). */
+  mobileHeader?: boolean;
   className?: string;
 }
 
@@ -51,6 +53,7 @@ export function AppShell({
   mana = 0,
   arcane = 0,
   backdrop = false,
+  mobileHeader = true,
   className,
 }: AppShellProps) {
   const active = useActiveNav(activeProp);
@@ -63,7 +66,7 @@ export function AppShell({
       )}
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        {hasMobileChrome && <MobileHeader mana={mana} arcane={arcane} className="lg:hidden" />}
+        {hasMobileChrome && mobileHeader && <MobileHeader mana={mana} arcane={arcane} className="lg:hidden" />}
         {nav === "topbar" && (
           <TopBar active={active} mana={mana} arcane={arcane} className="hidden lg:flex" />
         )}

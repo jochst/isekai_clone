@@ -37,7 +37,7 @@ export function StorylinePage({ storyline, related }: StorylinePageProps) {
             <Link href={`/creation/storylines/${storyline.id}`} className="rounded-full border border-white/20 px-3 py-1 font-semibold hover:bg-white/10">Edit Story</Link>
           </div>
         ) : null}
-        {storyline.imported && storyline.imported.source !== "created" && <div className="order-1 mx-3 my-3 rounded-xl border border-white/15 bg-white/5 p-3 text-xs leading-5 lg:mx-0"><p>Personal import · {storyline.imported.source} · {storyline.imported.contentRating}</p><p>Original creator: {storyline.creator.handle}</p>{storyline.imported.sourceUrl && <a href={storyline.imported.sourceUrl} target="_blank" rel="noreferrer" className="text-indigo-200 underline">View original source</a>}{storyline.imported.warnings.map((warning, i) => <p key={i} className="mt-2 text-amber-200">{warning}</p>)}</div>}
+        {storyline.id.startsWith("import-") && storyline.imported && storyline.imported.source !== "created" && <div className="order-1 mx-3 my-3 rounded-xl border border-white/15 bg-white/5 p-3 text-xs leading-5 lg:mx-0"><p>Personal import · {storyline.imported.source} · {storyline.imported.contentRating}</p><p>Original creator: {storyline.creator.handle}</p>{storyline.imported.sourceUrl && <a href={storyline.imported.sourceUrl} target="_blank" rel="noreferrer" className="text-indigo-200 underline">View original source</a>}{storyline.imported.warnings.map((warning, i) => <p key={i} className="mt-2 text-amber-200">{warning}</p>)}</div>}
         <CoverCard
           storyline={storyline}
           selectedIndex={selectedIndex}

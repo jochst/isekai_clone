@@ -139,7 +139,7 @@ export function Michiru({ host, inline = false, label = "Ask Michiru" }: { host:
           "flex items-center gap-2 font-semibold",
           inline
             ? "h-10 justify-center rounded-[20px] border border-[rgba(167,185,255,0.4)] bg-[rgba(42,65,228,0.18)] px-4 text-[13px] hover:bg-[rgba(42,65,228,0.3)]"
-            : "fixed bottom-24 right-5 z-[40] h-12 rounded-[24px] bg-[linear-gradient(135deg,#7b5cff,#e05a9c)] px-5 text-[14px] text-white shadow-[0_8px_24px_rgba(0,0,0,0.45)] hover:brightness-110",
+            : "fixed bottom-[168px] right-4 z-[40] h-12 rounded-[24px] lg:bottom-24 lg:right-5 bg-[linear-gradient(135deg,#7b5cff,#e05a9c)] px-5 text-[14px] text-white shadow-[0_8px_24px_rgba(0,0,0,0.45)] hover:brightness-110",
         )}
       >
         <Sparkles size={16} /> {label}

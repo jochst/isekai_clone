@@ -21,7 +21,7 @@ export default async function StorylineRoute({ params }: Params) {
   const storyline = await findStoryline(id);
   if (!storyline) notFound();
   return (
-    <AppShell nav="topbar" backdrop>
+    <AppShell nav="topbar" backdrop mobileHeader={false}>
       <StorylinePage storyline={storyline} related={relatedCards(await listStoryCards(), id)} />
     </AppShell>
   );

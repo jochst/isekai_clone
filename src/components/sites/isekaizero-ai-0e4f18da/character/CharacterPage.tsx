@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Lock, Mic, Pencil, Play } from "lucide-react
 import Link from "next/link";
 import { useState } from "react";
 
+import { tidyText } from "@/lib/text";
 import { cn } from "@/lib/utils";
 import type { Character, CreatedCharacter, Storyline } from "@/types/isekaizero";
 
@@ -28,19 +29,17 @@ export function CharacterPage({ character: c, created, storyline }: { character:
     ...(c.exampleDialogue ? [{ key: "dialogue" as const, label: "Example Dialogue" }] : []),
   ];
   const [tab, setTab] = useState<Tab>("descriptions");
-  // Catalog cards are converted from HTML, which leaves indentation and runs of blank lines.
-  const text = (tab === "dialogue" ? c.exampleDialogue : tab === "prompt" ? c.persona : (userDescription ?? c.persona))
-    ?.replace(/[ \t]+/g, " ")
-    .replace(/ ?\n ?/g, "\n")
-    .replace(/\n{3,}/g, "\n\n");
+  const raw = tab === "dialogue" ? c.exampleDialogue : tab === "prompt" ? c.persona : (userDescription ?? c.persona);
+  const text = raw ? tidyText(raw) : "";
   const tokens = Math.ceil(`${c.persona}${c.appearance}${c.exampleDialogue ?? ""}`.length / 4);
   const rating = created?.contentRating ?? storyline?.imported?.contentRating;
   const href = `/characters/${encodeURIComponent(c.id)}${storyline ? `?story=${encodeURIComponent(storyline.id)}` : ""}`;
   const sheet = c.sheet;
 
   return (
-    <div className="mx-auto grid w-full max-w-[1100px] gap-6 p-4 text-white lg:grid-cols-[400px_1fr]">
-      <div>
+    <div className="mx-auto grid w-full max-w-[1100px] grid-cols-1 gap-6 p-4 text-white lg:grid-cols-[400px_1fr]">
+      {/* min-w-0: the thumbnail strip would otherwise widen the column past the screen */}
+      <div className="min-w-0">
         <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[16px] border border-white/10 bg-[rgba(200,200,220,0.15)]">
           {images.length ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -109,7 +108,7 @@ export function CharacterPage({ character: c, created, storyline }: { character:
               </button>
             ))}
           </div>
-          <p className="mt-3 whitespace-pre-wrap text-[14px] leading-6 text-white/85">{text?.trim() || "No description set."}</p>
+          <p className="mt-3 whitespace-pre-wrap text-[14px] leading-6 text-white/85">{text || "No description set."}</p>
           {c.appearance && tab === "descriptions" ? (
             <p className="mt-3 text-[13px] leading-5 text-white/60">
               <span className="font-semibold text-white/75">Appearance: </span>

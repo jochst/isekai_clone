@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Bookmark, Heart, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { setCollected, useCollections } from "@/lib/sites/isekaizero-ai-0e4f18da/collections";
 import type { Persona, Storyline } from "@/types/isekaizero";
 import { PersonaPicker } from "../persona/PersonaPicker";
 import { createChatSession } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
@@ -20,8 +21,12 @@ const ICON_BUTTON =
 /** Sticky (desktop) / fixed (mobile) bar with save + like toggles and the "Start Now" button + play modal. */
 export function StartBar({ storyline, className }: StartBarProps) {
   const router = useRouter();
-  const [saved, setSaved] = useState(false);
-  const [liked, setLiked] = useState(false);
+  const collected = useCollections();
+  const has = (list: "likes" | "saved") => !!collected?.some((i) => i.list === list && i.kind === "storyline" && i.id === storyline.id);
+  const saved = has("saved");
+  const liked = has("likes");
+  const toggle = (list: "likes" | "saved", on: boolean) =>
+    void setCollected({ list, kind: "storyline", id: storyline.id, title: storyline.title, image: storyline.cover.imageUrl, href: `/storylines/${storyline.id}` }, on).catch(() => setToast("Couldn't save that."));
   const [modalOpen, setModalOpen] = useState(false);
   // After "Play as Guest": "You are playing as..." (personaSetup.*).
   const [choosingPersona, setChoosingPersona] = useState(false);
@@ -68,7 +73,7 @@ export function StartBar({ storyline, className }: StartBarProps) {
           type="button"
           aria-label={saved ? "Remove bookmark" : "Bookmark"}
           aria-pressed={saved}
-          onClick={() => setSaved((v) => !v)}
+          onClick={() => toggle("saved", !saved)}
           className={cn(ICON_BUTTON, saved && "text-[rgb(255,168,168)]")}
         >
           <Bookmark size={22} fill={saved ? "currentColor" : "none"} aria-hidden="true" />
@@ -77,7 +82,7 @@ export function StartBar({ storyline, className }: StartBarProps) {
           type="button"
           aria-label={liked ? "Unlike" : "Like"}
           aria-pressed={liked}
-          onClick={() => setLiked((v) => !v)}
+          onClick={() => toggle("likes", !liked)}
           className={cn(ICON_BUTTON, liked && "text-[rgb(255,168,168)]")}
         >
           <Heart size={22} fill={liked ? "currentColor" : "none"} aria-hidden="true" />

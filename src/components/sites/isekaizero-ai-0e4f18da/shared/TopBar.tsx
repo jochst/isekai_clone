@@ -124,7 +124,7 @@ export function MobileHeader({ mana = 0, arcane = 0, className }: MobileHeaderPr
           className="h-[27px] w-[140px] object-contain"
         />
       </Link>
-      <div className="flex items-center">
+      <div className="flex items-center gap-[10px]">
         <BalancePills mana={mana} arcane={arcane} variant="crystal-right" />
         <button
           type="button"

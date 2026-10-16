@@ -5,6 +5,7 @@ import { ChevronUp, FlaskConical, Swords } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { StoryCardData, Storyline } from "@/types/isekaizero";
 import { StoryCard } from "../shared/StoryCard";
+import { tidyText } from "@/lib/text";
 import { formatCountLower } from "../shared/format";
 
 interface SectionProps {
@@ -65,7 +66,7 @@ export function DetailSections({ storyline, related, className }: DetailSections
 
         <div className="mt-[14px] whitespace-pre-wrap rounded-[12px] border border-[rgba(255,255,255,0.08)] bg-[rgba(0,0,0,0.25)] p-[16px] text-[14px] leading-[22px] text-[rgba(255,255,255,0.85)]">
           {tab === "plot"
-            ? plot
+            ? tidyText(plot)
             : scenarios.map((scenario, i) => (
                 <div key={scenario.title} className={cn(i > 0 && "mt-[14px]")}>
                   <div className="mb-[4px] font-bold">{scenario.title}</div>

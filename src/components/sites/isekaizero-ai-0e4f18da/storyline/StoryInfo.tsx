@@ -12,7 +12,6 @@ import {
   MessagesSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { LikeSaveButtons } from "../shared/LikeSaveButtons";
 import type { Storyline } from "@/types/isekaizero";
 import { formatCountLower } from "../shared/format";
 import { CATEGORY_META, categoryIcon } from "../shared/category-meta";
@@ -81,10 +80,11 @@ export function StoryInfo({ storyline, className }: StoryInfoProps) {
   const [following, setFollowing] = useState(false);
   const { category, tags, stats, creator, id } = storyline;
   const seed = hashString(id);
+  // Catalog stories (dev.db) carry real stats and creators; personal imports and your own stories don't.
+  const personal = id.startsWith("import-");
 
   return (
     <div className={cn("text-white", className)}>
-      <LikeSaveButtons className="mt-[14px]" target={{ kind: "storyline", id, title: storyline.title, image: storyline.cover.imageUrl, href: `/storylines/${id}` }} />
       {/* Tags */}
       <div
         className={cn(
@@ -120,7 +120,7 @@ export function StoryInfo({ storyline, className }: StoryInfoProps) {
       </div>
 
       {/* Stats */}
-      {!storyline.imported && <>
+      {!personal && <>
       <div className="mt-[14px] flex h-[52px] flex-row items-center justify-around border-y border-[rgba(255,255,255,0.08)]">
         <StatItem Icon={MessageCircle} size={18} value={stats.plays} label="plays" />
         <StatItem Icon={MessagesSquare} size={18} value={stats.chats} label="chats" />
@@ -136,8 +136,8 @@ export function StoryInfo({ storyline, className }: StoryInfoProps) {
         </span>
       </div>
 
-      {/* Reactions */}
-      <div className="mt-[8px] flex h-[40px] flex-row items-center justify-around">
+      {/* Reactions (made-up counts, so only on the demo stories) */}
+      {!storyline.imported && <div className="mt-[8px] flex h-[40px] flex-row items-center justify-around">
         {REACTIONS.map((emoji, i) => (
           <button key={emoji} type="button" className="flex flex-row items-center" aria-label={`React ${emoji}`}>
             <span className="text-[22px] leading-none">{emoji}</span>
@@ -146,7 +146,7 @@ export function StoryInfo({ storyline, className }: StoryInfoProps) {
             </span>
           </button>
         ))}
-      </div>
+      </div>}
 
       {/* Creator banner */}
       <div className="relative mt-[16px] flex h-[60px] flex-row items-center gap-[10px] overflow-hidden rounded-[12px] border border-[rgba(255,255,255,0.12)] bg-[linear-gradient(90deg,rgba(167,185,255,0.18),rgba(255,168,168,0.18))] px-[12px] py-[8px]">
@@ -162,7 +162,7 @@ export function StoryInfo({ storyline, className }: StoryInfoProps) {
             <span className="text-[14px] font-bold leading-[17px]">@{creator.handle}</span>
             <BadgeCheck size={16} className="shrink-0 text-[rgb(74,158,255)]" aria-hidden="true" />
             <span className="text-[12px] leading-[15px] text-[rgba(255,255,255,0.5)]">
-              {creator.followers.toLocaleString("en-US")} followers
+              {creator.followers > 0 ? `${creator.followers.toLocaleString("en-US")} followers` : ""}
             </span>
           </div>
           <p className="mt-[2px] overflow-hidden text-ellipsis whitespace-nowrap text-[12px] leading-[15px] text-[rgba(255,255,255,0.5)]">
