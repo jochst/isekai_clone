@@ -474,7 +474,12 @@ The gap: Default Chat Settings could only really use models from the site's buil
     - **Michiru's floating button** covered Save Storyline / Save Character on mobile; it now sits above the save bar and tab bar.
     - Plot and character descriptions from HTML catalog cards are tidied (indentation and blank-line runs collapsed).
   - Kept as is: the 768 layout is the mobile one (the site switches to the sidebar from 1024 up). In the editors on mobile, a strip of the form shows between the save bar and the floating tab bar.
-- [ ] Nightly `update:isekaizero` also refreshes codex, tool settings and media for already-imported stories.
+- [x] **7c: The nightly update refreshes stories it already has.**
+  - `import-isekaizero-stories.mjs --refresh-updated`, now passed by `update-isekaizero.mjs`, compares each listed story's `version` with the one stored in `dev.db`. When the author has edited it since, it re-fetches the story (codex, tool settings, media, first messages) and its cast, and the loader upserts them. Unchanged stories are still skipped, so a run costs one extra detail call per edited story.
+  - The manifest records new and refreshed counts separately.
+  - Checked on a copy of `dev.db`: one of the 10 newest stories had its stored version lowered. A 10-story run re-fetched exactly that one (the other three known stories were skipped, six new ones imported), and after loading, the copy held the current version (28).
+  - Not covered: personal imports in the Import library (re-import them there). Chats already playing a story see its update from the next turn, as with editing your own stories.
+- **Phase 7 complete.**
 
 ## 6. Out of scope
 Everything listed under ADR-1. Also: server deployment, accounts, multi-device sync, i18n beyond English, the sister site (`isekai.world`) import, and the live-streaming host.

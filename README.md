@@ -4,7 +4,7 @@ A local, single-user clone of **[isekaizero.ai](https://www.isekaizero.ai)**, th
 
 Built with **Next.js 16 (App Router)**, **React 19**, **TypeScript (strict)**, **Tailwind CSS v4** and **SQLite**.
 
-The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0–6, 7a and 7b, as of PR #44.
+The plan for the full clone, and why each decision was made, is in **[ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md)**. This README describes what works today: Phases 0–7 (the whole roadmap), as of PR #45.
 
 ---
 
@@ -62,7 +62,7 @@ Chats are kept separate from `dev.db` on purpose: `npm run db:restore` replaces 
   - It also shows the site's own daily "Trending Today in …" category rotation.
 - **All 21 of the site's categories** are mapped.
 - **Story pages show real cover and cast art.** Related stories come from the same category.
-- **Nightly update:** `npm run update:isekaizero` adds new stories. On Windows a Task Scheduler job can run `scripts\update-isekaizero.cmd` at midnight. New stories appear without restarting the app.
+- **Nightly update:** `npm run update:isekaizero` adds new stories and refreshes ones their authors have edited since (codex, tool settings, media, cast). On Windows a Task Scheduler job can run `scripts\update-isekaizero.cmd` at midnight. New stories appear without restarting the app.
 
 ### Playing a story
 - **Start a story** from its page with **Start Now → Play as Guest**, then pick who you play: one of the story's Recommended Characters, a persona from your library, a new persona (with an optional opening scene of its own), or yourself. Switch persona any time in Chat Settings → Persona; Chat Settings → Guidance holds your own Guidance Prompt and AI Output Reminder.
@@ -263,6 +263,6 @@ Then go to **Settings → Providers → Voice (TTS) → Local / Kokoro**, base U
 | 6d | Michiru: a side-chat helper that asks refining questions, then builds personas, characters, stories and images | Done (#42) |
 | 7a | Character pages, Likes and Saved, Music library, Profile | Done (#43) |
 | 7b | Visual QA at 390 / 768 / 1440: story page parity, animated covers, mobile fixes | Done (#44) |
-| 7c | Nightly refresh of already-imported stories | Next |
+| 7c | Nightly update also refreshes stories their authors edited | Done (#45) |
 
 Details, decisions and test results for each phase are in [ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md).

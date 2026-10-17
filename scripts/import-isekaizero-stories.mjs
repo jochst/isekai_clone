@@ -21,6 +21,9 @@ const limit = args.limit === undefined ? null : positiveInt(args.limit, 0);
 const includeNsfw = booleanArg(args.includeNsfw, false);
 const fetchCharacterDetails = !booleanArg(args.skipCharacterDetails, false);
 const sortType = String(args.sortType ?? "publishedAt");
+// Stories already in the database are fetched again when the listing shows a newer version (codex, tool settings,
+// media and cast edits by the author), not only brand-new stories.
+const refreshUpdated = booleanArg(args.refreshUpdated, false);
 
 const paths = {
   storylines: join(outputDir, "storylines.jsonl"),
@@ -32,12 +35,17 @@ mkdirSync(outputDir, { recursive: true });
 
 const importedStoryIds = await readJsonlIds(paths.storylines, "id");
 const importedStoryCharacterIds = await readJsonlIds(paths.storyCharacters, "id");
+/** Story id → the version stored in the database (for --refresh-updated). */
+const knownVersions = new Map();
 
 // Stories already in SQLite count as imported, so incremental runs only fetch details for new ones.
 if (args.knownDatabaseUrl) {
   const { default: Database } = await import("better-sqlite3");
   const known = new Database(String(args.knownDatabaseUrl).replace(/^file:/, ""), { readonly: true, fileMustExist: true });
-  for (const { id } of known.prepare("SELECT id FROM Story").iterate()) importedStoryIds.add(id);
+  for (const { id, version } of known.prepare("SELECT id, json_extract(rawJson, '$.version') AS version FROM Story").iterate()) {
+    importedStoryIds.add(id);
+    if (version !== null) knownVersions.set(id, Number(version));
+  }
   for (const { id } of known.prepare("SELECT id FROM StoryCharacter").iterate()) importedStoryCharacterIds.add(id);
   known.close();
 }
@@ -49,6 +57,7 @@ let page = 1;
 let scanned = 0;
 let importedStories = 0;
 let importedStoryCharacters = 0;
+let refreshedStories = 0;
 let totalCount = null;
 const startedAt = new Date().toISOString();
 
@@ -75,7 +84,8 @@ try {
 
       scanned += 1;
       const storyId = summary?._id;
-      if (!storyId || importedStoryIds.has(storyId)) {
+      const refresh = Boolean(storyId) && isUpdated(storyId, summary?.version);
+      if (!storyId || (importedStoryIds.has(storyId) && !refresh)) {
         continue;
       }
 
@@ -87,7 +97,9 @@ try {
 
       writeJsonl(storylineStream, normalizeStoryline(story, summary));
       importedStoryIds.add(storyId);
-      importedStories += 1;
+      knownVersions.delete(storyId); // fetched once per run
+      if (refresh) refreshedStories += 1;
+      else importedStories += 1;
 
       const characters = Array.isArray(story.characterSnapshots) ? story.characterSnapshots : [];
       for (const character of characters) {
@@ -97,7 +109,7 @@ try {
         }
 
         const id = `${storyId}:${characterId}`;
-        if (importedStoryCharacterIds.has(id)) {
+        if (importedStoryCharacterIds.has(id) && !refresh) {
           continue;
         }
 
@@ -120,7 +132,7 @@ try {
 
       writeManifest();
       console.log(
-        `Imported ${importedStories} stories, ${importedStoryCharacters} story characters (${scanned}/${totalCount ?? "?"} scanned)`,
+        `Imported ${importedStories} new and ${refreshedStories} updated stories, ${importedStoryCharacters} story characters (${scanned}/${totalCount ?? "?"} scanned)`,
       );
     }
 
@@ -293,6 +305,7 @@ function writeManifest(finishedAt = null) {
         totalCount,
         scanned,
         importedStories,
+        refreshedStories,
         importedStoryCharacters,
         files: {
           storylines: paths.storylines,
@@ -305,12 +318,20 @@ function writeManifest(finishedAt = null) {
           includeNsfw,
           fetchCharacterDetails,
           sortType,
+          refreshUpdated,
         },
       },
       null,
       2,
     )}\n`,
   );
+}
+
+/** A story we have, whose listing shows a newer version than the stored one. */
+function isUpdated(storyId, listedVersion) {
+  if (!refreshUpdated || !knownVersions.has(storyId)) return false;
+  const version = Number(listedVersion);
+  return Number.isFinite(version) && version > knownVersions.get(storyId);
 }
 
 function names(values) {

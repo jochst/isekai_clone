@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-// Incremental update: fetch Isekai Zero stories that aren't in dev.db yet and load them.
+// Incremental update: fetch Isekai Zero stories that aren't in dev.db yet, and stories whose author edited them
+// since (a newer version in the listing: codex, tool settings, media, cast), and load them.
 // The running app sees the new ImportRun and refreshes Explore on its own, so no restart is needed.
 // Scheduled nightly by scripts/update-isekaizero.cmd (Windows Task Scheduler).
 
@@ -19,7 +20,8 @@ rmSync(dir, { recursive: true, force: true });
 mkdirSync(dir, { recursive: true });
 
 console.log(`[${new Date().toISOString()}] Updating ${databaseUrl}`);
-const imported = run("scripts/import-isekaizero-stories.mjs", "--output-dir", dir, "--known-database-url", databaseUrl);
+// --refresh-updated: stories the author edited since we stored them (newer version) are fetched again too.
+const imported = run("scripts/import-isekaizero-stories.mjs", "--output-dir", dir, "--known-database-url", databaseUrl, "--refresh-updated");
 // Load even after a failed import: rows fetched before the failure are complete and worth keeping.
 const loaded = run(
   "scripts/load-isekaizero-into-sqlite.mjs",
