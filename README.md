@@ -206,6 +206,7 @@ Type **/** in the message box for the command palette (**Tab** completes), or **
 - **Michiru** (Ask Michiru on creation pages, "Make one with Michiru" when picking a persona): say what you want ("a persona for this story", "a character based on Star Trek"); she asks a few refining questions with clickable answers, then shows a preview to Accept, Discard, or change by asking. Portraits and covers too.
 - **Voices** (`/creation/voices`) designs or clones ElevenLabs voices; give one to a character and it speaks their lines in Visual Novel mode and in `/audiobook` / `/drama`, which perform the latest reply as a cast script with sound effects. **Images** (`/creation/gallery`) shows every saved image and where it is used.
 - **The Import library** (`/imports`) adds personal character cards and stories from Isekai Zero, Chub, JanitorAI and anime.gf links, or from exported files. See [docs/IMPORTING.md](docs/IMPORTING.md).
+- **Use it away from home:** `npm run serve` plus a Cloudflare Tunnel and Cloudflare Access put the app at your own domain behind a login, with everything still running on this PC. See [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ---
 
