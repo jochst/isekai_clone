@@ -1,11 +1,17 @@
+import { isLocalHost, publicHosts } from "@/lib/access";
 import { MAX_IMPORT_BYTES } from "./cards";
 
 export function guardImportRequest(request: Request, mutation = false): void {
   const url = new URL(request.url);
   // Next's internal request URL can use localhost when the browser used 127.0.0.1.
   // Host is the browser-facing authority; validate it before checking Origin.
-  const browserUrl = new URL(`${url.protocol}//${request.headers.get("host") || url.host}`);
-  if (!["localhost", "127.0.0.1", "[::1]"].includes(browserUrl.hostname)) throw new Error("The personal import API is available on localhost only.");
+  const host = request.headers.get("host") || url.host;
+  const local = isLocalHost(new URL(`http://${host}`).hostname);
+  // Through the Cloudflare Tunnel the app sees http while the browser used https (X-Forwarded-Proto).
+  const protocol = local ? url.protocol : `${request.headers.get("x-forwarded-proto") || url.protocol.replace(":", "")}:`;
+  const browserUrl = new URL(`${protocol}//${host}`);
+  // Public hostnames are only reachable after src/proxy.ts checked the Cloudflare Access login.
+  if (!local && !publicHosts().includes(browserUrl.hostname)) throw new Error("The personal import API is available on localhost only.");
   if (mutation) {
     const origin = request.headers.get("origin");
     if ((origin && origin !== browserUrl.origin) || request.headers.get("sec-fetch-site") === "cross-site") throw new Error("Cross-site import requests are not allowed.");
