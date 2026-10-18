@@ -62,7 +62,7 @@ Chats are kept separate from `dev.db` on purpose: `npm run db:restore` replaces 
   - It also shows the site's own daily "Trending Today in …" category rotation.
 - **All 21 of the site's categories** are mapped.
 - **Story pages show real cover and cast art.** Related stories come from the same category.
-- **Nightly update:** `npm run update:isekaizero` adds new stories and refreshes ones their authors have edited since (codex, tool settings, media, cast). On Windows a Task Scheduler job can run `scripts\update-isekaizero.cmd` at midnight. New stories appear without restarting the app.
+- **Nightly update:** `npm run update:isekaizero` adds new stories and refreshes ones their authors have edited since (codex, tool settings, media, cast). On Windows a Task Scheduler job can run `scripts\update-isekaizero.cmd` at midnight. New stories appear without restarting the app. Only English stories are imported; stories in other languages are skipped (and remembered in `data/isekaizero/other-language-ids.json` so they aren't checked again). `node scripts/remove-non-english-stories.mjs` removed the ones already in the catalog (backing up `dev.db` first, keeping any story you have a chat in or liked/saved).
 
 ### Playing a story
 - **Start a story** from its page with **Start Now → Play as Guest**, then pick who you play: one of the story's Recommended Characters, a persona from your library, a new persona (with an optional opening scene of its own), or yourself. Switch persona any time in Chat Settings → Persona; Chat Settings → Guidance holds your own Guidance Prompt and AI Output Reminder.
