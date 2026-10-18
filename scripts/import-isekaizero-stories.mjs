@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { createReadStream, createWriteStream, existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { createReadStream, createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { createInterface } from "node:readline/promises";
 import { setTimeout as sleep } from "node:timers/promises";
@@ -24,6 +24,12 @@ const sortType = String(args.sortType ?? "publishedAt");
 // Stories already in the database are fetched again when the listing shows a newer version (codex, tool settings,
 // media and cast edits by the author), not only brand-new stories.
 const refreshUpdated = booleanArg(args.refreshUpdated, false);
+// --languages en: only stories written in these languages are imported (the listing doesn't say, so it's checked on
+// the story's details). Stories with no language recorded are kept.
+const languages = args.languages ? new Set(String(args.languages).split(",").map((l) => l.trim()).filter(Boolean)) : null;
+// --skip-file: ids of stories known to be in other languages, kept across runs so they aren't looked up every night.
+const skipFile = args.skipFile ? resolve(String(args.skipFile)) : null;
+const skippedIds = new Set(skipFile && existsSync(skipFile) ? JSON.parse(readFileSync(skipFile, "utf8")) : []);
 
 const paths = {
   storylines: join(outputDir, "storylines.jsonl"),
@@ -35,6 +41,7 @@ mkdirSync(outputDir, { recursive: true });
 
 const importedStoryIds = await readJsonlIds(paths.storylines, "id");
 const importedStoryCharacterIds = await readJsonlIds(paths.storyCharacters, "id");
+for (const id of skippedIds) importedStoryIds.add(id);
 /** Story id → the version stored in the database (for --refresh-updated). */
 const knownVersions = new Map();
 
@@ -58,6 +65,7 @@ let scanned = 0;
 let importedStories = 0;
 let importedStoryCharacters = 0;
 let refreshedStories = 0;
+let skippedLanguage = 0;
 let totalCount = null;
 const startedAt = new Date().toISOString();
 
@@ -93,6 +101,12 @@ try {
       const story = detail?.data;
       if (!story?._id) {
         throw new Error(`Missing storyline detail for ${storyId}`);
+      }
+      if (languages && story.languageCode && !languages.has(story.languageCode)) {
+        importedStoryIds.add(storyId); // don't look at it again this run
+        skippedIds.add(storyId);
+        skippedLanguage += 1;
+        continue;
       }
 
       writeJsonl(storylineStream, normalizeStoryline(story, summary));
@@ -132,7 +146,7 @@ try {
 
       writeManifest();
       console.log(
-        `Imported ${importedStories} new and ${refreshedStories} updated stories, ${importedStoryCharacters} story characters (${scanned}/${totalCount ?? "?"} scanned)`,
+        `Imported ${importedStories} new and ${refreshedStories} updated stories, ${importedStoryCharacters} story characters, skipped ${skippedLanguage} in other languages (${scanned}/${totalCount ?? "?"} scanned)`,
       );
     }
 
@@ -140,6 +154,7 @@ try {
   }
 } finally {
   writeManifest(new Date().toISOString());
+  if (skipFile && skippedLanguage > 0) writeFileSync(skipFile, JSON.stringify([...skippedIds]));
   await closeStream(storylineStream);
   await closeStream(storyCharacterStream);
 }
@@ -306,6 +321,7 @@ function writeManifest(finishedAt = null) {
         scanned,
         importedStories,
         refreshedStories,
+        skippedLanguage,
         importedStoryCharacters,
         files: {
           storylines: paths.storylines,
@@ -319,6 +335,7 @@ function writeManifest(finishedAt = null) {
           fetchCharacterDetails,
           sortType,
           refreshUpdated,
+          languages: languages ? [...languages] : null,
         },
       },
       null,

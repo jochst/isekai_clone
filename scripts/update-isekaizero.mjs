@@ -21,7 +21,8 @@ mkdirSync(dir, { recursive: true });
 
 console.log(`[${new Date().toISOString()}] Updating ${databaseUrl}`);
 // --refresh-updated: stories the author edited since we stored them (newer version) are fetched again too.
-const imported = run("scripts/import-isekaizero-stories.mjs", "--output-dir", dir, "--known-database-url", databaseUrl, "--refresh-updated");
+// --languages en: English stories only (non-English ones were removed with scripts/remove-non-english-stories.mjs).
+const imported = run("scripts/import-isekaizero-stories.mjs", "--output-dir", dir, "--known-database-url", databaseUrl, "--refresh-updated", "--languages", "en", "--skip-file", "data/isekaizero/other-language-ids.json");
 // Load even after a failed import: rows fetched before the failure are complete and worth keeping.
 const loaded = run(
   "scripts/load-isekaizero-into-sqlite.mjs",
