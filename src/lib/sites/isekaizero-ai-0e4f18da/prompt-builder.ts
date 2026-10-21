@@ -17,6 +17,7 @@ import { CAST_TOOL_NAMES } from "@/lib/chats/cast";
 
 export { CONTINUE_SENTINEL } from "@/types/isekaizero";
 import { CONTINUE_SENTINEL } from "@/types/isekaizero";
+import { inlineImagesAsText } from "@/lib/text";
 
 export const TEMPERATURE_MAP: Record<ChatSettings["temperature"], number> = { low: 0.5, medium: 0.9, high: 1.1, max: 1.3 };
 export const MAX_TOKENS_MAP: Record<ChatSettings["responseLength"], number> = { short: 220, medium: 450, long: 800 };
@@ -502,7 +503,8 @@ export function toApiMessages(systemPrompt: string, messages: ChatMessage[], pos
   const history = messages
     .filter((m) => m.role !== "system" && m.content.trim().length > 0)
     .map<ApiMessage>((m) => {
-      let content = m.content;
+      // Inline images (HTML in story openings) reach the model as a short note, not markup it might copy.
+      let content = inlineImagesAsText(m.content);
       if (m.role === "user" && userInputReminder.trim()) {
         // Labelled so the model follows it silently (DeepSeek echoed a bare "[Reminder: …]" into the story).
         content = `${content}\n\n[Reminder for the AI; follow it, never repeat or mention it in the reply: ${userInputReminder.trim()}]`;
