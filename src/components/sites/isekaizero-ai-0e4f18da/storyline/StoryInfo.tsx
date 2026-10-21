@@ -15,6 +15,8 @@ import { cn } from "@/lib/utils";
 import type { Storyline } from "@/types/isekaizero";
 import { formatCountLower } from "../shared/format";
 import { CATEGORY_META, categoryIcon } from "../shared/category-meta";
+import { RatingPill } from "../shared/StoryCard";
+import { ratingOf } from "@/lib/rating";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -60,9 +62,12 @@ export function TitleBlock({ storyline, className }: TitleBlockProps) {
         {title}
       </h1>
       <p className="text-[14px] leading-[19px] text-[rgb(240,245,255)]">{tagline}</p>
-      <p className="mt-[8px] text-[12px] leading-[15px] text-[rgb(138,146,176)] opacity-70">
-        Published {formatDayMonthYear(publishedAt)} | Updated {formatDayMonthYear(updatedAt)} (v{version})
-      </p>
+      <div className="mt-[8px] flex flex-wrap items-center gap-2">
+        <RatingPill rating={ratingOf(storyline)} />
+        <p className="text-[12px] leading-[15px] text-[rgb(138,146,176)] opacity-70">
+          Published {formatDayMonthYear(publishedAt)} | Updated {formatDayMonthYear(updatedAt)} (v{version})
+        </p>
+      </div>
     </div>
   );
 }

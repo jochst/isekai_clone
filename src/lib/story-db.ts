@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { cache } from "react";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient, type Prisma } from "@prisma/client";
+import { contentRating } from "@/lib/rating";
 import { categories, normalizeImport, plainText, safeImageUrl, storyImages } from "@/lib/imports/cards";
 import { record, strings } from "@/lib/imports/types";
 import type { StoryCardData, Storyline } from "@/types/isekaizero";
@@ -21,7 +22,7 @@ function db(): PrismaClient | null {
 }
 
 const cardSelect = {
-  id: true, title: true, plotSummary: true, category: true, tagsJson: true, creatorUsername: true, contentRating: true,
+  id: true, title: true, plotSummary: true, category: true, tagsJson: true, creatorUsername: true, contentRating: true, nsfw: true,
   visibility: true, visualNovelReady: true, dmV2Ready: true, coverJson: true, engagementJson: true, publishedAt: true, importedAt: true,
 } satisfies Prisma.StorySelect;
 
@@ -36,14 +37,15 @@ function engagementStats(value: unknown): Storyline["stats"] {
 /** Maps only the small columns; `rawJson` (up to several MB per story) is never read for cards. */
 export function toStoryCard(row: StoryCardRow): StoryCardData {
   const summary = plainText(row.plotSummary).slice(0, 300);
-  const sfw = row.contentRating === "sfw";
+  const rating = contentRating(row.contentRating, row.nsfw);
+  const sfw = rating === "sfw";
   return {
     id: row.id, title: row.title, tagline: summary, description: summary,
     category: categories.find(c => c === row.category) ?? "fantasy",
     tags: strings(row.tagsJson),
     creator: { handle: row.creatorUsername || "Unknown creator", bio: "", followers: 0, gradient: ["#423a70", "#182441"] },
     stats: engagementStats(row.engagementJson),
-    flags: { public: row.visibility === "public", sfw, mature: !sfw, monetized: false, featured: false, visualNovelReady: row.visualNovelReady, dungeonMind: row.dmV2Ready },
+    flags: { public: row.visibility === "public", sfw, mature: !sfw, monetized: false, featured: false, visualNovelReady: row.visualNovelReady, dungeonMind: row.dmV2Ready, rating },
     publishedAt: (row.publishedAt ?? row.importedAt).toISOString(),
     cover: { gradient: ["#423a70", "#233354", "#09172e"], glyph: "✧", pattern: "stars", imageUrl: safeImageUrl(record(row.coverJson).url) },
     imported: { kind: "story" },
@@ -82,3 +84,25 @@ export const getDbStoryline = cache(async (id: string): Promise<Storyline | unde
   const characters = storyline.characters.map((c) => ({ ...c, images: imagesById.get(c.id) ?? [] }));
   return { ...storyline, characters, id: card.id, category: card.category, stats: card.stats, flags: card.flags, publishedAt: card.publishedAt };
 });
+
+/**
+ * Ids of catalog stories whose title, summary or full description contains `query` (case-insensitive). Explore
+ * filters titles and summaries itself; the full descriptions (~40 MB) stay here, and a scan takes about 100 ms.
+ */
+export async function searchStoryIds(query: string, limit = 3000): Promise<string[]> {
+  const q = query.trim();
+  const client = db();
+  if (!client || q.length < 2) return [];
+  const rows = await client.story.findMany({
+    where: { OR: [{ title: { contains: q } }, { plotSummary: { contains: q } }, { plot: { contains: q } }] },
+    select: { id: true },
+    take: limit,
+  });
+  return rows.map((r) => r.id);
+}
+
+/** A catalog story's raw Isekai Zero JSON (several MB for big stories), for the few readers that need more than the card. */
+export async function getDbStoryRaw(id: string): Promise<unknown> {
+  if (!/^[a-f0-9]{24}$/.test(id)) return undefined;
+  return (await db()?.story.findUnique({ where: { id }, select: { rawJson: true } }))?.rawJson ?? undefined;
+}

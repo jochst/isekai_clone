@@ -17,6 +17,7 @@ import { CAST_TOOL_NAMES } from "@/lib/chats/cast";
 
 export { CONTINUE_SENTINEL } from "@/types/isekaizero";
 import { CONTINUE_SENTINEL } from "@/types/isekaizero";
+import { imgAttr, inlineImagesAsText, markdownImagesToHtml } from "@/lib/text";
 
 export const TEMPERATURE_MAP: Record<ChatSettings["temperature"], number> = { low: 0.5, medium: 0.9, high: 1.1, max: 1.3 };
 export const MAX_TOKENS_MAP: Record<ChatSettings["responseLength"], number> = { short: 220, medium: 450, long: 800 };
@@ -224,7 +225,8 @@ interface SceneParts {
 
 function sceneParts(storyline: Storyline, lastMessages: ChatMessage[], perspective: ChatSettings["illustrationPerspective"]): SceneParts {
   const lastAssistant = [...lastMessages].reverse().find((m) => m.role === "assistant" && m.content.trim());
-  const text = (lastAssistant?.content ?? storyline.opening).replace(/\s+/g, " ").trim();
+  // Openings embed HTML (inline images, styled boxes): the image model only needs the words.
+  const text = inlineImagesAsText(lastAssistant?.content ?? storyline.opening, () => "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   // Cut at the last full sentence inside the limit, so the prompt never ends mid-sentence ("She .").
   const clipped = text.slice(0, 600);
   const end = [...clipped.matchAll(/[.!?]["”’]?(?=\s)/g)].at(-1);
@@ -275,23 +277,43 @@ const MAX_CAST_REFERENCES = 3;
 
 /**
  * Reference images for an illustration (Isekai Zero "chains from the last generated image"): the latest earlier
- * illustration in the chat, for continuity of place and outfits, then the art of each cast member named in the
- * reply, so they look like themselves. `note` tells the model which image is which.
+ * illustration in the chat, for continuity of place and outfits. The first illustration has none, so it starts from
+ * the creator's own art instead: the illustration or background the Media Picker chose for this moment, a picture
+ * written into the message, or at least the story's cover, so it matches the story's look rather than starting blank.
+ * Then the art of each cast member on stage (their picked expression) or named in the reply, so they look like
+ * themselves. `note` tells the model which image is which.
  */
 export function illustrationReferences(storyline: Storyline, messages: ChatMessage[], index: number): { urls: string[]; note: string } {
-  const previous = messages
-    .slice(0, index + 1)
+  const upTo = messages.slice(0, index + 1);
+  const previous = upTo
     .flatMap((m) => m.images ?? [])
     .filter((img) => img.status === "done" && REFERENCE_URL.test(img.url))
     .at(-1)?.url;
-  const cast = presentCharacters(storyline, messages[index]?.content ?? "")
-    .map((c) => ({ name: c.name, url: looks(c)[0]?.url ?? "" }))
+  const scene = upTo.findLast((m) => m.scene)?.scene;
+  const content = messages[index]?.content ?? "";
+  const inline = imgAttr(/<img\b[^>]*>/i.exec(markdownImagesToHtml(content))?.[0] ?? "", "src");
+  const style = "match its setting, palette and art style";
+  const start = previous
+    ? { url: previous, label: "the previous scene (keep the setting, lighting and outfits consistent)" }
+    : [
+        { url: scene?.illustration?.url, label: `the story's own illustration of this moment (${style})` },
+        { url: scene?.background?.url, label: `the story's background for this place (${style})` },
+        { url: inline, label: `the story's own picture of this scene (${style})` },
+        { url: storyline.cover.imageUrl, label: "the story's cover art (match its art style)" },
+      ].find((a): a is { url: string; label: string } => Boolean(a.url && REFERENCE_URL.test(a.url)));
+  const onStage = scene?.characters ?? [];
+  const names = [...new Set([...onStage.map((c) => c.name), ...presentCharacters(storyline, content).map((c) => c.name)])];
+  const cast = names
+    .map((name) => {
+      const c = storyline.characters.find((x) => x.name === name);
+      return { name, url: onStage.find((x) => x.name === name)?.image.url ?? (c ? looks(c)[0]?.url : undefined) ?? "" };
+    })
     .filter((c) => REFERENCE_URL.test(c.url))
     .slice(0, MAX_CAST_REFERENCES);
-  const labels = [...(previous ? ["the previous scene (keep the setting, lighting and outfits consistent)"] : []), ...cast.map((c) => c.name)];
+  const labels = [...(start ? [start.label] : []), ...cast.map((c) => c.name)];
   return {
-    urls: [...(previous ? [previous] : []), ...cast.map((c) => c.url)],
-    note: labels.length > 0 ? `Reference images, in order: ${labels.map((l, i) => `${i + 1}. ${l}`).join("; ")}. Draw each named character to match their reference.` : "",
+    urls: [...(start ? [start.url] : []), ...cast.map((c) => c.url)],
+    note: labels.length > 0 ? `Reference images, in order: ${labels.map((l, i) => `${i + 1}. ${l}`).join("; ")}.${cast.length > 0 ? " Draw each named character to match their reference." : ""}` : "",
   };
 }
 
@@ -502,7 +524,8 @@ export function toApiMessages(systemPrompt: string, messages: ChatMessage[], pos
   const history = messages
     .filter((m) => m.role !== "system" && m.content.trim().length > 0)
     .map<ApiMessage>((m) => {
-      let content = m.content;
+      // Inline images (HTML in story openings) reach the model as a short note, not markup it might copy.
+      let content = inlineImagesAsText(m.content);
       if (m.role === "user" && userInputReminder.trim()) {
         // Labelled so the model follows it silently (DeepSeek echoed a bare "[Reminder: …]" into the story).
         content = `${content}\n\n[Reminder for the AI; follow it, never repeat or mention it in the reply: ${userInputReminder.trim()}]`;

@@ -4,6 +4,7 @@ import { Bookmark, ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, MoreH
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+import { imgAttr, normalizeMarkup } from "@/lib/text";
 import { generateSpeech, stopBrowserSpeech } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { estimateTokens } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
@@ -12,6 +13,7 @@ import type { ChatMessage, DiceRoll, StoryEnding } from "@/types/isekaizero";
 import { MessagePopover, type MessageAction } from "./MessagePopover";
 import { DIRECTION_BADGES } from "@/lib/chats/commands";
 import { SceneImage } from "./SceneImage";
+import { SceneCast, SceneIllustration } from "./SceneArt";
 import { SceneVideo } from "./SceneVideo";
 import { MangaPages, type MangaPageAction } from "./MangaPages";
 
@@ -43,6 +45,8 @@ export interface MessageBubbleProps {
   onOpenCast?: () => void;
   /** Actions removed from the menu (Honor mode: no edit, delete or branch). */
   lockedActions?: MessageAction[];
+  /** Adaptation options turned Narration off. */
+  hideNarrate?: boolean;
   onEdit: (content: string) => void;
   /** Swipes a retried reply to another version. */
   onSelectChoice: (index: number) => void;
@@ -77,15 +81,64 @@ function EndingCard({ ending }: { ending: StoryEnding }) {
 
 const CODEX_VERBS = { read: "📖 Read:", update: "✎ Updated:", create: "＋ New entry:", delete: "✕ Removed:" } as const;
 
-const TOKEN_RE = /(<tag>[\s\S]*?<\/tag>|\*\*[^*\n]+\*\*|\*[^*\n]+\*|"[^"\n]+"|“[^”\n]+”)/g;
+const TOKEN_RE = /(<img\b[^>]*>|<hr\b[^>]*>|<tag>[\s\S]*?<\/tag>|\*\*[^*\n]+\*\*|\*[^*\n]+\*|"[^"\n]+"|“[^”\n]+”)/g;
+
+/** Inline HTML that story authors write into openings (`<span style="color:gold"><b>Name:</b></span>`). */
+const PAIRED_TAG = /<(b|strong|i|em|u|s|span|font|h[1-6])\b([^>]*)>([\s\S]*?)<\/\1\s*>/i;
+/** Formatting tags left over without their partner, dropped rather than shown as code. */
+const STRAY_TAG = /<\/?(b|strong|i|em|u|s|span|font|h[1-6]|div)\b[^>]*>/gi;
+/** Author colors we draw: names, hex and rgb(a). Near-black ones would vanish on the dark chat, so they are skipped. */
+const SAFE_COLOR = /^(#[0-9a-f]{3,8}|[a-z]{3,20}|rgba?\(\s*[\d.\s,%]+\))$/i;
+const TOO_DARK = /^(black|#0{3,8}|#1{3}|#111111|rgba?\(\s*0\s*,\s*0\s*,\s*0\b.*)$/i;
+
+function authorColor(attrs: string): string | undefined {
+  const color = (/color\s*:\s*([^;"']+)/i.exec(attrs) ?? /\bcolor\s*=\s*["']([^"']+)["']/i.exec(attrs))?.[1]?.trim();
+  return color && SAFE_COLOR.test(color) && !TOO_DARK.test(color) ? color : undefined;
+}
 
 /**
- * Renders `<tag>scene tracker</tag>` lines, `**bold**`, `*thoughts and actions*` as italics and "dialogue",
- * each in its Chat colors variable (UI/UX settings) with the built-in look as the fallback.
+ * Renders story text: inline pictures (HTML `<img>` and Markdown `![alt](url)`, which openings embed), the inline HTML
+ * authors use (bold, italics, colored names, headings), `<tag>scene tracker</tag>` lines, `**bold**`,
+ * `*thoughts and actions*` as italics and "dialogue", each in its Chat colors variable (UI/UX settings) with the
+ * built-in look as the fallback.
  */
 export function renderRichText(text: string): ReactNode[] {
+  return renderMarkup(normalizeMarkup(text), "r");
+}
+
+function renderMarkup(text: string, key: string): ReactNode[] {
+  const match = PAIRED_TAG.exec(text);
+  if (!match) return renderTokens(text.replace(STRAY_TAG, ""), key);
+  const [whole, tag, attrs, inner] = match;
+  const children = renderMarkup(inner, `${key}.${match.index}`);
+  const name = tag.toLowerCase();
+  const k = `${key}.${match.index}t`;
+  let node: ReactNode;
+  if (name === "b" || name === "strong") node = <strong key={k} className="font-bold text-[color:var(--iz-bold,#fff)]">{children}</strong>;
+  else if (name === "i" || name === "em") node = <em key={k}>{children}</em>;
+  else if (name === "u") node = <u key={k}>{children}</u>;
+  else if (name === "s") node = <s key={k}>{children}</s>;
+  else if (name.startsWith("h")) node = <span key={k} className="block text-[1.12em] font-bold text-white">{children}</span>;
+  else {
+    const color = authorColor(attrs);
+    // The author's own color, only known at runtime.
+    node = color ? <span key={k} style={{ color }}>{children}</span> : <span key={k}>{children}</span>;
+  }
+  return [...renderTokens(text.slice(0, match.index).replace(STRAY_TAG, ""), `${key}b`), node, ...renderMarkup(text.slice(match.index + whole.length), `${key}a`)];
+}
+
+function renderTokens(text: string, key: string): ReactNode[] {
   const parts = text.split(TOKEN_RE);
-  return parts.map((part, i) => {
+  return parts.map((part, n) => {
+    const i = `${key}-${n}`;
+    if (/^<img\b/i.test(part)) {
+      const src = imgAttr(part, "src");
+      // Only web images and our own stored copies; anything else (javascript:, data:) is dropped.
+      if (!src || !/^(https?:\/\/|\/api\/media\/)/i.test(src)) return null;
+      // eslint-disable-next-line @next/next/no-img-element
+      return <img key={i} src={src} alt={imgAttr(part, "alt") ?? ""} loading="lazy" referrerPolicy="no-referrer" className="my-2 block h-auto max-h-[520px] w-auto max-w-full rounded-[12px]" />;
+    }
+    if (/^<hr\b/i.test(part)) return <span key={i} className="my-3 block h-px bg-white/15" />;
     if (part.startsWith("<tag>") && part.endsWith("</tag>")) {
       return (
         <span key={i} className="block font-mono text-[12px] leading-5 text-[color:var(--iz-tracker,#ffcf8a)]">
@@ -143,6 +196,7 @@ export function MessageBubble({
   onOpenSheets,
   onOpenCast,
   lockedActions = [],
+  hideNarrate,
   onRegenerateVideo,
   onCheckVideo,
   onEdit,
@@ -340,16 +394,20 @@ export function MessageBubble({
       {editing ? (
         editor
       ) : (
-        <p className="whitespace-pre-wrap break-words text-[length:var(--iz-chat-font,15px)] leading-[1.6] text-[color:var(--iz-narration,rgba(255,255,255,0.92))]">
-          {message.content ? renderRichText(message.content) : null}
-          {streaming ? (
-            <span className="iz-cursor-blink ml-[1px] text-[#a7b9ff]" aria-hidden>
-              ▍
-            </span>
-          ) : null}
-        </p>
+        <div className="flow-root">
+          {message.scene && !message.ooc ? <SceneCast scene={message.scene} /> : null}
+          <p className="whitespace-pre-wrap break-words text-[length:var(--iz-chat-font,15px)] leading-[1.6] text-[color:var(--iz-narration,rgba(255,255,255,0.92))]">
+            {message.content ? renderRichText(message.content) : null}
+            {streaming ? (
+              <span className="iz-cursor-blink ml-[1px] text-[#a7b9ff]" aria-hidden>
+                ▍
+              </span>
+            ) : null}
+          </p>
+        </div>
       )}
       {infoLine}
+      {message.scene?.illustration ? <SceneIllustration image={message.scene.illustration} /> : null}
 
       {message.images?.map((img) => (
         <SceneImage key={img.id} image={img} onRegenerate={() => onRegenerateImage(img.id)} onAnimate={() => onAnimateImage(img.id)} />
@@ -414,11 +472,14 @@ export function MessageBubble({
       {message.ending ? <EndingCard ending={message.ending} /> : null}
 
       <div className="mt-2 flex flex-wrap items-center gap-[6px] opacity-85">
-        <button type="button" onClick={onIllustrate} disabled={streaming} className={PILL}>
-          <ImageIcon size={14} /> Illustration
-        </button>
+        {lockedActions.includes("illustration") ? null : (
+          <button type="button" onClick={onIllustrate} disabled={streaming} className={PILL}>
+            <ImageIcon size={14} /> Illustration
+          </button>
+        )}
         <button
           type="button"
+          hidden={hideNarrate}
           onClick={toggleNarrate}
           disabled={streaming}
           className={cn(

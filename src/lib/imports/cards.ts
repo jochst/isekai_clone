@@ -3,6 +3,7 @@ import { inflateSync } from "node:zlib";
 import { load } from "cheerio";
 import type { Character, CharacterSheet, ChatSettings, CodexEntry, Persona, StatDef, StoryCategory, StoryImage, Storyline, ToolSetting } from "@/types/isekaizero";
 import { record, string, strings, type ImportedEntry, type ImportSource } from "./types";
+import { contentRating } from "@/lib/rating";
 
 export const MAX_IMPORT_BYTES = 20 * 1024 * 1024;
 const MAX_TEXT_BYTES = 4 * 1024 * 1024;
@@ -191,11 +192,12 @@ export function normalizeImport(raw: unknown, origin: { source?: ImportSource; u
     creator: { handle: string(d.creator || d.creatorUsername || record(d.user).username) || "Unknown creator", bio: plainText(record(d.user).bio), followers: 0, gradient: ["#423a70", "#182441"] },
     characters: cast.map(character), scenarios: [],
     stats: { plays: 0, chats: 0, likes: 0, saves: 0, comments: 0, gifts: 0 },
-    flags: { public: false, sfw: rating === "sfw", mature: rating !== "sfw", monetized: false, featured: false, visualNovelReady: false, dungeonMind: false },
+    flags: { public: false, sfw: rating === "sfw", mature: rating !== "sfw", monetized: false, featured: false, visualNovelReady: false, dungeonMind: false, rating: contentRating(rating) },
     publishedAt: string(d.publishedAt || d.createdAt) || now, updatedAt: now, version: 1,
     cover: { gradient: ["#423a70", "#233354", "#09172e"], glyph: kind === "story" ? "✧" : "✦", pattern: "stars", imageUrl: coverUrl },
     ...creatorPrompt(d),
     backgrounds: storyImages(d.media, "background"),
+    illustrations: storyImages(d.media, "illustration"),
     ...(storyCodex(d.codex).length > 0 ? { codex: storyCodex(d.codex) } : {}),
     ...gameRules(d),
     ...(storyPersonas(d).length > 0 ? { personas: storyPersonas(d) } : {}),
@@ -210,13 +212,14 @@ export function normalizeImport(raw: unknown, origin: { source?: ImportSource; u
 }
 
 /** Captioned images of one composition type from an Isekai Zero media list (story or character). */
-export function storyImages(media: unknown, composition: "background" | "foreground"): StoryImage[] {
+export function storyImages(media: unknown, composition: "background" | "foreground" | "illustration"): StoryImage[] {
   if (!Array.isArray(media)) return [];
   return media.flatMap((value) => {
     const m = record(value);
     const url = safeImageUrl(m.url);
-    if (m.type !== "image" || m.compositionType !== composition || m.hidden === true || !url) return [];
-    return [{ id: string(m._id) || url, url, caption: plainText(m.description).trim() }];
+    // Hidden media stays out of the creator's public gallery, but the chat AI may still use it.
+    if (m.type !== "image" || m.compositionType !== composition || !url) return [];
+    return [{ id: string(m._id) || url, url, caption: plainText(m.description).trim(), ...(m.showOnce === true ? { showOnce: true } : {}) }];
   });
 }
 

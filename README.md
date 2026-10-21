@@ -62,7 +62,10 @@ Chats are kept separate from `dev.db` on purpose: `npm run db:restore` replaces 
   - It also shows the site's own daily "Trending Today in …" category rotation.
 - **All 21 of the site's categories** are mapped.
 - **Story pages show real cover and cast art.** Related stories come from the same category.
-- **Nightly update:** `npm run update:isekaizero` adds new stories and refreshes ones their authors have edited since (codex, tool settings, media, cast). On Windows a Task Scheduler job can run `scripts\update-isekaizero.cmd` at midnight. It also pulls from [KageSekai](https://www.kagesekai.ai), Isekai Zero's 18+ sister site (the same stories plus ones the app stores don't allow); a story on both sites keeps the copy imported first. New stories appear without restarting the app. Only English stories are imported; stories in other languages are skipped (and remembered in `data/isekaizero/other-language-ids.json` so they aren't checked again). `node scripts/remove-non-english-stories.mjs` removed the ones already in the catalog (backing up `dev.db` first, keeping any story you have a chat in or liked/saved).
+- **Content ratings:** every story card and story page is tagged **SFW**, **M17** or **18+** (KageSekai's adult stories).
+- **Explore search and filters:** search (on Explore, or the top bar, which opens Explore with the words filled in) finds a word in titles, summaries, tags and creators at once, and in each story's full description from the server (`/api/storylines/search`). Best matches come first: titles, then summaries, then descriptions. **SFW / M17 / 18+** chips filter by rating (pick several); **Sort & Filter** adds Oldest and Title A–Z to Trending, Most Played, Most Liked and Newest; the count of matching stories shows beside the chips.
+- **Nightly update:** `npm run update:isekaizero` adds new stories and refreshes ones their authors have edited since (codex, tool settings, media, cast). On Windows a Task Scheduler job can run `scripts\update-isekaizero.cmd` at midnight. New stories appear without restarting the app.
+ Only English stories are imported; stories in other languages are skipped (and remembered in `data/isekaizero/other-language-ids.json` so they aren't checked again). `node scripts/remove-non-english-stories.mjs` removed the ones already in the catalog (backing up `dev.db` first, keeping any story you have a chat in or liked/saved).
 
 ### Playing a story
 - **Start a story** from its page with **Start Now → Play as Guest**, then pick who you play: one of the story's Recommended Characters, a persona from your library, a new persona (with an optional opening scene of its own), or yourself. Switch persona any time in Chat Settings → Persona; Chat Settings → Guidance holds your own Guidance Prompt and AI Output Reminder.
@@ -74,6 +77,15 @@ Chats are kept separate from `dev.db` on purpose: `npm run db:restore` replaces 
   - perspective, length, memory
 - **Message box:** send a turn, **Continue**, **Choose Your Destiny** (three suggested next moves), **Take Turn** (play as a cast member), **Erase** (take back the latest message) and **Stop** (keeps the text that already arrived).
 - **On each message:** **Retry** adds a new version of the reply; arrows (`‹ 1/2 ›`) swipe between versions. Edit, delete, branch (copies the chat up to that message), copy and **Save** (bookmark; listed on Chats → Saved) also work.
+- **Story art in the chat:** after each reply the **AI Media Picker** (Chat Settings → Overview, on by default; one small call to your story model) picks the story's art for that moment, as on Isekai Zero:
+  - the characters on stage in their matching expression, beside the text
+  - the creator's **illustration** when the story reaches its moment (event art such as a transformation; "show once" art appears once per chat)
+  - the background for the place, shown behind the chat
+  - Pictures authors write into their text show too: HTML `<img>` and Markdown `![alt](url)`, along with their colored names, bold and headings, and tracker lines such as `<t> DAY 1 | MORNING <t>`.
+  - **Hidden media:** art a creator kept out of the public listing ("the chat AI can still use it") is found by id, captioned once per story by `gemini-2.5-flash-lite` (about $0.00005 an image) and stored in `data/chats.sqlite`, so the picker can use it too.
+- **Chat Settings tabs:** **Overview** (model, context, protagonist, cast, AI Media Picker, guidance and the other chat settings), **History** (this story's chats), **Adaptation** and **Gallery**.
+  - **Adaptation → Auto-generate** picks what runs after each reply: Narration, Image Generation, Manga, Visual Novel, Music and Video. **Adaptation options** turns off the ones you never use, which also takes them off the message menu. Each adaptation's model and settings follow below.
+  - **Gallery:** the cast's images, backgrounds, the story's illustrations (locked until the story reaches them, with a found/total count) and the images this chat generated. Tap one to see it full size.
 - **Chat Settings → History** lists the story's chats and branches (sort, filter, rename, archive, delete, start new, export as JSON). Deleted chats stay 30 days in **Recently deleted** (`/chats/deleted`).
 - **UI/UX** (Chat Settings or Default Chat Settings): font size, background opacity, chat colours with presets, fade earlier messages while streaming, auto scroll, send on Enter, hide Destiny or the shortcut buttons.
 - **Story AI tools use Isekai Zero's real definitions** (`ai-tools.json`): `illustrate_scene`, `create_character` and `edit_character`.
@@ -127,7 +139,7 @@ Turns each reply into a scene: background, characters and text you tap through, 
 
 ### Images and video
 - **Illustrations:** the **Illustration** button on a reply draws the scene.
-  - Each illustration chains from the previous one (same place, lighting and outfits), and the art of the characters named in the reply is sent too, so they look like themselves. Set POV or 3rd Person in Chat Settings.
+  - Each illustration chains from the previous one (same place, lighting and outfits), and the art of the characters on stage or named in the reply is sent too, so they look like themselves. The first one starts from the story's own art instead: the illustration or background the Media Picker chose, a picture in the message, or the cover. Set POV or 3rd Person in Chat Settings.
   - With **Auto Illustrate** on, the story AI decides when to illustrate.
 - **Portraits:** when the story AI creates a character, a portrait is drawn with the **character portrait model**. On NanoGPT that defaults to `qwen-image` (included in the subscription; pick `chroma`, also included, for NSFW stories with adult characters); scene illustrations use your image model (default **Seedream 5.0 Pro**).
 - **Image size and cost:** models priced by size tier get the tier matching your image size. For Seedream 5.0 Pro, 1024 px is sent as `1k`, about $0.043 instead of $0.086.
@@ -265,5 +277,6 @@ Then go to **Settings → Providers → Voice (TTS) → Local / Kokoro**, base U
 | 7a | Character pages, Likes and Saved, Music library, Profile | Done (#43) |
 | 7b | Visual QA at 390 / 768 / 1440: story page parity, animated covers, mobile fixes | Done (#44) |
 | 7c | Nightly update also refreshes stories their authors edited | Done (#45) |
+| 8a | Story art in the chat (character expressions, illustrations, backgrounds, hidden media), Chat Settings tabs with Adaptation and Gallery, first illustrations from story art, SFW / M17 / 18+ tags, Explore filters and full-description search | This PR |
 
 Details, decisions and test results for each phase are in [ADR_NEXT_STEPS.md](ADR_NEXT_STEPS.md).

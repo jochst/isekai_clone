@@ -14,9 +14,11 @@ import { PersonaPicker } from "../persona/PersonaPicker";
 import { GAME_TOOLS } from "@/lib/sites/isekaizero-ai-0e4f18da/game-tools";
 import { UiSettingsPanel } from "../settings/UiSettingsPanel";
 import { HistoryPanel } from "./HistoryPanel";
+import { ChatGallery } from "./ChatGallery";
+import { looks } from "@/lib/chats/scene";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatSession, ChatSettings, Persona, ProviderSettings, ReasoningEffort, Storyline, VideoParamValue } from "@/types/isekaizero";
+import type { Adaptation, ChatSession, ChatSettings, Persona, ProviderSettings, ReasoningEffort, Storyline, VideoParamValue } from "@/types/isekaizero";
 import { characterVoice, narratorVoice, voicesFor } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 
 import { cn } from "@/lib/utils";
@@ -37,6 +39,15 @@ const REASONING_EFFORT_OPTIONS: { value: ReasoningEffort; label: string }[] = [
   { value: "medium", label: "Mid" },
   { value: "high", label: "High" },
   { value: "max", label: "Max" },
+];
+
+/** Isekai Zero's Chat Settings tabs (chatSettings.tabs.*). */
+type Tab = "overview" | "history" | "adaptation" | "gallery";
+const TABS: { value: Tab; label: string }[] = [
+  { value: "overview", label: "Overview" },
+  { value: "history", label: "History" },
+  { value: "adaptation", label: "Adaptation" },
+  { value: "gallery", label: "Gallery" },
 ];
 
 export interface ChatSettingsSheetProps {
@@ -60,6 +71,7 @@ export interface ChatSettingsSheetProps {
 }
 
 export function ChatSettingsSheet({ open, onClose, session, provider, model, context, onChange, onOpenMemory, onOpenCodex, onOpenSheets, onOpenCast, onPersonaChange, storyline }: ChatSettingsSheetProps) {
+  const [tab, setTab] = useState<Tab>("overview");
   const [switchingPersona, setSwitchingPersona] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const { settings } = session;
@@ -81,229 +93,312 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
   return (
     <>
       <SideSheet open={open} onClose={onClose} title="Chat Settings" subtitle="Customize your chat style with response length preferences">
-        {storyline.imported?.source === "created" ? (
-          <Link
-            href={`/creation/storylines/${storyline.id}?from=/chats/${session.id}`}
-            className="mb-3 flex h-10 items-center justify-center gap-2 rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold hover:bg-white/10"
-          >
-            Edit Story <span className="font-normal text-white/50">· changes apply from the next turn</span>
-          </Link>
-        ) : null}
-        <Link href={`/chats/${session.id}/llms`} className="iz-border-model block rounded-[12px] p-[2px] transition-[filter] duration-150 hover:brightness-[1.06]">
-          <span className="iz-model-card flex items-center rounded-[10px] p-4">
-            <span className="iz-border-model flex h-[54px] w-[54px] shrink-0 rounded-[50px] p-[2px]">
-              <span className="flex h-[50px] w-[50px] items-center justify-center rounded-full bg-white text-[#284bcf]">
-                <Wand2 size={30} />
-              </span>
-            </span>
-            <span className="ml-3 min-w-0 flex-1">
-              <span className="block truncate text-[16px] font-bold">{model.auto ? "Auto (recommended)" : model.name}</span>
-              <span className="iz-line-clamp-2 mt-1 block text-[13px] leading-[18px] text-white/70">{model.description}</span>
-            </span>
-            <Play size={20} className="ml-3 shrink-0" />
-          </span>
-        </Link>
-
-        <div className="mt-3 rounded-[12px] bg-white/5 p-3 text-[13px]">
-          <div className="flex items-center justify-between">
-            <span>Estimated Context</span>
-            <span className="text-white/70">≈ {context.estimated.toLocaleString("en-US")} tokens</span>
-          </div>
-          <div className="mt-2 h-1 rounded-[2px] bg-white/15">
-            <div className={cn("h-1 rounded-[2px] transition-[width] duration-300", fill >= 90 ? "bg-[#ffb4ab]" : "bg-[#a7b9ff]")} style={{ width: `${fill}%` }} />
-          </div>
-          <div className="mt-1 flex justify-between text-[11px] text-white/45">
-            <span>Context Limit</span>
-            <span>
-              {context.limit.toLocaleString("en-US")}
-              {settings.contextLimitOverride ? " (override)" : ""}
-            </span>
-          </div>
-          {context.trimmedMessages > 0 ? <div className="mt-1 text-[11px] text-[#ffb4ab]">Messages: {context.trimmedMessages}/{context.totalMessages} trimmed</div> : null}
-          {context.trimmedChapters > 0 ? <div className="mt-1 text-[11px] text-[#ffb4ab]">Chapters: {context.trimmedChapters}/{context.totalChapters} trimmed</div> : null}
+        <div role="tablist" aria-label="Chat Settings" className="mb-3 flex gap-1.5 overflow-x-auto">
+          {TABS.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              role="tab"
+              aria-selected={tab === t.value}
+              onClick={() => setTab(t.value)}
+              className={cn(
+                "h-[30px] shrink-0 rounded-[15px] px-3 text-[13px] font-semibold transition-colors",
+                tab === t.value ? "bg-[rgb(167,185,255)] text-[rgb(17,18,60)]" : "bg-white/[0.06] text-white/60 hover:bg-white/10 hover:text-white",
+              )}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
 
-        <div className="mt-3 flex flex-col gap-3">
-          <AccordionCard title="Play Mode" description="Narration shows text; Visual Novel stages each reply with backgrounds and character images">
-            <SegmentedControl
-              label="Play Mode"
-              value={settings.playMode ?? "narration"}
-              onChange={(playMode) => onChange({ playMode })}
-              options={[
-                { value: "narration", label: "Narration" },
-                { value: "visualNovel", label: "Visual Novel" },
-              ]}
-            />
-            <p className="mt-2 text-[11px] leading-4 text-white/50">Visual Novel picks the story&apos;s own backgrounds and character expressions after each reply (one small model call).</p>
-            <SettingRow
-              title="Generate Missing Art"
-              description="When nothing fits, draw a new background or expression with your character portrait model. Saved with the story and reused."
-              right={<Toggle label="Generate Missing Art" checked={settings.vnGenerateMedia !== false} onChange={(vnGenerateMedia) => onChange({ vnGenerateMedia })} />}
-            />
-          </AccordionCard>
+        {tab === "overview" ? (
+          <>
+            {storyline.imported?.source === "created" ? (
+              <Link
+                href={`/creation/storylines/${storyline.id}?from=/chats/${session.id}`}
+                className="mb-3 flex h-10 items-center justify-center gap-2 rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold hover:bg-white/10"
+              >
+                Edit Story <span className="font-normal text-white/50">· changes apply from the next turn</span>
+              </Link>
+            ) : null}
+            <Link href={`/chats/${session.id}/llms`} className="iz-border-model block rounded-[12px] p-[2px] transition-[filter] duration-150 hover:brightness-[1.06]">
+              <span className="iz-model-card flex items-center rounded-[10px] p-4">
+                <span className="iz-border-model flex h-[54px] w-[54px] shrink-0 rounded-[50px] p-[2px]">
+                  <span className="flex h-[50px] w-[50px] items-center justify-center rounded-full bg-white text-[#284bcf]">
+                    <Wand2 size={30} />
+                  </span>
+                </span>
+                <span className="ml-3 min-w-0 flex-1">
+                  <span className="block truncate text-[16px] font-bold">{model.auto ? "Auto (recommended)" : model.name}</span>
+                  <span className="iz-line-clamp-2 mt-1 block text-[13px] leading-[18px] text-white/70">{model.description}</span>
+                </span>
+                <Play size={20} className="ml-3 shrink-0" />
+              </span>
+            </Link>
 
-          <AccordionCard title="History" description="This story's chats and branches: switch, rename, archive, delete or export">
-            <HistoryPanel session={session} storyline={storyline} onNavigate={onClose} />
-          </AccordionCard>
-
-          <AccordionCard title="Persona" description={`You are playing as ${session.persona?.name ?? session.playerName}`} defaultOpen>
-            {session.persona ? (
-              <div className="text-[13px] text-white/70">
-                <div className="font-semibold text-white">{session.persona.name}</div>
-                {session.persona.summary ? <div>{session.persona.summary}</div> : null}
+            <div className="mt-3 rounded-[12px] bg-white/5 p-3 text-[13px]">
+              <div className="flex items-center justify-between">
+                <span>Estimated Context</span>
+                <span className="text-white/70">≈ {context.estimated.toLocaleString("en-US")} tokens</span>
               </div>
-            ) : (
-              <p className="text-[13px] text-white/60">Playing as yourself. Pick a persona to tell the AI who you are.</p>
-            )}
-            {switchingPersona ? (
-              <div className="mt-3">
-                <PersonaPicker
-                  storyline={storyline}
-                  current={session.persona}
-                  mode="switch"
-                  onPick={(persona) => {
-                    onPersonaChange(persona);
-                    setSwitchingPersona(false);
-                  }}
+              <div className="mt-2 h-1 rounded-[2px] bg-white/15">
+                <div className={cn("h-1 rounded-[2px] transition-[width] duration-300", fill >= 90 ? "bg-[#ffb4ab]" : "bg-[#a7b9ff]")} style={{ width: `${fill}%` }} />
+              </div>
+              <div className="mt-1 flex justify-between text-[11px] text-white/45">
+                <span>Context Limit</span>
+                <span>
+                  {context.limit.toLocaleString("en-US")}
+                  {settings.contextLimitOverride ? " (override)" : ""}
+                </span>
+              </div>
+              {context.trimmedMessages > 0 ? <div className="mt-1 text-[11px] text-[#ffb4ab]">Messages: {context.trimmedMessages}/{context.totalMessages} trimmed</div> : null}
+              {context.trimmedChapters > 0 ? <div className="mt-1 text-[11px] text-[#ffb4ab]">Chapters: {context.trimmedChapters}/{context.totalChapters} trimmed</div> : null}
+            </div>
+
+            <div className="mt-3 flex flex-col gap-3">
+              <AccordionCard title="Protagonist" description={`You are playing as ${session.persona?.name ?? session.playerName}`} defaultOpen>
+                {session.persona ? (
+                  <div className="text-[13px] text-white/70">
+                    <div className="font-semibold text-white">{session.persona.name}</div>
+                    {session.persona.summary ? <div>{session.persona.summary}</div> : null}
+                  </div>
+                ) : (
+                  <p className="text-[13px] text-white/60">Playing as yourself. Pick a persona to tell the AI who you are.</p>
+                )}
+                {switchingPersona ? (
+                  <div className="mt-3">
+                    <PersonaPicker
+                      storyline={storyline}
+                      current={session.persona}
+                      mode="switch"
+                      onPick={(persona) => {
+                        onPersonaChange(persona);
+                        setSwitchingPersona(false);
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => setSwitchingPersona(true)} className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10">
+                    Switch persona
+                  </button>
+                )}
+              </AccordionCard>
+              <AccordionCard title="Cast" description={`${storyline.characters.length} characters in this story`}>
+                <CastList storyline={storyline} />
+                <button type="button" onClick={onOpenCast} className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10">
+                  Open Cast: characters in this chat
+                </button>
+              </AccordionCard>
+              <AccordionCard title="AI Media Picker" description="Let AI choose the appropriate chat background image for you">
+                <SettingRow
+                  title="AI Media Picker"
+                  description="After each reply, show the story's matching background, character images and, at key moments, the creator's illustrations (one small call to your story model)"
+                  right={<Toggle label="AI Media Picker" checked={settings.aiMediaPicker !== false} onChange={(aiMediaPicker) => onChange({ aiMediaPicker })} />}
                 />
-              </div>
-            ) : (
-              <button type="button" onClick={() => setSwitchingPersona(true)} className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10">
-                Switch persona
-              </button>
-            )}
-          </AccordionCard>
+                <p className="mt-2 text-[11px] leading-4 text-white/50">
+                  This story has {storyline.backgrounds?.length ?? 0} backgrounds, {storyline.illustrations?.length ?? 0} illustrations and images for {storyline.characters.filter((c) => c.images?.length).length} of {storyline.characters.length} characters.
+                </p>
+              </AccordionCard>
+              <AccordionCard title="Guidance" description="Your own instructions for the AI in this chat">
+                <label className="block text-[13px] font-semibold text-white/85">
+                  Guidance Prompt
+                  <span className="block text-[12px] font-normal text-white/50">Custom instructions included in the system prompt to guide the AI&apos;s responses.</span>
+                  <textarea
+                    value={settings.guidancePrompt ?? ""}
+                    onChange={(e) => onChange({ guidancePrompt: e.target.value })}
+                    rows={4}
+                    placeholder="e.g. Keep combat gritty and consequences real. Let side characters have their own goals."
+                    className="mt-1 block w-full resize-y rounded-[10px] border border-white/15 bg-white/[0.06] p-2.5 text-[13px] font-normal leading-5 text-white outline-none placeholder:text-white/30 focus:border-[#a7b9ff]"
+                  />
+                </label>
+                <label className="mt-3 block text-[13px] font-semibold text-white/85">
+                  AI Output Reminder
+                  <span className="block text-[12px] font-normal text-white/50">Appended to every user message in the user prompt. Works best as reminders. Limited to 500 characters.</span>
+                  <textarea
+                    value={settings.userInputPrompt ?? ""}
+                    maxLength={500}
+                    onChange={(e) => onChange({ userInputPrompt: e.target.value })}
+                    rows={2}
+                    placeholder="e.g. Reply in under 250 words and end on a choice."
+                    className="mt-1 block w-full resize-y rounded-[10px] border border-white/15 bg-white/[0.06] p-2.5 text-[13px] font-normal leading-5 text-white outline-none placeholder:text-white/30 focus:border-[#a7b9ff]"
+                  />
+                </label>
+              </AccordionCard>
+              <AccordionCard title="Honor mode" description="One run, forward only: no retries, no edits, no erasing messages, no branches. You can still restart or delete the chat.">
+                <SettingRow
+                  title="Honor mode"
+                  description={
+                    session.messages.some((m) => m.role === "user" && !m.ooc)
+                      ? "Decided at the start: locked once the story begins"
+                      : settings.honorMode
+                        ? "Tap to turn off before your first turn"
+                        : "Tap to enable before your first turn"
+                  }
+                  right={<Toggle label="Honor mode" checked={Boolean(settings.honorMode)} disabled={session.messages.some((m) => m.role === "user" && !m.ooc)} onChange={(honorMode) => onChange({ honorMode })} />}
+                />
+              </AccordionCard>
+              <AccordionCard title="Response Length" description="Sets the response length for AI responses" defaultOpen>
+                <SegmentedControl
+                  label="Response Length"
+                  value={settings.responseLength}
+                  onChange={(responseLength) => onChange({ responseLength })}
+                  options={[
+                    { value: "short", label: "Short" },
+                    { value: "medium", label: "Medium" },
+                    { value: "long", label: "Long" },
+                  ]}
+                />
+              </AccordionCard>
+              <AccordionCard title="Temperature" description="Controls AI creativity. Low = focused, High = creative">
+                <SegmentedControl
+                  label="Temperature"
+                  value={settings.temperature}
+                  onChange={(temperature) => onChange({ temperature })}
+                  options={[
+                    { value: "low", label: "Low" },
+                    { value: "medium", label: "Mid" },
+                    { value: "high", label: "High" },
+                    { value: "max", label: "Max" },
+                  ]}
+                />
+              </AccordionCard>
+              <AccordionCard title="Context Limit Override" description="Set a context limit to save cost and manage token usage">
+                <SegmentedControl
+                  label="Context Limit Override"
+                  value={String(settings.contextLimitOverride ?? 0)}
+                  onChange={(v) => onChange({ contextLimitOverride: Number(v) || undefined })}
+                  options={CONTEXT_OVERRIDE_OPTIONS}
+                />
+              </AccordionCard>
+              <AccordionCard title="Response Token Limit" description="Sets the maximum token limit for AI responses">
+                <SegmentedControl
+                  label="Response Token Limit"
+                  value={settings.responseTokenLimit ?? "capped"}
+                  onChange={(responseTokenLimit) => onChange({ responseTokenLimit })}
+                  options={[
+                    { value: "capped", label: "Capped" },
+                    { value: "high", label: "High" },
+                    { value: "max", label: "Max" },
+                  ]}
+                />
+                {settings.responseTokenLimit === "max" ? <p className="mt-2 text-[11px] leading-[15px] text-[rgb(255,168,168)]">This will prevent truncation but it will not stop the model from over yapping</p> : null}
+              </AccordionCard>
+              <AccordionCard title="Reasoning" description="Squeeze more intelligence out of the model, but it will increase output token cost">
+                <SegmentedControl
+                  label="Reasoning"
+                  value={settings.reasoning ? "on" : "off"}
+                  onChange={(v) => onChange({ reasoning: v === "on" })}
+                  options={[
+                    { value: "off", label: "Off" },
+                    { value: "on", label: "On" },
+                  ]}
+                />
+                {settings.reasoning ? (
+                  <div className="mt-3">
+                    <p className="mb-2 text-[12px] leading-4 text-white/60">Reasoning Effort: controls how much effort the model puts into reasoning</p>
+                    <SegmentedControl
+                      label="Reasoning Effort"
+                      value={settings.reasoningEffort ?? "medium"}
+                      onChange={(reasoningEffort) => onChange({ reasoningEffort })}
+                      options={REASONING_EFFORT_OPTIONS}
+                    />
+                  </div>
+                ) : null}
+              </AccordionCard>
+              <AccordionCard title="Perspective" description="Set the narrative perspective for AI responses">
+                <SegmentedControl
+                  label="Perspective"
+                  value={settings.perspective}
+                  onChange={(perspective) => onChange({ perspective })}
+                  options={[
+                    { value: "1st", label: "1st" },
+                    { value: "2nd", label: "2nd" },
+                    { value: "3rd", label: "3rd" },
+                  ]}
+                />
+              </AccordionCard>
+              {storyline && GAME_TOOLS.some((t) => storyline.toolSettings?.some((s) => s.toolId === t.id)) ? (
+                <AccordionCard title="Functions" description="The story's game tools: dice and character stats (Dungeon Mind)">
+                  {GAME_TOOLS.filter((t) => storyline.toolSettings?.some((s) => s.toolId === t.id)).map((t) => {
+                    const setting = storyline.toolSettings!.find((s) => s.toolId === t.id)!;
+                    const required = setting.mode === "required";
+                    return (
+                      <SettingRow
+                        key={t.id}
+                        title={t.label}
+                        description={required ? `${t.description} Required by this story.` : t.description}
+                        right={
+                          <Toggle
+                            label={t.label}
+                            checked={toolEnabled(storyline, settings, t.id)}
+                            disabled={required}
+                            onChange={(on) => onChange({ tools: { ...settings.tools, [t.id]: on } })}
+                          />
+                        }
+                      />
+                    );
+                  })}
+                  <label className="mt-3 block text-[13px] text-white/70">
+                    Dungeon Mind model
+                    <select
+                      value={settings.dmModel || DEFAULT_DM_MODEL}
+                      onChange={(e) => onChange({ dmModel: e.target.value })}
+                      className="mt-1 block h-10 w-full rounded-[10px] border border-white/15 bg-[#0b0f2e] px-2 text-[13px] text-white"
+                    >
+                      {DM_MODELS.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.label}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="mt-1 block text-[11px] leading-4 text-white/50">
+                      Resolves dice and sheets before the story model writes, so any story model gets working mechanics. Your story model still writes every word. If it declines a scene, the story model handles the tools that turn.
+                    </span>
+                  </label>
+                  {storyline.statSchema?.length || storyline.characters.some((c) => c.sheet) ? (
+                    <button type="button" onClick={onOpenSheets} className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10">
+                      Character Sheets
+                    </button>
+                  ) : null}
+                </AccordionCard>
+              ) : null}
+              <AccordionCard title="Codex" description="The story's knowledge base: lore the AI reads on demand and records it keeps updated">
+                <SettingRow
+                  title="Codex tools"
+                  description={storyline?.codex?.length ? `${storyline.codex.length} entries in this story` : "This story has no codex; the AI can still start entries"}
+                  right={<Toggle label="Codex tools" checked={settings.codexEnabled !== false} onChange={(codexEnabled) => onChange({ codexEnabled })} />}
+                />
+                <button type="button" onClick={onOpenCodex} className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10">
+                  Open Codex
+                </button>
+              </AccordionCard>
+              <AccordionCard title="Memory" description="Chapters and arcs">
+                <p className="text-[13px] leading-[18px] text-white/70">Condense your story into chapters and arcs to save tokens while keeping continuity</p>
+                <button
+                  type="button"
+                  onClick={onOpenMemory}
+                  className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10"
+                >
+                  Open Memory
+                </button>
+              </AccordionCard>
+              <AccordionCard title="UI/UX" description="How every chat looks and behaves on this device">
+                <div className="flex flex-col gap-3">
+                  <UiSettingsPanel />
+                </div>
+              </AccordionCard>
+            </div>
+          </>
+        ) : null}
 
-          <AccordionCard title="Guidance" description="Your own instructions for the AI in this chat">
-            <label className="block text-[13px] font-semibold text-white/85">
-              Guidance Prompt
-              <span className="block text-[12px] font-normal text-white/50">Custom instructions included in the system prompt to guide the AI&apos;s responses.</span>
-              <textarea
-                value={settings.guidancePrompt ?? ""}
-                onChange={(e) => onChange({ guidancePrompt: e.target.value })}
-                rows={4}
-                placeholder="e.g. Keep combat gritty and consequences real. Let side characters have their own goals."
-                className="mt-1 block w-full resize-y rounded-[10px] border border-white/15 bg-white/[0.06] p-2.5 text-[13px] font-normal leading-5 text-white outline-none placeholder:text-white/30 focus:border-[#a7b9ff]"
-              />
-            </label>
-            <label className="mt-3 block text-[13px] font-semibold text-white/85">
-              AI Output Reminder
-              <span className="block text-[12px] font-normal text-white/50">Appended to every user message in the user prompt. Works best as reminders. Limited to 500 characters.</span>
-              <textarea
-                value={settings.userInputPrompt ?? ""}
-                maxLength={500}
-                onChange={(e) => onChange({ userInputPrompt: e.target.value })}
-                rows={2}
-                placeholder="e.g. Reply in under 250 words and end on a choice."
-                className="mt-1 block w-full resize-y rounded-[10px] border border-white/15 bg-white/[0.06] p-2.5 text-[13px] font-normal leading-5 text-white outline-none placeholder:text-white/30 focus:border-[#a7b9ff]"
-              />
-            </label>
-          </AccordionCard>
+        {tab === "history" ? <HistoryPanel session={session} storyline={storyline} onNavigate={onClose} /> : null}
 
-          <AccordionCard title="Honor mode" description="One run, forward only: no retries, no edits, no erasing messages, no branches. You can still restart or delete the chat.">
-            <SettingRow
-              title="Honor mode"
-              description={
-                session.messages.some((m) => m.role === "user" && !m.ooc)
-                  ? "Decided at the start: locked once the story begins"
-                  : settings.honorMode
-                    ? "Tap to turn off before your first turn"
-                    : "Tap to enable before your first turn"
-              }
-              right={<Toggle label="Honor mode" checked={Boolean(settings.honorMode)} disabled={session.messages.some((m) => m.role === "user" && !m.ooc)} onChange={(honorMode) => onChange({ honorMode })} />}
-            />
-          </AccordionCard>
-
+        {tab === "adaptation" ? (
+          <div className="flex flex-col gap-3">
+            <AdaptationSettings settings={settings} onChange={onChange} />
           <AccordionCard title="Voice Narration" description="Generate voice narration for each character in the story">
             <VoiceSettings settings={settings} provider={provider} storyline={storyline} onChange={onChange} />
           </AccordionCard>
-
-          <AccordionCard title="Response Length" description="Sets the response length for AI responses" defaultOpen>
-            <SegmentedControl
-              label="Response Length"
-              value={settings.responseLength}
-              onChange={(responseLength) => onChange({ responseLength })}
-              options={[
-                { value: "short", label: "Short" },
-                { value: "medium", label: "Medium" },
-                { value: "long", label: "Long" },
-              ]}
-            />
-          </AccordionCard>
-
-          <AccordionCard title="Temperature" description="Controls AI creativity. Low = focused, High = creative">
-            <SegmentedControl
-              label="Temperature"
-              value={settings.temperature}
-              onChange={(temperature) => onChange({ temperature })}
-              options={[
-                { value: "low", label: "Low" },
-                { value: "medium", label: "Mid" },
-                { value: "high", label: "High" },
-                { value: "max", label: "Max" },
-              ]}
-            />
-          </AccordionCard>
-
-          <AccordionCard title="Context Limit Override" description="Set a context limit to save cost and manage token usage">
-            <SegmentedControl
-              label="Context Limit Override"
-              value={String(settings.contextLimitOverride ?? 0)}
-              onChange={(v) => onChange({ contextLimitOverride: Number(v) || undefined })}
-              options={CONTEXT_OVERRIDE_OPTIONS}
-            />
-          </AccordionCard>
-
-          <AccordionCard title="Response Token Limit" description="Sets the maximum token limit for AI responses">
-            <SegmentedControl
-              label="Response Token Limit"
-              value={settings.responseTokenLimit ?? "capped"}
-              onChange={(responseTokenLimit) => onChange({ responseTokenLimit })}
-              options={[
-                { value: "capped", label: "Capped" },
-                { value: "high", label: "High" },
-                { value: "max", label: "Max" },
-              ]}
-            />
-            {settings.responseTokenLimit === "max" ? <p className="mt-2 text-[11px] leading-[15px] text-[rgb(255,168,168)]">This will prevent truncation but it will not stop the model from over yapping</p> : null}
-          </AccordionCard>
-
-          <AccordionCard title="Reasoning" description="Squeeze more intelligence out of the model, but it will increase output token cost">
-            <SegmentedControl
-              label="Reasoning"
-              value={settings.reasoning ? "on" : "off"}
-              onChange={(v) => onChange({ reasoning: v === "on" })}
-              options={[
-                { value: "off", label: "Off" },
-                { value: "on", label: "On" },
-              ]}
-            />
-            {settings.reasoning ? (
-              <div className="mt-3">
-                <p className="mb-2 text-[12px] leading-4 text-white/60">Reasoning Effort: controls how much effort the model puts into reasoning</p>
-                <SegmentedControl
-                  label="Reasoning Effort"
-                  value={settings.reasoningEffort ?? "medium"}
-                  onChange={(reasoningEffort) => onChange({ reasoningEffort })}
-                  options={REASONING_EFFORT_OPTIONS}
-                />
-              </div>
-            ) : null}
-          </AccordionCard>
-
-          <AccordionCard title="Perspective" description="Set the narrative perspective for AI responses">
-            <SegmentedControl
-              label="Perspective"
-              value={settings.perspective}
-              onChange={(perspective) => onChange({ perspective })}
-              options={[
-                { value: "1st", label: "1st" },
-                { value: "2nd", label: "2nd" },
-                { value: "3rd", label: "3rd" },
-              ]}
-            />
-          </AccordionCard>
-
           <AccordionCard title="Scene Images" description="Illustrate the story as it unfolds">
             <SettingRow
               title="Auto Play on New Messages"
@@ -320,9 +415,6 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
               description="Automatically create new looks when character outfits or appearances change"
               right={<Toggle checked={Boolean(settings.autoEditCharacter)} onChange={(autoEditCharacter) => onChange({ autoEditCharacter })} label="Auto-Create Appearances" />}
             />
-            <button type="button" onClick={onOpenCast} className="mb-2 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10">
-              Cast: characters in this chat
-            </button>
             <button type="button" onClick={() => setPickerOpen(true)} className="flex h-[49px] w-full items-center justify-between gap-3 text-left">
               <span className="min-w-0">
                 <span className="block text-[18px] font-semibold">Image Model</span>
@@ -371,42 +463,6 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
               This feature is in Alpha, expect bugs and issues. Generation may consume Arcane without producing results.
             </p>
           </AccordionCard>
-
-          <AccordionCard title="Scene Videos" description="Animate scene images with a video model">
-            <button type="button" onClick={() => setVideoPickerOpen(true)} className="flex h-[49px] w-full items-center justify-between gap-3 text-left">
-              <span className="min-w-0">
-                <span className="block text-[18px] font-semibold">Video Model</span>
-                <span className="block text-[14px] text-white/50">Used by Animate</span>
-              </span>
-              <span className="flex min-w-0 items-center gap-1">
-                <span className="min-w-0 text-right">
-                  <span className="block truncate text-[16px] text-[#a0a0a0]">{videoModel.name}</span>
-                  {settings.animationModel === "default" ? <span className="block text-[12px] text-white/40">Provider default</span> : null}
-                </span>
-                <ChevronRight size={20} className="shrink-0" />
-              </span>
-            </button>
-            {catalog.status === "ready" && !catalog.videoSupported ? (
-              <p className="mt-1 text-[12px] leading-4 text-[#ffb4ab]">{catalog.videoReason ?? VIDEO_UNSUPPORTED_REASON}</p>
-            ) : null}
-            {videoModel.params ? (
-              <>
-                <p className="mt-2 text-[12px] text-white/55">{paramSummary(videoModel.params, videoValues) || "Model defaults"}</p>
-                <VideoParamsForm
-                  className="mt-1"
-                  specs={videoModel.params}
-                  values={videoValues}
-                  defaults={videoModel.defaults ?? {}}
-                  onChange={(videoParams) => updateProvider({ videoParams })}
-                />
-              </>
-            ) : null}
-            <p className="mt-3 text-[12px] text-white/55">Price: {videoModel.priceSummary ?? "provider pricing"}</p>
-            <p className="mt-1 text-[11px] leading-4 text-[#ffa8a8]">
-              This feature is in Alpha, expect bugs and issues. Generation may consume Arcane without producing results.
-            </p>
-          </AccordionCard>
-
           <AccordionCard title="Manga Generation" description="Adapts the scene into manga pages and panels (More → Manga on a reply)">
             <SegmentedControl
               label="Max Pages per Scene"
@@ -421,7 +477,23 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
               Each page generates around 1-8 panels and is one image from your image model (Seedream 5.0 Pro: about $0.05 a page). 2 pages is recommended but slower and more expensive. Pages chain from the last manga page for continuity.
             </p>
           </AccordionCard>
-
+          <AccordionCard title="Play Mode" description="Narration shows text; Visual Novel stages each reply with backgrounds and character images">
+            <SegmentedControl
+              label="Play Mode"
+              value={settings.playMode ?? "narration"}
+              onChange={(playMode) => onChange({ playMode })}
+              options={[
+                { value: "narration", label: "Narration" },
+                { value: "visualNovel", label: "Visual Novel" },
+              ]}
+            />
+            <p className="mt-2 text-[11px] leading-4 text-white/50">Visual Novel picks the story&apos;s own backgrounds and character expressions after each reply (one small model call).</p>
+            <SettingRow
+              title="Generate Missing Art"
+              description="When nothing fits, draw a new background or expression with your character portrait model. Saved with the story and reused."
+              right={<Toggle label="Generate Missing Art" checked={settings.vnGenerateMedia !== false} onChange={(vnGenerateMedia) => onChange({ vnGenerateMedia })} />}
+            />
+          </AccordionCard>
           <AccordionCard title="Music Generation" description="Scores the story moment with an AI-composed song (More → Music on a reply)">
             <SegmentedControl
               label="Vocals"
@@ -483,81 +555,44 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
               With NanoGPT, ElevenLabs Music is the automatic backup if NanoGPT fails (needs ELEVENLABS_API_KEY). Lyria writes a full song whatever the length.
             </p>
           </AccordionCard>
-
-          {storyline && GAME_TOOLS.some((t) => storyline.toolSettings?.some((s) => s.toolId === t.id)) ? (
-            <AccordionCard title="Functions" description="The story's game tools: dice and character stats (Dungeon Mind)">
-              {GAME_TOOLS.filter((t) => storyline.toolSettings?.some((s) => s.toolId === t.id)).map((t) => {
-                const setting = storyline.toolSettings!.find((s) => s.toolId === t.id)!;
-                const required = setting.mode === "required";
-                return (
-                  <SettingRow
-                    key={t.id}
-                    title={t.label}
-                    description={required ? `${t.description} Required by this story.` : t.description}
-                    right={
-                      <Toggle
-                        label={t.label}
-                        checked={toolEnabled(storyline, settings, t.id)}
-                        disabled={required}
-                        onChange={(on) => onChange({ tools: { ...settings.tools, [t.id]: on } })}
-                      />
-                    }
-                  />
-                );
-              })}
-              <label className="mt-3 block text-[13px] text-white/70">
-                Dungeon Mind model
-                <select
-                  value={settings.dmModel || DEFAULT_DM_MODEL}
-                  onChange={(e) => onChange({ dmModel: e.target.value })}
-                  className="mt-1 block h-10 w-full rounded-[10px] border border-white/15 bg-[#0b0f2e] px-2 text-[13px] text-white"
-                >
-                  {DM_MODELS.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.label}
-                    </option>
-                  ))}
-                </select>
-                <span className="mt-1 block text-[11px] leading-4 text-white/50">
-                  Resolves dice and sheets before the story model writes, so any story model gets working mechanics. Your story model still writes every word. If it declines a scene, the story model handles the tools that turn.
+          <AccordionCard title="Scene Videos" description="Animate scene images with a video model">
+            <button type="button" onClick={() => setVideoPickerOpen(true)} className="flex h-[49px] w-full items-center justify-between gap-3 text-left">
+              <span className="min-w-0">
+                <span className="block text-[18px] font-semibold">Video Model</span>
+                <span className="block text-[14px] text-white/50">Used by Animate</span>
+              </span>
+              <span className="flex min-w-0 items-center gap-1">
+                <span className="min-w-0 text-right">
+                  <span className="block truncate text-[16px] text-[#a0a0a0]">{videoModel.name}</span>
+                  {settings.animationModel === "default" ? <span className="block text-[12px] text-white/40">Provider default</span> : null}
                 </span>
-              </label>
-              {storyline.statSchema?.length || storyline.characters.some((c) => c.sheet) ? (
-                <button type="button" onClick={onOpenSheets} className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10">
-                  Character Sheets
-                </button>
-              ) : null}
-            </AccordionCard>
-          ) : null}
-
-          <AccordionCard title="Codex" description="The story's knowledge base: lore the AI reads on demand and records it keeps updated">
-            <SettingRow
-              title="Codex tools"
-              description={storyline?.codex?.length ? `${storyline.codex.length} entries in this story` : "This story has no codex; the AI can still start entries"}
-              right={<Toggle label="Codex tools" checked={settings.codexEnabled !== false} onChange={(codexEnabled) => onChange({ codexEnabled })} />}
-            />
-            <button type="button" onClick={onOpenCodex} className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10">
-              Open Codex
+                <ChevronRight size={20} className="shrink-0" />
+              </span>
             </button>
+            {catalog.status === "ready" && !catalog.videoSupported ? (
+              <p className="mt-1 text-[12px] leading-4 text-[#ffb4ab]">{catalog.videoReason ?? VIDEO_UNSUPPORTED_REASON}</p>
+            ) : null}
+            {videoModel.params ? (
+              <>
+                <p className="mt-2 text-[12px] text-white/55">{paramSummary(videoModel.params, videoValues) || "Model defaults"}</p>
+                <VideoParamsForm
+                  className="mt-1"
+                  specs={videoModel.params}
+                  values={videoValues}
+                  defaults={videoModel.defaults ?? {}}
+                  onChange={(videoParams) => updateProvider({ videoParams })}
+                />
+              </>
+            ) : null}
+            <p className="mt-3 text-[12px] text-white/55">Price: {videoModel.priceSummary ?? "provider pricing"}</p>
+            <p className="mt-1 text-[11px] leading-4 text-[#ffa8a8]">
+              This feature is in Alpha, expect bugs and issues. Generation may consume Arcane without producing results.
+            </p>
           </AccordionCard>
+          </div>
+        ) : null}
 
-          <AccordionCard title="Memory" description="Chapters and arcs">
-            <p className="text-[13px] leading-[18px] text-white/70">Condense your story into chapters and arcs to save tokens while keeping continuity</p>
-            <button
-              type="button"
-              onClick={onOpenMemory}
-              className="mt-3 h-10 w-full rounded-[20px] border border-white/15 bg-white/[0.06] text-[13px] font-semibold text-white/80 hover:bg-white/10"
-            >
-              Open Memory
-            </button>
-          </AccordionCard>
-
-          <AccordionCard title="UI/UX" description="How every chat looks and behaves on this device">
-            <div className="flex flex-col gap-3">
-              <UiSettingsPanel />
-            </div>
-          </AccordionCard>
-        </div>
+        {tab === "gallery" ? <ChatGallery session={session} storyline={storyline} /> : null}
       </SideSheet>
 
       <ImageModelPicker
@@ -576,6 +611,80 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
           updateProvider(provider.videoModel ? { videoParams: m.defaults } : { videoModel: m.id, videoParams: m.defaults });
         }}
       />
+    </>
+  );
+}
+
+/** The story's cast with their default picture (Overview → Cast). */
+function CastList({ storyline }: { storyline: Storyline }) {
+  if (storyline.characters.length === 0) return <p className="text-[13px] text-white/60">This story has no cast.</p>;
+  return (
+    <ul className="flex flex-col gap-2">
+      {storyline.characters.map((c) => {
+        const picture = looks(c)[0]?.url;
+        return (
+          <li key={c.id} className="flex items-center gap-3">
+            {picture ? (
+              // eslint-disable-next-line @next/next/no-img-element -- creator art on the story's CDN
+              <img src={picture} alt="" loading="lazy" className="h-12 w-12 shrink-0 rounded-[10px] bg-white/[0.06] object-cover object-top" />
+            ) : (
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] bg-white/[0.06] text-[18px]">{c.glyph || c.name[0]}</span>
+            )}
+            <span className="min-w-0">
+              <span className="block truncate text-[14px] font-semibold">{c.name}</span>
+              <span className="block truncate text-[12px] text-white/50">{c.summary || c.role || (c.images?.length ? `${c.images.length} images` : "")}</span>
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+const ADAPTATIONS: { value: Adaptation; label: string; description: string }[] = [
+  { value: "narration", label: "Narration", description: "Read each reply aloud with the narrator voice" },
+  { value: "illustration", label: "Image Generation", description: "Illustrate each reply with your image model" },
+  { value: "manga", label: "Manga", description: "Adapt each reply into manga pages (about $0.05 a page)" },
+  { value: "visualNovel", label: "Visual Novel", description: "Stage each reply with backgrounds and character images" },
+  { value: "music", label: "Music", description: "Score each reply with a song (about $0.10 a song)" },
+  { value: "animate", label: "Video", description: "Animate each reply: its illustration when one is ready, else text-to-video (about $0.57 per 5 s)" },
+];
+
+/** Adaptation tab: Auto-generate (what runs after each AI reply) and Adaptation options (which ones exist at all). */
+function AdaptationSettings({ settings, onChange }: { settings: ChatSettings; onChange: (patch: Partial<ChatSettings>) => void }) {
+  const off = settings.adaptationsOff ?? [];
+  const auto: Record<Adaptation, { on: boolean; set: (on: boolean) => Partial<ChatSettings> }> = {
+    narration: { on: Boolean(settings.voiceEnabled && settings.autoPlayVoice), set: (on) => (on ? { voiceEnabled: true, autoPlayVoice: true } : { autoPlayVoice: false }) },
+    illustration: { on: settings.autoIllustrate, set: (autoIllustrate) => ({ autoIllustrate }) },
+    manga: { on: Boolean(settings.autoManga), set: (autoManga) => ({ autoManga }) },
+    visualNovel: { on: settings.playMode === "visualNovel", set: (on) => ({ playMode: on ? "visualNovel" : "narration" }) },
+    music: { on: Boolean(settings.autoMusic), set: (autoMusic) => ({ autoMusic }) },
+    animate: { on: Boolean(settings.autoVideo), set: (autoVideo) => ({ autoVideo }) },
+  };
+  return (
+    <>
+      <AccordionCard title="Auto-generate" description="Pick what auto-generates after each AI reply." defaultOpen>
+        {ADAPTATIONS.filter((a) => !off.includes(a.value)).map((a) => (
+          <SettingRow key={a.value} title={a.label} description={a.description} right={<Toggle label={`Auto-generate ${a.label}`} checked={auto[a.value].on} onChange={(on) => onChange(auto[a.value].set(on))} />} />
+        ))}
+        {off.length === ADAPTATIONS.length ? <p className="text-[13px] text-white/60">Every adaptation is turned off below.</p> : null}
+      </AccordionCard>
+      <AccordionCard title="Adaptation options" description="Turn off the adaptations you never use. Disabled ones no longer show on the auto-generate button or in the message menu.">
+        {ADAPTATIONS.map((a) => (
+          <SettingRow
+            key={a.value}
+            title={a.label}
+            description={off.includes(a.value) ? "Off: hidden from the message menu" : "On"}
+            right={
+              <Toggle
+                label={`${a.label} enabled`}
+                checked={!off.includes(a.value)}
+                onChange={(on) => onChange({ adaptationsOff: on ? off.filter((x) => x !== a.value) : [...off, a.value], ...(on ? {} : auto[a.value].set(false)) })}
+              />
+            }
+          />
+        ))}
+      </AccordionCard>
     </>
   );
 }

@@ -19,6 +19,7 @@ import { readDefaultChatSettings, type DefaultChatSettings } from "@/components/
 import { replaceCardMacros } from "@/lib/imports/prompt";
 import { memoryForBranch, type MemoryEdit } from "@/lib/chats/memory";
 import type { ChatStatusChange, SavedMessage } from "@/lib/chats/db";
+import { inlineImagesAsText } from "@/lib/text";
 
 export const USAGE_STORAGE_KEY = "iz.usage.v1";
 /** Pre-server chat storage; renamed to `…migrated` once its chats are on the server. */
@@ -199,7 +200,7 @@ async function loadSession(id: string): Promise<void> {
 function summarize(s: ChatSession): ChatSummary {
   const { messages, ...meta } = s;
   const last = [...messages].reverse().find((m) => m.role !== "system" && m.content.trim() && m.content !== CONTINUE_SENTINEL);
-  return { ...meta, messageCount: messages.filter((m) => m.role !== "system").length, preview: last?.content.replace(/<tag>[\s\S]*?<\/tag>/g, "").replace(/\s+/g, " ").trim() ?? "" };
+  return { ...meta, messageCount: messages.filter((m) => m.role !== "system").length, preview: inlineImagesAsText(last?.content ?? "", () => "").replace(/<tag>[\s\S]*?<\/tag>/g, "").replace(/\s+/g, " ").trim() };
 }
 
 /** Server list overlaid with chats changed (or created) in this tab, newest first. */

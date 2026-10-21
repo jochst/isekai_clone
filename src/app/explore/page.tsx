@@ -9,7 +9,9 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = { title: "Explore - ISEKAI ZERO" };
 
-export default async function ExploreRoute() {
+export default async function ExploreRoute({ searchParams }: { searchParams: Promise<{ q?: string | string[] }> }) {
+  const { q } = await searchParams;
+  const query = (Array.isArray(q) ? q[0] : q)?.trim() ?? "";
   const imported = withImportDb(db => listEntries(db));
   // A story imported by hand and also present in dev.db shows once, as the personal import.
   const importedIds = new Set(imported.map(entry => entry.sourceId));
@@ -17,7 +19,7 @@ export default async function ExploreRoute() {
   return (
     <AppShell nav="sidebar" active="explore">
       <div className="px-4 pt-4 text-right"><Link href="/imports" className="text-sm text-indigo-200 underline">Import characters & stories</Link></div>
-      <ExplorePage storylines={[...imported.map(entry => entry.storyline), ...catalog]} />
+      <ExplorePage key={query} initialQuery={query} storylines={[...imported.map(entry => entry.storyline), ...catalog]} />
     </AppShell>
   );
 }

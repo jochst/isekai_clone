@@ -2,7 +2,7 @@
  * API clients for the roleplay chat: plain fetch against this app's `/api/*` routes, with `providerHeaders`.
  * Prompt construction lives in prompt-builder.ts (shared with the server) and is re-exported here.
  */
-import type { ChatMessage, ChatSession, MediaRequest, ProviderSettings, StoryMedia, Storyline, VideoParamValue, VnScene } from "@/types/isekaizero";
+import type { ChatMessage, ChatSession, HiddenMedia, MediaRequest, ProviderSettings, StoryImage, StoryMedia, Storyline, VideoParamValue, VnScene } from "@/types/isekaizero";
 import { fallbackScene, parseRequests, parseScene, presentCharacters, scenePrompt } from "@/lib/chats/scene";
 import type { TurnRequest } from "@/lib/chats/turn";
 import type { ChatCast } from "@/lib/chats/cast";
@@ -384,6 +384,8 @@ export interface PickSceneOptions {
   previous?: VnScene;
   /** Let the picker ask for new art when nothing fits. */
   generate?: boolean;
+  /** The story's illustrations it may insert now (see `illustrationChoices`). */
+  illustrations?: StoryImage[];
 }
 
 /**
@@ -391,10 +393,10 @@ export interface PickSceneOptions {
  * Without captioned media to choose from (and generation off), no call is made.
  */
 export async function pickScene(opts: PickSceneOptions): Promise<{ scene: VnScene; requests: MediaRequest[] }> {
-  const { storyline, reply, previous, generate = false } = opts;
-  if (!generate && (storyline.backgrounds?.length ?? 0) === 0 && presentCharacters(storyline, reply).length === 0) return { scene: fallbackScene(storyline, reply, previous), requests: [] };
-  const text = await completeChat({ settings: opts.settings, model: opts.model, messages: scenePrompt(storyline, reply, previous, generate), temperature: 0.2, maxTokens: generate ? 160 : 80 });
-  return { scene: parseScene(text, storyline, reply, previous), requests: generate ? parseRequests(text, storyline, reply) : [] };
+  const { storyline, reply, previous, generate = false, illustrations = [] } = opts;
+  if (!generate && (storyline.backgrounds?.length ?? 0) === 0 && illustrations.length === 0 && presentCharacters(storyline, reply).length === 0) return { scene: fallbackScene(storyline, reply, previous), requests: [] };
+  const text = await completeChat({ settings: opts.settings, model: opts.model, messages: scenePrompt(storyline, reply, previous, generate, illustrations), temperature: 0.2, maxTokens: generate ? 180 : 100 });
+  return { scene: parseScene(text, storyline, reply, previous, illustrations), requests: generate ? parseRequests(text, storyline, reply) : [] };
 }
 
 export interface GenerateMusicOptions {
@@ -453,6 +455,13 @@ export async function listStoryMedia(storylineId: string, signal?: AbortSignal):
   const res = await fetch(`/api/storylines/${encodeURIComponent(storylineId)}/media`, { cache: "no-store", signal });
   if (!res.ok) await readErrorResponse(res);
   return ((await res.json()) as { media?: StoryMedia[] }).media ?? [];
+}
+
+/** The story's hidden creator art, captioned (the first call per story captions it; needs a provider). */
+export async function loadHiddenMedia(settings: ProviderSettings, storylineId: string, signal?: AbortSignal): Promise<HiddenMedia[]> {
+  const res = await fetch(`/api/storylines/${encodeURIComponent(storylineId)}/hidden-media`, { method: "POST", headers: providerHeaders(settings), signal });
+  if (!res.ok) await readErrorResponse(res);
+  return ((await res.json()) as { media?: HiddenMedia[] }).media ?? [];
 }
 
 export interface GenerateStoryMediaOptions {
