@@ -55,6 +55,7 @@ import {
   type VideoBeat,
   videoScenePlanPrompt,
   listStoryMedia,
+  loadHiddenMedia,
   pickScene,
   streamTurn,
   suggestDestinies,
@@ -62,11 +63,11 @@ import {
 import { planTurn, settleOutcome, type TurnRequest } from "@/lib/chats/turn";
 import { EMPTY_MEMORY, MAX_CHAPTERS_PER_ARC, MIN_CHAPTERS_PER_ARC, arcPlan, chapterPlan } from "@/lib/chats/memory";
 import { directionInstruction, parseRoll, rollSpec, type CommandName } from "@/lib/chats/commands";
-import { applyMedia, fallbackScene, withStoryMedia } from "@/lib/chats/scene";
+import { applyMedia, fallbackScene, illustrationChoices, withHiddenMedia, withStoryMedia } from "@/lib/chats/scene";
 import { withChatCast, type ChatCast } from "@/lib/chats/cast";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
-import { isProviderConfigured, resolvePortraitModel, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatMessage, ChatSession, MangaPage, MediaRequest, SceneImage as SceneImageModel, DiceRoll, SceneMusic, SceneVideo as SceneVideoModel, StoryMedia, TurnDirection, VideoParamValue, VnScene } from "@/types/isekaizero";
+import { isProviderConfigured, readProviderSettings, resolvePortraitModel, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
+import type { ChatMessage, ChatSession, HiddenMedia, MangaPage, MediaRequest, SceneImage as SceneImageModel, DiceRoll, SceneMusic, SceneVideo as SceneVideoModel, StoryMedia, TurnDirection, VideoParamValue, VnScene } from "@/types/isekaizero";
 
 import { useProviderCatalog } from "../image-generation/use-provider-catalog";
 import { useModelCatalog } from "../llms/use-model-catalog";
@@ -172,6 +173,17 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       .catch(() => {});
     return () => controller.abort();
   }, [storyId]);
+  // The story's hidden creator art (captioned once per story on the server), for the Media Picker and the Gallery.
+  const [hiddenMedia, setHiddenMedia] = useState<{ id: string; media: HiddenMedia[] }>();
+  const canCaption = Boolean(provider.apiKey && provider.baseUrl);
+  useEffect(() => {
+    if (!storyId || !/^[a-f0-9]{24}$/.test(storyId) || !canCaption) return;
+    const controller = new AbortController();
+    loadHiddenMedia(readProviderSettings(), storyId, controller.signal)
+      .then((media) => setHiddenMedia({ id: storyId, media }))
+      .catch(() => {});
+    return () => controller.abort();
+  }, [storyId, canCaption]);
   // The chat's own cast (characters the AI created, renamed or wrote out), refreshed as the chat grows.
   const [chatCast, setChatCast] = useState<{ key: string; cast: ChatCast }>();
   const castKey = `${sessionId}:${session?.messages.length ?? 0}`;
@@ -183,9 +195,10 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     return () => controller.abort();
   }, [sessionId, castKey]);
   const storyline = useMemo(() => {
-    const withMedia = baseStoryline && storyMedia?.id === baseStoryline.id ? withStoryMedia(baseStoryline, storyMedia.media) : baseStoryline;
+    const withHidden = baseStoryline && hiddenMedia?.id === baseStoryline.id ? withHiddenMedia(baseStoryline, hiddenMedia.media) : baseStoryline;
+    const withMedia = withHidden && storyMedia?.id === withHidden.id ? withStoryMedia(withHidden, storyMedia.media) : withHidden;
     return withMedia && chatCast?.cast.length ? withChatCast(withMedia, chatCast.cast) : withMedia;
-  }, [baseStoryline, storyMedia, chatCast]);
+  }, [baseStoryline, storyMedia, hiddenMedia, chatCast]);
   const drawingScenes = useRef(new Set<string>());
   const configured = isProviderConfigured(provider);
   const model = useMemo(() => resolveTextModel(session?.settings ?? DEFAULT_CHAT_SETTINGS, provider), [session?.settings, provider]);
@@ -721,24 +734,29 @@ export function ChatPage({ sessionId }: ChatPageProps) {
 
   /* ---------------------------------------------------------------- completions */
 
-  /** Visual Novel: the Media Picker chooses this reply's background and character images. */
+  /**
+   * AI Media Picker: chooses this reply's background, character images and (when the story reaches one) the creator's
+   * illustration. Narration shows them in the chat; Visual Novel stages them and may draw missing art.
+   */
   const pickSceneFor = useCallback(
-    async (messageId: string) => {
+    async (messageId: string, afterPick?: () => void) => {
       const current = getChatSession(sessionId);
       const index = current?.messages.findIndex((m) => m.id === messageId) ?? -1;
-      if (!current || !storyline || index < 0) return;
+      if (!current || !storyline || index < 0) return afterPick?.();
       const reply = current.messages[index].content;
       const previous = [...current.messages.slice(0, index)].reverse().find((m) => m.scene)?.scene;
-      const generate = current.settings.vnGenerateMedia !== false && !drawingScenes.current.has(messageId);
+      const generate = current.settings.playMode === "visualNovel" && current.settings.vnGenerateMedia !== false && !drawingScenes.current.has(messageId);
+      const illustrations = illustrationChoices(storyline, current.messages.slice(0, index));
       let picked: { scene: VnScene; requests: MediaRequest[] };
       try {
-        picked = await pickScene({ settings: provider, model: model.id, storyline, reply, previous, generate });
+        picked = await pickScene({ settings: provider, model: model.id, storyline, reply, previous, generate, illustrations });
       } catch {
         picked = { scene: fallbackScene(storyline, reply, previous), requests: [] };
       }
       const setScene = (next: (scene: VnScene) => VnScene) =>
         update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === messageId ? { ...m, scene: next(m.scene ?? picked.scene) } : m)) }), { touch: false });
       setScene(() => picked.scene);
+      afterPick?.();
       if (picked.requests.length === 0) return;
 
       // Nothing in the story fits: draw it with the portrait model (high volume, so a cheap or subscription one).
@@ -779,6 +797,16 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     },
     [sessionId, storyline, provider, model.id, update, imageById, showToast],
   );
+
+  /* The opening message never goes through a turn: give it its scene once the chat is open. */
+  const openingPicked = useRef<string | null>(null);
+  const opening = session?.messages.length === 1 && session.messages[0].role === "assistant" ? session.messages[0] : undefined;
+  const pickOpening = Boolean(opening && !opening.scene && provider.apiKey && storyline && (session?.settings.aiMediaPicker !== false || session?.settings.playMode === "visualNovel"));
+  useEffect(() => {
+    if (!pickOpening || !opening || openingPicked.current === opening.id) return;
+    openingPicked.current = opening.id;
+    void pickSceneFor(opening.id);
+  }, [pickOpening, opening, pickSceneFor]);
 
   /**
    * Auto-summarize (on unless turned off in Memory): once the context is 75% full, write the chapters that can be
@@ -881,14 +909,21 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           dispatchToolCall(plan.reply.id, tc, afterTurn?.messages ?? []);
           if (tc.function.name === "illustrate_scene") illustratedByTool = true;
         }
-        if (afterTurn?.settings.autoIllustrate && !illustratedByTool) illustrate(plan.reply.id);
-        if (afterTurn?.settings.playMode === "visualNovel") void pickSceneFor(plan.reply.id);
+        // Auto illustrations wait for the Media Picker, so they can start from the story art it chose for this moment.
+        const off = new Set(afterTurn?.settings.adaptationsOff ?? []);
+        const autoIllustrate = afterTurn?.settings.autoIllustrate && !illustratedByTool && !off.has("illustration") ? () => illustrate(plan.reply.id) : undefined;
+        if (afterTurn && (afterTurn.settings.playMode === "visualNovel" || afterTurn.settings.aiMediaPicker !== false)) void pickSceneFor(plan.reply.id, autoIllustrate);
+        else autoIllustrate?.();
         // Narration mode "Auto Play on New Messages": the narrator reads the new reply (the VN stage plays its own).
         const newReply = afterTurn?.messages.find((m) => m.id === plan.reply.id);
-        if (afterTurn && newReply && afterTurn.settings.voiceEnabled && afterTurn.settings.autoPlayVoice && afterTurn.settings.playMode !== "visualNovel") {
+        if (afterTurn && newReply && afterTurn.settings.voiceEnabled && afterTurn.settings.autoPlayVoice && afterTurn.settings.playMode !== "visualNovel" && !off.has("narration")) {
           stopNarration.current?.();
           stopNarration.current = playSpeech(speechParts(newReply.content, storyline, afterTurn.settings, provider, { visualNovel: false }), provider, undefined, showToast);
         }
+        // The rest of Adaptation's Auto-generate: each runs on its own (and is paid per use).
+        if (afterTurn?.settings.autoManga && !off.has("manga")) void makeManga(plan.reply.id);
+        if (afterTurn?.settings.autoMusic && !off.has("music")) void makeMusic(plan.reply.id);
+        if (afterTurn?.settings.autoVideo && !off.has("animate")) void animate(plan.reply.id);
         void autoSummarize();
       } catch (e) {
         const message = errorMessage(e, "Something went wrong while contacting the provider.");
@@ -905,7 +940,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         setStreaming(false);
       }
     },
-    [sessionId, storyline, configured, provider, model.id, takeTurn, update, showToast, illustrate, dispatchToolCall, contextLimit, autoSummarize, pickSceneFor],
+    [sessionId, storyline, configured, provider, model.id, takeTurn, update, showToast, illustrate, dispatchToolCall, contextLimit, autoSummarize, pickSceneFor, makeManga, makeMusic, animate],
   );
 
   const send = useCallback(
@@ -1254,6 +1289,8 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   }
 
   const visualNovel = session.settings.playMode === "visualNovel";
+  // AI Media Picker: the latest picked background sits behind the chat (Isekai Zero's chat background image).
+  const sceneBackground = session.settings.aiMediaPicker !== false ? session.messages.findLast((m) => m.scene?.background)?.scene?.background : undefined;
   const composer = (
     <Composer
       ended={Boolean(session.messages.findLast((m) => m.role === "assistant")?.ending)}
@@ -1287,6 +1324,13 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   return (
     <div style={chatStyleVars(ui)} className="relative isolate flex h-screen flex-col bg-[color:var(--iz-tint,#020920)] text-white">
       <AppBackdrop className="opacity-[var(--iz-backdrop,0.18)]" />
+      {!visualNovel && sceneBackground ? (
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element -- creator art on the story's CDN */}
+          <img key={sceneBackground.id} src={sceneBackground.url} alt="" className="h-full w-full object-cover opacity-35 animate-in fade-in duration-700" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#020920]/80 via-[#020920]/45 to-[#020920]/90" />
+        </div>
+      ) : null}
       <ChatHeader
         storyline={storyline}
         modelName={model.name}
@@ -1317,7 +1361,8 @@ export function ChatPage({ sessionId }: ChatPageProps) {
                 index={i}
                 dimmed={streaming && ui.fadePrevious && i < visible.length - 1}
                 canRetry={message.id === lastAssistantId && hasUserTurn && !session.settings.honorMode}
-                lockedActions={session.settings.honorMode ? ["edit", "delete", "branch"] : []}
+                lockedActions={[...(session.settings.honorMode ? (["edit", "delete", "branch"] as const) : []), ...(session.settings.adaptationsOff ?? []).filter((a) => a !== "narration")]}
+                hideNarrate={session.settings.adaptationsOff?.includes("narration")}
                 modelName={model.name}
                 onIllustrate={() => illustrate(message.id)}
                 onRetry={retry}

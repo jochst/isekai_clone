@@ -83,7 +83,7 @@ describe("Media Picker", () => {
 });
 
 describe("storyImages", () => {
-  it("keeps visible captioned images of one composition with https urls", () => {
+  it("keeps captioned images of one composition with https urls (hidden ones too: the chat AI may use them)", () => {
     const media = [
       { _id: "1", type: "image", compositionType: "background", url: "https://s3/a.webp", description: "Inside classroom" },
       { _id: "2", type: "image", compositionType: "foreground", url: "https://s3/b.webp", description: "Ellen is Smiling" },
@@ -91,7 +91,7 @@ describe("storyImages", () => {
       { _id: "4", type: "video", compositionType: "background", url: "https://s3/d.mp4" },
       { _id: "5", type: "image", compositionType: "background", url: "http://insecure/e.webp" },
     ];
-    expect(storyImages(media, "background")).toEqual([{ id: "1", url: "https://s3/a.webp", caption: "Inside classroom" }]);
+    expect(storyImages(media, "background")).toEqual([{ id: "1", url: "https://s3/a.webp", caption: "Inside classroom" }, { id: "3", url: "https://s3/c.webp", caption: "" }]);
     expect(storyImages(media, "foreground").map((m) => m.caption)).toEqual(["Ellen is Smiling"]);
   });
 });

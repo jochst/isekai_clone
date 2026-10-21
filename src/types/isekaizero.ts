@@ -28,10 +28,15 @@ export type StoryCategory =
   | "historical";
 
 /** A creator-uploaded image with its caption ("Inside classroom", "Ellen is Smiling"), used by Visual Novel mode. */
+/** Isekai Zero's content ratings: all ages, mature (17+), and adult (KageSekai's 18+). */
+export type ContentRating = "sfw" | "m17" | "18+";
+
 export interface StoryImage {
   id: string;
   url: string;
   caption: string;
+  /** Illustrations: shown at most once per chat. */
+  showOnce?: boolean;
 }
 
 /** Isekai Zero codex categories (the create_codex enum). */
@@ -175,6 +180,14 @@ export interface StoryMedia extends StoryImage {
   character?: string;
 }
 
+/**
+ * Creator media a story keeps out of its public listing (Isekai Zero "Hidden: the chat AI can still use it"), found
+ * by id on the media host and captioned once by a vision model. `unavailable`: no image at the expected address.
+ */
+export interface HiddenMedia extends StoryImage {
+  kind: "illustration" | "background" | "character" | "unavailable";
+}
+
 /** Art the Media Picker asked for because nothing in the story fits ("background: new …", "Name: new …"). */
 export interface MediaRequest {
   kind: StoryMedia["kind"];
@@ -186,6 +199,8 @@ export interface MediaRequest {
 export interface VnScene {
   background?: StoryImage;
   characters: { name: string; image: StoryImage }[];
+  /** One of the story's illustrations, when this reply reached its moment. */
+  illustration?: StoryImage;
 }
 
 export interface Character {
@@ -252,6 +267,8 @@ export interface Storyline {
   prompt?: { plot?: string; guideline?: string; reminder?: string; outputReminder?: string };
   /** Creator-uploaded backgrounds with captions, for Visual Novel mode. */
   backgrounds?: StoryImage[];
+  /** Creator event art the Media Picker inserts into chat when the story reaches that moment. */
+  illustrations?: StoryImage[];
   /** The story's codex (knowledge base); per-chat changes live on the server. */
   codex?: CodexEntry[];
   /** Stats every character sheet tracks. */
@@ -264,7 +281,11 @@ export interface Storyline {
   defaultChatSettings?: Partial<ChatSettings>;
   scenarios: { title: string; summary: string }[];
   stats: { plays: number; chats: number; likes: number; saves: number; comments: number; gifts: number };
-  flags: { public: boolean; sfw: boolean; monetized: boolean; featured: boolean; visualNovelReady: boolean; dungeonMind: boolean; mature: boolean };
+  flags: {
+    public: boolean; sfw: boolean; monetized: boolean; featured: boolean; visualNovelReady: boolean; dungeonMind: boolean; mature: boolean;
+    /** The source's content rating; absent on built-in mock stories (see `ratingOf`). */
+    rating?: ContentRating;
+  };
   publishedAt: string;
   updatedAt: string;
   version: number;
@@ -521,6 +542,9 @@ export interface MessageUsage {
   totalMs?: number;
 }
 
+/** Isekai Zero's adaptations of a reply (Chat Settings → Adaptation). */
+export type Adaptation = "narration" | "illustration" | "manga" | "visualNovel" | "music" | "animate";
+
 export interface ChatSettings {
   modelId: string | "auto";
   responseLength: "short" | "medium" | "long";
@@ -572,6 +596,17 @@ export interface ChatSettings {
   playMode?: "narration" | "visualNovel";
   /** Visual Novel: draw a background or expression when the story has none that fits (on unless turned off). */
   vnGenerateMedia?: boolean;
+  /** AI Media Picker: after each reply, show the story's matching background, character images and illustrations (on unless turned off). */
+  aiMediaPicker?: boolean;
+  /**
+   * Adaptation "Auto-generate" for the paid ones without their own switch: manga pages, a song and a video scene after
+   * each reply (narration, scene images and Visual Novel use autoPlayVoice, autoIllustrate and playMode).
+   */
+  autoManga?: boolean;
+  autoMusic?: boolean;
+  autoVideo?: boolean;
+  /** Adaptation options: ones turned off leave the message menu and the auto-generate list. */
+  adaptationsOff?: Adaptation[];
   /** Music: "Auto" lets the music brief choose sung or instrumental per moment. */
   musicVocals?: "auto" | "instrumental" | "vocal";
   /** Optional guidance for every song in this chat (style, instruments, vocals, mood). */
@@ -685,7 +720,7 @@ export interface CreatedCharacter {
   /** Description (User): what players read when Advanced Mode splits it from the AI's description (`character.persona`). */
   userDescription?: string;
   tags: string[];
-  contentRating: "sfw" | "m17" | "18+";
+  contentRating: ContentRating;
   version: number;
   createdAt: string;
   updatedAt: string;

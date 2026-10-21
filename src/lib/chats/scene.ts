@@ -1,4 +1,4 @@
-import type { Character, MediaRequest, StoryImage, StoryMedia, Storyline, VnScene } from "@/types/isekaizero";
+import type { Character, ChatMessage, HiddenMedia, MediaRequest, StoryImage, StoryMedia, Storyline, VnScene } from "@/types/isekaizero";
 
 /*
  * Visual Novel "Media Picker": after each reply a small model call picks the background and each present
@@ -27,6 +27,43 @@ export function presentCharacters(storyline: Storyline, reply: string, generate 
   return storyline.characters.filter((c) => (generate || looks(c).length > 0) && mentioned(reply, c)).slice(0, 6);
 }
 
+/** Replies an illustration must wait before it can be shown again (`showOnce` ones never come back). */
+const ILLUSTRATION_COOLDOWN = 8;
+
+/**
+ * The story's illustrations the picker may still use after `messages`: `showOnce` art already shown in this chat
+ * and art shown in the last few replies are left out, so one moment's picture doesn't follow the story around.
+ */
+export function illustrationChoices(storyline: Storyline, messages: ChatMessage[]): StoryImage[] {
+  const all = storyline.illustrations ?? [];
+  if (all.length === 0) return [];
+  const replies = messages.filter((m) => m.role === "assistant");
+  const ever = discoveredIllustrations(replies, all);
+  const recent = discoveredIllustrations(replies.slice(-ILLUSTRATION_COOLDOWN), all);
+  return all.filter((img) => !recent.has(img.id) && !(img.showOnce && ever.has(img.id)));
+}
+
+/**
+ * Ids of the story's illustrations that have appeared in this chat (the Gallery's "discovered"): inserted by the
+ * Media Picker, or written into a message by the author (openings often embed them as pictures).
+ */
+export function discoveredIllustrations(messages: ChatMessage[], illustrations: StoryImage[] = []): Set<string> {
+  const text = messages.map((m) => m.content).join("\n");
+  return new Set([
+    ...messages.flatMap((m) => (m.scene?.illustration ? [m.scene.illustration.id] : [])),
+    ...illustrations.filter((img) => text.includes(img.url)).map((img) => img.id),
+  ]);
+}
+
+/** The story with its hidden creator art added: event art to the illustrations, empty places to the backgrounds. */
+export function withHiddenMedia(storyline: Storyline, hidden: HiddenMedia[]): Storyline {
+  const pick = (kinds: HiddenMedia["kind"][]) => hidden.filter((m) => kinds.includes(m.kind) && m.caption).map(({ id, url, caption }) => ({ id, url, caption }));
+  const illustrations = pick(["illustration", "character"]);
+  const backgrounds = pick(["background"]);
+  if (illustrations.length + backgrounds.length === 0) return storyline;
+  return { ...storyline, illustrations: [...(storyline.illustrations ?? []), ...illustrations], backgrounds: [...(storyline.backgrounds ?? []), ...backgrounds] };
+}
+
 /** The story with the art generated for it: backgrounds appended, and each character's images after their own looks. */
 export function withStoryMedia(storyline: Storyline, media: StoryMedia[]): Storyline {
   if (media.length === 0) return storyline;
@@ -41,7 +78,7 @@ export function withStoryMedia(storyline: Storyline, media: StoryMedia[]): Story
   };
 }
 
-export function scenePrompt(storyline: Storyline, reply: string, previous?: VnScene, generate = false): { role: "system" | "user"; content: string }[] {
+export function scenePrompt(storyline: Storyline, reply: string, previous?: VnScene, generate = false, illustrations: StoryImage[] = []): { role: "system" | "user"; content: string }[] {
   const backgrounds = storyline.backgrounds ?? [];
   const cast = presentCharacters(storyline, reply, generate);
   const list = (images: StoryImage[]) => (images.length > 0 ? images.map((img, i) => `  ${i + 1}. ${img.caption || "(no caption)"}`).join("\n") : "  (no images yet)");
@@ -53,13 +90,19 @@ export function scenePrompt(storyline: Storyline, reply: string, previous?: VnSc
         generate
           ? `Answer only with lines. First \`background: <number>\`, \`background: keep\` if the location has not changed, or \`background: new <short caption of the place>\` if it changed and no listed background shows it. Then one line for each character physically present at the end of the reply, at most ${MAX_CHARACTERS}: \`<Character name>: <number>\` only if that image shows their current emotion or pose, otherwise \`<Character name>: new <Name> is <emotion or pose>\` (e.g. \`Ellen: new Ellen is terrified\`). Sad is not afraid; normal is not angry or shocked. No other text.`
           : `Answer only with lines. First \`background: <number>\`, or \`background: keep\` if the location has not changed or nothing fits. Then one line \`<Character name>: <number>\` for each character physically present at the end of the reply, at most ${MAX_CHARACTERS}, choosing the expression or pose that fits. No other text.`,
-      ].join("\n"),
+        illustrations.length > 0
+          ? "Last line: `illustration: <number>` only if one of the Illustrations shows exactly the moment this reply reaches (the same event, not just the same place or people); otherwise `illustration: none`. Most replies get none."
+          : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
     },
     {
       role: "user",
       content: [
         backgrounds.length > 0 ? `Backgrounds:\n${list(backgrounds)}` : generate ? "Backgrounds: none yet." : "Backgrounds: none available (answer `background: keep`).",
         cast.length > 0 ? `Characters:\n${cast.map((c) => `${c.name}:\n${list(looks(c))}`).join("\n")}` : "Characters: none mentioned.",
+        illustrations.length > 0 ? `Illustrations:\n${list(illustrations)}` : "",
         previous?.background ? `Current background: ${previous.background.caption || "(no caption)"}` : "",
         `Latest reply:\n${reply.slice(-REPLY_CHARS)}`,
       ]
@@ -70,10 +113,11 @@ export function scenePrompt(storyline: Storyline, reply: string, previous?: VnSc
 }
 
 /** Reads the picker's lines; unknown numbers and names are ignored, so a bad answer degrades to the fallback. */
-export function parseScene(text: string, storyline: Storyline, reply: string, previous?: VnScene): VnScene {
+export function parseScene(text: string, storyline: Storyline, reply: string, previous?: VnScene, illustrations: StoryImage[] = []): VnScene {
   const backgrounds = storyline.backgrounds ?? [];
   const cast = presentCharacters(storyline, reply);
   let background = previous?.background;
+  let illustration: StoryImage | undefined;
   const characters: VnScene["characters"] = [];
   for (const line of text.split("\n")) {
     const match = /^\s*[-*]?\s*([^:]+?)\s*:\s*(keep|\d+)\b/i.exec(line);
@@ -83,11 +127,15 @@ export function parseScene(text: string, storyline: Storyline, reply: string, pr
       if (value.toLowerCase() !== "keep") background = backgrounds[Number(value) - 1] ?? background;
       continue;
     }
+    if (/^illustration$/i.test(label)) {
+      illustration = illustrations[Number(value) - 1] ?? illustration;
+      continue;
+    }
     const who = cast.find((c) => c.name.toLowerCase() === label.toLowerCase() || firstName(c.name).toLowerCase() === label.toLowerCase());
     const image = who && looks(who)[Number(value) - 1];
     if (who && image && !characters.some((x) => x.name === who.name) && characters.length < MAX_CHARACTERS) characters.push({ name: who.name, image });
   }
-  return { background, characters: characters.length > 0 ? characters : fallbackScene(storyline, reply, previous).characters };
+  return { background, characters: characters.length > 0 ? characters : fallbackScene(storyline, reply, previous).characters, ...(illustration ? { illustration } : {}) };
 }
 
 /** The picker's "new" lines: at most one background, and one image per present character. */

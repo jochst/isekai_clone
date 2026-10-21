@@ -14,7 +14,7 @@ export interface SceneImageProps {
   onAnimate?: () => void;
 }
 
-function Lightbox({ url, prompt, onClose }: { url: string; prompt: string; onClose: () => void }) {
+export function Lightbox({ url, prompt, onClose }: { url: string; prompt: string; onClose: () => void }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
