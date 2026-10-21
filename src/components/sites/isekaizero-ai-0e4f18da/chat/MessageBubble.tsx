@@ -4,6 +4,7 @@ import { Bookmark, ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, MoreH
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+import { imgAttr, unwrapInlineImages } from "@/lib/text";
 import { generateSpeech, stopBrowserSpeech } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { estimateTokens } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
@@ -77,15 +78,23 @@ function EndingCard({ ending }: { ending: StoryEnding }) {
 
 const CODEX_VERBS = { read: "📖 Read:", update: "✎ Updated:", create: "＋ New entry:", delete: "✕ Removed:" } as const;
 
-const TOKEN_RE = /(<tag>[\s\S]*?<\/tag>|\*\*[^*\n]+\*\*|\*[^*\n]+\*|"[^"\n]+"|“[^”\n]+”)/g;
+const TOKEN_RE = /(<img\b[^>]*>|<tag>[\s\S]*?<\/tag>|\*\*[^*\n]+\*\*|\*[^*\n]+\*|"[^"\n]+"|“[^”\n]+”)/g;
 
 /**
- * Renders `<tag>scene tracker</tag>` lines, `**bold**`, `*thoughts and actions*` as italics and "dialogue",
- * each in its Chat colors variable (UI/UX settings) with the built-in look as the fallback.
+ * Renders inline `<img>` pictures (story openings embed them as HTML), `<tag>scene tracker</tag>` lines, `**bold**`,
+ * `*thoughts and actions*` as italics and "dialogue", each in its Chat colors variable (UI/UX settings) with the
+ * built-in look as the fallback.
  */
 export function renderRichText(text: string): ReactNode[] {
-  const parts = text.split(TOKEN_RE);
+  const parts = unwrapInlineImages(text).split(TOKEN_RE);
   return parts.map((part, i) => {
+    if (/^<img\b/i.test(part)) {
+      const src = imgAttr(part, "src");
+      // Only web images and our own stored copies; anything else (javascript:, data:) is dropped.
+      if (!src || !/^(https?:\/\/|\/api\/media\/)/i.test(src)) return null;
+      // eslint-disable-next-line @next/next/no-img-element
+      return <img key={i} src={src} alt={imgAttr(part, "alt") ?? ""} loading="lazy" referrerPolicy="no-referrer" className="my-2 block h-auto max-h-[520px] w-auto max-w-full rounded-[12px]" />;
+    }
     if (part.startsWith("<tag>") && part.endsWith("</tag>")) {
       return (
         <span key={i} className="block font-mono text-[12px] leading-5 text-[color:var(--iz-tracker,#ffcf8a)]">

@@ -8,6 +8,7 @@ import { emptyCodex, type CodexState } from "./codex";
 import type { Sheets } from "./dm";
 import type { ChatCast } from "./cast";
 import { localizeMedia } from "./media";
+import { inlineImagesAsText, mapInlineImageSources } from "@/lib/text";
 
 /**
  * Chats live in their own SQLite file (`data/chats.sqlite`), not dev.db: `npm run db:restore` replaces dev.db
@@ -81,7 +82,7 @@ export function listChats(db: DatabaseSync, deleted = false): ChatSummary[] {
     return {
       ...(JSON.parse(String(row.meta)) as ChatMeta),
       messageCount: Number(count.get(id)?.n ?? 0),
-      preview: last?.content.replace(/<tag>[\s\S]*?<\/tag>/g, "").replace(/\s+/g, " ").trim() ?? "",
+      preview: inlineImagesAsText(last?.content ?? "", () => "").replace(/<tag>[\s\S]*?<\/tag>/g, "").replace(/\s+/g, " ").trim(),
       ...(row.archived ? { archived: true } : {}),
       ...(row.deleted ? { deletedAt: Number(row.deleted) } : {}),
     };
@@ -185,6 +186,8 @@ export async function localizeMessages(messages: ChatMessage[]): Promise<ChatMes
   return Promise.all(
     messages.map(async (m) => ({
       ...m,
+      // Pictures written into the text (story openings) are stored locally too, so they outlive the source site.
+      content: m.content.includes("<img") ? await mapInlineImageSources(m.content, (src) => (/^https?:\/\//i.test(src) ? localizeMedia(src) : Promise.resolve(src))) : m.content,
       images: m.images && (await Promise.all(m.images.map(async (img) => (img.status === "done" ? { ...img, url: await localizeMedia(img.url) } : img)))),
       videos: m.videos && (await Promise.all(m.videos.map(async (v) => (v.status === "done" ? { ...v, url: await localizeMedia(v.url) } : v)))),
       manga:

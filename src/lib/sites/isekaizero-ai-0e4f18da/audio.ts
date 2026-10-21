@@ -3,6 +3,7 @@
 import type { ChatSettings, ProviderSettings, Storyline, VoiceProvider } from "@/types/isekaizero";
 import { defaultVoiceFor, guessGender, voiceSegments } from "@/lib/chats/voice";
 import { providerHeaders } from "./provider-settings";
+import { inlineImagesAsText } from "@/lib/text";
 
 export interface VoicePreset {
   id: string;
@@ -122,8 +123,9 @@ export function playSpeech(parts: SpeechPart[], settings: ProviderSettings, onDo
 const audioBlobCache = new Map<string, string>();
 
 function cleanTextForSpeech(raw: string): string {
-  // Strip code blocks, markdown links, and excess asterisks
-  return raw
+  // Strip inline images and other HTML, code blocks, markdown links, and excess asterisks
+  return inlineImagesAsText(raw, () => "")
+    .replace(/<[^>]+>/g, "")
     .replace(/```[\s\S]*?```/g, "")
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
     .replace(/[\*_~#]/g, "")
