@@ -14,6 +14,37 @@ const opening = `The flintlock pressed between Josh's eyes.
 
 "You are Josh. I am Rin Kagura."`;
 
+describe("story text written in Markdown and HTML", () => {
+  const greeting = `<t> 1/1/2026 | TUESDAY | GRAND HALL <t>
+
+![Alt link]
+(https://s3.example/genevieve.webp)
+
+<span style="color:goldenrod"><b>Genevieve:</b></span> "Pleasure."<br><span style="color:black"><b>Astra:</b></span> "Your turn."
+<p>Stray <b>bold</p> and <span>plain</span>.</p><hr>`;
+  const html = renderToStaticMarkup(createElement("p", null, renderRichText(greeting)));
+
+  it("draws Markdown images as pictures", () => {
+    expect(html).toContain('<img src="https://s3.example/genevieve.webp" alt="Alt link"');
+    expect(html).not.toContain("![");
+  });
+
+  it("keeps the author's colors and bold, but not colors too dark to read", () => {
+    expect(html).toContain('<span style="color:goldenrod"><strong');
+    expect(html).not.toContain("color:black");
+    expect(html).toContain("Astra:");
+  });
+
+  it("draws the author's own tracker tags like the scene tracker and drops other markup", () => {
+    expect(html).toContain("1/1/2026 | TUESDAY | GRAND HALL</span>");
+    expect(html).not.toMatch(/&lt;\/?(t|p|b|span|br|hr)\b/);
+  });
+
+  it("tells the AI about Markdown images like HTML ones", () => {
+    expect(inlineImagesAsText("A ![Rin](https://s3.example/rin.webp) B")).toBe("A\n\n[image: Rin]\n\nB");
+  });
+});
+
 describe("images written into story text", () => {
   it("shows them as pictures in the chat, without the wrapper markup", () => {
     const html = renderToStaticMarkup(createElement("p", null, renderRichText(opening)));

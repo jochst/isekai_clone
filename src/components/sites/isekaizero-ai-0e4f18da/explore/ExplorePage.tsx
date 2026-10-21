@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import {
   BookImage,
   BookOpen,
@@ -17,7 +17,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { StoryCardData, StoryCategory } from "@/types/isekaizero";
+import { ratingOf } from "@/lib/rating";
+import type { ContentRating, StoryCardData, StoryCategory } from "@/types/isekaizero";
 import { StoryCard } from "../shared/StoryCard";
 import { CATEGORY_META, categoryIcon } from "../shared/category-meta";
 
@@ -25,6 +26,8 @@ import { CATEGORY_META, categoryIcon } from "../shared/category-meta";
 
 export interface ExplorePageProps {
   storylines: StoryCardData[];
+  /** Search words from the top bar (`/explore?q=`). */
+  initialQuery?: string;
 }
 
 type ContentType = "storyline" | "character" | "music" | "manga";
@@ -43,7 +46,7 @@ const TYPE_TABS: TypeTab[] = [
   { key: "manga", label: "Manga", Icon: BookImage, disabled: true },
 ];
 
-type SortKey = "discovery" | "trending" | "mostPlayed" | "mostLiked" | "newest";
+type SortKey = "discovery" | "trending" | "mostPlayed" | "mostLiked" | "newest" | "oldest" | "title";
 
 const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: "discovery", label: "Discovery" },
@@ -51,6 +54,14 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: "mostPlayed", label: "Most Played" },
   { key: "mostLiked", label: "Most Liked" },
   { key: "newest", label: "Newest" },
+  { key: "oldest", label: "Oldest" },
+  { key: "title", label: "Title A–Z" },
+];
+
+const RATING_OPTIONS: { key: ContentRating; label: string; active: string }[] = [
+  { key: "sfw", label: "SFW", active: "bg-[rgb(21,128,61)] text-white" },
+  { key: "m17", label: "M17", active: "bg-[rgb(180,83,9)] text-white" },
+  { key: "18+", label: "18+", active: "bg-[rgb(190,18,60)] text-white" },
 ];
 
 const CATEGORY_KEYS = Object.keys(CATEGORY_META) as StoryCategory[];
@@ -145,19 +156,31 @@ function writeAudience(value: string): void {
 
 /* ---------- Filtering & sorting ---------- */
 
-function matchesQuery(storyline: StoryCardData, rawQuery: string): boolean {
+/**
+ * How well a story matches the search: 3 title, 2 summary, tags or creator, 1 only its full description (found by
+ * the server, which holds the descriptions), 0 no match. An empty query matches everything.
+ */
+export function matchRank(storyline: StoryCardData, rawQuery: string, inDescription: Set<string>): number {
   const query = rawQuery.trim().toLowerCase();
-  if (query === "") return true;
+  if (query === "") return 1;
   if (query.startsWith("@")) {
-    return storyline.creator.handle.toLowerCase().includes(query.slice(1));
+    return storyline.creator.handle.toLowerCase().includes(query.slice(1)) ? 2 : 0;
   }
-  return (
-    storyline.title.toLowerCase().includes(query) ||
+  if (storyline.title.toLowerCase().includes(query)) return 3;
+  if (
     storyline.tagline.toLowerCase().includes(query) ||
+    storyline.description.toLowerCase().includes(query) ||
     storyline.tags.some((tag) => tag.toLowerCase().includes(query)) ||
     storyline.creator.handle.toLowerCase().includes(query)
-  );
+  ) {
+    return 2;
+  }
+  return inDescription.has(storyline.id) ? 1 : 0;
 }
+
+const NO_IDS = new Set<string>();
+
+const sortTitle = (title: string) => title.replace(/^[^\p{L}\p{N}]+/u, "") || title;
 
 function sortStorylines(list: StoryCardData[], sort: SortKey): StoryCardData[] {
   if (sort === "discovery") return list;
@@ -174,6 +197,13 @@ function sortStorylines(list: StoryCardData[], sort: SortKey): StoryCardData[] {
       break;
     case "newest":
       sorted.sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+      break;
+    case "oldest":
+      sorted.sort((a, b) => Date.parse(a.publishedAt) - Date.parse(b.publishedAt));
+      break;
+    case "title":
+      // "[Generic RPG]" and "🌠 Falling Star" file under their first letter.
+      sorted.sort((a, b) => sortTitle(a.title).localeCompare(sortTitle(b.title), "en", { sensitivity: "base", numeric: true }));
       break;
   }
   return sorted;
@@ -278,11 +308,30 @@ function AudienceModal({ onConfirm }: { onConfirm: (selected: Audience[]) => voi
 
 /* ---------- Page ---------- */
 
-export function ExplorePage({ storylines }: ExplorePageProps) {
-  const [query, setQuery] = useState("");
+export function ExplorePage({ storylines, initialQuery = "" }: ExplorePageProps) {
+  const [query, setQuery] = useState(initialQuery);
   const [contentType, setContentType] = useState<ContentType>("storyline");
   const [sort, setSort] = useState<SortKey>("discovery");
   const [categories, setCategories] = useState<StoryCategory[]>([]);
+  const [ratings, setRatings] = useState<ContentRating[]>([]);
+  // Full descriptions are searched on the server; the answer is kept with the query it belongs to.
+  const [descriptionHits, setDescriptionHits] = useState<{ query: string; ids: Set<string> }>({ query: "", ids: NO_IDS });
+  const trimmed = query.trim();
+  useEffect(() => {
+    if (trimmed.length < 2 || trimmed.startsWith("@")) return;
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      fetch(`/api/storylines/search?q=${encodeURIComponent(trimmed)}`, { signal: controller.signal })
+        .then((res) => (res.ok ? (res.json() as Promise<{ ids: string[] }>) : { ids: [] }))
+        .then(({ ids }) => setDescriptionHits({ query: trimmed, ids: new Set(ids) }))
+        .catch(() => {});
+    }, 250);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [trimmed]);
+  const inDescription = descriptionHits.query === trimmed ? descriptionHits.ids : NO_IDS;
   const [popover, setPopover] = useState<Popover>(null);
   const [shown, setShown] = useState(PAGE_SIZE);
 
@@ -290,13 +339,19 @@ export function ExplorePage({ storylines }: ExplorePageProps) {
   const showAudienceModal = storedAudience === null;
 
   const visible = useMemo(() => {
-    const filtered = storylines.filter(
-      (storyline) =>
-        (contentType === "character" ? storyline.imported?.kind === "character" : storyline.imported?.kind !== "character") &&
-        matchesQuery(storyline, query) && (categories.length === 0 || categories.includes(storyline.category)),
-    );
-    return sortStorylines(filtered, sort);
-  }, [storylines, query, categories, sort, contentType]);
+    const ranked = storylines
+      .filter(
+        (storyline) =>
+          (contentType === "character" ? storyline.imported?.kind === "character" : storyline.imported?.kind !== "character") &&
+          (categories.length === 0 || categories.includes(storyline.category)) &&
+          (ratings.length === 0 || ratings.includes(ratingOf(storyline))),
+      )
+      .map((storyline) => ({ storyline, rank: matchRank(storyline, query, inDescription) }))
+      .filter((r) => r.rank > 0);
+    // While searching, Discovery means best match first: title hits, then summaries, then full descriptions.
+    if (query.trim() && sort === "discovery") ranked.sort((a, b) => b.rank - a.rank);
+    return sortStorylines(ranked.map((r) => r.storyline), sort);
+  }, [storylines, query, categories, ratings, sort, contentType, inDescription]);
 
   const togglePopover = (next: Exclude<Popover, null>) => setPopover((prev) => (prev === next ? null : next));
 
@@ -304,10 +359,15 @@ export function ExplorePage({ storylines }: ExplorePageProps) {
     setCategories((prev) => (prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]));
   };
 
+  const toggleRating = (rating: ContentRating) => {
+    setRatings((prev) => (prev.includes(rating) ? prev.filter((r) => r !== rating) : [...prev, rating]));
+  };
+
   const reset = () => {
     setQuery("");
     setSort("discovery");
     setCategories([]);
+    setRatings([]);
     setPopover(null);
   };
 
@@ -446,6 +506,24 @@ export function ExplorePage({ storylines }: ExplorePageProps) {
           ) : null}
         </div>
 
+        <div role="group" aria-label="Content rating" className="flex flex-row gap-[6px]">
+          {RATING_OPTIONS.map((option) => {
+            const active = ratings.includes(option.key);
+            return (
+              <button
+                key={option.key}
+                type="button"
+                onClick={() => toggleRating(option.key)}
+                aria-pressed={active}
+                title={`Show ${option.label} stories`}
+                className={cn(PILL_BASE, "h-[28px]", active ? option.active : "hover:bg-[rgba(255,255,255,0.1)] hover:text-white")}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+
         <button
           type="button"
           onClick={reset}
@@ -473,6 +551,13 @@ export function ExplorePage({ storylines }: ExplorePageProps) {
         {categories.map((category) => (
           <FilterChip key={category} label={CATEGORY_META[category].label} onRemove={() => toggleCategory(category)} />
         ))}
+        {ratings.map((rating) => (
+          <FilterChip key={rating} label={RATING_OPTIONS.find((o) => o.key === rating)?.label ?? rating} onRemove={() => toggleRating(rating)} />
+        ))}
+        <span className="flex h-[26px] items-center text-[12px] text-[rgba(255,255,255,0.5)]">
+          {visible.length.toLocaleString("en-US")} {contentType === "character" ? "characters" : "storylines"}
+          {query.trim() ? ` for “${query.trim()}”` : ""}
+        </span>
       </div>
 
       {/* Grid */}

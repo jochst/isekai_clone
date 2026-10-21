@@ -5,10 +5,11 @@ import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { BIN_DAYS, CONTINUE_SENTINEL, type ChatMemory, type ChatMessage, type ChatSession, type ChatSummary, type Persona, type SceneMusic, type StoryMedia } from "@/types/isekaizero";
 import { emptyCodex, type CodexState } from "./codex";
+import type { HiddenMedia } from "@/types/isekaizero";
 import type { Sheets } from "./dm";
 import type { ChatCast } from "./cast";
 import { localizeMedia } from "./media";
-import { inlineImagesAsText, mapInlineImageSources } from "@/lib/text";
+import { hasInlineImages, inlineImagesAsText, mapInlineImageSources } from "@/lib/text";
 
 /**
  * Chats live in their own SQLite file (`data/chats.sqlite`), not dev.db: `npm run db:restore` replaces dev.db
@@ -43,6 +44,7 @@ export function openChatDb(): DatabaseSync {
     CREATE TABLE IF NOT EXISTS chat_cast (chat_id TEXT PRIMARY KEY REFERENCES chats(id) ON DELETE CASCADE, body TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS story_media (id TEXT PRIMARY KEY, storyline_id TEXT NOT NULL, body TEXT NOT NULL, created INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS story_media_by_story ON story_media (storyline_id, created);
+    CREATE TABLE IF NOT EXISTS hidden_media (storyline_id TEXT NOT NULL, media_id TEXT NOT NULL, body TEXT NOT NULL, created INTEGER NOT NULL, PRIMARY KEY (storyline_id, media_id));
     CREATE TABLE IF NOT EXISTS collections (list TEXT NOT NULL, kind TEXT NOT NULL, id TEXT NOT NULL, body TEXT NOT NULL, created INTEGER NOT NULL, PRIMARY KEY (list, kind, id));`);
   // Bin and archive flags live outside `meta` so a client meta sync can't undo them.
   const columns = new Set(db.prepare("PRAGMA table_info(chats)").all().map((c) => String(c.name)));
@@ -187,7 +189,7 @@ export async function localizeMessages(messages: ChatMessage[]): Promise<ChatMes
     messages.map(async (m) => ({
       ...m,
       // Pictures written into the text (story openings) are stored locally too, so they outlive the source site.
-      content: m.content.includes("<img") ? await mapInlineImageSources(m.content, (src) => (/^https?:\/\//i.test(src) ? localizeMedia(src) : Promise.resolve(src))) : m.content,
+      content: hasInlineImages(m.content) ? await mapInlineImageSources(m.content, (src) => (/^https?:\/\//i.test(src) ? localizeMedia(src) : Promise.resolve(src))) : m.content,
       images: m.images && (await Promise.all(m.images.map(async (img) => (img.status === "done" ? { ...img, url: await localizeMedia(img.url) } : img)))),
       videos: m.videos && (await Promise.all(m.videos.map(async (v) => (v.status === "done" ? { ...v, url: await localizeMedia(v.url) } : v)))),
       manga:
@@ -250,6 +252,16 @@ export function listStoryMedia(db: DatabaseSync, storylineId: string): StoryMedi
 
 export function addStoryMedia(db: DatabaseSync, storylineId: string, media: StoryMedia): void {
   db.prepare("INSERT INTO story_media (id, storyline_id, body, created) VALUES (?, ?, ?, ?)").run(media.id, storylineId, JSON.stringify(media), Date.now());
+}
+
+/* A story's hidden creator media (see lib/chats/hidden-media.ts), captioned once and kept. */
+
+export function listHiddenMedia(db: DatabaseSync, storylineId: string): HiddenMedia[] {
+  return db.prepare("SELECT body FROM hidden_media WHERE storyline_id = ? ORDER BY media_id").all(storylineId).map((row) => JSON.parse(String(row.body)) as HiddenMedia);
+}
+
+export function addHiddenMedia(db: DatabaseSync, storylineId: string, media: HiddenMedia): void {
+  db.prepare("INSERT OR REPLACE INTO hidden_media (storyline_id, media_id, body, created) VALUES (?, ?, ?, ?)").run(storylineId, media.id, JSON.stringify(media), Date.now());
 }
 
 /* The chat's codex changes (Phase 3a). Written only by the turn engine, so a client sync never overwrites them. */

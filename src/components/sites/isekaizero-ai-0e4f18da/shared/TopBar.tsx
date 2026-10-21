@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Form from "next/form";
 import Link from "next/link";
 import { Bell, Search, User } from "lucide-react";
 
@@ -69,15 +70,17 @@ export function TopBar({ active: activeProp, mana = 0, arcane = 0, className }: 
         })}
       </nav>
 
-      <label className="ml-auto flex h-10 max-w-[300px] flex-1 items-center gap-2 rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] px-[14px]">
+      {/* Searching opens Explore with the words filled in (/explore?q=…). */}
+      <Form action="/explore" role="search" className="ml-auto flex h-10 max-w-[300px] flex-1 items-center gap-2 rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] px-[14px]">
         <Search size={18} strokeWidth={2} aria-hidden className="shrink-0 text-[rgba(255,255,255,0.5)]" />
         <input
           type="search"
+          name="q"
           placeholder="Search storylines, @creators..."
           aria-label="Search storylines and creators"
           className="min-w-0 flex-1 bg-transparent text-[14px] leading-none text-white outline-none placeholder:text-[rgba(255,255,255,0.4)]"
         />
-      </label>
+      </Form>
 
       <BalancePills mana={mana} arcane={arcane} variant="compact" className="shrink-0" />
 

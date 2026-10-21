@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { BookOpen, DollarSign, Globe, MessageCircle, MessagesSquare, Star, Swords, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { StoryCardData } from "@/types/isekaizero";
+import { ratingOf } from "@/lib/rating";
+import type { ContentRating, StoryCardData } from "@/types/isekaizero";
 import { StoryCover } from "./StoryCover";
 import { formatCountLower } from "./format";
 
@@ -43,10 +44,18 @@ function BadgeStrip({ flags }: { flags: StoryCardData["flags"] }) {
   );
 }
 
-function MaturePill() {
+/** The content rating tag: SFW, M17 (Isekai Zero's mature) or 18+ (KageSekai's adult stories). */
+const RATING_PILL: Record<ContentRating, { label: string; className: string }> = {
+  sfw: { label: "SFW", className: "border-[rgb(21,128,61)] bg-[rgb(21,128,61)]" },
+  m17: { label: "M17", className: "border-[rgb(180,83,9)] bg-[rgb(180,83,9)]" },
+  "18+": { label: "18+", className: "border-[rgb(190,18,60)] bg-[rgb(190,18,60)]" },
+};
+
+export function RatingPill({ rating, className }: { rating: ContentRating; className?: string }) {
+  const { label, className: color } = RATING_PILL[rating];
   return (
-    <span className="absolute right-[8px] top-[8px] z-[3] flex h-[20px] items-center justify-center rounded-[16px] border border-[rgb(180,83,9)] bg-[rgb(180,83,9)] px-[8px] font-[family-name:var(--font-roboto)] text-[10px] font-medium leading-none text-white">
-      M
+    <span className={cn("flex h-[20px] items-center justify-center rounded-[16px] border px-[8px] font-[family-name:var(--font-roboto)] text-[10px] font-medium leading-none text-white", color, className)}>
+      {label}
     </span>
   );
 }
@@ -78,7 +87,7 @@ export function StoryCard({ storyline, variant = "row", className }: StoryCardPr
           <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0)_30%,rgb(0,0,0)_80%,rgb(0,0,0)_100%)]" />
 
           <BadgeStrip flags={flags} />
-          {flags.mature ? <MaturePill /> : null}
+          <RatingPill rating={ratingOf(storyline)} className="absolute right-[8px] top-[8px] z-[3]" />
 
           {/* Text block — anchored to the bottom with the 40px gradient padding */}
           <div className="absolute inset-x-0 bottom-0 z-[2] flex flex-col px-[10px] pb-[10px] pt-[40px]">
