@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 
 import { createReadStream, createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { createInterface } from "node:readline/promises";
 import { setTimeout as sleep } from "node:timers/promises";
 
-const DEFAULT_API_BASE_URL = "https://api-global.isekaizero.ai/api";
+// --site: Isekai Zero, or its less restrictive sister site KageSekai (same API; stories mirrored between them keep
+// the same id, so whichever is imported first is kept and the other copy is skipped).
+const SITES = {
+  isekaizero: { api: "https://api-global.isekaizero.ai/api", source: "isekaizero.ai", web: "https://www.isekaizero.ai" },
+  kagesekai: { api: "https://api.kagesekai.ai/api", source: "kagesekai.ai", web: "https://www.kagesekai.ai" },
+};
 const DEFAULT_OUTPUT_DIR = "data/isekaizero";
 const DEFAULT_PAGE_SIZE = 50;
 const DEFAULT_DELAY_MS = 650;
@@ -13,7 +18,9 @@ const DEFAULT_RETRIES = 5;
 
 const args = parseArgs(process.argv.slice(2));
 const outputDir = resolve(args.outputDir ?? DEFAULT_OUTPUT_DIR);
-const apiBaseUrl = String(args.apiBaseUrl ?? DEFAULT_API_BASE_URL).replace(/\/+$/, "");
+const site = SITES[String(args.site ?? "isekaizero")];
+if (!site) throw new Error(`Unknown --site ${args.site}; use ${Object.keys(SITES).join(" or ")}`);
+const apiBaseUrl = String(args.apiBaseUrl ?? site.api).replace(/\/+$/, "");
 const pageSize = positiveInt(args.pageSize, DEFAULT_PAGE_SIZE);
 const delayMs = positiveInt(args.delayMs, DEFAULT_DELAY_MS);
 const retries = positiveInt(args.retries, DEFAULT_RETRIES);
@@ -49,9 +56,10 @@ const knownVersions = new Map();
 if (args.knownDatabaseUrl) {
   const { default: Database } = await import("better-sqlite3");
   const known = new Database(String(args.knownDatabaseUrl).replace(/^file:/, ""), { readonly: true, fileMustExist: true });
-  for (const { id, version } of known.prepare("SELECT id, json_extract(rawJson, '$.version') AS version FROM Story").iterate()) {
+  for (const { id, version, source } of known.prepare("SELECT id, json_extract(rawJson, '$.version') AS version, source FROM Story").iterate()) {
     importedStoryIds.add(id);
-    if (version !== null) knownVersions.set(id, Number(version));
+    // Only stories from this site are refreshed from it: a story mirrored on both sites keeps the copy it has.
+    if (version !== null && (source ?? "isekaizero.ai") === site.source) knownVersions.set(id, Number(version));
   }
   for (const { id } of known.prepare("SELECT id FROM StoryCharacter").iterate()) importedStoryCharacterIds.add(id);
   known.close();
@@ -154,7 +162,10 @@ try {
   }
 } finally {
   writeManifest(new Date().toISOString());
-  if (skipFile && skippedLanguage > 0) writeFileSync(skipFile, JSON.stringify([...skippedIds]));
+  if (skipFile && skippedLanguage > 0) {
+    mkdirSync(dirname(skipFile), { recursive: true });
+    writeFileSync(skipFile, JSON.stringify([...skippedIds]));
+  }
   await closeStream(storylineStream);
   await closeStream(storyCharacterStream);
 }
@@ -162,8 +173,8 @@ try {
 function normalizeStoryline(story, summary) {
   return {
     id: story._id,
-    source: "isekaizero.ai",
-    sourceUrl: `https://www.isekaizero.ai/storylines/${story._id}`,
+    source: site.source,
+    sourceUrl: `${site.web}/storylines/${story._id}`,
     importedAt: new Date().toISOString(),
     title: story.title ?? summary?.title ?? "",
     status: story.status ?? null,
@@ -203,8 +214,8 @@ function normalizeStoryCharacter({ id, story, character, snapshot }) {
     storyId: story._id,
     storyTitle: story.title ?? "",
     characterId: character._id ?? snapshot._id,
-    source: "isekaizero.ai",
-    sourceUrl: `https://www.isekaizero.ai/storylines/${story._id}/characters/${character._id ?? snapshot._id}`,
+    source: site.source,
+    sourceUrl: `${site.web}/storylines/${story._id}/characters/${character._id ?? snapshot._id}`,
     importedAt: new Date().toISOString(),
     name: character.name ?? snapshot.name ?? "",
     status: character.status ?? snapshot.status ?? null,
@@ -313,7 +324,7 @@ function writeManifest(finishedAt = null) {
     paths.manifest,
     `${JSON.stringify(
       {
-        source: "isekaizero.ai",
+        source: site.source,
         apiBaseUrl,
         startedAt,
         finishedAt,

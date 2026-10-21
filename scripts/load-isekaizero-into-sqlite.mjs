@@ -20,13 +20,15 @@ const prisma = new PrismaClient({ adapter });
 let storyCount = 0;
 let characterCount = 0;
 let storyCharacterCount = 0;
-const runId = `isekaizero-${new Date().toISOString()}`;
+// The import run is named after the site the manifest says it came from (isekaizero.ai or kagesekai.ai).
+const runSource = readJsonIfExists(manifestPath)?.source ?? "isekaizero.ai";
+const runId = `${runSource.split(".")[0]}-${new Date().toISOString()}`;
 
 try {
   await prisma.importRun.create({
     data: {
       id: runId,
-      source: "isekaizero.ai",
+      source: runSource,
       manifestJson: readJsonIfExists(manifestPath),
     },
   });
