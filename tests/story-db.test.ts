@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "vitest";
-import { getDbStoryline, toStoryCard, type StoryCardRow } from "../src/lib/story-db";
+import { fromCardSql, getDbStoryline, toStoryCard, type StoryCardRow } from "../src/lib/story-db";
 
 const row: StoryCardRow = {
   id: "6ab95807748298884abbe0d0", title: "May this Dance Never End", plotSummary: "<p>You died and <b>forgot</b> your name.</p>",
@@ -30,4 +30,19 @@ test("dev.db rows map to Explore cards without reading rawJson", () => {
 test("non-Isekai ids never reach the database", async () => {
   assert.equal(await getDbStoryline("import-abc"), undefined);
   assert.equal(await getDbStoryline("../dev.db"), undefined);
+});
+
+test("cards read through SQL keep the same fields", () => {
+  const card = toStoryCard(fromCardSql({
+    id: row.id, title: row.title, plotSummary: row.plotSummary, category: row.category, tagsJson: JSON.stringify(row.tagsJson), creatorUsername: row.creatorUsername,
+    contentRating: "18+", nsfw: 1, visibility: "public", visualNovelReady: 1, dmV2Ready: 0, coverUrl: "https://s3.alterworld.ai/cover.webp",
+    plays: 8217, chats: 10500, likes: 3473, saves: 5142, comments: 106, gifts: null, publishedAt: "2026-10-04T15:00:19.196+00:00", importedAt: "2026-10-05T00:00:00.000+00:00",
+  }));
+  assert.deepEqual(card.stats, { plays: 8217, chats: 10500, likes: 3473, saves: 5142, comments: 106, gifts: 0 });
+  assert.deepEqual(card.tags, ["Romance", "Mystery"]);
+  assert.equal(card.flags.rating, "18+");
+  assert.equal(card.flags.visualNovelReady, true);
+  assert.equal(card.flags.dungeonMind, false);
+  assert.equal(card.publishedAt, "2026-10-04T15:00:19.196Z");
+  assert.equal(card.cover.imageUrl, "https://s3.alterworld.ai/cover.webp");
 });

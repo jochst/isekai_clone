@@ -53,6 +53,38 @@ export function toStoryCard(row: StoryCardRow): StoryCardData {
 }
 
 /**
+ * The card columns, with SQLite picking out the few engagement counts and the cover URL a card shows. Reading the
+ * whole engagement and cover JSON for ~10k stories (36 MB) through Prisma took minutes on a busy PC; this takes seconds.
+ */
+const CARD_SQL = `SELECT id, title, plotSummary, category, tagsJson, creatorUsername, contentRating, nsfw, visibility, visualNovelReady, dmV2Ready,
+  json_extract(coverJson, '$.url') AS coverUrl,
+  json_extract(engagementJson, '$.uniqueUserCount') AS plays, json_extract(engagementJson, '$.chatCount') AS chats,
+  json_extract(engagementJson, '$.likeCount') AS likes, json_extract(engagementJson, '$.collectCount') AS saves,
+  json_extract(engagementJson, '$.commentCount') AS comments, json_extract(engagementJson, '$.totalTipsCount') AS gifts,
+  publishedAt, importedAt
+FROM Story ORDER BY publishedAt DESC`;
+
+interface CardSqlRow {
+  id: string; title: string; plotSummary: string | null; category: string | null; tagsJson: unknown; creatorUsername: string | null;
+  contentRating: string | null; nsfw: unknown; visibility: string | null; visualNovelReady: unknown; dmV2Ready: unknown; coverUrl: string | null;
+  plays: unknown; chats: unknown; likes: unknown; saves: unknown; comments: unknown; gifts: unknown; publishedAt: unknown; importedAt: unknown;
+}
+
+const sqlDate = (v: unknown): Date | null => (v === null || v === undefined ? null : new Date(typeof v === "string" && /^\d+$/.test(v) ? Number(v) : (v as string | number | Date)));
+const sqlBool = (v: unknown) => v === true || v === 1 || v === "1" || v === "true";
+
+export function fromCardSql(r: CardSqlRow): StoryCardRow {
+  const tags = typeof r.tagsJson === "string" ? (() => { try { return JSON.parse(r.tagsJson as string) as unknown; } catch { return []; } })() : r.tagsJson;
+  return {
+    id: r.id, title: r.title, plotSummary: r.plotSummary, category: r.category, tagsJson: tags as Prisma.JsonValue, creatorUsername: r.creatorUsername,
+    contentRating: r.contentRating, nsfw: sqlBool(r.nsfw), visibility: r.visibility, visualNovelReady: sqlBool(r.visualNovelReady), dmV2Ready: sqlBool(r.dmV2Ready),
+    coverJson: r.coverUrl ? { url: r.coverUrl } : null,
+    engagementJson: { uniqueUserCount: Number(r.plays) || 0, chatCount: Number(r.chats) || 0, likeCount: Number(r.likes) || 0, collectCount: Number(r.saves) || 0, commentCount: Number(r.comments) || 0, totalTipsCount: Number(r.gifts) || 0 },
+    publishedAt: sqlDate(r.publishedAt), importedAt: sqlDate(r.importedAt) ?? new Date(0),
+  };
+}
+
+/**
  * Every story as a card, newest first. The list is cached and only rebuilt when a newer import run finishes
  * (e.g. the nightly `npm run update:isekaizero`), so new stories appear without restarting the server.
  */
@@ -62,8 +94,8 @@ export async function listStoryCards(): Promise<StoryCardData[]> {
   const latestRun = await client.importRun.findFirst({ where: { finishedAt: { not: null } }, orderBy: { finishedAt: "desc" }, select: { id: true } });
   const version = latestRun?.id ?? "";
   if (globalForDb.storyCards?.version !== version) {
-    // ponytail: whole catalog (~6k cards) goes to Explore for client-side filtering; move search/paging into SQL if it grows much further.
-    const cards = client.story.findMany({ select: cardSelect, orderBy: { publishedAt: "desc" } }).then(rows => rows.map(toStoryCard));
+    // ponytail: whole catalog (~10k cards, ~13 MB of HTML) goes to Explore for client-side filtering; move search/paging into SQL if it grows much further.
+    const cards = client.$queryRawUnsafe<CardSqlRow[]>(CARD_SQL).then(rows => rows.map(r => toStoryCard(fromCardSql(r))));
     globalForDb.storyCards = { version, cards };
     cards.catch(() => { if (globalForDb.storyCards?.cards === cards) globalForDb.storyCards = undefined; });
   }
