@@ -41,20 +41,22 @@ describe("Isekai Zero creator fields", () => {
     expect(messages[0].content).not.toContain("Public plot.");
     expect(messages[2]).toMatchObject({ role: "user", content: expect.stringContaining("<t>Time|Weather</t>") });
     // The guideline rides after the history with the reminder, where models follow it.
-    expect(messages.at(-1)).toEqual({ role: "system", content: "Story guideline:\nKeep it grim.\n\nTrack the moon." });
+    expect(messages.at(-1)?.role).toBe("system");
+    expect(messages.at(-1)?.content).toMatch(/^Story guideline:\nKeep it grim\.\n\nTrack the moon\.\n\nWrite 3 to 5 paragraphs, 250 to 400 words\./);
+    expect(messages.at(-1)?.content).toContain("never ask");
     expect(tools).toEqual([]);
-    expect(maxTokens).toBe(450);
+    expect(maxTokens).toBe(700);
   });
 
   it("adds tools, the retry direction and the token limit factor", () => {
     const { messages, tools, maxTokens } = assemblePrompt(story, session({ ...DEFAULT_CHAT_SETTINGS, autoIllustrate: true, responseTokenLimit: "high" }), { retryInstruction: "more action" });
     expect(tools.map((t) => t.function.name)).toEqual(["illustrate_scene"]);
     expect(messages.at(-1)?.content).toContain("Write the next reply following this direction from the player: more action");
-    expect(maxTokens).toBe(900);
+    expect(maxTokens).toBe(1400);
   });
 
   it("gives reasoning turns room to think, since hidden reasoning counts against max_tokens", () => {
-    expect(assemblePrompt(story, session({ ...DEFAULT_CHAT_SETTINGS, reasoning: true })).maxTokens).toBe(4450);
+    expect(assemblePrompt(story, session({ ...DEFAULT_CHAT_SETTINGS, reasoning: true })).maxTokens).toBe(4700);
   });
 
   it("Max lifts the cap so replies are never cut off, and effort only applies with reasoning on", () => {

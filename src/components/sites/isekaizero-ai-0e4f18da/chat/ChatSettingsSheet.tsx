@@ -16,6 +16,7 @@ import { UiSettingsPanel } from "../settings/UiSettingsPanel";
 import { HistoryPanel } from "./HistoryPanel";
 import { ChatGallery } from "./ChatGallery";
 import { looks } from "@/lib/chats/scene";
+import { PROSE_GATES, gateOn } from "@/lib/chats/prose-style";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import type { Adaptation, ChatSession, ChatSettings, Persona, ProviderSettings, ReasoningEffort, Storyline, VideoParamValue } from "@/types/isekaizero";
@@ -198,6 +199,32 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
                 <p className="mt-2 text-[11px] leading-4 text-white/50">
                   This story has {storyline.backgrounds?.length ?? 0} backgrounds, {storyline.illustrations?.length ?? 0} illustrations and images for {storyline.characters.filter((c) => c.images?.length).length} of {storyline.characters.length} characters.
                 </p>
+              </AccordionCard>
+              <AccordionCard title="Writing Style" description="How the storyteller writes: Freaky Frankenstein 5.4 prose with its gates, or the classic short style">
+                <SegmentedControl
+                  label="Writing Style"
+                  value={settings.proseStyle ?? "freaky-frankenstein"}
+                  onChange={(proseStyle) => onChange({ proseStyle })}
+                  options={[
+                    { value: "freaky-frankenstein", label: "Freaky Frankenstein" },
+                    { value: "classic", label: "Classic" },
+                  ]}
+                />
+                {(settings.proseStyle ?? "freaky-frankenstein") === "freaky-frankenstein" ? (
+                  <>
+                    <p className="mt-2 text-[11px] leading-4 text-white/50">
+                      Dbtgreg&apos;s Marinara preset: lyrical, sensory prose, a time and place header, NPC introductions, line-of-sight and sound physics. Length follows Response Length.
+                    </p>
+                    {PROSE_GATES.map((g) => (
+                      <SettingRow
+                        key={g.id}
+                        title={g.label}
+                        description={g.description}
+                        right={<Toggle label={g.label} checked={gateOn(settings, g.id)} onChange={(on) => onChange({ proseGates: { ...settings.proseGates, [g.id]: on } })} />}
+                      />
+                    ))}
+                  </>
+                ) : null}
               </AccordionCard>
               <AccordionCard title="Guidance" description="Your own instructions for the AI in this chat">
                 <label className="block text-[13px] font-semibold text-white/85">
