@@ -14,13 +14,16 @@ import { looks, presentCharacters } from "@/lib/chats/scene";
 import { CODEX_TOOL_NAMES, codexPrompt, codexView, emptyCodex, type CodexState } from "@/lib/chats/codex";
 import { statSchemaPrompt } from "@/lib/chats/dm";
 import { CAST_TOOL_NAMES } from "@/lib/chats/cast";
+import { freakyFrankensteinPrompt, freakyFrankensteinReminder, gateOn, usesFreakyFrankenstein } from "@/lib/chats/prose-style";
 
 export { CONTINUE_SENTINEL } from "@/types/isekaizero";
 import { CONTINUE_SENTINEL } from "@/types/isekaizero";
 import { imgAttr, inlineImagesAsText, markdownImagesToHtml } from "@/lib/text";
 
 export const TEMPERATURE_MAP: Record<ChatSettings["temperature"], number> = { low: 0.5, medium: 0.9, high: 1.1, max: 1.3 };
-export const MAX_TOKENS_MAP: Record<ChatSettings["responseLength"], number> = { short: 220, medium: 450, long: 800 };
+// Room for the Freaky Frankenstein targets (up to 250 / 400 / 600 words plus the scene header); a reply stops at its
+// natural end, so the cap only costs when a model runs long.
+export const MAX_TOKENS_MAP: Record<ChatSettings["responseLength"], number> = { short: 450, medium: 700, long: 1000 };
 const WORDS_MAP: Record<ChatSettings["responseLength"], string> = { short: "about 80 words", medium: "about 180 words", long: "about 320 words" };
 const PERSPECTIVE_MAP: Record<ChatSettings["perspective"], string> = {
   "1st": "first person ('I', from the player's point of view)",
@@ -160,6 +163,8 @@ export function buildSystemPrompt(storyline: Storyline, session: ChatSession, op
     .join(" ");
 
   const perspectiveDirective = PERSPECTIVE_PROMPT_MAP[settings.perspective] || `Write in ${PERSPECTIVE_MAP[settings.perspective]}, present tense.`;
+  const freaky = usesFreakyFrankenstein(settings);
+  const embellish = freaky && gateOn(settings, "embellish");
 
   const lines = [
     `You are the narrator and every non-player character of the interactive story "${storyline.title}".`,
@@ -167,15 +172,20 @@ export function buildSystemPrompt(storyline: Storyline, session: ChatSession, op
     `Characters: ${cast}`,
     ...storyline.characters.filter((c) => c.exampleDialogue?.trim()).map((c) => `How ${c.name} speaks (example dialogue):\n${c.exampleDialogue!.trim().slice(0, 2000)}`),
     playerName === UNNAMED_PLAYER ? "The player plays the protagonist, who has no name of their own." : `The player is ${playerName}. {{user}} always refers to the protagonist.`,
-    session.persona?.description.trim() ? `Who ${playerName} is (the player's persona; only the player decides their actions and words):\n${session.persona.description.trim().slice(0, 4000)}` : "",
+    session.persona?.description.trim()
+      ? `Who ${playerName} is (the player's persona${embellish ? "" : "; only the player decides their actions and words"}):\n${session.persona.description.trim().slice(0, 4000)}`
+      : "",
     opts.takeTurn
       ? `The player currently takes the turn of the character named ${playerName} from the cast; treat their messages as that character's own words and actions.`
       : "",
-    perspectiveDirective,
-    `Write in present tense, ${WORDS_MAP[settings.responseLength]}.`,
+    freaky ? freakyFrankensteinPrompt(settings) : perspectiveDirective,
+    freaky ? "" : `Write in present tense, ${WORDS_MAP[settings.responseLength]}.`,
     version === 2
       ? [
-          aiControl === "no-control"
+          // Embellish Mode is the player asking the AI to write their action and dialogue.
+          embellish
+            ? ""
+            : aiControl === "no-control"
             ? "Never speak, write dialogue, or dictate actions for {{user}}. Maintain strict character boundaries and wait for the player's input."
             : "You may narrate dialogue and minor actions for {{user}} to advance the scene smoothly.",
           continueControl === "no-control"
@@ -184,8 +194,8 @@ export function buildSystemPrompt(storyline: Storyline, session: ChatSession, op
           "Never assume, reveal, or act upon meta knowledge that non-player characters would not realistically possess.",
         ].join(" ")
       : "Never speak or act for the player.",
-    "Stay in character; keep dialogue in quotes and actions in italics using *asterisks*.",
-    "End each reply at a moment that invites the player to act.",
+    freaky ? "Stay in character; keep spoken dialogue in quotes." : "Stay in character; keep dialogue in quotes and actions in italics using *asterisks*.",
+    freaky ? "" : "End each reply on an action, a line of dialogue or a sensory beat. Never ask the player what they do or list options for them.",
     settings.guidancePrompt?.trim() ? `\n[Guidance Prompt]\n${settings.guidancePrompt.trim()}` : "",
     importedPrompt(storyline, session),
   ];
@@ -753,7 +763,8 @@ export function assemblePrompt(storyline: Storyline, chat: ChatSession, opts: As
     opts.dmRuling && !/^no ruling\.?$/i.test(opts.dmRuling.trim())
       ? `Dungeon Mind ruling for this turn (the dice are rolled and the sheets updated): ${opts.dmRuling.trim()}\nNarrate these outcomes exactly; don't contradict the numbers or roll anything else.`
       : "";
-  const postHistory = [importedPostHistory(storyline, session), retry, ruling].filter(Boolean).join("\n\n");
+  const style = usesFreakyFrankenstein(settings) ? replaceCardMacros(freakyFrankensteinReminder(settings), storyline.characters[0]?.name || storyline.title, session.playerName, "the protagonist") : "";
+  const postHistory = [importedPostHistory(storyline, session), retry, ruling, style].filter(Boolean).join("\n\n");
   // Summarized messages are replaced by the chapter/arc memory; only the messages after it go as history.
   const memory = memoryView(session);
   const maxTokens = responseTokenCap(settings);

@@ -14,8 +14,10 @@ describe("personas", () => {
   });
 
   it("tells the AI who the player is", () => {
-    const session = { settings: DEFAULT_CHAT_SETTINGS, playerName: "Chiara", persona, messages: [] } as unknown as ChatSession;
+    const session = { settings: { ...DEFAULT_CHAT_SETTINGS, proseGates: { embellish: false } }, playerName: "Chiara", persona, messages: [] } as unknown as ChatSession;
     expect(buildSystemPrompt(STORYLINES[0], session)).toContain("Who Chiara is (the player's persona; only the player decides their actions and words):\nA soul with no memory");
+    // Embellish Mode (on by default) has the AI write the player's action and dialogue.
+    expect(buildSystemPrompt(STORYLINES[0], { ...session, settings: DEFAULT_CHAT_SETTINGS })).toContain("Who Chiara is (the player's persona):\nA soul with no memory");
   });
 
   it("starts a chat as the persona, with its own opening scene", () => {

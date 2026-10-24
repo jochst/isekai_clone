@@ -542,10 +542,17 @@ export interface MessageUsage {
   totalMs?: number;
 }
 
+/** Switchable parts of the Freaky Frankenstein writing style (lib/chats/prose-style.ts). */
+export type ProseGate = "freaky" | "embellish" | "antiOmniscient" | "instincts" | "onomatopoeia";
+
 /** Isekai Zero's adaptations of a reply (Chat Settings → Adaptation). */
 export type Adaptation = "narration" | "illustration" | "manga" | "visualNovel" | "music" | "animate";
 
 export interface ChatSettings {
+  /** The storyteller's writing style: the Freaky Frankenstein 5.4 preset (default) or the app's original short rules. */
+  proseStyle?: "freaky-frankenstein" | "classic";
+  /** Freaky Frankenstein gates; each is on unless set to false. */
+  proseGates?: Partial<Record<ProseGate, boolean>>;
   modelId: string | "auto";
   responseLength: "short" | "medium" | "long";
   temperature: "low" | "medium" | "high" | "max";

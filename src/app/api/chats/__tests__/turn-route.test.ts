@@ -48,7 +48,9 @@ describe("POST /api/chats/[id]/turn", () => {
     const sent = JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body)) as { model: string; messages: { role: string; content: string }[]; tools: { function: { name: string } }[] };
     expect(sent.model).toBe("deepseek");
     expect(sent.messages[0].content).toContain(STORYLINES[0].title);
-    expect(sent.messages.at(-1)).toMatchObject({ role: "user", content: "I knock." });
+    // The player's turn comes last, then only the writing-style reminder.
+    expect(sent.messages.at(-2)).toMatchObject({ role: "user", content: "I knock." });
+    expect(sent.messages.at(-1)).toMatchObject({ role: "system", content: expect.stringContaining("never ask") });
     expect(sent.tools.map((t) => t.function.name)).toEqual(["illustrate_scene"]);
 
     const saved = withChatDb((db) => getChat(db, "c1"))!;
