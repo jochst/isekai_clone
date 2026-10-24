@@ -54,8 +54,11 @@ const knownVersions = new Map();
 
 // Stories already in SQLite count as imported, so incremental runs only fetch details for new ones.
 if (args.knownDatabaseUrl) {
-  const { default: Database } = await import("better-sqlite3");
-  const known = new Database(String(args.knownDatabaseUrl).replace(/^file:/, ""), { readonly: true, fileMustExist: true });
+  // Node's built-in SQLite: nothing to compile, so installs work without Visual Studio's C++ tools.
+  const { DatabaseSync } = await import("node:sqlite");
+  const knownPath = String(args.knownDatabaseUrl).replace(/^file:/, "");
+  if (!existsSync(knownPath)) throw new Error(`--known-database-url: no database at ${knownPath}`);
+  const known = new DatabaseSync(knownPath, { readOnly: true });
   for (const { id, version, source } of known.prepare("SELECT id, json_extract(rawJson, '$.version') AS version, source FROM Story").iterate()) {
     importedStoryIds.add(id);
     // Only stories from this site are refreshed from it: a story mirrored on both sites keeps the copy it has.
