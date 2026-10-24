@@ -113,7 +113,9 @@ export const getDbStoryline = cache(async (id: string): Promise<Storyline | unde
   const castIds = storyline.characters.map((c) => c.id);
   const rows = castIds.length > 0 ? await db()!.character.findMany({ where: { id: { in: castIds } }, select: { id: true, mediaJson: true } }) : [];
   const imagesById = new Map(rows.map((r) => [r.id, storyImages(r.mediaJson, "foreground")]));
-  const characters = storyline.characters.map((c) => ({ ...c, images: imagesById.get(c.id) ?? [] }));
+  // The creator's "appearance" image is the look they picked for illustrations of this character.
+  const referenceById = new Map(rows.map((r) => [r.id, storyImages(r.mediaJson, "appearance")[0]?.url]));
+  const characters = storyline.characters.map((c) => ({ ...c, images: imagesById.get(c.id) ?? [], ...(referenceById.get(c.id) ? { referenceImage: referenceById.get(c.id) } : {}) }));
   return { ...storyline, characters, id: card.id, category: card.category, stats: card.stats, flags: card.flags, publishedAt: card.publishedAt };
 });
 

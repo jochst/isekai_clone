@@ -8,7 +8,8 @@ import { imgAttr, normalizeMarkup } from "@/lib/text";
 import { generateSpeech, stopBrowserSpeech } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { estimateTokens } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatMessage, DiceRoll, StoryEnding } from "@/types/isekaizero";
+import type { ChatMessage, DiceRoll, SceneReference, StoryEnding } from "@/types/isekaizero";
+import { getSceneImageUrl } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
 
 import { MessagePopover, type MessageAction } from "./MessagePopover";
 import { DIRECTION_BADGES } from "@/lib/chats/commands";
@@ -31,6 +32,10 @@ export interface MessageBubbleProps {
   /** Narrator voice and speaking rate for this chat (Narrate reads with them). */
   narration?: { voiceId: string; speed: number };
   onRegenerateImage: (imageId: string) => void;
+  onGenerateMoreImage?: (imageId: string) => void;
+  onEditRegenerateImage?: (imageId: string, prompt: string, references: SceneReference[]) => void;
+  /** Wide screens show the chat's illustrations in the side panel; replies then list them as thumbnails. */
+  onShowImage?: (imageId: string) => void;
   /** Message-level Animate: latest finished scene image → image-to-video, else text-to-video. */
   onAnimate: () => void;
   onAnimateImage: (imageId: string) => void;
@@ -189,6 +194,9 @@ export function MessageBubble({
   onNarrate,
   narration,
   onRegenerateImage,
+  onGenerateMoreImage,
+  onEditRegenerateImage,
+  onShowImage,
   onAnimate,
   onAnimateImage,
   onMangaPage,
@@ -409,9 +417,34 @@ export function MessageBubble({
       {infoLine}
       {message.scene?.illustration ? <SceneIllustration image={message.scene.illustration} /> : null}
 
-      {message.images?.map((img) => (
-        <SceneImage key={img.id} image={img} onRegenerate={() => onRegenerateImage(img.id)} onAnimate={() => onAnimateImage(img.id)} />
-      ))}
+      {message.images?.length ? (
+        <div className={cn(onShowImage && "lg:hidden")}>
+          {message.images.map((img) => (
+            <SceneImage
+              key={img.id}
+              image={img}
+              onRegenerate={() => onRegenerateImage(img.id)}
+              onAnimate={() => onAnimateImage(img.id)}
+              onGenerateMore={onGenerateMoreImage ? () => onGenerateMoreImage(img.id) : undefined}
+              onEditRegenerate={onEditRegenerateImage ? (prompt, refs) => onEditRegenerateImage(img.id, prompt, refs) : undefined}
+            />
+          ))}
+        </div>
+      ) : null}
+      {onShowImage && message.images?.length ? (
+        <div className="mt-3 hidden flex-wrap gap-2 lg:flex">
+          {message.images.map((img) => (
+            <button key={img.id} type="button" onClick={() => onShowImage(img.id)} title="Show in the image panel" className="relative h-16 w-16 overflow-hidden rounded-[8px] border border-white/15 bg-white/[0.04] hover:border-[#a7b9ff]/60">
+              {img.status === "done" && getSceneImageUrl(img) ? (
+                // eslint-disable-next-line @next/next/no-img-element -- generated image
+                <img src={getSceneImageUrl(img)} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center">{img.status === "generating" ? <Loader2 size={16} className="animate-spin text-[#a7b9ff]" /> : <ImageIcon size={16} className="text-white/40" />}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      ) : null}
       {message.videos?.map((v) => (
         <SceneVideo key={v.id} video={v} onRegenerate={() => onRegenerateVideo(v.id)} onCheckAgain={() => onCheckVideo(v.id)} />
       ))}

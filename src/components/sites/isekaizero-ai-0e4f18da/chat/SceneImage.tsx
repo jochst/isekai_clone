@@ -4,7 +4,9 @@ import { Clapperboard, Download, Loader2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { getSceneImageUrl } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
-import type { SceneImage as SceneImageModel } from "@/types/isekaizero";
+import type { SceneImage as SceneImageModel, SceneReference } from "@/types/isekaizero";
+
+import { ImageRegenButton } from "./ImageRegenMenu";
 
 export interface SceneImageProps {
   image: SceneImageModel;
@@ -12,6 +14,9 @@ export interface SceneImageProps {
   onRegenerate: () => void;
   /** Starts image-to-video for this image; hidden when absent. */
   onAnimate?: () => void;
+  /** Generate More / Edit & Regenerate (the round-arrow menu); without them only Regenerate is offered. */
+  onGenerateMore?: () => void;
+  onEditRegenerate?: (prompt: string, references: SceneReference[]) => void;
 }
 
 export function Lightbox({ url, prompt, onClose }: { url: string; prompt: string; onClose: () => void }) {
@@ -48,18 +53,21 @@ export function Lightbox({ url, prompt, onClose }: { url: string; prompt: string
   );
 }
 
-export function SceneImage({ image, onRegenerate, onAnimate }: SceneImageProps) {
+export function SceneImage({ image, onRegenerate, onAnimate, onGenerateMore, onEditRegenerate }: SceneImageProps) {
   const [open, setOpen] = useState(false);
   const url = getSceneImageUrl(image);
 
   return (
-    <div className="mt-3 max-w-[520px] overflow-hidden rounded-[12px] border border-[rgba(167,185,255,0.25)] bg-black/30">
+    <div className="relative mt-3 max-w-[520px] overflow-hidden rounded-[12px] border border-[rgba(167,185,255,0.25)] bg-black/30">
+      {onGenerateMore && onEditRegenerate && image.status !== "generating" ? (
+        <ImageRegenButton image={image} onRegenerate={onRegenerate} onGenerateMore={onGenerateMore} onEditRegenerate={onEditRegenerate} className="absolute left-2 top-2 z-[2]" />
+      ) : null}
       {image.status === "generating" ? (
         <>
           <div className="iz-skeleton flex aspect-[4/3] items-center justify-center">
             <Loader2 size={28} className="animate-spin text-[#a7b9ff]" />
           </div>
-          <p className="px-3 py-2 text-[12px] text-white/60">Generating scene… This may take 30 sec to 5 min</p>
+          <p className="px-3 py-2 text-[12px] text-white/60">{image.prompt ? "Generating scene… This may take 30 sec to 5 min" : "Writing the scene prompt…"}</p>
         </>
       ) : image.status === "error" ? (
         <div className="p-3">

@@ -212,7 +212,7 @@ export function normalizeImport(raw: unknown, origin: { source?: ImportSource; u
 }
 
 /** Captioned images of one composition type from an Isekai Zero media list (story or character). */
-export function storyImages(media: unknown, composition: "background" | "foreground" | "illustration"): StoryImage[] {
+export function storyImages(media: unknown, composition: "background" | "foreground" | "illustration" | "appearance"): StoryImage[] {
   if (!Array.isArray(media)) return [];
   return media.flatMap((value) => {
     const m = record(value);
