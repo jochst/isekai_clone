@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Image as ImageIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { AppBackdrop } from "@/components/sites/isekaizero-ai-0e4f18da/shared";
@@ -64,10 +65,11 @@ import { planTurn, settleOutcome, type TurnRequest } from "@/lib/chats/turn";
 import { EMPTY_MEMORY, MAX_CHAPTERS_PER_ARC, MIN_CHAPTERS_PER_ARC, arcPlan, chapterPlan } from "@/lib/chats/memory";
 import { directionInstruction, parseRoll, rollSpec, type CommandName } from "@/lib/chats/commands";
 import { applyMedia, fallbackScene, illustrationChoices, withHiddenMedia, withStoryMedia } from "@/lib/chats/scene";
+import { DEFAULT_ILLUSTRATION_STYLE, finishIllustration, illustratorMessages, referenceCandidates } from "@/lib/chats/illustration";
 import { withChatCast, type ChatCast } from "@/lib/chats/cast";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { isProviderConfigured, readProviderSettings, resolvePortraitModel, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatMessage, ChatSession, HiddenMedia, MangaPage, MediaRequest, SceneImage as SceneImageModel, DiceRoll, SceneMusic, SceneVideo as SceneVideoModel, StoryMedia, TurnDirection, VideoParamValue, VnScene } from "@/types/isekaizero";
+import type { ChatMessage, ChatSession, HiddenMedia, MangaPage, SceneReference, MediaRequest, SceneImage as SceneImageModel, DiceRoll, SceneMusic, SceneVideo as SceneVideoModel, StoryMedia, TurnDirection, VideoParamValue, VnScene } from "@/types/isekaizero";
 
 import { useProviderCatalog } from "../image-generation/use-provider-catalog";
 import { useModelCatalog } from "../llms/use-model-catalog";
@@ -82,6 +84,7 @@ import { CommandGuideSheet, RecapSheet, SearchSheet } from "./CommandSheets";
 import { characterSpeech, narratorVoice, playSpeech, speechParts, type SpeechPart } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { NARRATOR, dramaScriptPrompt, parseDramaScript, type DramaMode } from "@/lib/chats/drama";
 import { VisualNovelStage } from "./VisualNovelStage";
+import { ScenePanel } from "./ScenePanel";
 import { ChatSettingsSheet } from "./ChatSettingsSheet";
 import { useDefaultChatSettings } from "../settings/use-default-chat-settings";
 import { chatStyleVars } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-colors";
@@ -200,6 +203,8 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     return withMedia && chatCast?.cast.length ? withChatCast(withMedia, chatCast.cast) : withMedia;
   }, [baseStoryline, storyMedia, hiddenMedia, chatCast]);
   const drawingScenes = useRef(new Set<string>());
+  const [panelClosed, setPanelClosed] = useState(false);
+  const [panelImageId, setPanelImageId] = useState<string>();
   const configured = isProviderConfigured(provider);
   const model = useMemo(() => resolveTextModel(session?.settings ?? DEFAULT_CHAT_SETTINGS, provider), [session?.settings, provider]);
   const { byokModels } = useModelCatalog();
@@ -268,20 +273,27 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       try {
         const current = getChatSession(sessionId);
         const index = current?.messages.findIndex((m) => m.id === messageId) ?? -1;
+        // Illustrator prompts already name their references ("from the first image"), so they go as they are.
         const refs = references
           ? { urls: references, note: "" }
-          : current && storyline && index >= 0
+          : image.references
+            ? { urls: image.references.map((r) => r.url), note: "" }
+            : current && storyline && index >= 0
             ? illustrationReferences(storyline, current.messages, index)
             : { urls: [], note: "" };
+        const prompt = refs.note ? `${image.prompt} ${refs.note}` : image.prompt;
         const result = await generateSceneImage({
           settings: provider,
           model: image.model,
-          prompt: refs.note ? `${image.prompt} ${refs.note}` : image.prompt,
+          prompt,
           size: resolveImageSize(imageById(image.model), provider),
           referenceImages: refs.urls.length > 0 ? refs.urls : undefined,
         });
-        // The stored prompt stays the scene prompt; the reference note is rebuilt per request.
-        updateSceneImage(sessionId, messageId, image.id, { url: result.url, prompt: image.prompt, status: "done", error: undefined });
+        // What was sent is kept on the image (prompt with its reference note, and the references), so Regenerate and
+        // Edit & Regenerate start from exactly this.
+        const candidates = current && storyline && index >= 0 ? referenceCandidates(storyline, current, index) : [];
+        const used = image.references ?? refs.urls.map((url, i) => ({ url, label: candidates.find((c) => c.url === url)?.label ?? `reference ${i + 1}` }));
+        updateSceneImage(sessionId, messageId, image.id, { url: result.url, prompt, references: used, status: "done", error: undefined });
         addUsage({ images: 1, cost: result.cost ?? 0, remainingBalance: result.remainingBalance });
       } catch (e) {
         updateSceneImage(sessionId, messageId, image.id, { status: "error", error: errorMessage(e, "Image generation failed.") });
@@ -306,17 +318,62 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         showToast("This scene is already being drawn");
         return;
       }
-      const prompt =
-        customPrompt ||
-        buildScenePrompt(storyline, current.messages.slice(0, index + 1), {
-          perspective: current.settings.imageGenPerspective || current.settings.illustrationPerspective,
-          defaultInstructions: current.settings.lightNovelPromptInstructions,
-        });
-      const image: SceneImageModel = { id: newId(), url: "", prompt, model: imageModel, createdAt: Date.now(), status: "generating" };
+      const perspective = current.settings.imageGenPerspective === "pov" || current.settings.illustrationPerspective === "pov" ? "pov" : "third";
+      const image: SceneImageModel = { id: newId(), url: "", prompt: customPrompt ?? "", model: imageModel, createdAt: Date.now(), status: "generating" };
+      attachSceneImage(sessionId, messageId, image);
+      if (customPrompt) {
+        void runImage(messageId, image);
+        return;
+      }
+      // The illustrator writes the prompt and picks the references (persona, cast looks, previous scene, story art).
+      void (async () => {
+        const candidates = referenceCandidates(storyline, current, index);
+        let drawn: SceneImageModel;
+        try {
+          const text = await completeChat({
+            settings: provider,
+            model: model.id,
+            messages: illustratorMessages(storyline, current.messages, index, candidates, { perspective, guidance: current.settings.lightNovelPromptInstructions }),
+            temperature: 0.6,
+            maxTokens: 500,
+          });
+          if (!text.trim()) throw new Error("empty");
+          drawn = { ...image, ...finishIllustration(text, candidates, current.settings.illustrationStyle || DEFAULT_ILLUSTRATION_STYLE) };
+        } catch {
+          // No illustrator answer: the built-in scene prompt, with the references picked the old way.
+          const prompt = buildScenePrompt(storyline, current.messages.slice(0, index + 1), { perspective, defaultInstructions: current.settings.lightNovelPromptInstructions });
+          const refs = illustrationReferences(storyline, current.messages, index);
+          drawn = { ...image, prompt: refs.note ? `${prompt} ${refs.note}` : prompt, references: refs.urls.map((url, i) => ({ url, label: candidates.find((c) => c.url === url)?.label ?? `image ${i + 1}` })) };
+        }
+        updateSceneImage(sessionId, messageId, image.id, { prompt: drawn.prompt, references: drawn.references });
+        await runImage(messageId, drawn);
+      })();
+    },
+    [sessionId, storyline, provider, model.id, showToast, runImage],
+  );
+
+  /** Generate More: another image from the same prompt and references, next to the first. */
+  const generateMore = useCallback(
+    (messageId: string, imageId: string) => {
+      const source = getChatSession(sessionId)?.messages.find((m) => m.id === messageId)?.images?.find((img) => img.id === imageId);
+      if (!source || !provider.apiKey) return;
+      const image: SceneImageModel = { id: newId(), url: "", prompt: source.prompt, references: source.references, model: source.model, createdAt: Date.now(), status: "generating" };
       attachSceneImage(sessionId, messageId, image);
       void runImage(messageId, image);
     },
-    [sessionId, storyline, provider, showToast, runImage],
+    [sessionId, provider.apiKey, runImage],
+  );
+
+  /** Edit & Regenerate: redraw with a changed prompt and reference list. */
+  const editAndRegenerate = useCallback(
+    (messageId: string, imageId: string, prompt: string, references: SceneReference[]) => {
+      const image = getChatSession(sessionId)?.messages.find((m) => m.id === messageId)?.images?.find((img) => img.id === imageId);
+      if (!image || image.status === "generating" || !provider.apiKey || !prompt.trim()) return;
+      const next: SceneImageModel = { ...image, prompt: prompt.trim(), references, status: "generating", error: undefined, url: "" };
+      updateSceneImage(sessionId, messageId, imageId, { prompt: next.prompt, references, status: "generating", error: undefined, url: "" });
+      void runImage(messageId, next);
+    },
+    [sessionId, provider.apiKey, runImage],
   );
 
   const regenerateImage = useCallback(
@@ -1289,6 +1346,9 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   }
 
   const visualNovel = session.settings.playMode === "visualNovel";
+  // KageSekai layout on wide screens: the chat's illustrations in a panel on the left, the chat on the right.
+  const panelImages = session.messages.flatMap((m) => (m.images ?? []).map((image) => ({ messageId: m.id, image })));
+  const showPanel = !panelClosed && panelImages.length > 0;
   // AI Media Picker: the latest picked background sits behind the chat (Isekai Zero's chat background image).
   const sceneBackground = session.settings.aiMediaPicker !== false ? session.messages.findLast((m) => m.scene?.background)?.scene?.background : undefined;
   const composer = (
@@ -1347,6 +1407,24 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           {composer}
         </div>
       ) : (
+        <div className="flex min-h-0 flex-1">
+        {showPanel ? (
+          <ScenePanel
+            className="hidden w-[42%] max-w-[680px] shrink-0 lg:flex"
+            images={panelImages}
+            selectedId={panelImageId}
+            onSelect={setPanelImageId}
+            onClose={() => setPanelClosed(true)}
+            onRegenerate={(x) => regenerateImage(x.messageId, x.image.id)}
+            onGenerateMore={(x) => generateMore(x.messageId, x.image.id)}
+            onEditRegenerate={(x, prompt, refs) => editAndRegenerate(x.messageId, x.image.id, prompt, refs)}
+            onAnimate={(x) => animate(x.messageId, x.image.id)}
+          />
+        ) : panelClosed && panelImages.length > 0 ? (
+          <button type="button" onClick={() => setPanelClosed(false)} title="Show the image panel" className="absolute left-3 top-[72px] z-20 hidden h-9 items-center gap-1.5 rounded-full border border-white/15 bg-black/50 px-3 text-[12px] font-semibold text-white backdrop-blur hover:bg-black/70 lg:flex">
+            <ImageIcon size={14} /> Images
+          </button>
+        ) : null}
         <div ref={listRef} onScroll={onListScroll} className="iz-scroll-thin flex min-h-0 flex-1 flex-col overflow-y-auto">
           {visualNovel ? (
             <button type="button" onClick={() => setShowLog(false)} className="sticky top-2 z-10 mx-auto mt-2 h-8 rounded-[16px] bg-[#284bcf] px-4 text-[12px] font-semibold text-white shadow-lg">
@@ -1368,6 +1446,9 @@ export function ChatPage({ sessionId }: ChatPageProps) {
                 onRetry={retry}
                 onNarrate={() => showToast("Voice narration failed. Check Settings → Providers → Voice (TTS)")}
                 onRegenerateImage={(imageId) => regenerateImage(message.id, imageId)}
+                onGenerateMoreImage={(imageId) => generateMore(message.id, imageId)}
+                onEditRegenerateImage={(imageId, prompt, refs) => editAndRegenerate(message.id, imageId, prompt, refs)}
+                onShowImage={showPanel ? setPanelImageId : undefined}
                 onAnimate={() => animate(message.id)}
                 onAnimateImage={(imageId) => animate(message.id, imageId)}
                 onMangaPage={(pageId, action) => mangaPageAction(message.id, pageId, action)}
@@ -1385,6 +1466,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           </div>
 
           {composer}
+        </div>
         </div>
       )}
 

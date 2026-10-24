@@ -139,7 +139,11 @@ Turns each reply into a scene: background, characters and text you tap through, 
 - New art is saved with the story and reused by every chat of it, so each image is paid for once. A blank image from a content filter is rejected instead of saved.
 
 ### Images and video
-- **Illustrations:** the **Illustration** button on a reply draws the scene.
+- **Illustrations, KageSekai style:** the **Illustration** button on a reply draws the scene.
+  - A scene illustrator (one small call to your story model) writes the prompt from the moment and picks the reference images: your persona's picture, each cast member's look (the creator's chosen "appearance" image when there is one), the previous illustration and the story's art for the scene. People are named as "the … from the first image", and only the images it uses are attached.
+  - Every prompt starts with the style line `Anime-style light novel illustration with clean cel shading, vibrant colors, and painterly backgrounds.` (Chat Settings → Scene Images → Illustration Style).
+  - On wide screens the chat's illustrations fill a panel on the left, with ✕ to close it, arrows to step through them, and **Animate**. Replies show thumbnails that open in the panel. On phones they stay in the replies.
+  - The round-arrow button opens **Regenerate** (same prompt and references), **Edit & Regenerate** (change the prompt and remove references; later "Nth image" mentions renumber) and **Generate More** (another image from the same prompt).
   - Each illustration chains from the previous one (same place, lighting and outfits), and the art of the characters on stage or named in the reply is sent too, so they look like themselves. The first one starts from the story's own art instead: the illustration or background the Media Picker chose, a picture in the message, or the cover. Set POV or 3rd Person in Chat Settings.
   - With **Auto Illustrate** on, the story AI decides when to illustrate.
 - **Portraits:** when the story AI creates a character, a portrait is drawn with the **character portrait model**. On NanoGPT that defaults to `qwen-image` (included in the subscription; pick `chroma`, also included, for NSFW stories with adult characters); scene illustrations use your image model (default **Seedream 5.0 Pro**).

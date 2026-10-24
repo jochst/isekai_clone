@@ -16,6 +16,7 @@ import { UiSettingsPanel } from "../settings/UiSettingsPanel";
 import { HistoryPanel } from "./HistoryPanel";
 import { ChatGallery } from "./ChatGallery";
 import { looks } from "@/lib/chats/scene";
+import { DEFAULT_ILLUSTRATION_STYLE } from "@/lib/chats/illustration";
 import { PROSE_GATES, gateOn } from "@/lib/chats/prose-style";
 import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
@@ -470,6 +471,17 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
                   ? "See the scene through your character's eyes"
                   : "View the scene from an outside perspective"}
               </p>
+            </div>
+            <div className="mt-3">
+              <label className="block text-[13px] font-semibold text-white/80" htmlFor="iz-illustration-style">Illustration Style</label>
+              <p className="mt-0.5 text-[11px] text-white/50">The line every illustration prompt starts with. A scene illustrator writes the rest from the reply and picks the reference images (your persona, the cast&apos;s looks, the previous scene).</p>
+              <textarea
+                id="iz-illustration-style"
+                value={settings.illustrationStyle ?? DEFAULT_ILLUSTRATION_STYLE}
+                onChange={(e) => onChange({ illustrationStyle: e.target.value })}
+                rows={2}
+                className="mt-2 block w-full resize-y rounded-[10px] border border-white/15 bg-white/[0.06] p-2.5 text-[13px] leading-5 text-white outline-none focus:border-[#a7b9ff]"
+              />
             </div>
             <div className="mt-3">
               <label className="block text-[13px] font-semibold text-white/80">Default Instructions</label>

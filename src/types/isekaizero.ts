@@ -213,6 +213,8 @@ export interface Character {
   /** A snapshot of a My Characters character, and which version of it (storylines keep the version they saved). */
   linkedFrom?: { id: string; version: number };
   imageUrl?: string;
+  /** The look the story's creator picked as this character's reference for illustrations (Isekai Zero "appearance"). */
+  referenceImage?: string;
   /** Foreground images (expressions, poses) with captions; Visual Novel mode picks among them. */
   images?: StoryImage[];
   /** The creator's starting character sheet (Dungeon Mind stories). */
@@ -427,6 +429,12 @@ export interface ProviderSettings {
 
 /* ---------- Chat ---------- */
 
+/** A reference image sent with an illustration, and what it shows ("first image" in the prompt is the first one). */
+export interface SceneReference {
+  url: string;
+  label: string;
+}
+
 export interface SceneImage {
   id: string;
   url: string;
@@ -435,6 +443,8 @@ export interface SceneImage {
   createdAt: number;
   status: "generating" | "done" | "error";
   error?: string;
+  /** The references this image was drawn with, in prompt order (illustrator prompts; Edit & Regenerate changes them). */
+  references?: SceneReference[];
 }
 
 export interface SceneVideo {
@@ -578,6 +588,8 @@ export interface ChatSettings {
   userInputPrompt?: string;
   /** Custom user instructions included in every message */
   userPrompt?: string;
+  /** The style line every illustration prompt starts with (default: KageSekai's anime light novel style). */
+  illustrationStyle?: string;
   /** Default instructions for scene illustration / light novel adaptations */
   lightNovelPromptInstructions?: string;
   /** Automatically generate portraits when new characters enter the scene */
