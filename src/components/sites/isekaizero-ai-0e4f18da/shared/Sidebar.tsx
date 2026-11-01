@@ -3,8 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useSyncExternalStore } from "react";
-import { Bell, Music, Download, PanelLeftClose, PanelLeftOpen, type LucideIcon } from "lucide-react";
+import { useCallback, useId, useSyncExternalStore } from "react";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -18,7 +18,8 @@ export type NavKey = "home" | "explore" | "creation" | "chats" | "profile";
 
 export type NavIcon =
   | { kind: "png"; name: "home" | "explore" | "creation" | "chat" | "profile" }
-  | { kind: "lucide"; Icon: LucideIcon; size: number }
+  /** A filled 512×512 path (Ionicons, MIT), drawn white like the PNGs and with their gradient when active. */
+  | { kind: "svg"; path: string; size: number }
   | { kind: "static"; src: string; size: number };
 
 export interface NavItem {
@@ -28,15 +29,22 @@ export interface NavItem {
   icon: NavIcon;
 }
 
+const ION_DOWNLOAD =
+  "M376 160H272v153.37l52.69-52.68a16 16 0 0122.62 22.62l-80 80a16 16 0 01-22.62 0l-80-80a16 16 0 0122.62-22.62L240 313.37V160H136a56.06 56.06 0 00-56 56v208a56.06 56.06 0 0056 56h240a56.06 56.06 0 0056-56V216a56.06 56.06 0 00-56-56zM272 48a16 16 0 00-32 0v112h32z";
+const ION_MUSICAL_NOTES =
+  "M421.84 37.37a25.86 25.86 0 00-22.6-4.46L199.92 86.49A32.3 32.3 0 00176 118v226c0 6.74-4.36 12.56-11.11 14.83l-.12.05-52 18C92.88 383.53 80 402 80 423.91a55.54 55.54 0 0023.23 45.63A54.78 54.78 0 00135.34 480a55.82 55.82 0 0017.75-2.93l.38-.13 21.84-7.94A47.84 47.84 0 00208 423.91v-212c0-7.29 4.77-13.21 12.16-15.07l.21-.06L395 150.14a4 4 0 015 3.86v141.93c0 6.75-4.25 12.38-11.11 14.68l-.25.09-50.89 18.11A49.09 49.09 0 00304 375.92a55.67 55.67 0 0023.23 45.8 54.63 54.63 0 0049.88 7.35l.36-.12 21.84-7.95A47.83 47.83 0 00432 375.92V58a25.74 25.74 0 00-10.16-20.63z";
+const ION_NOTIFICATIONS =
+  "M440.08 341.31c-1.66-2-3.29-4-4.89-5.93-22-26.61-35.31-42.67-35.31-118 0-39-9.33-71-27.72-95-13.56-17.73-31.89-31.18-56.05-41.12a3 3 0 01-.82-.67C306.6 51.49 282.82 32 256 32s-50.59 19.49-59.28 48.56a3.13 3.13 0 01-.81.65c-56.38 23.21-83.78 67.74-83.78 136.14 0 75.36-13.29 91.42-35.31 118-1.6 1.93-3.23 3.89-4.89 5.93a35.16 35.16 0 00-4.65 37.62c6.17 13 19.32 21.07 34.33 21.07H410.5c14.94 0 28-8.06 34.19-21a35.17 35.17 0 00-4.61-37.66zM256 480a80.06 80.06 0 0070.44-42.13 4 4 0 00-3.54-5.87H189.12a4 4 0 00-3.55 5.87A80.06 80.06 0 00256 480z";
+
 export const NAV_ITEMS: readonly NavItem[] = [
   { key: "home", label: "Home", href: "/", icon: { kind: "png", name: "home" } },
   { key: "explore", label: "Explore", href: "/explore", icon: { kind: "png", name: "explore" } },
-  { key: "imports", label: "Import library", href: "/imports", icon: { kind: "lucide", Icon: Download, size: 22 } },
+  { key: "imports", label: "Import library", href: "/imports", icon: { kind: "svg", path: ION_DOWNLOAD, size: 22 } },
   { key: "creation", label: "Creation", href: "/creation", icon: { kind: "png", name: "creation" } },
   { key: "chats", label: "Chats", href: "/chats", icon: { kind: "png", name: "chat" } },
-  { key: "music", label: "Music", href: "/music", icon: { kind: "lucide", Icon: Music, size: 22 } },
+  { key: "music", label: "Music", href: "/music", icon: { kind: "svg", path: ION_MUSICAL_NOTES, size: 22 } },
   { key: "store", label: "Arcane Store", href: "#", icon: { kind: "static", src: `${IZ_IMG}/crystal-purple.png`, size: 24 } },
-  { key: "notifications", label: "Notifications", href: "#", icon: { kind: "lucide", Icon: Bell, size: 24 } },
+  { key: "notifications", label: "Notifications", href: "#", icon: { kind: "svg", path: ION_NOTIFICATIONS, size: 22 } },
   { key: "profile", label: "Profile", href: "/profile", icon: { kind: "png", name: "profile" } },
 ];
 
@@ -73,8 +81,9 @@ export interface NavIconImageProps {
   className?: string;
 }
 
-/** Renders the PNG (gradient when active, white otherwise), a Lucide icon, or a static image. */
+/** Renders the PNG or SVG path (gradient when active, white otherwise), or a static image. */
 export function NavIconImage({ icon, active, size, className }: NavIconImageProps) {
+  const gradientId = useId();
   if (icon.kind === "png") {
     const src = `${IZ_IMG}/nav-${icon.name}-${active ? "gradient" : "white"}.png`;
     return (
@@ -98,14 +107,19 @@ export function NavIconImage({ icon, active, size, className }: NavIconImageProp
       />
     );
   }
-  const { Icon } = icon;
+  // Same look as the nav PNGs: white, or pink at the top fading to periwinkle when active.
   return (
-    <Icon
-      size={icon.size}
-      strokeWidth={2}
-      aria-hidden
-      className={cn(active ? "text-[#a7b9ff]" : "text-[rgba(255,255,255,0.6)]", className)}
-    />
+    <svg viewBox="0 0 512 512" width={icon.size} height={icon.size} aria-hidden className={className}>
+      {active ? (
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#ffa8a8" />
+            <stop offset="1" stopColor="#a7b9ff" />
+          </linearGradient>
+        </defs>
+      ) : null}
+      <path d={icon.path} fill={active ? `url(#${gradientId})` : "#fff"} />
+    </svg>
   );
 }
 
