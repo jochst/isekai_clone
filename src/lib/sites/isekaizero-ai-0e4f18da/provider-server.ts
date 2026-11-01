@@ -127,6 +127,11 @@ export async function providerErrorMessage(res: Response): Promise<string> {
     const err = typeof json.error === "string" ? json.error : json.error?.message;
     return err || json.message || `${res.status} ${res.statusText}`;
   } catch {
+    // Proxies in front of the provider (Cloudflare 524 timeouts etc.) answer with a whole HTML page; keep its title.
+    if (/^\s*<(!doctype|html)/i.test(text)) {
+      const title = /<title[^>]*>([^<]*)<\/title>/i.exec(text)?.[1].trim();
+      return `Provider error: ${title || `${res.status} ${res.statusText}`}`;
+    }
     return text.slice(0, 300) || `${res.status} ${res.statusText}`;
   }
 }

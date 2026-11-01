@@ -18,6 +18,14 @@ export async function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
+/**
+ * The cloned site's public assets skip the check: `next/image` fetches them internally with no Host header, which
+ * would be denied as remote. `/_next/image` itself, the API and `/api/media` (your generated media) stay gated.
+ */
+export const config = {
+  matcher: ["/((?!_next/static|images/|seo/|sites/|videos/|favicon.ico).*)"],
+};
+
 function deny(message: string) {
   return new NextResponse(message, { status: 403, headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
 }
