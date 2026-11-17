@@ -1,7 +1,7 @@
 /**
  * Prompt construction for the roleplay chat: pure functions shared by the browser and the server turn engine.
  */
-import type { ChatMessage, ChatSession, ChatSettings, ProviderSettings, RulingVerdict, Storyline } from "@/types/isekaizero";
+import type { ChatMessage, ChatSession, ChatSettings, FatekeeperRuling, ProviderSettings, Storyline } from "@/types/isekaizero";
 
 import { IMAGE_CATALOG, LLM_CATALOG } from "./catalog";
 import { UNNAMED_PLAYER, importedPrompt, replaceCardMacros } from "@/lib/imports/prompt";
@@ -9,6 +9,7 @@ import type { ProviderImageModel, ProviderVideoModel, VideoParamSpec } from "./p
 import { defaultResolution } from "./provider-catalog";
 import type { VideoParamValue } from "@/types/isekaizero";
 import { GIVE_RULING_TOOL, toolFunction, toolInstruction, type OpenAiTool } from "@/lib/fatekeeper/tools";
+import { activeCustomFunctions, customFunctionsPrompt, customTool } from "@/lib/fatekeeper/custom";
 import { memoryText, memoryView } from "@/lib/chats/memory";
 import { looks, presentCharacters } from "@/lib/chats/scene";
 import { CODEX_TOOL_NAMES, codexPrompt, codexView, emptyCodex, type CodexState } from "@/lib/chats/codex";
@@ -634,6 +635,11 @@ function toolSection(storyline: Storyline, settings: ChatSettings, codex: CodexS
   if (codexOn && scope === "cast" && keeperKeepsCodex(storyline, settings)) codexSplit(CODEX_KEEPER_INSTRUCTION, CODEX_WRITE_TOOLS);
   if (mechanics && on("dice-roll")) add("dice-roll", ["roll_dice"]);
   if (mechanics && on("stats-manager")) add("stats-manager", ["read_character_stats", "update_character_stats"], statSchemaPrompt(storyline.statSchema ?? []));
+  if (mechanics) {
+    const custom = activeCustomFunctions(storyline, (id) => on(id, true));
+    parts.push(customFunctionsPrompt(custom));
+    tools.push(...custom.map(customTool));
+  }
   if (scope === "mechanics") return { text: parts.filter(Boolean).join("\n\n"), tools };
   if (scope !== "cast" && on("scene-illustrator", settings.autoIllustrate)) add("scene-illustrator", ["illustrate_scene"]);
   if (on("character-manager", Boolean(settings.autoCreateCharacter || settings.autoEditCharacter))) add("character-manager", CAST_TOOL_NAMES);
@@ -646,12 +652,13 @@ function toolSection(storyline: Storyline, settings: ChatSettings, codex: CodexS
 export const DEFAULT_DM_MODEL = "anthropic/claude-haiku-latest";
 
 /**
- * The model the Fatekeeper (our game master) runs on for this chat, or undefined when the story has no dice or stats
+ * The model the Fatekeeper (our game master) runs on for this chat, or undefined when the story has no dice, stats or custom functions
  * on, or the player turned it off ("off": the story model calls the tools itself).
  */
 export function fatekeeperModel(storyline: Storyline, settings: ChatSettings): string | undefined {
   if (settings.dmModel === "off") return undefined;
-  if (!toolEnabled(storyline, settings, "dice-roll") && !toolEnabled(storyline, settings, "stats-manager")) return undefined;
+  const custom = activeCustomFunctions(storyline, (id) => toolEnabled(storyline, settings, id, true)).length > 0;
+  if (!custom && !toolEnabled(storyline, settings, "dice-roll") && !toolEnabled(storyline, settings, "stats-manager")) return undefined;
   return settings.dmModel?.trim() || DEFAULT_DM_MODEL;
 }
 
@@ -704,13 +711,7 @@ export function castKeeperPrompt(
 }
 
 /** The Fatekeeper's verdict on the player's action, handed to the story model. */
-export interface Ruling {
-  verdict: RulingVerdict;
-  /** Outcomes with their numbers and every sheet change; for "rejected", why the action can't happen. */
-  summary: string;
-  /** For "ask_player": what the player must decide first. */
-  question?: string;
-}
+export type Ruling = FatekeeperRuling;
 
 /** Recent story for the Fatekeeper: the last few non-OOC messages, oldest first, within a character budget. */
 function recentStory(history: ChatMessage[], playerName: string): string {

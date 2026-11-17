@@ -8,6 +8,7 @@ import { generateArt, linkCharacter, listMyCharacters, readImageFile } from "@/l
 import { GAME_TOOLS } from "@/lib/sites/isekaizero-ai-0e4f18da/game-tools";
 import type { Character, ChatSettings, CreatedCharacter, CodexCategory, CodexEntry, GameMasterRules, StatDef, Storyline, ToolSetting } from "@/types/isekaizero";
 
+import { CustomFunctionsCard } from "./CustomFunctionsCard";
 import { VoiceSelect } from "./VoiceSelect";
 import { AddButton, Card, Choice, Input, Label, RemoveButton, TextArea, patchAt, INPUT } from "./fields";
 
@@ -344,6 +345,8 @@ export function AdvancedSection({ draft, set }: SectionProps) {
         ))}
         <AddButton label="Add stat" onClick={() => set({ statSchema: [...stats, { name: "", type: "number" }] })} />
       </Card>
+
+      <CustomFunctionsCard draft={draft} set={set} />
 
       <Card title="Codex" hint="The story's knowledge base. The AI sees each entry's one-line description and reads the full entry on demand, so lore here costs no tokens until it's needed.">
         {codex.map((e, i) => (

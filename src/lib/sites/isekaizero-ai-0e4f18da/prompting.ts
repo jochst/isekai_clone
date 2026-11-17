@@ -313,7 +313,11 @@ export interface StreamTurnOptions {
   signal?: AbortSignal;
   /** Reply text so far. */
   onContent: (content: string) => void;
+  /** What the Fatekeeper and server tools did so far: shown on the reply before and while it streams. */
+  onTools?: (tools: TurnTools) => void;
 }
+
+export type TurnTools = Pick<ChatMessage, "rolls" | "statChanges" | "custom" | "codex" | "ruling">;
 
 export interface TurnDone {
   order: string[];
@@ -363,6 +367,10 @@ export async function streamTurn(opts: StreamTurnOptions): Promise<TurnDone | nu
         if (!data) continue;
         const parsed = JSON.parse(data) as { type: string; content?: string; error?: string } & Partial<TurnDone>;
         if (parsed.type === "delta" && typeof parsed.content === "string") opts.onContent(parsed.content);
+        else if (parsed.type === "tools") {
+          const t = parsed as unknown as TurnTools;
+          opts.onTools?.({ rolls: t.rolls, statChanges: t.statChanges, custom: t.custom, codex: t.codex, ruling: t.ruling });
+        }
         else if (parsed.type === "error") throw new ChatApiError(parsed.error || "The provider stream failed.", 502);
         else if (parsed.type === "done") done = parsed as TurnDone;
       }

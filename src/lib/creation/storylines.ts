@@ -7,7 +7,8 @@ import { localizeMedia } from "@/lib/chats/media";
 import { categories } from "@/lib/imports/cards";
 import type { ImportedEntry } from "@/lib/imports/types";
 import { CONTENT_RATINGS, cleanCharacter } from "./characters";
-import type { Character, CodexEntry, Persona, StatDef, StoryImage, Storyline, ToolSetting } from "@/types/isekaizero";
+import type { Character, CodexEntry, CustomFunction, CustomFunctionEffect, CustomFunctionParam, Persona, StatDef, StoryImage, Storyline, ToolSetting } from "@/types/isekaizero";
+import { validFunctionName } from "@/lib/fatekeeper/custom";
 
 
 const clip = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -78,6 +79,7 @@ export async function buildCreated(draft: Partial<Storyline> & { contentRating?:
   const prompt = { plot: clip(draft.prompt?.plot, 30_000), guideline: clip(draft.prompt?.guideline, 20_000), reminder: clip(draft.prompt?.reminder, 10_000), outputReminder: clip(draft.prompt?.outputReminder, 2000) };
   const gm = { rules: clip(draft.gameMaster?.rules, 40_000), reminder: clip(draft.gameMaster?.reminder, 2000), playerGuide: clip(draft.gameMaster?.playerGuide, 2000) };
   const gameMaster = Object.fromEntries(Object.entries(gm).filter(([, v]) => v));
+  const customFunctions = cleanCustomFunctions(draft.customFunctions);
   const plot = clip(draft.plot, 30_000);
   const opening = clip(draft.opening, 20_000);
   const coverUrl = await localize(clip(draft.cover?.imageUrl, 20_000_000));
@@ -100,6 +102,7 @@ export async function buildCreated(draft: Partial<Storyline> & { contentRating?:
     ...(statSchema.length ? { statSchema } : {}),
     ...(toolSettings.length ? { toolSettings } : {}),
     ...(Object.keys(gameMaster).length ? { gameMaster } : {}),
+    ...(customFunctions.length ? { customFunctions } : {}),
     backgrounds: await images(draft.backgrounds, 60),
     ...(draft.defaultChatSettings && Object.keys(draft.defaultChatSettings).length ? { defaultChatSettings: draft.defaultChatSettings } : {}),
     imported: {
@@ -125,4 +128,37 @@ export async function buildCreated(draft: Partial<Storyline> & { contentRating?:
     },
   };
   return { id, kind: "story", source: "created", contentRating: rating, importedAt: existing?.importedAt ?? now, warnings: [], storyline, raw: null };
+}
+
+/** The creator's custom functions, kept only when usable: a valid unique name, a description and a complete effect. */
+export function cleanCustomFunctions(raw: unknown): CustomFunction[] {
+  const seen = new Set<string>();
+  return list<CustomFunction>(raw, 30).flatMap((f): CustomFunction[] => {
+    const name = clip(f?.name, 48);
+    const description = clip(f?.description, 1000);
+    if (!validFunctionName(name) || !description || seen.has(name)) return [];
+    seen.add(name);
+    const params = list<CustomFunctionParam>(f.params, 12)
+      .filter((p) => /^[a-zA-Z][a-zA-Z0-9_]{0,39}$/.test(clip(p?.name, 40)))
+      .map((p): CustomFunctionParam => ({
+        name: clip(p.name, 40),
+        type: p.type === "number" || p.type === "boolean" ? p.type : "string",
+        ...(clip(p.description, 300) ? { description: clip(p.description, 300) } : {}),
+        ...(p.type === "string" && Array.isArray(p.enumValues) && p.enumValues.length ? { enumValues: p.enumValues.map((v) => clip(v, 60)).filter(Boolean).slice(0, 30) } : {}),
+        ...(p.required ? { required: true } : {}),
+      }));
+    const e = f.effect;
+    const effect: CustomFunctionEffect | undefined =
+      e?.kind === "table"
+        ? { kind: "table", entries: list<{ text: string; weight?: number }>(e.entries, 100).map((x) => ({ text: clip(x?.text, 1000), ...(typeof x?.weight === "number" && x.weight > 0 ? { weight: Math.min(x.weight, 1000) } : {}) })).filter((x) => x.text) }
+        : e?.kind === "reply"
+          ? { kind: "reply", text: clip(e.text, 4000) }
+          : e?.kind === "unlock_codex"
+            ? { kind: "unlock_codex", slug: clip(e.slug, 120), ...(clip(e.text, 1000) ? { text: clip(e.text, 1000) } : {}) }
+            : e?.kind === "record"
+              ? { kind: "record" }
+              : undefined;
+    if (!effect || (effect.kind === "table" && effect.entries.length === 0) || (effect.kind === "reply" && !effect.text) || (effect.kind === "unlock_codex" && !effect.slug)) return [];
+    return [{ name, description, ...(params.length ? { params } : {}), effect }];
+  });
 }

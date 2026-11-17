@@ -59,6 +59,7 @@ import {
   loadHiddenMedia,
   pickScene,
   streamTurn,
+  fatekeeperModel,
   suggestDestinies,
 } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { planTurn, settleOutcome, type TurnRequest } from "@/lib/chats/turn";
@@ -919,7 +920,9 @@ export function ChatPage({ sessionId }: ChatPageProps) {
       abortRef.current = controller;
       setStreaming(true);
 
-      const placeholder: ChatMessage = { ...plan.reply, content: "", streaming: true, images: undefined, videos: undefined };
+      // With a Fatekeeper, the reply waits on its ruling first: say so instead of an empty bubble.
+      const resolving = type !== "retry" && Boolean(fatekeeperModel(storyline, current.settings));
+      const placeholder: ChatMessage = { ...plan.reply, content: "", streaming: true, images: undefined, videos: undefined, ...(resolving ? { resolving: true } : {}) };
       update({ messages: [...plan.history, placeholder] });
       let latest = "";
 
@@ -931,7 +934,11 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           signal: controller.signal,
           onContent: (text) => {
             latest = text;
-            update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === placeholder.id ? { ...m, content: text } : m)) }), { touch: false });
+            update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === placeholder.id ? { ...m, content: text, resolving: undefined } : m)) }), { touch: false });
+          },
+          onTools: (tools) => {
+            const shown = Object.fromEntries(Object.entries(tools).filter(([, v]) => (Array.isArray(v) ? v.length > 0 : v !== undefined)));
+            update((s) => ({ ...s, messages: s.messages.map((m) => (m.id === placeholder.id ? { ...m, ...shown, resolving: undefined } : m)) }), { touch: false });
           },
         });
         // Stopped: the server saved what had arrived; apply the same rule locally.

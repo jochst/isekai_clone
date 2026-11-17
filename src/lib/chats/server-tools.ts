@@ -1,10 +1,18 @@
-import type { CastEvent, CodexEvent, DiceRoll, StatChange, StoryEnding, Storyline } from "@/types/isekaizero";
+import type { CastEvent, CodexEvent, CustomFunctionEvent, DiceRoll, StatChange, StoryEnding, Storyline } from "@/types/isekaizero";
+import { runCustomFunction, validFunctionName } from "@/lib/fatekeeper/custom";
 import { CAST_TOOL_NAMES, generateName, readEnding, runCastTool, withChatCast, type ChatCast } from "./cast";
 import { CODEX_TOOL_NAMES, runCodexTool, type CodexState } from "./codex";
 import { DM_TOOL_NAMES, readSheets, rollDice, updateSheets, type Sheets } from "./dm";
 
 /** Tools the turn engine runs itself, feeding results back to the model (the rest go to the client). */
 export const SERVER_TOOL_NAMES = new Set<string>([...CODEX_TOOL_NAMES, ...DM_TOOL_NAMES, ...CAST_TOOL_NAMES, "end_story", "generate_character_name"]);
+
+/** Whether the turn engine runs this call itself: a built-in server tool or one of the story's custom functions. */
+export function isServerTool(name: string, storyline: Storyline): boolean {
+  return SERVER_TOOL_NAMES.has(name) || customFunction(name, storyline) !== undefined;
+}
+
+const customFunction = (name: string, storyline: Storyline) => (validFunctionName(name) ? storyline.customFunctions?.find((f) => f.name === name) : undefined);
 
 /** Server tools the client also needs to see: a created character's portrait is drawn in the browser. */
 export const ALSO_CLIENT_TOOLS = new Set(["create_character"]);
@@ -22,10 +30,11 @@ export interface ToolEvents {
   rolls: DiceRoll[];
   statChanges: StatChange[];
   cast: CastEvent[];
+  custom: CustomFunctionEvent[];
   ending?: StoryEnding;
 }
 
-export const noEvents = (): ToolEvents => ({ codex: [], rolls: [], statChanges: [], cast: [] });
+export const noEvents = (): ToolEvents => ({ codex: [], rolls: [], statChanges: [], cast: [], custom: [] });
 
 /**
  * Runs one server tool call; returns the text for the model and the new state, adding to `events`. `storyline` is
@@ -63,6 +72,13 @@ export function runServerTool(name: string, args: string, storyline: Storyline, 
   if (name === "generate_character_name") {
     const used = [...inPlay.characters.map((c) => c.name), ...state.cast.map((m) => m.name)];
     return { output: generateName(args, used, random), state };
+  }
+  const custom = customFunction(name, storyline);
+  if (custom) {
+    const ran = runCustomFunction(custom, args, storyline, state.codex, random);
+    if (ran.event.result) events.custom.push(ran.event);
+    events.codex.push(...ran.codexEvents);
+    return { output: ran.output, state: { ...state, codex: ran.codex } };
   }
   return { output: `Error: ${name} is not a server tool.`, state };
 }

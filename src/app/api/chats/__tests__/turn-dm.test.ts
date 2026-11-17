@@ -100,7 +100,11 @@ describe("Fatekeeper", () => {
     ];
     const fetchMock = vi.fn(async () => replies.shift()!);
     vi.stubGlobal("fetch", fetchMock);
-    await events(await turn("d5"));
+    const out5 = await events(await turn("d5"));
+    // The ruling reaches the player before the narration starts, and stays on the reply.
+    expect(out5[0]).toMatchObject({ type: "tools", ruling: { verdict: "rejected", summary: "Goblins cannot be bribed." } });
+    expect(out5[1]).toMatchObject({ type: "delta" });
+    expect(withChatDb((db) => getChat(db, "d5"))!.messages.at(-1)?.ruling).toEqual({ verdict: "rejected", summary: "Goblins cannot be bribed." });
     const [dm, story5] = bodies(fetchMock);
     expect(dm.messages[0].content).toContain("Game rules (the creator's; they override your own judgement):\nGoblins cannot be bribed.");
     expect(dm.messages[1].content.endsWith("Rules to never forget:\nHP 0 means unconscious.")).toBe(true);

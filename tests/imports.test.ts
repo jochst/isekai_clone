@@ -234,3 +234,16 @@ test("imported stories keep their game rules for the Fatekeeper, and play withou
   const nested = normalizeImport({ code: 200, data: { ...base, dungeonMind: { gameRules: "Death is final.", reminder: "No resurrection." } } }, { kind: "story" }).storyline;
   assert.deepEqual(nested.gameMaster, { rules: "Death is final.", reminder: "No resurrection." });
 });
+
+test("imported custom functions come across as functions the AI can call", () => {
+  const data = {
+    title: "Dungeon Run", plot: "A dungeon.", opening: "You wake.",
+    customFunctions: [
+      { name: "Open Vault", description: "Call when the vault opens.", parameters: { type: "object", properties: { code: { type: "string", description: "The code" }, tries: { type: "integer" } }, required: ["code"] } },
+      { name: "roll_dice", description: "Shadows a built-in." },
+      { name: "no_description" },
+    ],
+  };
+  const fns = normalizeImport({ code: 200, data }, { kind: "story" }).storyline.customFunctions;
+  assert.deepEqual(fns, [{ name: "open_vault", description: "Call when the vault opens.", params: [{ name: "code", type: "string", description: "The code", required: true }, { name: "tries", type: "number" }], effect: { kind: "record" } }]);
+});
