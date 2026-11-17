@@ -1,4 +1,8 @@
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { deleteSavedKey, setSavedKey } from "@/lib/keys/store";
 import { isNanoGpt, nativeApiBase, fetchWithRetry, readProviderContext, readVoiceContext, reasoningParams, type ProviderContext } from "../provider-server";
 
 const ctx = (baseUrl: string, preset = "nano-gpt"): ProviderContext => ({ baseUrl, imageBaseUrl: "", apiKey: "k", preset });
@@ -25,7 +29,9 @@ describe("readProviderContext", () => {
   });
 });
 
-describe(".env.local keys", () => {
+process.env.KEYS_DB_PATH = join(mkdtempSync(join(tmpdir(), "provider-server-")), "keys.sqlite");
+
+describe("server keys", () => {
   const nano = (extra: Record<string, string> = {}) => new Headers({ "x-iz-base-url": "https://nano-gpt.com/api/v1", "x-iz-preset": "nano-gpt", ...extra });
   afterEach(() => vi.unstubAllEnvs());
 
@@ -33,8 +39,16 @@ describe(".env.local keys", () => {
     vi.stubEnv("NANOGPT_API_KEY", " from-env ");
     expect(readProviderContext(nano({ "x-iz-api-key": "from-browser" }))).toMatchObject({ apiKey: "from-env" });
     vi.stubEnv("NANOGPT_API_KEY", "");
-    expect(readProviderContext(nano({ "x-iz-api-key": "env" }))).toEqual({ error: expect.stringContaining("NANOGPT_API_KEY") });
+    expect(readProviderContext(nano({ "x-iz-api-key": "env" }))).toEqual({ error: expect.stringContaining("Settings") });
     expect(readProviderContext(nano({ "x-iz-api-key": "from-browser" }))).toMatchObject({ apiKey: "from-browser" });
+  });
+
+  it("prefers a key saved in Settings over .env.local", () => {
+    vi.stubEnv("NANOGPT_API_KEY", "from-env");
+    setSavedKey("nano-gpt", "from-settings");
+    expect(readProviderContext(nano({ "x-iz-api-key": "from-browser" }))).toMatchObject({ apiKey: "from-settings" });
+    deleteSavedKey("nano-gpt");
+    expect(readProviderContext(nano())).toMatchObject({ apiKey: "from-env" });
   });
 
   it("uses ELEVENLABS_API_KEY for ElevenLabs voice", () => {

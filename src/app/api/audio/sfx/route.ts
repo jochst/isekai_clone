@@ -1,5 +1,5 @@
 import { boundedBody, guardImportRequest, importError } from "@/lib/imports/http";
-import { envKey, providerErrorMessage } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
+import { serverKey, providerErrorMessage } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,8 +9,8 @@ export const maxDuration = 60;
 export async function POST(request: Request) {
   try {
     guardImportRequest(request, true);
-    const key = envKey("elevenlabs");
-    if (!key) return Response.json({ error: "Sound effects need ELEVENLABS_API_KEY in .env.local." }, { status: 400 });
+    const key = serverKey("elevenlabs");
+    if (!key) return Response.json({ error: "Sound effects need an ElevenLabs key (Settings → Providers → Voice)." }, { status: 400 });
     const { text } = JSON.parse((await boundedBody(request, 16 * 1024)).toString("utf8")) as { text?: string };
     const prompt = (text ?? "").trim().slice(0, 300);
     if (!prompt) throw new Error("Describe the sound.");

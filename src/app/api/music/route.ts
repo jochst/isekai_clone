@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { localizeMedia, MEDIA_PREFIX, saveMedia } from "@/lib/chats/media";
-import { authHeaders, envKey, fetchWithRetry, nativeApiBase, providerErrorMessage, readProviderContext, type ProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
+import { authHeaders, serverKey, fetchWithRetry, nativeApiBase, providerErrorMessage, readProviderContext, type ProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
   const prompt = body.prompt?.trim();
   if (!prompt) return NextResponse.json({ error: "A music prompt is required." }, { status: 400 });
   const seconds = Math.min(Math.max(Math.round(body.seconds ?? 60), 10), 300);
-  const elevenKey = envKey("elevenlabs");
+  const elevenKey = serverKey("elevenlabs");
 
   let nanoError = "";
   if (body.provider !== "elevenlabs") {
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     }
     if (!elevenKey) return NextResponse.json({ error: nanoError }, { status: 502 });
   }
-  if (!elevenKey) return NextResponse.json({ error: "ElevenLabs Music needs ELEVENLABS_API_KEY in .env.local." }, { status: 400 });
+  if (!elevenKey) return NextResponse.json({ error: "ElevenLabs Music needs an ElevenLabs key (Settings → Providers → Voice)." }, { status: 400 });
   try {
     const song = await elevenLabsSong(elevenKey, { ...body, prompt, seconds }, req.signal);
     return NextResponse.json({ ...song, fellBackFrom: nanoError || undefined });
