@@ -76,6 +76,8 @@ export async function buildCreated(draft: Partial<Storyline> & { contentRating?:
   const statSchema: StatDef[] = list<StatDef>(draft.statSchema, 40).filter((s) => clip(s?.name, 60)).map((s) => ({ ...s, name: clip(s.name, 60) }));
   const toolSettings: ToolSetting[] = list<ToolSetting>(draft.toolSettings, 20).filter((t) => clip(t?.toolId, 60) && ["required", "default-on", "default-off"].includes(t.mode));
   const prompt = { plot: clip(draft.prompt?.plot, 30_000), guideline: clip(draft.prompt?.guideline, 20_000), reminder: clip(draft.prompt?.reminder, 10_000), outputReminder: clip(draft.prompt?.outputReminder, 2000) };
+  const gm = { rules: clip(draft.gameMaster?.rules, 40_000), reminder: clip(draft.gameMaster?.reminder, 2000), playerGuide: clip(draft.gameMaster?.playerGuide, 2000) };
+  const gameMaster = Object.fromEntries(Object.entries(gm).filter(([, v]) => v));
   const plot = clip(draft.plot, 30_000);
   const opening = clip(draft.opening, 20_000);
   const coverUrl = await localize(clip(draft.cover?.imageUrl, 20_000_000));
@@ -97,6 +99,7 @@ export async function buildCreated(draft: Partial<Storyline> & { contentRating?:
     ...(codex.length ? { codex } : {}),
     ...(statSchema.length ? { statSchema } : {}),
     ...(toolSettings.length ? { toolSettings } : {}),
+    ...(Object.keys(gameMaster).length ? { gameMaster } : {}),
     backgrounds: await images(draft.backgrounds, 60),
     ...(draft.defaultChatSettings && Object.keys(draft.defaultChatSettings).length ? { defaultChatSettings: draft.defaultChatSettings } : {}),
     imported: {

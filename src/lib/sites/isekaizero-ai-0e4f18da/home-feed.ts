@@ -75,7 +75,7 @@ export function buildHomeFeed(cards: StoryCardData[], date = new Date()): HomeFe
     ...categoryRows,
     gradientRow("most-messages", "Most Messages", top(withArt, (s) => s.stats.chats)),
     gradientRow("most-liked", "Most Liked", top(withArt, (s) => s.stats.likes)),
-    gradientRow("dm-v2-ready", "Dungeon Mind v2 Ready", top(withArt.filter((c) => c.flags.dungeonMind), activity)),
+    gradientRow("dm-v2-ready", "Fatekeeper Ready", top(withArt.filter((c) => c.flags.dungeonMind), activity)),
     gradientRow("visual-novel-ready", "Visual Novel Ready", top(withArt.filter((c) => c.flags.visualNovelReady), activity)),
   ].filter((r) => r.storylines.length > 0);
   return {

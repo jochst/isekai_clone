@@ -120,7 +120,7 @@ export function CharacterPage({ character: c, created, storyline }: { character:
         {sheet ? (
           <section className="mt-4 rounded-[14px] border border-white/10 bg-white/[0.04] p-4">
             <h2 className="text-[15px] font-bold">Sheets</h2>
-            <p className="text-[11px] text-white/45">Used when Dungeon Mind or the Character Stats function is enabled</p>
+            <p className="text-[11px] text-white/45">Used when the Fatekeeper or the Character Stats tool is on</p>
             {sheet.stats.length ? (
               <div className="mt-3">
                 <div className="mb-1 text-[12px] font-semibold text-white/60">Base</div>

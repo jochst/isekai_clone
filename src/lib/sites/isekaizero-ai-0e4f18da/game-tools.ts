@@ -1,4 +1,4 @@
-/** Game tools a story can turn on (Isekai Zero toolSettings ids; labels from ai-tools.json). */
+/** Game tools a story can turn on (tool ids match imported stories' tool settings). */
 export const GAME_TOOLS = [
   { id: "dice-roll", label: "Dice Roll", description: "Real dice decide uncertain actions; the roll card shows the result." },
   { id: "stats-manager", label: "Character Stats", description: "Keeps character sheets (stats, inventory, skills) in sync with the story." },

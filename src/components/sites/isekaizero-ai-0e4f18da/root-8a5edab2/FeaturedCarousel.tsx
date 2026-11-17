@@ -43,7 +43,7 @@ function badgesFor(flags: Storyline["flags"]): Badge[] {
     badges.push({ key: "vn", label: "Visual Novel", icon: BookOpen, className: "bg-[rgba(138,43,226,0.8)]" });
   }
   if (flags.dungeonMind) {
-    badges.push({ key: "dm", label: "Dungeon Mind", icon: Swords, className: "bg-[rgba(255,152,0,0.8)]" });
+    badges.push({ key: "dm", label: "Fatekeeper", icon: Swords, className: "bg-[rgba(255,152,0,0.8)]" });
   }
   return badges;
 }
