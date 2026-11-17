@@ -405,7 +405,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         /* malformed json arguments from model */
       }
 
-      // Argument names follow Isekai Zero's real tool schemas (ai-tools.json).
+      // Argument names follow the Fatekeeper tool catalog (src/lib/fatekeeper/tools.ts).
       const name = toolCall.function.name;
       const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
       const draw = (prompt: string, model = imageModel, references?: string[]) => {

@@ -1,8 +1,8 @@
 import "server-only";
 
-import type { ChatMessage, ChatSettings, Storyline } from "@/types/isekaizero";
-import { castKeeperPrompt, dungeonMindPrompt } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-builder";
-import type { OpenAiTool } from "@/lib/sites/isekaizero-ai-0e4f18da/ai-tools";
+import type { ChatMessage, ChatSettings, RulingVerdict, Storyline } from "@/types/isekaizero";
+import { castKeeperPrompt, fatekeeperPrompt, type Ruling } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-builder";
+import type { OpenAiTool } from "@/lib/fatekeeper/tools";
 import { authHeaders, fetchWithRetry, providerErrorMessage, reasoningParams, type ProviderContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 import { withChatCast } from "./cast";
 import { runServerTool, type ToolEvents, type ToolState } from "./server-tools";
@@ -19,6 +19,8 @@ interface Completion {
 
 export interface AgentResult {
   text: string;
+  /** The give_ruling call's arguments, when the model closed with one. */
+  ruling?: Ruling;
   state: ToolState;
   usage: { promptTokens: number; completionTokens: number; cost?: number };
 }
@@ -33,7 +35,26 @@ interface AgentOptions {
   signal?: AbortSignal;
 }
 
-/** One tool-using helper call: up to 4 non-streaming rounds, server tools run between them. Throws on refusal. */
+const VERDICTS: RulingVerdict[] = ["resolved", "rejected", "ask_player", "none"];
+
+/** give_ruling's arguments, or undefined when they don't make a ruling. */
+export function readRuling(raw: string): Ruling | undefined {
+  try {
+    const args = JSON.parse(raw || "{}") as Record<string, unknown>;
+    const verdict = VERDICTS.find((v) => v === args.verdict);
+    if (!verdict) return undefined;
+    const summary = typeof args.summary === "string" ? args.summary.trim().slice(0, 1500) : "";
+    const question = typeof args.question === "string" && args.question.trim() ? args.question.trim().slice(0, 500) : undefined;
+    return { verdict, summary, ...(question ? { question } : {}) };
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * One tool-using helper call: up to 4 non-streaming rounds, server tools run between them. A give_ruling call ends
+ * the run (tools sent alongside it still run first). Throws on refusal.
+ */
 async function runAgent(opts: AgentOptions, request: { messages: unknown[]; tools: OpenAiTool[] }): Promise<AgentResult> {
   let messages = request.messages;
   let state = opts.state;
@@ -61,27 +82,37 @@ async function runAgent(opts: AgentOptions, request: { messages: unknown[]; tool
       return { text, state, usage };
     }
     usedTools = true;
-    const results = calls.map((call) => {
+    const closing = calls.find((c) => c.function.name === "give_ruling");
+    const results = calls.filter((c) => c !== closing).map((call) => {
       const ran = runServerTool(call.function.name, call.function.arguments, opts.storyline, state, opts.events);
       state = ran.state;
       return { role: "tool", tool_call_id: call.id, content: ran.output };
     });
+    if (closing) return { text, state, usage, ruling: readRuling(closing.function.arguments) ?? { verdict: "resolved", summary: text } };
     messages = [...messages, { role: "assistant", content: message?.content ?? null, tool_calls: calls }, ...results];
   }
   // Out of rounds: what was applied stands.
   return { text: "", state, usage };
 }
 
+/** A plain-text answer (no give_ruling) as a ruling: "No ruling" means nothing to resolve. */
+function textRuling(text: string, appliedAnything: boolean): Ruling {
+  if (!text || /^no (ruling|changes?)\.?$/i.test(text)) return appliedAnything ? { verdict: "resolved", summary: "Narrate from the dice results and sheet changes already recorded this turn." } : { verdict: "none", summary: "" };
+  return { verdict: "resolved", summary: text };
+}
+
 /**
- * Isekai Zero's Dungeon Mind: a separate tool-reliable model (default Claude Haiku) resolves the player's action
- * BEFORE the story model writes: dice, sheet changes, records. Returns the ruling handed to the story model. Throws
- * when the call fails or the model refuses, so the caller can let the story model use the tools instead.
+ * The Fatekeeper: a separate tool-reliable model (default Claude Haiku) judges the player's action BEFORE the story
+ * model writes. It can reject it, ask the player for a choice, or resolve it with dice and sheet changes. Returns the
+ * ruling for the story model. Throws when the call fails or the model refuses, so the caller can let the story model
+ * use the tools itself.
  */
-export async function runDungeonMind(opts: AgentOptions & { history: ChatMessage[] }): Promise<AgentResult & { ruling: string }> {
-  // The DM sees the cast as it stands in this chat (characters the AI created, renamed or wrote out).
-  const prompt = dungeonMindPrompt(withChatCast(opts.storyline, opts.state.cast), opts.history, opts.settings, opts.state.codex);
+export async function runFatekeeper(opts: AgentOptions & { history: ChatMessage[]; playerName?: string }): Promise<AgentResult & { ruling: Ruling }> {
+  // The Fatekeeper sees the cast as it stands in this chat (characters the AI created, renamed or wrote out).
+  const prompt = fatekeeperPrompt(withChatCast(opts.storyline, opts.state.cast), opts.history, opts.settings, opts.state.codex, opts.state.sheets, opts.playerName);
   const result = await runAgent(opts, prompt);
-  return { ...result, ruling: result.text || "Resolve the action from the dice results and sheet changes already recorded this turn." };
+  const applied = opts.events.rolls.length > 0 || opts.events.statChanges.length > 0;
+  return { ...result, ruling: result.ruling ?? textRuling(result.text, applied) };
 }
 
 /**

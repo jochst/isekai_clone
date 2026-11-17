@@ -292,8 +292,8 @@ export function DefaultChatSettingsPage() {
           </SettingCard>
 
           <SettingCard
-            title="Dungeon Mind Model"
-            description="For stories with dice and stats: this model resolves the mechanics before your story model writes, so any story model gets working dice and character sheets"
+            title="Fatekeeper Model"
+            description="For stories with dice and stats: the Fatekeeper, our game master, runs on this model. It judges each action and resolves the mechanics before your story model writes, so any story model gets working dice and character sheets"
           >
             <select
               value={settings.dmModel || DEFAULT_DM_MODEL}

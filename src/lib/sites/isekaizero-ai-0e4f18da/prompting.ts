@@ -322,7 +322,7 @@ export interface TurnDone {
   empty: boolean;
   toolCalls: ChatToolCall[];
   usage?: ChatUsage;
-  /** Something the player should know, e.g. the Dungeon Mind was unavailable this turn. */
+  /** Something the player should know, e.g. the Fatekeeper was unavailable this turn. */
   notice?: string;
 }
 

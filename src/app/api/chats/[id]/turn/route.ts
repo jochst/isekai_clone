@@ -5,8 +5,8 @@ import type { ChatMessage, ChatSession, MessageUsage } from "@/types/isekaizero"
 import { findStoryline } from "@/lib/chats/storyline";
 import { ALSO_CLIENT_TOOLS, noEvents, runServerTool, SERVER_TOOL_NAMES, type ToolState } from "@/lib/chats/server-tools";
 import { parseTurnRequest, planTurn, readCompletionStream, settleOutcome, type StreamOutcome, type ToolCall } from "@/lib/chats/turn";
-import { assemblePrompt, castKeeperModel, dungeonMindModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-builder";
-import { runCastKeeper, runDungeonMind } from "@/lib/chats/dungeon-mind";
+import { assemblePrompt, castKeeperModel, fatekeeperModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-builder";
+import { runCastKeeper, runFatekeeper } from "@/lib/chats/fatekeeper";
 import { CAST_TOOL_NAMES } from "@/lib/chats/cast";
 import { authHeaders, fetchWithRetry, providerErrorMessage, readProviderContext, reasoningParams } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
@@ -63,23 +63,24 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     // Isekai Zero's "Context Full" (contextFullError.description).
     return Response.json({ error: "Context Full: the conversation has exceeded this model's memory limit. Please switch to a model with a larger memory or summarize the story to free up space." }, { status: 413 });
   }
-  // The Dungeon Mind (a tool-reliable model, default Claude Haiku) resolves dice and sheets before the story model
-  // writes, so any story model gets working mechanics. If it fails or declines, the story model uses the tools itself.
+  // The Fatekeeper (a tool-reliable model, default Claude Haiku) judges the action and resolves dice and sheets before
+  // the story model writes, so any story model gets working mechanics. If it fails or declines, the story model uses
+  // the tools itself.
   const started = Date.now();
   const events = noEvents();
-  const dmModel = dungeonMindModel(storyline, chat.settings);
+  const dmModel = fatekeeperModel(storyline, chat.settings);
   let dmUsage: StreamOutcome["usage"];
   let notice: string | undefined;
   if (dmModel) {
     try {
-      const dm = await runDungeonMind({ ctx, model: dmModel, storyline, history: plan.history, settings: chat.settings, state: toolState, events, signal: request.signal });
+      const dm = await runFatekeeper({ ctx, model: dmModel, storyline, history: plan.history, playerName: chat.playerName, settings: chat.settings, state: toolState, events, signal: request.signal });
       toolState = dm.state;
       dmUsage = dm.usage;
-      prompt = assemblePrompt(inPlay(), { ...chat, messages: plan.history }, { ...promptOptions, codex: toolState.codex, dmRuling: dm.ruling });
+      prompt = assemblePrompt(inPlay(), { ...chat, messages: plan.history }, { ...promptOptions, codex: toolState.codex, ruling: dm.ruling });
     } catch (e) {
       if (request.signal.aborted) return new Response(null, { status: 499 });
-      Object.assign(events, noEvents()); // nothing a failed Dungeon Mind did is kept
-      notice = `Dungeon Mind (${dmModel}) unavailable: ${e instanceof Error ? e.message : "request failed"}. The story model handled dice and stats this turn.`;
+      Object.assign(events, noEvents()); // nothing a failed Fatekeeper did is kept
+      notice = `Fatekeeper (${dmModel}) unavailable: ${e instanceof Error ? e.message : "request failed"}. The story model handled dice and stats this turn.`;
     }
   }
   let withTools = prompt.tools.length > 0;
@@ -186,7 +187,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           body = next.body;
         }
         text = text.trim() ? text : earlier;
-        // The cast keeper (the Dungeon Mind model) records new characters, renames, departures and the ending
+        // The cast keeper (the Fatekeeper's model) records new characters, renames, departures and the ending
         // when the story model didn't, and the codex changes. It runs after the reply streamed, so it doesn't delay
         // the first words.
         const keeper = castKeeperModel(storyline, chat.settings);

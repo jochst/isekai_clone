@@ -36,7 +36,7 @@ export interface DefaultChatSettings {
   autoCreateCharacter?: boolean;
   autoEditCharacter?: boolean;
   imageGenPerspective?: "pov" | "3rd-person";
-  /** Dungeon Mind model for stories with dice and stats ("off" = the story model uses the tools). */
+  /** Fatekeeper model for stories with dice and stats ("off" = the story model uses the tools). */
   dmModel?: string;
   /** Applies to every chat on this device. */
   ui: {

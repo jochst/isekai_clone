@@ -1,7 +1,7 @@
 import type { CharacterSheet, DiceRoll, StatChange, StatDef, Storyline } from "@/types/isekaizero";
 
 /*
- * Isekai Zero's Dungeon Mind v2 tools, run on the server: roll_dice (real dice, judged here) and character sheets
+ * The Fatekeeper's mechanics, run on the server: roll_dice (real dice, judged here) and character sheets
  * (read_character_stats / update_character_stats) with a running total kept per chat. Pure, so tests share it.
  */
 
@@ -73,7 +73,7 @@ export function statText(stat: CharacterSheet["stats"][number], def?: StatDef): 
   return def?.bar ? `${current}/${base}` : `${current} (${base} ${stat.modifier > 0 ? "+" : "-"}${Math.abs(stat.modifier)})`;
 }
 
-function sheetText(name: string, sheet: CharacterSheet, schema: StatDef[]): string {
+export function sheetText(name: string, sheet: CharacterSheet, schema: StatDef[]): string {
   const def = (n: string) => schema.find((d) => d.name.toLowerCase() === n.toLowerCase());
   return [
     `${name}`,

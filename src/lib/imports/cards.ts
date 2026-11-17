@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { inflateSync } from "node:zlib";
 import { load } from "cheerio";
-import type { Character, CharacterSheet, ChatSettings, CodexEntry, Persona, StatDef, StoryCategory, StoryImage, Storyline, ToolSetting } from "@/types/isekaizero";
+import type { Character, CharacterSheet, ChatSettings, CodexEntry, GameMasterRules, Persona, StatDef, StoryCategory, StoryImage, Storyline, ToolSetting } from "@/types/isekaizero";
 import { record, string, strings, type ImportedEntry, type ImportSource } from "./types";
 import { contentRating } from "@/lib/rating";
 
@@ -132,8 +132,27 @@ export function storyPersonas(d: Record<string, unknown>): Persona[] {
 const STAT_TYPES = new Set(["number", "text", "enum", "boolean"]);
 const TOOL_MODES = new Set(["required", "default-on", "default-off"]);
 
-/** A story's stat schema and AI tool settings (Dungeon Mind stories). */
-function gameRules(d: Record<string, unknown>): Pick<Storyline, "statSchema" | "toolSettings"> {
+/**
+ * Game-master rules a source exports, if any: top-level fields or a nested game-master config object. Stories
+ * without them still play: the Fatekeeper falls back to the creator's tool instructions and story guideline.
+ */
+export function gameMasterRules(d: Record<string, unknown>): GameMasterRules | undefined {
+  const nested = [d.gameMaster, d.dungeonMind, d.dmConfig, d.functionsConfig].map(record).find((x) => Object.keys(x).length > 0) ?? {};
+  // Top-level `reminder` is the story AI's own reminder, so a rule reminder is only read under its own names.
+  const pick = (top: string[], inner: string[]) => [...top.map((k) => d[k]), ...inner.map((k) => nested[k])].map((v) => plainText(string(v)).trim()).find(Boolean);
+  const rules = pick(["gameRules"], ["gameRules", "rules"]);
+  const reminder = pick(["gameRuleReminder", "ruleReminder"], ["gameRuleReminder", "ruleReminder", "reminder"]);
+  const playerGuide = pick(["playerGuide"], ["playerGuide", "guide"]);
+  const out: GameMasterRules = {
+    ...(rules ? { rules: rules.slice(0, 40_000) } : {}),
+    ...(reminder ? { reminder: reminder.slice(0, 2000) } : {}),
+    ...(playerGuide ? { playerGuide: playerGuide.slice(0, 2000) } : {}),
+  };
+  return Object.keys(out).length ? out : undefined;
+}
+
+/** A story's stat schema, AI tool settings and game-master rules (game-master stories). */
+function gameRules(d: Record<string, unknown>): Pick<Storyline, "statSchema" | "toolSettings" | "gameMaster"> {
   const list = (v: unknown) => (Array.isArray(v) ? v.map(record) : []);
   const statSchema: StatDef[] = list(d.statSchema)
     .filter((x) => string(x.name) && STAT_TYPES.has(string(x.type)))
@@ -151,7 +170,8 @@ function gameRules(d: Record<string, unknown>): Pick<Storyline, "statSchema" | "
       ...(string(x.instruction).trim() ? { instruction: string(x.instruction).trim() } : {}),
       ...(strings(x.enabledFunctions).length ? { enabledFunctions: strings(x.enabledFunctions) } : {}),
     }));
-  return { ...(statSchema.length ? { statSchema } : {}), ...(toolSettings.length ? { toolSettings } : {}) };
+  const gameMaster = gameMasterRules(d);
+  return { ...(statSchema.length ? { statSchema } : {}), ...(toolSettings.length ? { toolSettings } : {}), ...(gameMaster ? { gameMaster } : {}) };
 }
 
 export const categories: StoryCategory[] = ["fantasy", "isekai", "sciFi", "mecha", "horror", "thriller", "academy", "romance", "comedy", "adventure", "supernatural", "sports", "psychological", "betrayal", "action", "romantasy", "drama", "mystery", "sliceOfLife", "martialArts", "cultivation", "historical"];

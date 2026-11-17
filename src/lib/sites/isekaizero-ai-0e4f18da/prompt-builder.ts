@@ -1,18 +1,18 @@
 /**
  * Prompt construction for the roleplay chat: pure functions shared by the browser and the server turn engine.
  */
-import type { ChatMessage, ChatSession, ChatSettings, ProviderSettings, Storyline } from "@/types/isekaizero";
+import type { ChatMessage, ChatSession, ChatSettings, ProviderSettings, RulingVerdict, Storyline } from "@/types/isekaizero";
 
 import { IMAGE_CATALOG, LLM_CATALOG } from "./catalog";
 import { UNNAMED_PLAYER, importedPrompt, replaceCardMacros } from "@/lib/imports/prompt";
 import type { ProviderImageModel, ProviderVideoModel, VideoParamSpec } from "./provider-catalog";
 import { defaultResolution } from "./provider-catalog";
 import type { VideoParamValue } from "@/types/isekaizero";
-import { toolFunction, toolInstruction, type OpenAiTool } from "./ai-tools";
+import { GIVE_RULING_TOOL, toolFunction, toolInstruction, type OpenAiTool } from "@/lib/fatekeeper/tools";
 import { memoryText, memoryView } from "@/lib/chats/memory";
 import { looks, presentCharacters } from "@/lib/chats/scene";
 import { CODEX_TOOL_NAMES, codexPrompt, codexView, emptyCodex, type CodexState } from "@/lib/chats/codex";
-import { statSchemaPrompt } from "@/lib/chats/dm";
+import { findSheet, sheetText, statSchemaPrompt, type Sheets } from "@/lib/chats/dm";
 import { CAST_TOOL_NAMES } from "@/lib/chats/cast";
 import { freakyFrankensteinPrompt, freakyFrankensteinReminder, gateOn, usesFreakyFrankenstein } from "@/lib/chats/prose-style";
 
@@ -567,10 +567,10 @@ export interface AssembleOptions extends SystemPromptOptions {
   /** The chat's codex changes (server only); without it the story's own codex is used as-is. */
   codex?: CodexState;
   /**
-   * The Dungeon Mind resolved this turn's mechanics: the story model gets its ruling instead of the dice and stats
-   * tools. Undefined when no Dungeon Mind ran (the story model then calls those tools itself).
+   * The Fatekeeper resolved this turn's mechanics: the story model gets its ruling instead of the dice and stats
+   * tools. Undefined when the Fatekeeper didn't run (the story model then calls those tools itself).
    */
-  dmRuling?: string;
+  ruling?: Ruling;
 }
 
 /**
@@ -586,8 +586,8 @@ export function toolEnabled(storyline: Storyline, settings: ChatSettings, toolId
 }
 
 /**
- * Which tools a request gets: "all" (no Dungeon Mind), "story" (the story model while a Dungeon Mind resolves dice
- * and stats) or "mechanics" (the Dungeon Mind itself: codex, dice, sheets).
+ * Which tools a request gets: "all" (no Fatekeeper), "story" (the story model while the Fatekeeper resolves dice and
+ * stats), "mechanics" (the Fatekeeper itself: codex, dice, sheets) or "cast" (the record keeper after the reply).
  */
 type ToolScope = "all" | "story" | "mechanics" | "cast";
 
@@ -603,7 +603,7 @@ export function keeperKeepsCodex(storyline: Storyline, settings: ChatSettings): 
 }
 
 /**
- * The story's AI tools (Isekai Zero ai-tools): each enabled tool's instruction for the system prompt, with the
+ * The story's AI tools (the Fatekeeper catalog): each enabled tool's instruction for the system prompt, with the
  * creator's extra instruction and context (codex index, stat schema), and the functions the story allows. Tools the
  * story doesn't list fall back to the chat's own switches (Auto Illustrate, Auto-Generate Characters).
  */
@@ -646,19 +646,22 @@ function toolSection(storyline: Storyline, settings: ChatSettings, codex: CodexS
 export const DEFAULT_DM_MODEL = "anthropic/claude-haiku-latest";
 
 /**
- * The model that resolves this chat's game mechanics (Isekai Zero's separate "Dungeon Mind"), or undefined when the
- * story has no dice or stats on, or the player turned it off ("off": the story model calls the tools itself).
+ * The model the Fatekeeper (our game master) runs on for this chat, or undefined when the story has no dice or stats
+ * on, or the player turned it off ("off": the story model calls the tools itself).
  */
-export function dungeonMindModel(storyline: Storyline, settings: ChatSettings): string | undefined {
+export function fatekeeperModel(storyline: Storyline, settings: ChatSettings): string | undefined {
   if (settings.dmModel === "off") return undefined;
   if (!toolEnabled(storyline, settings, "dice-roll") && !toolEnabled(storyline, settings, "stats-manager")) return undefined;
   return settings.dmModel?.trim() || DEFAULT_DM_MODEL;
 }
 
-const DM_SCENE_CHARS = 1500;
+/** How much recent story the Fatekeeper sees: the last few messages, newest kept whole first. */
+const FATEKEEPER_HISTORY = 6;
+const FATEKEEPER_HISTORY_CHARS = 6000;
+const FATEKEEPER_SHEETS_CHARS = 6000;
 
 /**
- * The model that keeps the cast and the codex records after each reply (the Dungeon Mind model), or undefined when
+ * The model that keeps the cast and the codex records after each reply (the Fatekeeper's model), or undefined when
  * it's off or the chat uses none of the character manager, story endings or a codex.
  */
 export function castKeeperModel(storyline: Storyline, settings: ChatSettings): string | undefined {
@@ -700,30 +703,111 @@ export function castKeeperPrompt(
   };
 }
 
+/** The Fatekeeper's verdict on the player's action, handed to the story model. */
+export interface Ruling {
+  verdict: RulingVerdict;
+  /** Outcomes with their numbers and every sheet change; for "rejected", why the action can't happen. */
+  summary: string;
+  /** For "ask_player": what the player must decide first. */
+  question?: string;
+}
+
+/** Recent story for the Fatekeeper: the last few non-OOC messages, oldest first, within a character budget. */
+function recentStory(history: ChatMessage[], playerName: string): string {
+  const lines: string[] = [];
+  let budget = FATEKEEPER_HISTORY_CHARS;
+  for (const m of [...history].reverse()) {
+    if (lines.length >= FATEKEEPER_HISTORY || budget <= 0) break;
+    if (m.ooc || !m.content.trim() || m.content === CONTINUE_SENTINEL) continue;
+    const text = m.content.length > budget ? `...${m.content.slice(-budget)}` : m.content;
+    budget -= text.length;
+    lines.unshift(`[${m.role === "user" ? playerName : "Narrator"}] ${text}`);
+  }
+  return lines.join("\n\n");
+}
+
+/** Every sheet in play: this chat's sheets plus the creator's starting sheets not yet copied. */
+function sheetsInPlay(storyline: Storyline, sheets: Sheets): string {
+  const names = [...Object.keys(sheets), ...storyline.characters.filter((c) => c.sheet).map((c) => c.name)];
+  const seen = new Set<string>();
+  const blocks: string[] = [];
+  for (const name of names) {
+    const found = findSheet(name, sheets, storyline);
+    if (!found || seen.has(found.key.toLowerCase())) continue;
+    seen.add(found.key.toLowerCase());
+    blocks.push(sheetText(found.key, found.sheet, storyline.statSchema ?? []));
+  }
+  const text = blocks.join("\n\n");
+  return text.length > FATEKEEPER_SHEETS_CHARS ? `${text.slice(0, FATEKEEPER_SHEETS_CHARS)}\n(more sheets: use read_character_stats)` : text;
+}
+
 /**
- * The Dungeon Mind's own request: the rules, the story's mechanics tools and only the context it needs (the end of
- * the last scene and the player's action), so the story's prose and the rest of the chat stay with the story model.
+ * The game rules the Fatekeeper follows: the creator's own ruleset when the story has one, else what an imported
+ * story carries (its guideline and the creator's dice and stats instructions) so stories from other sites still play.
  */
-export function dungeonMindPrompt(storyline: Storyline, history: ChatMessage[], settings: ChatSettings, codex: CodexState = emptyCodex()): { messages: { role: "system" | "user"; content: string }[]; tools: OpenAiTool[] } {
-  const tools = toolSection(storyline, settings, codex, "mechanics");
-  const action = [...history].reverse().find((m) => m.role === "user" && m.content.trim() && m.content !== CONTINUE_SENTINEL);
-  const scene = [...history].reverse().find((m) => m.role === "assistant" && m.content.trim());
+function gameRulesText(storyline: Storyline): string {
+  if (storyline.gameMaster?.rules?.trim()) return storyline.gameMaster.rules.trim();
+  return storyline.prompt?.guideline?.trim() ?? "";
+}
+
+/**
+ * The Fatekeeper's request. It judges the player's latest action against the story's rules, rolls and records what
+ * the rules call for, then closes with give_ruling. It never writes prose: the story model narrates from its ruling.
+ */
+export function fatekeeperPrompt(
+  storyline: Storyline,
+  history: ChatMessage[],
+  settings: ChatSettings,
+  codex: CodexState = emptyCodex(),
+  sheets: Sheets = {},
+  playerName = "You",
+): { messages: { role: "system" | "user"; content: string }[]; tools: OpenAiTool[] } {
+  const section = toolSection(storyline, settings, codex, "mechanics");
+  const action = [...history].reverse().find((m) => m.role === "user" && !m.ooc && m.content.trim() && m.content !== CONTINUE_SENTINEL);
   const cast = storyline.characters.map((c) => c.name).join(", ");
+  const rules = gameRulesText(storyline);
+  const sheetBlock = sheetsInPlay(storyline, sheets);
   const system = [
-    `You are the Dungeon Mind (DM): the rules engine for the interactive story "${storyline.title}". A separate narrator writes the story; you never write prose.`,
-    "Resolve the player's latest action mechanically BEFORE the narrator writes: roll dice for uncertain outcomes (including enemies' attacks on the party), apply damage, healing, items, gold and other sheet changes, and keep records up to date. Read sheets before changing them.",
-    "When done, answer with a short ruling for the narrator (under 80 words): each outcome with its numbers and every change you made. If nothing needs resolving, answer exactly: No ruling.",
-    `Story cast: ${cast || "none listed"}. The player is "You" unless their message names who acts.`,
-    tools.text,
+    `You are the Fatekeeper, the impartial game master behind the interactive story "${storyline.title}". You decide what the rules allow and what the dice say. A separate storyteller turns your decision into prose, so you write none.`,
+    [
+      "Work through the player's latest action in this order:",
+      "1. Judge it. If the rules or the situation make it impossible (no such item, not enough MP, the target isn't there, it breaks a rule below), don't roll: rule it rejected and say why.",
+      "2. If it can't be settled without the player's input (which target, how much to spend, a real choice between paths), don't guess: rule ask_player with one clear question.",
+      "3. Otherwise resolve it. Roll for every uncertain outcome, including what enemies and hazards do back. Apply the game rules to the actual numbers.",
+      "4. Record every consequence on the sheets: damage, healing, costs, XP, items, conditions. Sheets are shown below; read again only if you changed them and need the result.",
+      "5. Finish with give_ruling. If the action needed no rules at all (talking, looking around, travel with no risk), give_ruling with verdict none.",
+    ].join("\n"),
+    "Be fair, not kind: bad rolls fail and good rolls succeed. Never undo or fudge a roll.",
+    `Cast: ${cast || "none listed"}. The player's character is "${playerName}" unless their message names who acts.`,
+    rules ? `Game rules (the creator's; they override your own judgement):\n${rules}` : "No written game rules: use common tabletop sense (d20 + modifier vs a DC from 5 easy to 20 near impossible).",
+    section.text,
+    sheetBlock ? `Current character sheets:\n${sheetBlock}` : "",
   ];
-  const user = [scene ? `Last scene (end):\n${scene.content.slice(-DM_SCENE_CHARS)}` : "", action ? `Player's action:\n${action.content}` : "The player asked the story to continue."];
+  const reminder = storyline.gameMaster?.reminder?.trim();
+  const user = [
+    `Recent story:\n${recentStory(history, playerName) || "(the story has just begun)"}`,
+    action ? `The player's action to resolve:\n${action.content}` : "The player asked the story to continue: resolve anything already in motion (an attack underway, a trap triggering), else give_ruling with verdict none.",
+    reminder ? `Rules to never forget:\n${reminder}` : "",
+  ];
   return {
-    tools: tools.tools,
+    tools: [...section.tools, GIVE_RULING_TOOL],
     messages: [
       { role: "system", content: system.filter(Boolean).join("\n\n") },
       { role: "user", content: user.filter(Boolean).join("\n\n") },
     ],
   };
+}
+
+/** What the story model is told about the Fatekeeper's ruling, by verdict. Empty when there's nothing to add. */
+export function rulingInstruction(ruling: Ruling | undefined): string {
+  if (!ruling) return "";
+  const summary = ruling.summary.trim();
+  if (ruling.verdict === "rejected")
+    return `The Fatekeeper ruled the player's action can't happen: ${summary}\nShow in the story why it fails or can't be attempted. Don't let it succeed another way, and leave the next move to the player.`;
+  if (ruling.verdict === "ask_player")
+    return `The Fatekeeper needs the player to decide before this action can be resolved: ${ruling.question?.trim() || summary}\nWrite a short beat that brings the scene to that decision and end by putting this question to the player, in the story's voice. Don't resolve the action yet.`;
+  if (ruling.verdict === "none" || !summary) return "";
+  return `The Fatekeeper's ruling for this turn (dice already rolled, sheets already updated): ${summary}\nNarrate these outcomes exactly as ruled. Don't change the numbers or roll anything else.`;
 }
 
 /** How the request fits the context window (Isekai Zero's "Estimated Context" and "x/y trimmed"). */
@@ -759,10 +843,7 @@ export function assemblePrompt(storyline: Storyline, chat: ChatSession, opts: As
   const { settings } = session;
   const reminder = [settings.userInputPrompt, storyline.prompt?.outputReminder].filter((x) => x?.trim()).join("\n");
   const retry = opts.retryInstruction?.trim() ? `Write the next reply following this direction from the player: ${opts.retryInstruction.trim()}` : "";
-  const ruling =
-    opts.dmRuling && !/^no ruling\.?$/i.test(opts.dmRuling.trim())
-      ? `Dungeon Mind ruling for this turn (the dice are rolled and the sheets updated): ${opts.dmRuling.trim()}\nNarrate these outcomes exactly; don't contradict the numbers or roll anything else.`
-      : "";
+  const ruling = rulingInstruction(opts.ruling);
   const style = usesFreakyFrankenstein(settings) ? replaceCardMacros(freakyFrankensteinReminder(settings), storyline.characters[0]?.name || storyline.title, session.playerName, "the protagonist") : "";
   const postHistory = [importedPostHistory(storyline, session), retry, ruling, style].filter(Boolean).join("\n\n");
   // Summarized messages are replaced by the chapter/arc memory; only the messages after it go as history.
@@ -775,7 +856,7 @@ export function assemblePrompt(storyline: Storyline, chat: ChatSession, opts: As
   let history = built.slice(1, built.length - post.length);
   let parts = memory.parts;
   // The real Isekai Zero tool instructions ride with the matching functions.
-  const serverTools = toolSection(storyline, settings, opts.codex, opts.dmRuling === undefined ? "all" : "story");
+  const serverTools = toolSection(storyline, settings, opts.codex, opts.ruling === undefined ? "all" : "story");
   const system = () => ({ role: "system" as const, content: [base, serverTools.text, memoryText(parts)].filter(Boolean).join("\n\n") });
   // The reply needs room too: the request must fit in (context window - max reply tokens).
   const budget = limit - maxTokens;

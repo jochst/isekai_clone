@@ -221,3 +221,16 @@ test("recurring jobs wait for their interval and cancelled leases cannot complet
     assert.equal(listJobs(db).find(j => j.id === id)?.state, "cancelled");
   } finally { db.close(); }
 });
+
+test("imported stories keep their game rules for the Fatekeeper, and play without them", () => {
+  const base = { title: "Dungeon Run", plot: "A dungeon.", opening: "You wake.", reminder: "Stay in character.", toolSettings: [{ toolId: "dice-roll", mode: "required" }] };
+  const plain = normalizeImport({ code: 200, data: base }, { kind: "story" }).storyline;
+  assert.equal(plain.gameMaster, undefined);
+  assert.deepEqual(plain.toolSettings, [{ toolId: "dice-roll", mode: "required" }]);
+
+  const top = normalizeImport({ code: 200, data: { ...base, gameRules: "Roll d20 + STR.", playerGuide: "Say what you try." } }, { kind: "story" }).storyline;
+  assert.deepEqual(top.gameMaster, { rules: "Roll d20 + STR.", playerGuide: "Say what you try." });
+
+  const nested = normalizeImport({ code: 200, data: { ...base, dungeonMind: { gameRules: "Death is final.", reminder: "No resurrection." } } }, { kind: "story" }).storyline;
+  assert.deepEqual(nested.gameMaster, { rules: "Death is final.", reminder: "No resurrection." });
+});

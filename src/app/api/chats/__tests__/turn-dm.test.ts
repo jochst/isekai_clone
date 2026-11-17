@@ -42,8 +42,8 @@ const events = async (res: Response) => (await res.text()).split("\n\n").filter(
 type Sent = { model: string; stream: boolean; messages: { role: string; content: string }[]; tools?: { function: { name: string } }[] };
 const bodies = (m: ReturnType<typeof vi.fn>) => (m.mock.calls as unknown as [string, RequestInit][]).map(([, init]) => JSON.parse(String(init.body)) as Sent);
 
-describe("Dungeon Mind", () => {
-  it("resolves the mechanics with the DM model first, then the story model narrates from the ruling", async () => {
+describe("Fatekeeper", () => {
+  it("resolves the mechanics with the Fatekeeper model first, then the story model narrates from the ruling", async () => {
     newChat("d1");
     const call = (name: string, args: unknown) => ({ id: name, type: "function", function: { name, arguments: JSON.stringify(args) } });
     const replies = [
@@ -59,11 +59,13 @@ describe("Dungeon Mind", () => {
 
     const [dm, , story] = bodies(fetchMock);
     expect(dm).toMatchObject({ model: "anthropic/claude-haiku-latest", stream: false });
-    expect(dm.tools?.map((t) => t.function.name)).toEqual(["roll_dice", "read_character_stats", "update_character_stats"]);
-    expect(dm.messages[1].content).toContain("Player's action:\nElara swings at the goblin.");
+    expect(dm.tools?.map((t) => t.function.name)).toEqual(["roll_dice", "read_character_stats", "update_character_stats", "give_ruling"]);
+    expect(dm.messages[1].content).toContain("The player's action to resolve:\nElara swings at the goblin.");
+    expect(dm.messages[1].content).toContain("[Narrator] Goblins attack.");
+    expect(dm.messages[0].content).toContain("Current character sheets:\nElara\nStats: HP 48/48");
     expect(story.model).toBe("deepseek");
     expect(story.tools).toBeUndefined();
-    expect(story.messages.at(-1)?.content).toContain("Dungeon Mind ruling for this turn");
+    expect(story.messages.at(-1)?.content).toContain("The Fatekeeper's ruling for this turn");
     expect(story.messages.at(-1)?.content).toContain("Elara -5 HP (43/48)");
 
     const reply = withChatDb((db) => getChat(db, "d1"))!.messages.at(-1)!;
@@ -73,19 +75,48 @@ describe("Dungeon Mind", () => {
     expect(withChatDb((db) => getSheets(db, "d1")).Elara.stats[0]).toEqual({ name: "HP", value: "48", modifier: -5 });
   });
 
-  it("falls back to the story model's own tools when the DM fails or declines, and says so", async () => {
+  it("falls back to the story model's own tools when the Fatekeeper fails or declines, and says so", async () => {
     newChat("d2");
     const replies = [json({ choices: [{ message: { content: "I'm sorry, but I can't help with this scene." } }] }), sse({ choices: [{ delta: { content: "The fight goes on." } }] })];
     const fetchMock = vi.fn(async () => replies.shift()!);
     vi.stubGlobal("fetch", fetchMock);
     const out = await events(await turn("d2"));
-    expect(String(out.at(-1)?.notice)).toContain("Dungeon Mind (anthropic/claude-haiku-latest) unavailable: the model declined this scene");
+    expect(String(out.at(-1)?.notice)).toContain("Fatekeeper (anthropic/claude-haiku-latest) unavailable: the model declined this scene");
     expect(bodies(fetchMock)[1].tools?.map((t) => t.function.name)).toEqual(["roll_dice", "read_character_stats", "update_character_stats"]);
 
     newChat("d3");
     const failed = vi.fn().mockResolvedValueOnce(json({ error: { message: "overloaded" } }, 503)).mockResolvedValueOnce(sse({ choices: [{ delta: { content: "Onward." } }] }));
     vi.stubGlobal("fetch", failed);
     expect(String((await events(await turn("d3"))).at(-1)?.notice)).toContain("overloaded");
+  });
+
+  it("can turn an action down or ask the player first, with game rules and the reminder in its prompt", async () => {
+    story.gameMaster = { rules: "Goblins cannot be bribed.", reminder: "HP 0 means unconscious." };
+    const call = (args: unknown) => ({ id: "g", type: "function", function: { name: "give_ruling", arguments: JSON.stringify(args) } });
+    newChat("d5");
+    const replies = [
+      json({ choices: [{ message: { content: null, tool_calls: [call({ verdict: "rejected", summary: "Goblins cannot be bribed." })] } }] }),
+      sse({ choices: [{ delta: { content: "The goblin spits at the coin." } }] }),
+    ];
+    const fetchMock = vi.fn(async () => replies.shift()!);
+    vi.stubGlobal("fetch", fetchMock);
+    await events(await turn("d5"));
+    const [dm, story5] = bodies(fetchMock);
+    expect(dm.messages[0].content).toContain("Game rules (the creator's; they override your own judgement):\nGoblins cannot be bribed.");
+    expect(dm.messages[1].content.endsWith("Rules to never forget:\nHP 0 means unconscious.")).toBe(true);
+    expect(story5.messages.at(-1)?.content).toContain("The Fatekeeper ruled the player's action can't happen: Goblins cannot be bribed.");
+
+    newChat("d6");
+    const asks = [
+      json({ choices: [{ message: { content: null, tool_calls: [call({ verdict: "ask_player", summary: "Two goblins.", question: "Which goblin do you strike?" })] } }] }),
+      sse({ choices: [{ delta: { content: "Two blades rise. Which one?" } }] }),
+    ];
+    const askMock = vi.fn(async () => asks.shift()!);
+    vi.stubGlobal("fetch", askMock);
+    await events(await turn("d6"));
+    expect(askMock).toHaveBeenCalledTimes(2);
+    expect(bodies(askMock)[1].messages.at(-1)?.content).toContain("decide before this action can be resolved: Which goblin do you strike?");
+    delete story.gameMaster;
   });
 
   it("is skipped when the player turns it off", async () => {

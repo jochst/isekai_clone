@@ -8,8 +8,8 @@ import { DEFAULT_CHAT_SETTINGS } from "../chat-store";
 const storyline = STORYLINES[0];
 const params = (tool: typeof ILLUSTRATE_SCENE_TOOL) => tool.function.parameters as { required: string[]; properties: Record<string, unknown> };
 
-describe("real Isekai Zero tool schemas", () => {
-  it("matches the captured /api/ai-tools contract", () => {
+describe("story tool schemas", () => {
+  it("keeps the argument names imported stories and saved chats use", () => {
     expect(params(ILLUSTRATE_SCENE_TOOL).required).toEqual(["description", "characters"]);
     expect(Object.keys(params(ILLUSTRATE_SCENE_TOOL).properties)).toEqual(["description", "characters", "perspective", "continuePrevious"]);
     expect(params(CREATE_CHARACTER_TOOL).required).toEqual(["name", "isNamed", "gender", "ageGroup", "description", "imageDescription", "imagePrompt"]);
@@ -17,7 +17,7 @@ describe("real Isekai Zero tool schemas", () => {
     expect(params(EDIT_CHARACTER_TOOL).properties).not.toHaveProperty("appearance");
   });
 
-  it("puts the real tool instructions in the system prompt only when the tool is on", () => {
+  it("puts the tool instructions in the system prompt only when the tool is on", () => {
     const session = { settings: { ...DEFAULT_CHAT_SETTINGS, perspective: "2nd", responseLength: "medium", autoIllustrate: true }, playerName: "You", messages: [] } as unknown as ChatSession;
     const on = assemblePrompt(storyline, session);
     expect(on.messages[0].content).toContain(toolInstruction("scene-illustrator"));

@@ -5,7 +5,7 @@ import type { ChatSettings, ProseGate } from "@/types/isekaizero";
  * build), converted for this app: its Main Prompt, Time and Place, Story Mode prose, POV and Total Output Length
  * sections always apply, and five of its gates can be switched per chat (Chat Settings → Writing Style). Marinara's
  * templating, agent/internal-state blocks, chain-of-thought sections and regex scripts are left out: the turn engine,
- * Dungeon Mind, codex and memory here already do those jobs. "classic" keeps the app's original short instructions.
+ * Fatekeeper, codex and memory here already do those jobs. "classic" keeps the app's original short instructions.
  */
 
 export const PROSE_GATES: { id: ProseGate; label: string; description: string }[] = [

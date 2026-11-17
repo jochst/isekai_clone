@@ -100,6 +100,19 @@ export interface ToolSetting {
   enabledFunctions?: string[];
 }
 
+/** A story's game rules, read by the Fatekeeper every turn. */
+export interface GameMasterRules {
+  /** The full ruleset: combat, checks, leveling, death, economy. */
+  rules?: string;
+  /** The few rules that matter most, repeated at the very end of every Fatekeeper call. */
+  reminder?: string;
+  /** A short how-to-play note shown to players in chat settings. */
+  playerGuide?: string;
+}
+
+/** How the Fatekeeper resolved one player action. */
+export type RulingVerdict = "resolved" | "rejected" | "ask_player" | "none";
+
 /** One roll_dice result, judged on the server. */
 export interface DiceRoll {
   reason: string;
@@ -217,7 +230,7 @@ export interface Character {
   referenceImage?: string;
   /** Foreground images (expressions, poses) with captions; Visual Novel mode picks among them. */
   images?: StoryImage[];
-  /** The creator's starting character sheet (Dungeon Mind stories). */
+  /** The creator's starting character sheet (Fatekeeper stories). */
   sheet?: CharacterSheet;
   id: string;
   name: string;
@@ -275,6 +288,8 @@ export interface Storyline {
   codex?: CodexEntry[];
   /** Stats every character sheet tracks. */
   statSchema?: StatDef[];
+  /** The Fatekeeper's rules for this story (our game master). */
+  gameMaster?: GameMasterRules;
   /** Characters the player can play as ("Recommended Characters"). */
   personas?: Persona[];
   /** Which AI tools the story uses, and how (required, on or off by default). */
@@ -644,7 +659,7 @@ export interface ChatSettings {
   /** Per-chat on/off for the story's optional AI tools, by tool id (required tools are always on). */
   tools?: Record<string, boolean>;
   /**
-   * Dungeon Mind model: a separate tool-reliable model resolves dice, stats and records before the story model
+   * Fatekeeper model: a separate tool-reliable model resolves dice, stats and records before the story model
    * writes (default Claude Haiku). "off" lets the story model call those tools itself.
    */
   dmModel?: string;

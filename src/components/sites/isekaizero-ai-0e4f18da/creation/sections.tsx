@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useModelCatalog } from "@/components/sites/isekaizero-ai-0e4f18da/llms/use-model-catalog";
 import { generateArt, linkCharacter, listMyCharacters, readImageFile } from "@/lib/sites/isekaizero-ai-0e4f18da/creation";
 import { GAME_TOOLS } from "@/lib/sites/isekaizero-ai-0e4f18da/game-tools";
-import type { Character, ChatSettings, CreatedCharacter, CodexCategory, CodexEntry, StatDef, Storyline, ToolSetting } from "@/types/isekaizero";
+import type { Character, ChatSettings, CreatedCharacter, CodexCategory, CodexEntry, GameMasterRules, StatDef, Storyline, ToolSetting } from "@/types/isekaizero";
 
 import { VoiceSelect } from "./VoiceSelect";
 import { AddButton, Card, Choice, Input, Label, RemoveButton, TextArea, patchAt, INPUT } from "./fields";
@@ -256,6 +256,12 @@ export function AdvancedSection({ draft, set }: SectionProps) {
   };
   const stats = draft.statSchema ?? [];
   const codex = draft.codex ?? [];
+  const gm = draft.gameMaster ?? {};
+  const setGm = (patch: Partial<GameMasterRules>) => {
+    const next: GameMasterRules = { ...gm, ...patch };
+    for (const k of Object.keys(next) as (keyof GameMasterRules)[]) if (!next[k]) delete next[k];
+    set({ gameMaster: Object.keys(next).length ? next : undefined });
+  };
 
   return (
     <>
@@ -285,7 +291,7 @@ export function AdvancedSection({ draft, set }: SectionProps) {
         <TextArea value={draft.imported?.systemPrompt ?? ""} onChange={(systemPrompt) => set({ imported: { ...draft.imported!, systemPrompt } })} rows={4} placeholder="Write in short, punchy paragraphs. Describe smells and sounds..." />
       </Card>
 
-      <Card title="Dungeon Mind v2" hint="Real functions the story AI can call, like dice rolls and name generation. Choose how each behaves; required ones can't be turned off by players.">
+      <Card title="Fatekeeper Tools" hint="Real tools the AI can use during the story, like dice rolls and character sheets. With dice or stats on, the Fatekeeper (our game master) resolves them before the story is written. Required tools can't be turned off by players.">
         {GAME_TOOLS.map((tool) => {
           const setting = tools.find((t) => t.toolId === tool.id);
           return (
@@ -299,6 +305,18 @@ export function AdvancedSection({ draft, set }: SectionProps) {
             </div>
           );
         })}
+      </Card>
+
+      <Card title="Fatekeeper Rules" hint="How your game works. The Fatekeeper reads these every turn when dice or stats are on, and follows them over its own judgement.">
+        <Label title="Game Rules" hint="Combat, checks, leveling, death, money: anything with numbers. Be concrete, e.g. Attacks roll d20 + STR vs the target's DEF.">
+          <TextArea value={gm.rules ?? ""} onChange={(rules) => setGm({ rules })} rows={8} maxLength={40_000} placeholder="Checks: roll d20 + the stat's modifier vs a DC from 8 (easy) to 20 (heroic)..." />
+        </Label>
+        <Label title="Rule Reminder" hint="The few rules it must never forget. Repeated at the end of every call, so keep it short.">
+          <TextArea value={gm.reminder ?? ""} onChange={(reminder) => setGm({ reminder })} rows={3} maxLength={2000} placeholder="HP 0 means unconscious, not dead. Magic always costs MP." />
+        </Label>
+        <Label title="Player Guide" hint="Shown to players in chat settings: how to play your game.">
+          <TextArea value={gm.playerGuide ?? ""} onChange={(playerGuide) => setGm({ playerGuide })} rows={3} maxLength={2000} placeholder="Say what you try and the dice decide. Check your sheet with /sheets." />
+        </Label>
       </Card>
 
       <Card title="Stats" hint="Stats every character sheet tracks (with Character Stats on). Numbers can show as a bar, like HP.">

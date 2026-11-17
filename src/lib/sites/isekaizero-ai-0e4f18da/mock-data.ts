@@ -3402,7 +3402,7 @@ export const STORY_ROWS: StoryRow[] = [
   },
   {
     id: "dungeon-mind",
-    title: "Dungeon Mind v2 Ready",
+    title: "Fatekeeper Ready",
     titleStyle: { kind: "gradient", gradient: "title" },
     storylineIds: onlyWhere(ids(1, 3, 4, 9, 11, 13, 15, 16, 23, 24), (s) => s.flags.dungeonMind),
   },

@@ -346,7 +346,13 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
                 />
               </AccordionCard>
               {storyline && GAME_TOOLS.some((t) => storyline.toolSettings?.some((s) => s.toolId === t.id)) ? (
-                <AccordionCard title="Functions" description="The story's game tools: dice and character stats (Dungeon Mind)">
+                <AccordionCard title="Functions" description="The story's game tools: dice and character stats, run by the Fatekeeper">
+                  {storyline.gameMaster?.playerGuide ? (
+                    <div className="mb-3 whitespace-pre-line rounded-[12px] border border-white/10 bg-black/20 p-3 text-[12px] leading-5 text-white/75">
+                      <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-white/50">How to play</div>
+                      {storyline.gameMaster.playerGuide}
+                    </div>
+                  ) : null}
                   {GAME_TOOLS.filter((t) => storyline.toolSettings?.some((s) => s.toolId === t.id)).map((t) => {
                     const setting = storyline.toolSettings!.find((s) => s.toolId === t.id)!;
                     const required = setting.mode === "required";
@@ -367,7 +373,7 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
                     );
                   })}
                   <label className="mt-3 block text-[13px] text-white/70">
-                    Dungeon Mind model
+                    Fatekeeper model
                     <select
                       value={settings.dmModel || DEFAULT_DM_MODEL}
                       onChange={(e) => onChange({ dmModel: e.target.value })}
@@ -380,7 +386,7 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
                       ))}
                     </select>
                     <span className="mt-1 block text-[11px] leading-4 text-white/50">
-                      Resolves dice and sheets before the story model writes, so any story model gets working mechanics. Your story model still writes every word. If it declines a scene, the story model handles the tools that turn.
+                      The Fatekeeper is the story&apos;s game master. It checks each action against the rules, rolls the dice and updates sheets before the story model writes, and can turn down impossible actions or ask you to choose first. Your story model still writes every word. If it declines a scene, the story model handles the tools that turn.
                     </span>
                   </label>
                   {storyline.statSchema?.length || storyline.characters.some((c) => c.sheet) ? (
