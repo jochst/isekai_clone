@@ -25,6 +25,7 @@ import {
   type CommandName,
 } from "@/lib/chats/commands";
 
+import { MicButton } from "./MicButton";
 import { Toggle } from "./primitives";
 
 export interface ComposerProps {
@@ -286,7 +287,7 @@ export function Composer({
           </label>
         </div>
 
-        <div className="relative min-h-[52px] rounded-[16px] border border-[rgba(167,185,255,0.5)] bg-[#2f3350] py-[10px] pl-4 pr-[52px] focus-within:border-[#a7b9ff]">
+        <div className="relative min-h-[52px] rounded-[16px] border border-[rgba(167,185,255,0.5)] bg-[#2f3350] py-[10px] pl-4 pr-[96px] focus-within:border-[#a7b9ff]">
           <textarea
             ref={textareaRef}
             value={draft}
@@ -301,6 +302,15 @@ export function Composer({
             aria-label="Message"
             disabled={!configured}
             className="iz-scroll-thin block max-h-[160px] w-full resize-none bg-transparent text-[15px] leading-[22px] text-white outline-none placeholder:text-white/40 [field-sizing:content] disabled:cursor-not-allowed"
+          />
+          <MicButton
+            disabled={!configured || streaming}
+            onText={(text) => {
+              setDraft((d) => (d.trim() ? `${d.trimEnd()} ${text}` : text));
+              textareaRef.current?.focus();
+            }}
+            onError={onError}
+            className="absolute bottom-2 right-[52px]"
           />
           {streaming ? (
             <button

@@ -13,18 +13,17 @@ import {
   resolvePortraitModel,
   useProviderSettings,
   type ProviderPresetDef,
-  ENV_KEY,
 } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import { VOICE_CATALOG, generateSpeech, speakWithBrowser, stopBrowserSpeech } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import type { ProviderSettings, VoiceProvider } from "@/types/isekaizero";
 import { cn } from "@/lib/utils";
 
+import { ServerKeyField } from "./ServerKeyField";
 import { SettingsShell, type SettingsTab } from "./SettingsShell";
 import {
   Field,
   GradientButton,
   InfoNote,
-  OutlineButton,
   ResetButton,
   SegmentedControl,
   SelectRow,
@@ -44,17 +43,6 @@ const ENV_VAR_BY_PRESET: Record<ProviderSettings["preset"], string> = {
   openrouter: "OPENROUTER_API_KEY",
   custom: "CUSTOM_API_KEY",
 };
-
-function EnvKeyBadge({ name }: { name: string }) {
-  return (
-    <div className="flex h-11 items-center gap-2 rounded-[10px] border border-[rgba(74,222,128,0.35)] bg-[rgba(74,222,128,0.08)] px-3 text-[13px] text-white">
-      <KeyRound size={16} className="text-[rgb(74,222,128)]" aria-hidden />
-      <span>
-        Using <code className="font-mono">{name}</code> from .env.local
-      </span>
-    </div>
-  );
-}
 
 const TABS: readonly SettingsTab<TabKey>[] = [
   { key: "provider", label: "API Provider", icon: KeyRound },
@@ -179,7 +167,7 @@ export function ProviderSettingsPage() {
 
   return (
     <SettingsShell
-      intro="Bring your own key. Requests go straight from this app to your provider — keys stay in this browser."
+      intro="Bring your own key. Requests go straight from this app to your provider — keys are saved encrypted on this app's server."
       onReset={resetAll}
       tabs={TABS}
       activeTab={tab}
@@ -222,7 +210,6 @@ interface ProviderTabProps {
 type TestState = { kind: "idle" } | { kind: "testing" } | { kind: "ok"; text: number; images: number } | { kind: "fail"; message: string };
 
 function ProviderTab({ settings, preset, update, onTest, onPresetChange }: ProviderTabProps) {
-  const [showKey, setShowKey] = useState(false);
   const [test, setTest] = useState<TestState>({ kind: "idle" });
 
   const selectPreset = (p: ProviderPresetDef) => {
@@ -290,9 +277,7 @@ function ProviderTab({ settings, preset, update, onTest, onPresetChange }: Provi
           helper={
             <>
               <span>
-                {settings.apiKey === ENV_KEY
-                  ? "Loaded from .env.local on the server. It never reaches the browser."
-                  : `Add ${ENV_VAR_BY_PRESET[settings.preset]} to .env.local (recommended), or enter it here; a key here is stored in this browser.`}
+                Saved encrypted on the server, so you can change it from any device. It never comes back to the browser.
               </span>
               {preset.keysUrl ? (
                 <a
@@ -307,30 +292,13 @@ function ProviderTab({ settings, preset, update, onTest, onPresetChange }: Provi
             </>
           }
         >
-          {settings.apiKey === ENV_KEY ? (
-            <EnvKeyBadge name={ENV_VAR_BY_PRESET[settings.preset]} />
-          ) : (
-          <div className="relative">
-            <input
-              id="iz-provider-api-key"
-              type={showKey ? "text" : "password"}
-              value={settings.apiKey}
-              onChange={(e) => update({ apiKey: e.target.value.trim() })}
-              placeholder="sk-…"
-              autoComplete="off"
-              spellCheck={false}
-              className={cn(TEXT_INPUT_CLASS, "pr-11")}
-            />
-            <button
-              type="button"
-              aria-label={showKey ? "Hide API key" : "Show API key"}
-              onClick={() => setShowKey((v) => !v)}
-              className="absolute right-0 top-0 flex h-11 w-11 cursor-pointer items-center justify-center text-[rgba(255,255,255,0.6)] hover:text-white"
-            >
-              {showKey ? <EyeOff size={18} strokeWidth={2} aria-hidden /> : <Eye size={18} strokeWidth={2} aria-hidden />}
-            </button>
-          </div>
-          )}
+          <ServerKeyField
+            key={settings.preset}
+            name={settings.preset}
+            id="iz-provider-api-key"
+            envVar={ENV_VAR_BY_PRESET[settings.preset]}
+            browserKey={settings.apiKey}
+          />
         </Field>
 
         <Field label="Chat base URL" htmlFor="iz-provider-base-url">
@@ -361,15 +329,6 @@ function ProviderTab({ settings, preset, update, onTest, onPresetChange }: Provi
           <GradientButton onClick={runTest} disabled={test.kind === "testing" || !settings.apiKey || !settings.baseUrl}>
             {test.kind === "testing" ? "Testing…" : "Test connection"}
           </GradientButton>
-          <OutlineButton
-            onClick={() => {
-              update({ apiKey: "" });
-              setTest({ kind: "idle" });
-            }}
-            disabled={!settings.apiKey || settings.apiKey === ENV_KEY}
-          >
-            Clear key
-          </OutlineButton>
         </div>
 
         {test.kind === "ok" ? (
@@ -845,10 +804,10 @@ function VoiceTab({ settings, update }: VoiceTabProps) {
 
           <Field
             label="Dedicated Voice API Key"
-            helper={provider === "elevenlabs" ? "Your ElevenLabs API key. Add ELEVENLABS_API_KEY to .env.local (recommended) or enter it here." : "Optional. Leave blank to reuse main API Key."}
+            helper={provider === "elevenlabs" ? "Your ElevenLabs key, saved encrypted on the server. Also used for sound effects, music, My Voices and speech-to-text." : "Optional. Leave blank to reuse main API Key."}
           >
-            {settings.voiceApiKey === ENV_KEY ? (
-              <EnvKeyBadge name="ELEVENLABS_API_KEY" />
+            {provider === "elevenlabs" ? (
+              <ServerKeyField name="elevenlabs" envVar="ELEVENLABS_API_KEY" placeholder="ElevenLabs API key" browserKey={settings.voiceApiKey} />
             ) : (
             <div className="relative">
               <input
@@ -869,6 +828,12 @@ function VoiceTab({ settings, update }: VoiceTabProps) {
             </div>
             )}
           </Field>
+        </SettingCard>
+      ) : null}
+
+      {provider !== "elevenlabs" ? (
+        <SettingCard title="ElevenLabs key" description="Used for sound effects, music, My Voices, character voices and speech-to-text">
+          <ServerKeyField name="elevenlabs" envVar="ELEVENLABS_API_KEY" placeholder="ElevenLabs API key" />
         </SettingCard>
       ) : null}
 

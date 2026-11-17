@@ -1,13 +1,15 @@
 import "server-only";
 
 import { inlineLocalMedia } from "@/lib/chats/media";
+import { getSavedKey } from "@/lib/keys/store";
 
 /**
- * Server-side helpers for talking to an OpenAI-compatible provider. Keys come from `.env.local`
- * (see `ENV_KEYS`); a key typed into Settings → Providers and forwarded per request is the fallback.
+ * Server-side helpers for talking to an OpenAI-compatible provider. A key saved in Settings → Providers (encrypted on
+ * the server, see lib/keys/store) wins; `.env.local` (see `ENV_KEYS`) is the fallback; a key the browser forwards per
+ * request comes last.
  */
 
-/** Environment variable holding each provider's key; an env key always wins over one sent by the browser. */
+/** Environment variable holding each provider's key. */
 export const ENV_KEYS = {
   "nano-gpt": "NANOGPT_API_KEY",
   openai: "OPENAI_API_KEY",
@@ -16,8 +18,19 @@ export const ENV_KEYS = {
   elevenlabs: "ELEVENLABS_API_KEY",
 } as const;
 
-export function envKey(name: keyof typeof ENV_KEYS): string {
+export type ProviderKeyName = keyof typeof ENV_KEYS;
+
+export function isProviderKeyName(name: string): name is ProviderKeyName {
+  return Object.hasOwn(ENV_KEYS, name);
+}
+
+export function envKey(name: ProviderKeyName): string {
   return (process.env[ENV_KEYS[name]] ?? "").trim();
+}
+
+/** The key the server holds for a provider: saved in Settings first, then `.env.local`. */
+export function serverKey(name: ProviderKeyName): string {
+  return getSavedKey(name) || envKey(name);
 }
 
 /** Browser-sent key, unless it is the client's "key is on the server" marker. */
@@ -42,9 +55,9 @@ export function readProviderContext(headers: Headers): ProviderContext | { error
   const baseUrl = (headers.get("x-iz-base-url") || "").trim().replace(/\/+$/, "");
   const imageBaseUrl = (headers.get("x-iz-image-base-url") || baseUrl).trim().replace(/\/+$/, "");
   const preset = (headers.get("x-iz-preset") || "custom").trim();
-  const apiKey = (preset in ENV_KEYS ? envKey(preset as keyof typeof ENV_KEYS) : "") || headerKey(headers, "x-iz-api-key");
+  const apiKey = (isProviderKeyName(preset) ? serverKey(preset) : "") || headerKey(headers, "x-iz-api-key");
   if (!baseUrl) return { error: "No provider base URL configured. Open Settings → Providers." };
-  if (!apiKey && preset !== "custom") return { error: `No API key configured. Add ${ENV_KEYS[preset as keyof typeof ENV_KEYS] ?? "it"} to .env.local, or enter a key in Settings → Providers.` };
+  if (!apiKey && preset !== "custom") return { error: "No API key configured. Enter one in Settings → Providers." };
   for (const u of [baseUrl, imageBaseUrl]) {
     if (!u) continue;
     try {
@@ -208,10 +221,10 @@ export function readVoiceContext(headers: Headers): VoiceContext | { error: stri
   const provider = (headers.get("x-iz-voice-provider") || "openai-compatible") as VoiceContext["provider"];
   const generalBaseUrl = (headers.get("x-iz-base-url") || "").trim().replace(/\/+$/, "");
   const preset = (headers.get("x-iz-preset") || "custom").trim();
-  const generalApiKey = (preset in ENV_KEYS ? envKey(preset as keyof typeof ENV_KEYS) : "") || headerKey(headers, "x-iz-api-key");
+  const generalApiKey = (isProviderKeyName(preset) ? serverKey(preset) : "") || headerKey(headers, "x-iz-api-key");
 
   let voiceBaseUrl = (headers.get("x-iz-voice-base-url") || "").trim().replace(/\/+$/, "");
-  let voiceApiKey = (provider === "elevenlabs" ? envKey("elevenlabs") : "") || headerKey(headers, "x-iz-voice-api-key");
+  let voiceApiKey = (provider === "elevenlabs" ? serverKey("elevenlabs") : "") || headerKey(headers, "x-iz-voice-api-key");
   const voiceModel = (headers.get("x-iz-voice-model") || (provider === "elevenlabs" ? "eleven_multilingual_v2" : "tts-1")).trim();
   const voice = (headers.get("x-iz-voice-id") || (provider === "elevenlabs" ? "21m00Tcm4TlvDq8ikWAM" : "nova")).trim();
   const speed = Number(headers.get("x-iz-voice-speed") || "1.0");
@@ -219,7 +232,7 @@ export function readVoiceContext(headers: Headers): VoiceContext | { error: stri
   if (provider === "elevenlabs") {
     if (!voiceApiKey && generalApiKey) voiceApiKey = generalApiKey;
     if (!voiceBaseUrl) voiceBaseUrl = "https://api.elevenlabs.io/v1";
-    if (!voiceApiKey) return { error: "ElevenLabs API key is required. Add ELEVENLABS_API_KEY to .env.local, or enter it in Settings → Providers." };
+    if (!voiceApiKey) return { error: "ElevenLabs API key is required. Enter it in Settings → Providers → Voice." };
   } else if (provider === "local") {
     if (!voiceBaseUrl) voiceBaseUrl = "http://localhost:8880/v1";
     // Local providers (Kokoro, OpenedAI Speech) often need no API key

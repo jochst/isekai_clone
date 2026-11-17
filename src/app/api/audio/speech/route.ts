@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { envKey, providerErrorMessage, readVoiceContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
+import { serverKey, providerErrorMessage, readVoiceContext } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -42,8 +42,8 @@ export async function POST(req: Request) {
   // A character can have an ElevenLabs voice (My Voices) while the narrator uses another provider: that part goes to
   // ElevenLabs with its own key and model, not the other provider's.
   const crossToEleven = provider === "elevenlabs" && ctx.provider !== "elevenlabs";
-  const elevenKey = crossToEleven ? envKey("elevenlabs") : ctx.apiKey;
-  if (crossToEleven && !elevenKey) return NextResponse.json({ error: "This character's ElevenLabs voice needs ELEVENLABS_API_KEY in .env.local." }, { status: 400 });
+  const elevenKey = crossToEleven ? serverKey("elevenlabs") : ctx.apiKey;
+  if (crossToEleven && !elevenKey) return NextResponse.json({ error: "This character's ElevenLabs voice needs an ElevenLabs key (Settings → Providers → Voice)." }, { status: 400 });
   const model = crossToEleven ? "eleven_multilingual_v2" : body.model || ctx.model;
   const speed = body.speed ?? ctx.speed;
 

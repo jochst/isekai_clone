@@ -95,35 +95,76 @@ export const DEFAULT_PROVIDER_SETTINGS: ProviderSettings = {
 const CHANGE_EVENT = "iz:provider-settings";
 
 /**
- * Stand-in for a key that lives in the server's `.env.local`. The real key never reaches the browser:
- * settings read with this value count as configured, it is never stored, and it is never sent.
+ * Stand-in for a key the server holds (saved in Settings, or in `.env.local`). The real key never reaches the
+ * browser: settings read with this value count as configured, it is never stored, and it is never sent.
  */
 export const ENV_KEY = "env";
 
-/** Which providers have a key in `.env.local` (from `/api/providers/keys`); null until loaded. */
+/** Where the server's key for a provider comes from (mirrors ServerKeyStatus in /api/providers/keys). */
+export interface ServerKeyStatus {
+  source: "saved" | "env";
+  hint?: string;
+  updated?: number;
+}
+
+/** Which providers have a key on the server (from `/api/providers/keys`); null until loaded. */
 let serverKeys: Record<string, boolean> | null = null;
+let serverKeyStatus: Record<string, ServerKeyStatus | null> = {};
 let serverKeysRequested = false;
+
+function applyServerKeys(json: { keys: Record<string, boolean>; status?: Record<string, ServerKeyStatus | null> }): void {
+  serverKeys = json.keys;
+  serverKeyStatus = json.status ?? {};
+  cachedRaw = undefined; // re-overlay on next read
+  // A key typed into the browser earlier is redundant once the server has one: drop the browser copy.
+  const stored = parse(storedRaw());
+  if ((serverKeys[stored.preset] && stored.apiKey) || (serverKeys.elevenlabs && stored.voiceProvider === "elevenlabs" && stored.voiceApiKey)) {
+    writeProviderSettings(stored);
+  } else {
+    window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
+  }
+}
 
 function loadServerKeys(): void {
   if (serverKeysRequested || typeof window === "undefined") return;
   serverKeysRequested = true;
   fetch("/api/providers/keys", { cache: "no-store" })
-    .then((res) => (res.ok ? (res.json() as Promise<{ keys: Record<string, boolean> }>) : null))
+    .then((res) => (res.ok ? (res.json() as Promise<{ keys: Record<string, boolean>; status?: Record<string, ServerKeyStatus | null> }>) : null))
     .then((json) => {
-      if (!json) return;
-      serverKeys = json.keys;
-      cachedRaw = undefined; // re-overlay on next read
-      // A key typed into the browser earlier is redundant once .env.local has one: drop the browser copy.
-      const stored = parse(storedRaw());
-      if ((serverKeys[stored.preset] && stored.apiKey) || (serverKeys.elevenlabs && stored.voiceProvider === "elevenlabs" && stored.voiceApiKey)) {
-        writeProviderSettings(stored);
-      } else {
-        window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
-      }
+      if (json) applyServerKeys(json);
     })
     .catch(() => {
       serverKeysRequested = false;
     });
+}
+
+async function changeServerKey(init: RequestInit, query = ""): Promise<void> {
+  const res = await fetch(`/api/providers/keys${query}`, { ...init, cache: "no-store" });
+  const json = (await res.json().catch(() => ({}))) as { error?: string; keys?: Record<string, boolean>; status?: Record<string, ServerKeyStatus | null> };
+  if (!res.ok || !json.keys) throw new Error(json.error || `Could not save the key (${res.status}).`);
+  applyServerKeys({ keys: json.keys, status: json.status });
+}
+
+/** Saves a provider key on the server (encrypted). `name` is a preset id or "elevenlabs". */
+export function saveServerKey(name: string, key: string): Promise<void> {
+  return changeServerKey({ method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, key }) });
+}
+
+/** Removes a saved key; a `.env.local` key, if any, takes over again. */
+export function removeServerKey(name: string): Promise<void> {
+  return changeServerKey({ method: "DELETE" }, `?name=${encodeURIComponent(name)}`);
+}
+
+/** The server's key status for one provider: null when it has none (or before it has loaded). */
+export function useServerKeyStatus(name: string): ServerKeyStatus | null {
+  return useSyncExternalStore(
+    subscribe,
+    () => {
+      loadServerKeys();
+      return serverKeyStatus[name] ?? null;
+    },
+    () => null,
+  );
 }
 
 function storedRaw(): string | null {
@@ -201,7 +242,7 @@ export function isProviderConfigured(s: ProviderSettings): boolean {
   return Boolean(s.baseUrl && s.apiKey && s.textModel);
 }
 
-/** Headers attached by the client to every /api/* request; keys the server holds in .env.local are left out. */
+/** Headers attached by the client to every /api/* request; keys the server holds are left out. */
 export function providerHeaders(s: ProviderSettings): Record<string, string> {
   const h: Record<string, string> = {
     "x-iz-base-url": s.baseUrl,

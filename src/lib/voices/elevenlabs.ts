@@ -1,6 +1,6 @@
 import "server-only";
 
-import { envKey } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
+import { serverKey } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-server";
 
 /* My Voices (voice.*, voiceEdit.*): ElevenLabs voice design and instant cloning. The key comes from .env.local. */
 
@@ -24,8 +24,8 @@ export interface VoicePreview {
 }
 
 function key(): string {
-  const k = envKey("elevenlabs");
-  if (!k) throw new Error("Voices need ELEVENLABS_API_KEY in .env.local.");
+  const k = serverKey("elevenlabs");
+  if (!k) throw new Error("Voices need an ElevenLabs key (Settings → Providers → Voice).");
   return k;
 }
 
