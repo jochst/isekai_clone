@@ -31,8 +31,9 @@ export function saveMedia(bytes: Buffer, mime: string): string {
   const ext = EXT_BY_MIME[mime.split(";")[0].trim().toLowerCase()];
   if (!ext) throw new Error(`Unsupported media type: ${mime}`);
   const file = `${createHash("sha256").update(bytes).digest("hex").slice(0, 32)}.${ext}`;
-  const path = join(mediaDir(), file);
-  if (!existsSync(path)) writeFileSync(path, bytes);
+  // Without these ignores Turbopack traces the whole project into the build, reading every file in it (dev.db is many GB).
+  const path = join(/* turbopackIgnore: true */ mediaDir(), file);
+  if (!existsSync(/* turbopackIgnore: true */ path)) writeFileSync(path, bytes);
   return MEDIA_PREFIX + file;
 }
 
