@@ -8,7 +8,7 @@ import { imgAttr, normalizeMarkup } from "@/lib/text";
 import { generateSpeech, stopBrowserSpeech } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { estimateTokens } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
-import type { ChatMessage, DiceRoll, SceneReference, StoryEnding } from "@/types/isekaizero";
+import type { ChatMessage, DiceRoll, FatekeeperRuling, SceneReference, StoryEnding } from "@/types/isekaizero";
 import { getSceneImageUrl } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
 
 import { MessagePopover, type MessageAction } from "./MessagePopover";
@@ -404,6 +404,12 @@ export function MessageBubble({
       ) : (
         <div className="flow-root">
           {message.scene && !message.ooc ? <SceneCast scene={message.scene} /> : null}
+          {message.resolving && !message.content ? (
+            <div className="mb-1 flex items-center gap-2 text-[12px] text-[#ffcf8a]" role="status">
+              <Loader2 size={14} className="animate-spin" /> The Fatekeeper is weighing your action…
+            </div>
+          ) : null}
+          {message.ruling ? <RulingCard ruling={message.ruling} /> : null}
           <p className="whitespace-pre-wrap break-words text-[length:var(--iz-chat-font,15px)] leading-[1.6] text-[color:var(--iz-narration,rgba(255,255,255,0.92))]">
             {message.content ? renderRichText(message.content) : null}
             {streaming ? (
@@ -449,6 +455,16 @@ export function MessageBubble({
         <SceneVideo key={v.id} video={v} onRegenerate={() => onRegenerateVideo(v.id)} onCheckAgain={() => onCheckVideo(v.id)} />
       ))}
       {message.rolls?.length ? <DiceRolls rolls={message.rolls} /> : null}
+      {message.custom?.length ? (
+        <div className="mt-2 flex flex-col gap-1">
+          {message.custom.map((c, i) => (
+            <div key={i} className="rounded-[12px] border border-[#c4a7ff]/25 bg-[#c4a7ff]/10 px-3 py-1.5 text-[12px] text-white/80">
+              <span className="font-semibold text-[#dccbff]">✦ {c.name.replace(/_/g, " ")}</span>
+              <span className="text-white/60"> · {c.result.length > 160 ? `${c.result.slice(0, 160)}…` : c.result}</span>
+            </div>
+          ))}
+        </div>
+      ) : null}
       {message.statChanges?.length ? (
         <button type="button" onClick={onOpenSheets} className="mt-2 flex w-full flex-col gap-0.5 rounded-[12px] border border-white/10 bg-white/[0.03] px-3 py-2 text-left text-[12px] text-white/75 hover:bg-white/[0.06]">
           {message.statChanges.map((c, i) => (
@@ -574,6 +590,18 @@ export function MessageBubble({
           #{index + 1} · {formatTime(message.createdAt)}
         </span>
       </div>
+    </div>
+  );
+}
+
+/** The Fatekeeper's call when it turned an action down or needs the player to choose; resolved turns show their rolls. */
+function RulingCard({ ruling }: { ruling: FatekeeperRuling }) {
+  if (ruling.verdict !== "rejected" && ruling.verdict !== "ask_player") return null;
+  const rejected = ruling.verdict === "rejected";
+  return (
+    <div className={cn("mb-2 rounded-[12px] border px-3 py-2 text-[12px]", rejected ? "border-[#f87171]/30 bg-[#f87171]/10" : "border-[#ffcf8a]/30 bg-[#ffcf8a]/10")}>
+      <div className={cn("text-[11px] font-bold uppercase tracking-wide", rejected ? "text-[#fca5a5]" : "text-[#ffe2b3]")}>{rejected ? "⚖ Fatekeeper: not possible" : "⚖ Fatekeeper: your call"}</div>
+      <div className="mt-0.5 text-white/80">{rejected ? ruling.summary : ruling.question || ruling.summary}</div>
     </div>
   );
 }

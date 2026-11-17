@@ -1,9 +1,9 @@
 import { guardImportRequest, importError } from "@/lib/imports/http";
 import { applyChatPatch, getCast, getChat, getCodexState, getSheets, saveCast, saveCodexState, saveSheets, withChatDb, type ChatMeta } from "@/lib/chats/db";
 import { withChatCast } from "@/lib/chats/cast";
-import type { ChatMessage, ChatSession, MessageUsage } from "@/types/isekaizero";
+import type { ChatMessage, ChatSession, FatekeeperRuling, MessageUsage } from "@/types/isekaizero";
 import { findStoryline } from "@/lib/chats/storyline";
-import { ALSO_CLIENT_TOOLS, noEvents, runServerTool, SERVER_TOOL_NAMES, type ToolState } from "@/lib/chats/server-tools";
+import { ALSO_CLIENT_TOOLS, isServerTool, noEvents, runServerTool, type ToolState } from "@/lib/chats/server-tools";
 import { parseTurnRequest, planTurn, readCompletionStream, settleOutcome, type StreamOutcome, type ToolCall } from "@/lib/chats/turn";
 import { assemblePrompt, castKeeperModel, fatekeeperModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-builder";
 import { runCastKeeper, runFatekeeper } from "@/lib/chats/fatekeeper";
@@ -19,7 +19,8 @@ const MAX_TOOL_ROUNDS = 4;
 
 /**
  * One story turn, built and saved on the server (ADR-3). Streams Server-Sent Events:
- * `{type:"delta", content}` with the reply so far, `{type:"tools", codex, rolls, statChanges}` after server tools run,
+ * `{type:"delta", content}` with the reply so far, `{type:"tools", codex, rolls, statChanges, custom, ruling}` once the
+ * Fatekeeper has ruled and after server tools run,
  * then `{type:"done", messages, order, toolCalls, usage}` with the saved messages, or `{type:"error", error}`.
  * Codex, dice and character-sheet tools run on the server between rounds; other tool calls (illustrations,
  * characters) go to the client.
@@ -70,12 +71,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const events = noEvents();
   const dmModel = fatekeeperModel(storyline, chat.settings);
   let dmUsage: StreamOutcome["usage"];
+  let ruling: FatekeeperRuling | undefined;
   let notice: string | undefined;
   if (dmModel) {
     try {
       const dm = await runFatekeeper({ ctx, model: dmModel, storyline, history: plan.history, playerName: chat.playerName, settings: chat.settings, state: toolState, events, signal: request.signal });
       toolState = dm.state;
       dmUsage = dm.usage;
+      ruling = dm.ruling.verdict === "none" ? undefined : dm.ruling;
       prompt = assemblePrompt(inPlay(), { ...chat, messages: plan.history }, { ...promptOptions, codex: toolState.codex, ruling: dm.ruling });
     } catch (e) {
       if (request.signal.aborted) return new Response(null, { status: 499 });
@@ -123,12 +126,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       ...(events.rolls.length > 0 ? { rolls: events.rolls } : {}),
       ...(events.statChanges.length > 0 ? { statChanges: events.statChanges } : {}),
       ...(events.cast.length > 0 ? { cast: events.cast } : {}),
+      ...(events.custom.length > 0 ? { custom: events.custom } : {}),
+      ...(ruling ? { ruling } : {}),
       ...(events.ending ? { ending: events.ending } : {}),
     };
     const upsert = Object.keys(extra).length > 0 ? result.upsert.map((m) => (m.role === "assistant" && m.id === result.order.at(-1) ? { ...m, ...extra } : m)) : result.upsert;
     withChatDb((db) => {
       if (upsert.length > 0) applyChatPatch(db, chatId, { meta: { ...meta(chat), updatedAt: Date.now() }, order: result.order, upsert });
-      if (events.codex.length > 0) saveCodexState(db, chatId, toolState.codex);
+      if (events.codex.length > 0 || events.custom.length > 0) saveCodexState(db, chatId, toolState.codex);
       if (events.statChanges.length > 0) saveSheets(db, chatId, toolState.sheets);
       if (events.cast.length > 0) saveCast(db, chatId, toolState.cast);
     });
@@ -153,6 +158,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       let usage: StreamOutcome["usage"] = dmUsage;
       const clientCalls: ToolCall[] = [];
       let castHandled = false; // the story model kept the cast itself this turn
+      // What the Fatekeeper already resolved shows (roll cards, ruling) before the narration starts.
+      if (dmModel && (ruling || events.rolls.length || events.statChanges.length || events.custom.length)) send({ type: "tools", ...events, ...(ruling ? { ruling } : {}) });
       try {
         let body = first.body!;
         let messages: unknown[] = prompt.messages;
@@ -167,18 +174,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           usage = addUsage(usage, outcome.usage);
           const calls = outcome.toolCalls.map((c, i) => ({ ...c, id: c.id || `call_${round}_${i}` }));
           if (calls.some((c) => (CAST_TOOL_NAMES as readonly string[]).includes(c.function.name) || c.function.name === "end_story")) castHandled = true;
-          clientCalls.push(...calls.filter((c) => !SERVER_TOOL_NAMES.has(c.function.name) || ALSO_CLIENT_TOOLS.has(c.function.name)));
-          const serverCalls = calls.filter((c) => SERVER_TOOL_NAMES.has(c.function.name));
+          clientCalls.push(...calls.filter((c) => !isServerTool(c.function.name, storyline) || ALSO_CLIENT_TOOLS.has(c.function.name)));
+          const serverCalls = calls.filter((c) => isServerTool(c.function.name, storyline));
           if (serverCalls.length === 0 || round >= MAX_TOOL_ROUNDS - 1) break;
 
           // Run the server tools; every call in the round needs an answer, so client tools get an acknowledgement.
           const results = calls.map((call) => {
-            if (!SERVER_TOOL_NAMES.has(call.function.name)) return { role: "tool", tool_call_id: call.id, content: "Done." };
+            if (!isServerTool(call.function.name, storyline)) return { role: "tool", tool_call_id: call.id, content: "Done." };
             const ran = runServerTool(call.function.name, call.function.arguments, storyline, toolState, events);
             toolState = ran.state;
             return { role: "tool", tool_call_id: call.id, content: ran.output };
           });
-          send({ type: "tools", ...events });
+          send({ type: "tools", ...events, ...(ruling ? { ruling } : {}) });
           earlier = joinParts(earlier, text);
           text = "";
           messages = [...messages, { role: "assistant", content: outcome.content || null, tool_calls: calls }, ...results];

@@ -113,6 +113,55 @@ export interface GameMasterRules {
 /** How the Fatekeeper resolved one player action. */
 export type RulingVerdict = "resolved" | "rejected" | "ask_player" | "none";
 
+/** The Fatekeeper's verdict on the player's action, handed to the story model and shown on the reply. */
+export interface FatekeeperRuling {
+  verdict: RulingVerdict;
+  /** Outcomes with their numbers and every sheet change; for "rejected", why the action can't happen. */
+  summary: string;
+  /** For "ask_player": what the player must decide first. */
+  question?: string;
+}
+
+/** One argument of a creator's custom function. */
+export interface CustomFunctionParam {
+  name: string;
+  type: "string" | "number" | "boolean";
+  description?: string;
+  /** Allowed values for a string argument. */
+  enumValues?: string[];
+  required?: boolean;
+}
+
+/**
+ * What a custom function does when called, run on the server without any code from the creator:
+ * - table: picks one entry at random (weights optional), e.g. loot or random encounters
+ * - reply: answers with fixed text, {{argument}} placeholders filled in, e.g. a shop's price list
+ * - unlock_codex: reveals a hidden or locked codex entry, e.g. finding a secret
+ * - record: just records the call and its arguments (functions imported from elsewhere whose effect we don't know)
+ */
+export type CustomFunctionEffect =
+  | { kind: "table"; entries: { text: string; weight?: number }[] }
+  | { kind: "reply"; text: string }
+  | { kind: "unlock_codex"; slug: string; text?: string }
+  | { kind: "record" };
+
+/** A creator's own function for the story AI and the Fatekeeper. Turned on and off like the built-in tools. */
+export interface CustomFunction {
+  /** snake_case function name the AI calls. */
+  name: string;
+  /** When the AI should call it. */
+  description: string;
+  params?: CustomFunctionParam[];
+  effect: CustomFunctionEffect;
+}
+
+/** A custom function call made during a reply, shown to the player. */
+export interface CustomFunctionEvent {
+  name: string;
+  /** What the function produced (the table pick, the reply, the unlocked entry). */
+  result: string;
+}
+
 /** One roll_dice result, judged on the server. */
 export interface DiceRoll {
   reason: string;
@@ -290,6 +339,8 @@ export interface Storyline {
   statSchema?: StatDef[];
   /** The Fatekeeper's rules for this story (our game master). */
   gameMaster?: GameMasterRules;
+  /** The creator's own functions; each is switched on through toolSettings as "custom:<name>". */
+  customFunctions?: CustomFunction[];
   /** Characters the player can play as ("Recommended Characters"). */
   personas?: Persona[];
   /** Which AI tools the story uses, and how (required, on or off by default). */
@@ -539,6 +590,12 @@ export interface ChatMessage {
   cast?: CastEvent[];
   /** The story ended with this reply. */
   ending?: StoryEnding;
+  /** Custom functions called while resolving or writing this reply. */
+  custom?: CustomFunctionEvent[];
+  /** How the Fatekeeper ruled the player's action for this reply. */
+  ruling?: FatekeeperRuling;
+  /** Local only: the Fatekeeper is resolving the action and the reply hasn't started. */
+  resolving?: boolean;
   /** The command that shaped this reply (/steer, /skip, /cut, /end, /improvise, /retry…). */
   direction?: TurnDirection;
   /** An out-of-character exchange (/ooc): shown in the chat, never part of the story. */

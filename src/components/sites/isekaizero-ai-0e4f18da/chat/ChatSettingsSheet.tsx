@@ -8,6 +8,7 @@ import { ImageModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/imag
 import { useProviderCatalog } from "@/components/sites/isekaizero-ai-0e4f18da/image-generation/use-provider-catalog";
 import { VideoModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoModelPicker";
 import { VideoParamsForm, paramSummary } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoParamsForm";
+import { customToolId } from "@/lib/fatekeeper/custom";
 import { DEFAULT_DM_MODEL, resolveImageModel, resolveVideoModel, toolEnabled, type ContextReport, type ResolvedTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { DM_MODELS } from "@/lib/sites/isekaizero-ai-0e4f18da/dm-models";
 import { PersonaPicker } from "../persona/PersonaPicker";
@@ -345,7 +346,7 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
                   ]}
                 />
               </AccordionCard>
-              {storyline && GAME_TOOLS.some((t) => storyline.toolSettings?.some((s) => s.toolId === t.id)) ? (
+              {storyline && (GAME_TOOLS.some((t) => storyline.toolSettings?.some((s) => s.toolId === t.id)) || storyline.customFunctions?.length) ? (
                 <AccordionCard title="Functions" description="The story's game tools: dice and character stats, run by the Fatekeeper">
                   {storyline.gameMaster?.playerGuide ? (
                     <div className="mb-3 whitespace-pre-line rounded-[12px] border border-white/10 bg-black/20 p-3 text-[12px] leading-5 text-white/75">
@@ -369,6 +370,18 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
                             onChange={(on) => onChange({ tools: { ...settings.tools, [t.id]: on } })}
                           />
                         }
+                      />
+                    );
+                  })}
+                  {(storyline.customFunctions ?? []).map((f) => {
+                    const id = customToolId(f.name);
+                    const required = storyline.toolSettings?.find((s) => s.toolId === id)?.mode === "required";
+                    return (
+                      <SettingRow
+                        key={id}
+                        title={`✦ ${f.name.replace(/_/g, " ")}`}
+                        description={required ? `${f.description} Required by this story.` : f.description}
+                        right={<Toggle label={f.name} checked={toolEnabled(storyline, settings, id, true)} disabled={required} onChange={(on) => onChange({ tools: { ...settings.tools, [id]: on } })} />}
                       />
                     );
                   })}

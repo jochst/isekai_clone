@@ -1,9 +1,10 @@
 import { createHash } from "node:crypto";
 import { inflateSync } from "node:zlib";
 import { load } from "cheerio";
-import type { Character, CharacterSheet, ChatSettings, CodexEntry, GameMasterRules, Persona, StatDef, StoryCategory, StoryImage, Storyline, ToolSetting } from "@/types/isekaizero";
+import type { Character, CharacterSheet, ChatSettings, CodexEntry, CustomFunction, CustomFunctionParam, GameMasterRules, Persona, StatDef, StoryCategory, StoryImage, Storyline, ToolSetting } from "@/types/isekaizero";
 import { record, string, strings, type ImportedEntry, type ImportSource } from "./types";
 import { contentRating } from "@/lib/rating";
+import { functionName, validFunctionName } from "@/lib/fatekeeper/custom";
 
 export const MAX_IMPORT_BYTES = 20 * 1024 * 1024;
 const MAX_TEXT_BYTES = 4 * 1024 * 1024;
@@ -151,8 +152,38 @@ export function gameMasterRules(d: Record<string, unknown>): GameMasterRules | u
   return Object.keys(out).length ? out : undefined;
 }
 
+const PARAM_TYPES = new Set(["string", "number", "boolean"]);
+const paramType = (v: unknown): CustomFunctionParam["type"] => (string(v) === "integer" ? "number" : PARAM_TYPES.has(string(v)) ? (string(v) as CustomFunctionParam["type"]) : "string");
+
+/**
+ * Custom functions a source exports. Their name, description and arguments come across (arguments as a JSON-schema
+ * `parameters` object or a plain list); what they did on the source can't, so they become "record" functions: the
+ * AI calls them and the call is recorded, and the creator can give them a real effect in the editor.
+ */
+export function importedCustomFunctions(d: Record<string, unknown>): CustomFunction[] {
+  const raw = [d.customFunctions, record(d.functions).custom, d.functions].find(Array.isArray) as unknown[] | undefined;
+  const seen = new Set<string>();
+  return (raw ?? []).map(record).flatMap((f): CustomFunction[] => {
+    const fn = record(f.function ?? f);
+    const label = string(fn.name) || string(f.title) || string(f.label);
+    const name = validFunctionName(label) ? label : functionName(label);
+    const description = plainText(string(fn.description) || string(f.instruction)).trim().slice(0, 1000);
+    if (!label || !description || !validFunctionName(name) || seen.has(name)) return [];
+    seen.add(name);
+    const schema = record(fn.parameters);
+    const required = new Set(strings(schema.required));
+    const params: CustomFunctionParam[] = Array.isArray(fn.params)
+      ? fn.params.map(record).filter((p) => string(p.name)).map((p) => ({ name: string(p.name), type: paramType(p.type), ...(string(p.description) ? { description: string(p.description) } : {}), ...(p.required === true ? { required: true } : {}) }))
+      : Object.entries(record(schema.properties)).map(([key, v]) => {
+          const p = record(v);
+          return { name: key, type: paramType(p.type), ...(string(p.description) ? { description: string(p.description) } : {}), ...(strings(p.enum).length ? { enumValues: strings(p.enum) } : {}), ...(required.has(key) ? { required: true } : {}) };
+        });
+    return [{ name, description, ...(params.length ? { params: params.slice(0, 12) } : {}), effect: { kind: "record" } }];
+  }).slice(0, 30);
+}
+
 /** A story's stat schema, AI tool settings and game-master rules (game-master stories). */
-function gameRules(d: Record<string, unknown>): Pick<Storyline, "statSchema" | "toolSettings" | "gameMaster"> {
+function gameRules(d: Record<string, unknown>): Pick<Storyline, "statSchema" | "toolSettings" | "gameMaster" | "customFunctions"> {
   const list = (v: unknown) => (Array.isArray(v) ? v.map(record) : []);
   const statSchema: StatDef[] = list(d.statSchema)
     .filter((x) => string(x.name) && STAT_TYPES.has(string(x.type)))
@@ -171,7 +202,8 @@ function gameRules(d: Record<string, unknown>): Pick<Storyline, "statSchema" | "
       ...(strings(x.enabledFunctions).length ? { enabledFunctions: strings(x.enabledFunctions) } : {}),
     }));
   const gameMaster = gameMasterRules(d);
-  return { ...(statSchema.length ? { statSchema } : {}), ...(toolSettings.length ? { toolSettings } : {}), ...(gameMaster ? { gameMaster } : {}) };
+  const customFunctions = importedCustomFunctions(d);
+  return { ...(statSchema.length ? { statSchema } : {}), ...(toolSettings.length ? { toolSettings } : {}), ...(gameMaster ? { gameMaster } : {}), ...(customFunctions.length ? { customFunctions } : {}) };
 }
 
 export const categories: StoryCategory[] = ["fantasy", "isekai", "sciFi", "mecha", "horror", "thriller", "academy", "romance", "comedy", "adventure", "supernatural", "sports", "psychological", "betrayal", "action", "romantasy", "drama", "mystery", "sliceOfLife", "martialArts", "cultivation", "historical"];
