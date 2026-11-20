@@ -93,6 +93,14 @@ async function flushStorylines(records) {
       }),
     ),
   );
+  // A story reloaded with a different cast keeps only the characters it has now.
+  await prisma.$transaction(
+    records.map((record) =>
+      prisma.storyCharacter.deleteMany({
+        where: { storyId: record.id, characterId: { notIn: castIds(record) } },
+      }),
+    ),
+  );
   storyCount += records.length;
   console.log(`Loaded ${storyCount} stories...`);
 }
@@ -149,6 +157,11 @@ async function flushStoryCharacters(records) {
     console.warn(`Skipped ${skipped} story-character links with missing stories.`);
   }
   console.log(`Loaded ${storyCharacterCount} story-character links...`);
+}
+
+function castIds(record) {
+  const snapshots = Array.isArray(record.characterSnapshots) ? record.characterSnapshots : [];
+  return snapshots.map((character) => character?._id).filter(Boolean);
 }
 
 function storyData(record) {
