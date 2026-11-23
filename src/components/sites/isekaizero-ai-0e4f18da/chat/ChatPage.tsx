@@ -82,7 +82,7 @@ import { CodexSheet } from "./CodexSheet";
 import { SheetsSheet } from "./SheetsSheet";
 import { CastSheet } from "./CastSheet";
 import { CommandGuideSheet, RecapSheet, SearchSheet } from "./CommandSheets";
-import { characterSpeech, narratorVoice, playSpeech, speechParts, type SpeechPart } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
+import { characterSpeech, narratorSpeech, playSpeech, speechParts, type SpeechPart } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { NARRATOR, dramaScriptPrompt, parseDramaScript, type DramaMode } from "@/lib/chats/drama";
 import { VisualNovelStage } from "./VisualNovelStage";
 import { ScenePanel } from "./ScenePanel";
@@ -224,13 +224,14 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     () =>
       session?.settings.voiceEnabled && storyline
         ? (text: string, soleSpeaker: string | undefined, onDone: () => void) =>
-            playSpeech(speechParts(text, storyline, session.settings, provider, { visualNovel: true, soleSpeaker }), provider, onDone, showToast)
+            playSpeech(speechParts(text, storyline, session.settings, provider, soleSpeaker), provider, onDone, showToast)
         : undefined,
     [session?.settings, storyline, provider, showToast],
   );
-  const narration = useMemo(
-    () => (session ? { voiceId: narratorVoice(session.settings, provider), speed: session.settings.narratorSpeakingRate ?? 1 } : undefined),
-    [session, provider],
+  /** A reply as narrator and character voice parts, for the Narrate button. */
+  const speech = useMemo(
+    () => (session && storyline ? (text: string) => speechParts(text, storyline, session.settings, provider) : undefined),
+    [session, storyline, provider],
   );
   const mana = usage.remainingBalance !== undefined ? Math.round(usage.remainingBalance * 100) : 20;
 
@@ -978,11 +979,11 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         const autoIllustrate = afterTurn?.settings.autoIllustrate && !illustratedByTool && !off.has("illustration") ? () => illustrate(plan.reply.id) : undefined;
         if (afterTurn && (afterTurn.settings.playMode === "visualNovel" || afterTurn.settings.aiMediaPicker !== false)) void pickSceneFor(plan.reply.id, autoIllustrate);
         else autoIllustrate?.();
-        // Narration mode "Auto Play on New Messages": the narrator reads the new reply (the VN stage plays its own).
+        // Narration mode "Auto Play on New Messages": the new reply is read aloud (the VN stage plays its own).
         const newReply = afterTurn?.messages.find((m) => m.id === plan.reply.id);
         if (afterTurn && newReply && afterTurn.settings.voiceEnabled && afterTurn.settings.autoPlayVoice && afterTurn.settings.playMode !== "visualNovel" && !off.has("narration")) {
           stopNarration.current?.();
-          stopNarration.current = playSpeech(speechParts(newReply.content, storyline, afterTurn.settings, provider, { visualNovel: false }), provider, undefined, showToast);
+          stopNarration.current = playSpeech(speechParts(newReply.content, storyline, afterTurn.settings, provider), provider, undefined, showToast);
         }
         // The rest of Adaptation's Auto-generate: each runs on its own (and is paid per use).
         if (afterTurn?.settings.autoManga && !off.has("manga")) void makeManga(plan.reply.id);
@@ -1141,7 +1142,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         const script = await completeChat({ settings: provider, model: model.id, messages: dramaScriptPrompt(mode, reply, cast, guidance), temperature: 0.6, maxTokens: 2000 });
         const lines = parseDramaScript(script, cast);
         if (lines.length === 0) throw new Error("the model didn't return a script");
-        const narrator = { voiceId: narratorVoice(current.settings, provider), speed: current.settings.narratorSpeakingRate ?? 1 };
+        const narrator = narratorSpeech(current.settings, provider);
         const parts: SpeechPart[] = lines.map((line) =>
           "sfx" in line
             ? { text: line.sfx, voiceId: "", speed: 1, sfx: true }
@@ -1218,7 +1219,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
           return needsReply((id) => {
             const text = current.messages.find((m) => m.id === id)?.content ?? "";
             stopNarration.current?.();
-            stopNarration.current = playSpeech([{ text, voiceId: narratorVoice(current.settings, provider), speed: current.settings.narratorSpeakingRate ?? 1 }], provider, undefined, showToast);
+            stopNarration.current = playSpeech(storyline ? speechParts(text, storyline, current.settings, provider) : [{ text, ...narratorSpeech(current.settings, provider) }], provider, undefined, showToast);
           });
         case "audiobook":
         case "drama":
@@ -1451,7 +1452,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
                 modelName={model.name}
                 onIllustrate={() => illustrate(message.id)}
                 onRetry={retry}
-                onNarrate={() => showToast("Voice narration failed. Check Settings → Providers → Voice (TTS)")}
+                onNarrate={showToast}
                 onRegenerateImage={(imageId) => regenerateImage(message.id, imageId)}
                 onGenerateMoreImage={(imageId) => generateMore(message.id, imageId)}
                 onEditRegenerateImage={(imageId, prompt, refs) => editAndRegenerate(message.id, imageId, prompt, refs)}
@@ -1466,7 +1467,7 @@ export function ChatPage({ sessionId }: ChatPageProps) {
                 onCheckVideo={(videoId) => checkVideo(message.id, videoId)}
                 onEdit={(content) => editMessage(message.id, content)}
                 onSelectChoice={(index) => selectChoice(message.id, index)}
-              narration={narration}
+                speech={speech}
                 onAction={(action) => messageAction(message, action)}
               />
             ))}

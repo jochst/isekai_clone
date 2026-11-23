@@ -232,30 +232,43 @@ export function narratorVoice(chat: ChatSettings, provider: ProviderSettings): s
   return chat.narratorVoice || provider.voiceId || voicesFor(provider)[0]?.id || "nova";
 }
 
-/** The voice picked for this character in the chat, else the character's own voice (My Voices), else a default. */
-export function characterSpeech(name: string, storyline: Storyline, chat: ChatSettings, provider: ProviderSettings): Pick<SpeechPart, "voiceId" | "provider"> {
-  const own = storyline.characters.find((c) => c.name === name)?.voice;
-  if (!chat.characterVoices?.[name] && own) return { voiceId: own.id, ...((provider.voiceProvider || "openai-compatible") === "elevenlabs" ? {} : { provider: "elevenlabs" as const }) };
-  return { voiceId: characterVoice(name, storyline, chat, provider) };
+/** A My Voices (ElevenLabs) voice goes to ElevenLabs even when the configured voice provider is another one. */
+// ponytail: recognised by id shape (20 alphanumerics); store the provider beside the id if another provider ever uses such ids.
+function crossProvider(voiceId: string, provider: ProviderSettings): Pick<SpeechPart, "provider"> {
+  return (provider.voiceProvider || "openai-compatible") !== "elevenlabs" && /^[A-Za-z0-9]{20}$/.test(voiceId) ? { provider: "elevenlabs" } : {};
 }
 
-/** A character's chosen voice, else a stable default of the gender their description suggests. */
+/** The narrator's voice and rate for this chat. */
+export function narratorSpeech(chat: ChatSettings, provider: ProviderSettings): Pick<SpeechPart, "voiceId" | "speed" | "provider"> {
+  const voiceId = narratorVoice(chat, provider);
+  return { voiceId, speed: chat.narratorSpeakingRate ?? 1, ...crossProvider(voiceId, provider) };
+}
+
+/** The voice picked for this character in the chat, else the character's own voice (My Voices), else a default. */
+export function characterSpeech(name: string, storyline: Storyline, chat: ChatSettings, provider: ProviderSettings): Pick<SpeechPart, "voiceId" | "provider"> {
+  const voiceId = characterVoice(name, storyline, chat, provider);
+  return { voiceId, ...crossProvider(voiceId, provider) };
+}
+
+/** A character's chosen voice, else their own (My Voices), else a stable default of the gender their description suggests. */
 export function characterVoice(name: string, storyline: Storyline, chat: ChatSettings, provider: ProviderSettings): string {
   const chosen = chat.characterVoices?.[name];
   if (chosen) return chosen;
   const character = storyline.characters.find((c) => c.name === name);
-  if (character?.voice && (provider.voiceProvider || "openai-compatible") === "elevenlabs") return character.voice.id;
+  if (character?.voice) return character.voice.id;
   return defaultVoiceFor(name, guessGender(`${character?.persona ?? ""} ${character?.appearance ?? ""}`), voicesFor(provider), narratorVoice(chat, provider));
 }
 
 /**
- * What to say and with which voice. Narration mode: the narrator reads it all. Visual Novel: dialogue goes to
- * the speaking character (`soleSpeaker` when only one character is on stage), narration to the narrator.
+ * What to say and with which voice: quoted dialogue goes to the speaking character (`soleSpeaker` when only one
+ * character is on stage, else the story's only character), everything else to the narrator.
  */
-export function speechParts(text: string, storyline: Storyline, chat: ChatSettings, provider: ProviderSettings, opts: { visualNovel: boolean; soleSpeaker?: string }): SpeechPart[] {
-  const narrator = { voiceId: narratorVoice(chat, provider), speed: chat.narratorSpeakingRate ?? 1 };
-  if (!opts.visualNovel) return [{ text, ...narrator }];
-  return voiceSegments(text, storyline.characters.map((c) => c.name), opts.soleSpeaker).map((seg) =>
+export function speechParts(text: string, storyline: Storyline, chat: ChatSettings, provider: ProviderSettings, soleSpeaker?: string): SpeechPart[] {
+  const narrator = narratorSpeech(chat, provider);
+  const cast = storyline.characters.map((c) => c.name);
+  // Inline images go first: their HTML attributes are quoted and would be read as dialogue.
+  const spoken = inlineImagesAsText(text, () => "").replace(/<[^>]+>/g, "");
+  return voiceSegments(spoken, cast, soleSpeaker ?? (cast.length === 1 ? cast[0] : undefined)).map((seg) =>
     seg.speaker ? { text: seg.text, ...characterSpeech(seg.speaker, storyline, chat, provider), speed: chat.charactersSpeakingRate ?? 1 } : { text: seg.text, ...narrator },
   );
 }

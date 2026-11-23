@@ -1,6 +1,6 @@
 /*
- * Voices for a reply (Isekai Zero "Voice & Narration"): in Narration mode the narrator reads everything; in
- * Visual Novel mode quoted dialogue is spoken in the speaking character's voice and the rest by the narrator.
+ * Voices for a reply (Isekai Zero "Voice & Narration"): quoted dialogue is spoken in the speaking character's
+ * voice and the rest by the narrator, in both Narration and Visual Novel mode.
  * Pure, so the stage, the chat and tests share it.
  */
 

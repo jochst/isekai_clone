@@ -23,6 +23,7 @@ import { VIDEO_UNSUPPORTED_REASON, effectiveVideoParams } from "@/lib/sites/isek
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import type { Adaptation, ChatSession, ChatSettings, Persona, ProviderSettings, ReasoningEffort, Storyline, VideoParamValue } from "@/types/isekaizero";
 import { characterVoice, narratorVoice, voicesFor } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
+import { useMyVoices } from "../creation/VoiceSelect";
 
 import { cn } from "@/lib/utils";
 import { AccordionCard, SegmentedControl, SettingRow, SideSheet, Toggle } from "./primitives";
@@ -765,6 +766,7 @@ const RATE_OPTIONS = [
 /** Isekai Zero's Play Mode voice settings (labels from en_flat.tsv: chatSettings.playMode.*). */
 function VoiceSettings({ settings, provider, storyline, onChange }: { settings: ChatSettings; provider: ProviderSettings; storyline: Storyline; onChange: (patch: Partial<ChatSettings>) => void }) {
   const voices = voicesFor(provider);
+  const { voices: mine = [] } = useMyVoices();
   const narrator = narratorVoice(settings, provider);
   const select = "mt-1 w-full rounded-[10px] border border-white/12 bg-white/[0.06] px-3 py-2 text-[13px] text-white";
   const options = (current: string) => (
@@ -774,7 +776,16 @@ function VoiceSettings({ settings, provider, storyline, onChange }: { settings: 
           {v.name}
         </option>
       ))}
-      {!voices.some((v) => v.id === current) ? <option value={current}>{current}</option> : null}
+      {mine.length > 0 ? (
+        <optgroup label="My Voices (ElevenLabs)">
+          {mine.map((v) => (
+            <option key={v.id} value={v.id}>
+              {v.name}
+            </option>
+          ))}
+        </optgroup>
+      ) : null}
+      {current && ![...voices, ...mine].some((v) => v.id === current) ? <option value={current}>{current}</option> : null}
     </>
   );
   return (
@@ -798,13 +809,15 @@ function VoiceSettings({ settings, provider, storyline, onChange }: { settings: 
       {storyline.characters.length > 0 ? (
         <div>
           <div className="text-white/70">Character Voices</div>
-          <p className="text-[11px] text-white/45">Used for dialogue in Visual Novel mode. Unset characters get a voice matching their description.</p>
+          <p className="text-[11px] text-white/45">Used for each character&apos;s dialogue. Unset characters use their own voice, else one matching their description.</p>
           {storyline.characters.map((c) => {
-            const current = characterVoice(c.name, storyline, settings, provider);
+            const current = settings.characterVoices?.[c.name] ?? "";
+            const fallback = characterVoice(c.name, storyline, { ...settings, characterVoices: {} }, provider);
             return (
               <label key={c.id} className="mt-2 block text-[12px] text-white/70">
                 {c.name}
                 <select className={select} value={current} onChange={(e) => onChange({ characterVoices: { ...settings.characterVoices, [c.name]: e.target.value } })}>
+                  <option value="">{c.voice ? `${c.voice.name} (character's voice)` : `Default (${voices.find((v) => v.id === fallback)?.name ?? fallback})`}</option>
                   {options(current)}
                 </select>
               </label>

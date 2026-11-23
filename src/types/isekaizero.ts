@@ -270,7 +270,7 @@ export interface Character {
   summary?: string;
   /** Example dialogue: how the character speaks. */
   exampleDialogue?: string;
-  /** The character's own voice from My Voices (ElevenLabs), used in Visual Novel mode and dramas. */
+  /** The character's own voice from My Voices (ElevenLabs), used for their dialogue whenever a reply is spoken. */
   voice?: { id: string; name: string };
   /** A snapshot of a My Characters character, and which version of it (storylines keep the version they saved). */
   linkedFrom?: { id: string; version: number };
@@ -720,7 +720,7 @@ export interface ChatSettings {
    * writes (default Claude Haiku). "off" lets the story model call those tools itself.
    */
   dmModel?: string;
-  /** "Voice & Narration Enabled": speak replies (narrator only in Narration mode, character voices in Visual Novel). */
+  /** "Voice & Narration Enabled": speak replies (the narrator, and each character's dialogue in their own voice). */
   voiceEnabled?: boolean;
   /** "Auto Play on New Messages". */
   autoPlayVoice?: boolean;
