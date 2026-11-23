@@ -399,8 +399,12 @@ async function readJsonlIds(path, key) {
   return ids;
 }
 
+// JSON.stringify leaves U+2028/U+2029 (line and paragraph separators, common in pasted story text) as they are, and
+// the readers split lines on them: the record broke into pieces and the loader dropped the whole story. Escaped, the
+// record stays on one line and parses to the same text.
 function writeJsonl(stream, record) {
-  stream.write(`${JSON.stringify(record)}\n`);
+  const json = JSON.stringify(record).replace(/[\u2028\u2029]/g, (c) => `\\u${c.charCodeAt(0).toString(16)}`);
+  stream.write(`${json}\n`);
 }
 
 function writeManifest(finishedAt = null) {

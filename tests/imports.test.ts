@@ -8,7 +8,7 @@ import { normalizeImport, readCardFile, PNG_SIGNATURE, crc32, MAX_IMPORT_BYTES }
 import { claimJob, enqueue, failJob, finishJob, getEntry, heartbeat, listEntries, listJobs, openImportDatabase, ownsJob, saveAsset, saveEntry } from "../src/lib/imports/database";
 import { isPublicAddress, validateUrl } from "../src/lib/imports/network";
 import { importedPrompt, replaceCardMacros } from "../src/lib/imports/prompt";
-import { parseChubDefinition, parseIsekaiPage, validatePayload } from "../src/lib/imports/sources";
+import { otherLanguage, parseChubDefinition, parseIsekaiPage, validatePayload } from "../src/lib/imports/sources";
 import { GET, POST } from "../src/app/api/imports/route";
 import { PATCH } from "../src/app/api/imports/jobs/[id]/route";
 import { GET as getDownload } from "../src/app/api/imports/[id]/route";
@@ -125,6 +125,15 @@ test("discovery configuration bounds scheduling and canonicalizes URLs", () => {
   assert.throws(() => validatePayload({ mode: "discover", url: "https://www.isekaizero.ai/", pages: 100 }));
   assert.throws(() => validatePayload({ url: "https://chub.ai/characters/a/b", intervalMinutes: 1 }));
   assert.equal(validatePayload({ url: "https://isekaizero.ai/en/storylines/123456789012345678901234/?tracking=1" }).url, "https://www.isekaizero.ai/storylines/123456789012345678901234");
+});
+
+test("discovery tells entries in other languages from English ones", () => {
+  const entry = (languageCode?: string) => normalizeImport({ code: 200, data: { _id: "123456789012345678901234", title: "T", plot: "A plot.", languageCode } }, { source: "isekaizero", kind: "story" });
+  assert.equal(otherLanguage(entry("zh-Hant")), "zh-Hant");
+  assert.equal(otherLanguage(entry("pt-BR")), "pt-BR");
+  assert.equal(otherLanguage(entry("en")), undefined);
+  assert.equal(otherLanguage(entry("en-GB")), undefined);
+  assert.equal(otherLanguage(entry()), undefined); // no language recorded: kept, as the nightly import does
 });
 
 test("SQLite persists entries and assets, deduplicates jobs, and leases across processes", () => {

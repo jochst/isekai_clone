@@ -2,7 +2,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import type { DatabaseSync } from "node:sqlite";
 import { claimJob, enqueue, failJob, finishJob, heartbeat, openImportDatabase, ownsJob, saveAsset, saveEntry } from "./database";
 import { fetchSource, SourceError } from "./network";
-import { discoverIsekai, importUrl } from "./sources";
+import { discoverIsekai, importUrl, otherLanguage } from "./sources";
 import type { ImportedEntry } from "./types";
 
 export function imageMime(bytes: Buffer): string | undefined {
@@ -47,11 +47,14 @@ export async function runNextJob(db: DatabaseSync): Promise<boolean> {
   const timer = setInterval(() => heartbeat(db, task), 10_000);
   try {
     if (task.payload.mode === "discover") {
-      const count = await discoverIsekai(task.payload, urls => urls.forEach(url => enqueue(db, { url, mode: "url", intervalMinutes: 0 })), () => ownsJob(db, task));
-      finishJob(db, task, `Queued ${count} source entries across all returned ratings.`);
+      const count = await discoverIsekai(task.payload, urls => urls.forEach(url => enqueue(db, { url, mode: "url", intervalMinutes: 0, discovered: true })), () => ownsJob(db, task));
+      finishJob(db, task, `Queued ${count} source entries across all returned ratings (English ones are imported).`);
     } else {
       const { entry, png } = await importUrl(task.payload.url);
       if (!ownsJob(db, task)) return true;
+      // Discovery brings in English entries only; a link the user pasted is imported whatever its language.
+      const language = task.payload.discovered ? otherLanguage(entry) : undefined;
+      if (language) { finishJob(db, task, `Skipped: written in ${language}, not English.`); return true; }
       await cacheArtwork(db, entry, png, () => ownsJob(db, task));
       db.exec("BEGIN IMMEDIATE");
       try {
