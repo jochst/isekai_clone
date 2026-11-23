@@ -10,8 +10,8 @@ import { INPUT } from "./fields";
 
 let cached: Promise<MyVoice[]> | null = null;
 
-/** Picks the character's own voice from My Voices (ElevenLabs); empty = a default voice. */
-export function VoiceSelect({ value, onChange }: { value?: Character["voice"]; onChange: (voice: Character["voice"]) => void }) {
+/** My Voices (ElevenLabs), loaded once per page load; `voices` stays undefined without an ElevenLabs key. */
+export function useMyVoices(): { voices?: MyVoice[]; error: string } {
   const [voices, setVoices] = useState<MyVoice[]>();
   const [error, setError] = useState("");
   useEffect(() => {
@@ -21,6 +21,12 @@ export function VoiceSelect({ value, onChange }: { value?: Character["voice"]; o
       setError(e instanceof Error ? e.message : "Could not load voices.");
     });
   }, []);
+  return { voices, error };
+}
+
+/** Picks the character's own voice from My Voices (ElevenLabs); empty = a default voice. */
+export function VoiceSelect({ value, onChange }: { value?: Character["voice"]; onChange: (voice: Character["voice"]) => void }) {
+  const { voices, error } = useMyVoices();
   return (
     <div>
       <select

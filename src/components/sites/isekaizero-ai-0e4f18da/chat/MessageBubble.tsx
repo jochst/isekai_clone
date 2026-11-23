@@ -1,11 +1,11 @@
 "use client";
 
-import { Bookmark, ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, MoreHorizontal, Music, Pause, Play, RefreshCw, Volume2 } from "lucide-react";
+import { Bookmark, ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, MoreHorizontal, Music, RefreshCw, Square, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 import { imgAttr, normalizeMarkup } from "@/lib/text";
-import { generateSpeech, stopBrowserSpeech } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
+import { playSpeech, type SpeechPart } from "@/lib/sites/isekaizero-ai-0e4f18da/audio";
 import { estimateTokens } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import type { ChatMessage, DiceRoll, FatekeeperRuling, SceneReference, StoryEnding } from "@/types/isekaizero";
@@ -28,9 +28,10 @@ export interface MessageBubbleProps {
   modelName: string;
   onIllustrate: () => void;
   onRetry: () => void;
-  onNarrate?: () => void;
-  /** Narrator voice and speaking rate for this chat (Narrate reads with them). */
-  narration?: { voiceId: string; speed: number };
+  /** Narrate failed, with the provider's reason. */
+  onNarrate?: (error: string) => void;
+  /** Splits a reply into narrator and character voice parts for this chat (Narrate plays them). */
+  speech?: (text: string) => SpeechPart[];
   onRegenerateImage: (imageId: string) => void;
   onGenerateMoreImage?: (imageId: string) => void;
   onEditRegenerateImage?: (imageId: string, prompt: string, references: SceneReference[]) => void;
@@ -192,7 +193,7 @@ export function MessageBubble({
   onIllustrate,
   onRetry,
   onNarrate,
-  narration,
+  speech,
   onRegenerateImage,
   onGenerateMoreImage,
   onEditRegenerateImage,
@@ -215,58 +216,26 @@ export function MessageBubble({
   const [showInfo, setShowInfo] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
-  const [audioState, setAudioState] = useState<"idle" | "loading" | "playing" | "paused">("idle");
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [audioState, setAudioState] = useState<"idle" | "playing">("idle");
+  const stopSpeech = useRef<(() => void) | null>(null);
   const [provider] = useProviderSettings();
 
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = "";
-      }
-      stopBrowserSpeech();
-    };
-  }, []);
+  useEffect(() => () => stopSpeech.current?.(), []);
 
-  const toggleNarrate = async () => {
-    if (audioState === "loading") return;
-
+  // Narrator and character voices in turn; a second press stops.
+  const toggleNarrate = () => {
     if (audioState === "playing") {
-      if (audioRef.current) audioRef.current.pause();
-      stopBrowserSpeech();
-      setAudioState("paused");
-      return;
-    }
-
-    if (audioState === "paused" && audioRef.current) {
-      void audioRef.current.play();
-      setAudioState("playing");
-      return;
-    }
-
-    try {
-      setAudioState("loading");
-      const result = await generateSpeech({ text: message.content, settings: provider, voiceId: narration?.voiceId, speed: narration?.speed });
-      if (result.isBrowserApi) {
-        setAudioState("playing");
-        return;
-      }
-      if (result.audioUrl) {
-        if (!audioRef.current) {
-          audioRef.current = new Audio(result.audioUrl);
-          audioRef.current.onended = () => setAudioState("idle");
-          audioRef.current.onerror = () => setAudioState("idle");
-        } else {
-          audioRef.current.src = result.audioUrl;
-        }
-        await audioRef.current.play();
-        setAudioState("playing");
-      }
-    } catch {
+      stopSpeech.current?.();
       setAudioState("idle");
-      onNarrate?.();
+      return;
     }
+    setAudioState("playing");
+    stopSpeech.current = playSpeech(
+      speech?.(message.content) ?? [{ text: message.content, voiceId: "", speed: 1 }],
+      provider,
+      () => setAudioState("idle"),
+      (error) => onNarrate?.(error),
+    );
   };
 
   const handleAction = (action: MessageAction) => {
@@ -536,25 +505,15 @@ export function MessageBubble({
             audioState === "playing" && "border-[#a7b9ff]/60 bg-[#284bcf]/30 text-[#a7b9ff]",
           )}
         >
-          {audioState === "loading" ? (
+          {audioState === "playing" ? (
             <>
-              <Loader2 size={14} className="animate-spin text-[#a7b9ff]" />
-              <span>Loading...</span>
-            </>
-          ) : audioState === "playing" ? (
-            <>
-              <Pause size={14} className="text-[#a7b9ff]" />
+              <Square size={14} className="text-[#a7b9ff]" />
               <span className="flex items-center gap-[2px]">
                 <span className="inline-block h-2 w-[2px] animate-pulse bg-[#a7b9ff]" />
                 <span className="inline-block h-3.5 w-[2px] animate-pulse bg-[#a7b9ff] [animation-delay:150ms]" />
                 <span className="inline-block h-2.5 w-[2px] animate-pulse bg-[#a7b9ff] [animation-delay:300ms]" />
                 <span className="ml-1">Playing</span>
               </span>
-            </>
-          ) : audioState === "paused" ? (
-            <>
-              <Play size={14} />
-              <span>Resume</span>
             </>
           ) : (
             <>

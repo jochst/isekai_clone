@@ -20,13 +20,20 @@ describe("chat voices", () => {
     expect(narratorVoice(DEFAULT_CHAT_SETTINGS, provider)).toBe("bm_george");
   });
 
-  it("Narration mode: the narrator reads everything at the narrator rate", () => {
-    expect(speechParts(text, storyline, { ...DEFAULT_CHAT_SETTINGS, narratorSpeakingRate: 1.15 }, provider, { visualNovel: false })).toEqual([{ text, voiceId: "bm_george", speed: 1.15 }]);
+  it("a character's own ElevenLabs voice and an ElevenLabs narrator are sent to ElevenLabs when the provider is another one", () => {
+    const own = { ...storyline, characters: [{ ...storyline.characters[0], voice: { id: "AbCdEfGhIjKlMnOpQrSt", name: "Irish" } }, storyline.characters[1]] };
+    const chat = { ...DEFAULT_CHAT_SETTINGS, narratorVoice: "ZyXwVuTsRqPoNmLkJiHg", narratorSpeakingRate: 1.15 };
+    const parts = speechParts(text, own, chat, provider);
+    expect(parts[0]).toEqual({ text: "Ellen waves.", voiceId: "ZyXwVuTsRqPoNmLkJiHg", speed: 1.15, provider: "elevenlabs" });
+    expect(parts[1]).toEqual({ text: "Good morning!", voiceId: "AbCdEfGhIjKlMnOpQrSt", speed: 1, provider: "elevenlabs" });
+    expect(parts[3].provider).toBeUndefined();
+    // With ElevenLabs as the provider nothing needs redirecting.
+    expect(speechParts(text, own, chat, { ...provider, voiceProvider: "elevenlabs" }).every((p) => p.provider === undefined)).toBe(true);
   });
 
-  it("Visual Novel: dialogue in each character's voice (chosen or a same-gender default), narration by the narrator", () => {
+  it("dialogue in each character's voice (chosen or a same-gender default), narration by the narrator", () => {
     const chat = { ...DEFAULT_CHAT_SETTINGS, charactersSpeakingRate: 1.3, characterVoices: { Bren: "am_michael" } };
-    const parts = speechParts(text, storyline, chat, provider, { visualNovel: true });
+    const parts = speechParts(text, storyline, chat, provider);
     expect(parts.map((p) => p.text)).toEqual(["Ellen waves.", "Good morning!", "Bren grunts.", "Morning."]);
     expect(parts[0]).toMatchObject({ voiceId: "bm_george", speed: 1 });
     const ellen = characterVoice("Ellen Walker", storyline, chat, provider);
