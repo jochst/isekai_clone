@@ -91,6 +91,12 @@ export async function importUrl(input: string): Promise<{ entry: ImportedEntry; 
   }
 }
 
+/** The language an Isekai entry is written in when that isn't English (the search listing doesn't say, only the details do). */
+export function otherLanguage(entry: ImportedEntry): string | undefined {
+  const code = string(record(record(entry.raw).data).languageCode);
+  return code && !/^en(-|$)/i.test(code) ? code : undefined;
+}
+
 export async function discoverIsekai(payload: ImportPayload, onUrls: (urls: string[]) => void, checkActive: () => boolean): Promise<number> {
   const seen = new Set<string>();
   const kind = payload.kind === "character" ? "character" : "storyline";

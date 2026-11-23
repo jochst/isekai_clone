@@ -22,6 +22,8 @@ export interface ImportPayload {
   pages?: number;
   /** Zero means run once. */
   intervalMinutes?: number;
+  /** Queued by discovery rather than pasted by the user: skipped when the entry isn't written in English. */
+  discovered?: boolean;
 }
 
 export interface ImportJob {
