@@ -26,6 +26,15 @@ describe("voiceSegments", () => {
       { speaker: null, text: "Late again, someone mutters." },
     ]);
   });
+
+  it("tells apart characters who share a title, by the words only they have", () => {
+    const ward = ["Dr. Raine Aine", "Nurse Victoria Hale", "Nurse Siobhan Cleary"];
+    expect(voiceSegments(`"Breathe," Siobhan says.`, ward)[0].speaker).toBe("Nurse Siobhan Cleary");
+    expect(voiceSegments(`Dr. Aine nods. "Good."`, ward)[1].speaker).toBe("Dr. Raine Aine");
+    expect(voiceSegments(`Nurse Hale smiles. "Lovely."`, ward)[1].speaker).toBe("Nurse Victoria Hale");
+    // "the nurse" could be either of them, and "inhaled" is not Hale.
+    expect(voiceSegments(`The nurse inhaled. "Hm."`, ward).every((s) => s.speaker === null)).toBe(true);
+  });
 });
 
 describe("default voices", () => {
