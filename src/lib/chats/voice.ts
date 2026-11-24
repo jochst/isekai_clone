@@ -12,17 +12,22 @@ export interface VoiceSegment {
 
 const QUOTE = /"([^"\n]+)"|“([^”\n]+)”/g;
 
-const firstName = (name: string) => name.split(/\s+/)[0] ?? name;
+const nameWords = (name: string) => name.toLowerCase().split(/[^\p{L}\p{N}'-]+/u).filter((w) => w.length >= 3);
 
-/** Last (or first, with \`last\` false) cast member named in \`text\`, matching full or first names. */
+/**
+ * Last (or first, with \`last\` false) cast member named in \`text\`: by full name, or any word of it no other cast
+ * member shares. So "Victoria" and "Hale" find Nurse Victoria Hale, while the "Nurse" five of them carry finds no one.
+ */
 function named(text: string, cast: string[], last: boolean): string | undefined {
   let best: { name: string; at: number } | undefined;
-  const lower = text.toLowerCase();
   for (const name of cast) {
-    for (const form of new Set([name, firstName(name)])) {
+    const others = new Set(cast.filter((other) => other !== name).flatMap(nameWords));
+    for (const form of new Set([name.toLowerCase(), ...nameWords(name).filter((w) => !others.has(w))])) {
       if (form.length < 3) continue;
-      const at = last ? lower.lastIndexOf(form.toLowerCase()) : lower.indexOf(form.toLowerCase());
-      if (at >= 0 && (!best || (last ? at > best.at : at < best.at))) best = { name, at };
+      // Whole words only: "Hale" is not in "inhaled".
+      const hits = [...text.matchAll(new RegExp(`(?<![\\p{L}\\p{N}])${form.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}\\p{N}])`, "giu"))];
+      const at = (last ? hits.at(-1) : hits[0])?.index;
+      if (at !== undefined && (!best || (last ? at > best.at : at < best.at))) best = { name, at };
     }
   }
   return best?.name;
