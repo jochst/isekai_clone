@@ -23,6 +23,26 @@ export interface ProviderTextModel {
   inputPerM?: number;
   outputPerM?: number;
   iconUrl?: string;
+  /** NanoGPT only: included in the user's subscription (listed by `/api/subscription/v1/models`). */
+  subscription?: boolean;
+}
+
+/** NanoGPT's sibling model lists: subscription-included and pay-as-you-go ("https://nano-gpt.com/api/v1" → ".../api/subscription/v1"). */
+export function nanoGptSiblingUrl(baseUrl: string, kind: "subscription" | "paid"): string | null {
+  const trimmed = baseUrl.replace(/\/+$/, "");
+  return /\/api\/v1$/.test(trimmed) ? `${trimmed.slice(0, -"/v1".length)}/${kind}/v1/models?detailed=true` : null;
+}
+
+async function fetchRows(url: string | null, headers: HeadersInit): Promise<OpenAiModelRow[]> {
+  if (!url) return [];
+  try {
+    const res = await fetch(url, { headers, cache: "no-store" });
+    if (!res.ok) return [];
+    const json = (await res.json()) as { data?: OpenAiModelRow[] } | OpenAiModelRow[];
+    return Array.isArray(json) ? json : json.data ?? [];
+  } catch {
+    return [];
+  }
 }
 
 function num(v: number | string | undefined): number | undefined {
@@ -52,11 +72,16 @@ export async function GET(req: Request) {
         ? []
         : [`${ctx.imageBaseUrl}/image-models`];
 
-  const [textRes, imageRes] = await Promise.all([
+  // With an active subscription NanoGPT trims /api/v1/models to subscription models, so the paid list is merged in
+  // (best effort) and the subscription list marks which ones the subscription covers.
+  const nano = ctx.preset === "nano-gpt";
+  const [textRes, imageRes, subscriptionRows, paidRows] = await Promise.all([
     fetch(textUrl, { headers: authHeaders(ctx), cache: "no-store" }).catch((e: Error) => e),
     imageCandidates.length
       ? fetch(imageCandidates[0], { headers: authHeaders(ctx), cache: "no-store" }).catch((e: Error) => e)
       : Promise.resolve(null),
+    nano ? fetchRows(nanoGptSiblingUrl(ctx.baseUrl, "subscription"), authHeaders(ctx)) : Promise.resolve([]),
+    nano ? fetchRows(nanoGptSiblingUrl(ctx.baseUrl, "paid"), authHeaders(ctx)) : Promise.resolve([]),
   ]);
 
   if (textRes instanceof Error) return NextResponse.json({ error: `Could not reach provider: ${textRes.message}` }, { status: 502 });
@@ -64,8 +89,10 @@ export async function GET(req: Request) {
 
   const textJson = (await textRes.json()) as { data?: OpenAiModelRow[] } | OpenAiModelRow[];
   const rows = Array.isArray(textJson) ? textJson : textJson.data ?? [];
-  const text: ProviderTextModel[] = rows
-    .filter((r) => r && typeof r.id === "string")
+  const subscriptionIds = new Set(subscriptionRows.filter((r) => r && typeof r.id === "string").map((r) => r.id));
+  const merged = new Map<string, OpenAiModelRow>();
+  for (const r of [...rows, ...subscriptionRows, ...paidRows]) if (r && typeof r.id === "string" && !merged.has(r.id)) merged.set(r.id, r);
+  const text: ProviderTextModel[] = [...merged.values()]
     .map((r) => ({
       id: r.id,
       name: r.name || r.id,
@@ -76,6 +103,7 @@ export async function GET(req: Request) {
       inputPerM: perMillion(r.pricing?.prompt, r.pricing?.unit),
       outputPerM: perMillion(r.pricing?.completion, r.pricing?.unit),
       iconUrl: r.icon_url,
+      ...(subscriptionIds.has(r.id) ? { subscription: true } : {}),
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
