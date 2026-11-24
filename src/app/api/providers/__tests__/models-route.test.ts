@@ -45,6 +45,27 @@ describe("GET /api/providers/models", () => {
     expect(json.images[0]).toMatchObject({ id: "custom-image", iconUrl: "http://images.local/icons/a.png" });
   });
 
+  it("merges NanoGPT's subscription and paid lists and flags subscription models", async () => {
+    const fetchMock = vi.fn(async (url: string) =>
+      url.includes("/image-models")
+        ? jsonResponse({ data: [] })
+        : url.includes("/api/subscription/v1/models")
+          ? jsonResponse({ data: [{ id: "z-ai/glm-5.3", name: "GLM 5.3" }] })
+          : url.includes("/api/paid/v1/models")
+            ? jsonResponse({ data: [{ id: "anthropic/claude-opus", name: "Claude Opus" }] })
+            : jsonResponse({ data: [{ id: "z-ai/glm-5.3", name: "GLM 5.3" }] }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const res = await GET(new Request("http://app/api/providers/models", { headers: HEADERS }));
+    const json = (await res.json()) as { text: { id: string; subscription?: boolean }[] };
+    expect(fetchMock).toHaveBeenCalledWith("https://nano-gpt.com/api/subscription/v1/models?detailed=true", expect.anything());
+    expect(json.text).toEqual([
+      expect.objectContaining({ id: "anthropic/claude-opus" }),
+      expect.objectContaining({ id: "z-ai/glm-5.3", subscription: true }),
+    ]);
+    expect(json.text[0].subscription).toBeUndefined();
+  });
+
   it("returns 400 without credentials", async () => {
     const res = await GET(new Request("http://app/api/providers/models"));
     expect(res.status).toBe(400);

@@ -38,6 +38,8 @@ export interface ModelCatalogState {
   byokStatus: ByokStatus;
   byokError: string | null;
   byokModels: LlmModel[];
+  /** The provider's raw text rows (with NanoGPT's `subscription` flag). */
+  providerModels: ProviderTextModel[];
   /** Provider chip ids: "all" plus every `ownedBy` value from the provider's rows. */
   chips: string[];
 }
@@ -172,6 +174,7 @@ export function useModelCatalog(): ModelCatalogState {
     byokStatus,
     byokError,
     byokModels,
+    providerModels: rows,
     chips,
   };
 }

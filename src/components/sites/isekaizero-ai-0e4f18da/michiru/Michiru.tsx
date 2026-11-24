@@ -5,11 +5,12 @@ import { useEffect, useRef, useState } from "react";
 
 import { answersText, michiruSystem, michiruTools, parseStep, type MichiruContext, type MichiruQuestion, type MichiruStep } from "@/lib/michiru/michiru";
 import { generateArt } from "@/lib/sites/isekaizero-ai-0e4f18da/creation";
-import { DM_MODELS } from "@/lib/sites/isekaizero-ai-0e4f18da/dm-models";
 import { DEFAULT_DM_MODEL } from "@/lib/sites/isekaizero-ai-0e4f18da/prompt-builder";
 import { completeChatWithTools, type ToolChatMessage } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { readProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import { cn } from "@/lib/utils";
+
+import { MichiruModelPicker } from "./MichiruModelPicker";
 
 export type MichiruProposal = Exclude<MichiruStep, { kind: "text" | "questions" }>;
 
@@ -28,7 +29,6 @@ type DistOmit<T> = T extends unknown ? Omit<T, "id"> : never;
 type NewItem = DistOmit<Item>;
 
 const MODEL_KEY = "iz.michiru.model";
-const MODELS = DM_MODELS.filter((m) => m.id !== "off");
 const GREETING = "Hi, I'm Michiru! Tell me what to make (a persona, a character, story details, a portrait or a cover) and I'll ask a few questions to get it just right.";
 
 /** "Ask Michiru": a floating button (or an inline one) that opens the side-chat. */
@@ -155,21 +155,13 @@ export function Michiru({ host, inline = false, label = "Ask Michiru" }: { host:
               </span>
               <div className="min-w-0 flex-1">
                 <div className="text-[15px] font-bold">Michiru</div>
-                <select
-                  aria-label="Michiru's model"
+                <MichiruModelPicker
                   value={model}
-                  onChange={(e) => {
-                    setModel(e.target.value);
-                    window.localStorage.setItem(MODEL_KEY, e.target.value);
+                  onChange={(id) => {
+                    setModel(id);
+                    window.localStorage.setItem(MODEL_KEY, id);
                   }}
-                  className="max-w-full bg-transparent text-[11px] text-white/55 outline-none"
-                >
-                  {MODELS.map((m) => (
-                    <option key={m.id} value={m.id} className="bg-[#11123c]">
-                      {m.label}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
               <button type="button" aria-label="Close" onClick={() => setOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-white/10">
                 <X size={18} />
