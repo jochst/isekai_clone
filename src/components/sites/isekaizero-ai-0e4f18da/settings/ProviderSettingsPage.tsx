@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Activity, Check, Cpu, Eye, EyeOff, KeyRound, Loader2, Pause, Play, RotateCcw, Search, Volume2 } from "lucide-react";
 
+import { formatPerImage, formatUsd } from "@/lib/sites/isekaizero-ai-0e4f18da/format-usd";
 import type { ProviderImageModel, ProviderTextModel } from "@/app/api/providers/models/route";
 import { invalidateProviderCatalog } from "@/components/sites/isekaizero-ai-0e4f18da/image-generation/use-provider-catalog";
 import {
@@ -373,10 +374,6 @@ interface ModelsTabProps {
 
 type OpenPicker = "text" | "image" | "portrait" | null;
 
-function formatPrice(n: number): string {
-  return n >= 10 ? n.toFixed(0) : n >= 1 ? n.toFixed(2) : n.toFixed(3);
-}
-
 function ModelsTab({ settings, update, configured, models, loadModels }: ModelsTabProps) {
   const [open, setOpen] = useState<OpenPicker>(null);
 
@@ -427,7 +424,7 @@ function ModelsTab({ settings, update, configured, models, loadModels }: ModelsT
                   name: m.name,
                   price:
                     m.inputPerM !== undefined && m.outputPerM !== undefined
-                      ? `${formatPrice(m.inputPerM)}/${formatPrice(m.outputPerM)} $ per M`
+                      ? `${formatUsd(m.inputPerM)} in · ${formatUsd(m.outputPerM)} out / 1M tokens`
                       : undefined,
                 }))}
                 selected={settings.textModel}
@@ -453,7 +450,7 @@ function ModelsTab({ settings, update, configured, models, loadModels }: ModelsT
                 rows={imageRows.map((m) => ({
                   id: m.id,
                   name: m.name,
-                  price: m.costPerImage !== undefined ? `$${m.costPerImage.toFixed(3)} per image` : undefined,
+                  price: m.costPerImage !== undefined ? formatPerImage(m.costPerImage) : undefined,
                 }))}
                 selected={settings.imageModel}
                 emptyMessage="No image models reported by this provider."
@@ -475,7 +472,7 @@ function ModelsTab({ settings, update, configured, models, loadModels }: ModelsT
                 rows={imageRows.map((m) => ({
                   id: m.id,
                   name: m.name,
-                  price: m.costPerImage !== undefined ? `${m.costPerImage.toFixed(3)} per image` : undefined,
+                  price: m.costPerImage !== undefined ? formatPerImage(m.costPerImage) : undefined,
                 }))}
                 selected={resolvePortraitModel(settings)}
                 emptyMessage="No image models reported by this provider."

@@ -459,7 +459,7 @@ The gap: Default Chat Settings could only really use models from the site's buil
   - **Music** (`/music`, was a dead sidebar link): every finished song from live chats, with filters (vocal / instrumental, latest / oldest), a player, lyrics and a link to the moment it scored.
   - **Profile** (`/profile`, local only; the sidebar's Profile link): counts of chats, messages, your storylines, characters and personas, and AI spend; links to every settings page and library; your persona library with delete.
   - Live: liked and saved a catalog story, opened Elara from its cast and liked her; Likes and Saved listed both; Music and Profile showed real data. Test likes removed afterwards.
-  - Not done: LLM reviews (optional), the Arcane Store and Notifications links (ADR-1), an editable profile name or avatar.
+  - Not done: LLM reviews (optional), the Notifications link (ADR-1), an editable profile name or avatar.
 - [x] **7b: Visual QA pass** at 390, 768 and 1440 against `docs/design-references/` (real-site home and story captures). Every page was screenshotted and checked for sideways overflow: 17 pages at 390, 10 at 768 and 1440.
   - No page scrolls sideways at any width; the flagged elements are intentional horizontal strips.
   - Fixed:

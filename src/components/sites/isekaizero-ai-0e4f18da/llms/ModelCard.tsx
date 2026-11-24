@@ -1,14 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Brain, ChevronRight, FunctionSquare, RefreshCw, Star, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LlmModel, LlmPrice, LlmProviderRoute, ProviderHealth } from "@/types/isekaizero";
 import { CurrentRibbon } from "./AutoModelCard";
-
-const CRYSTAL_BLUE = "/sites/isekaizero-ai-0e4f18da/shared/images/crystal-blue.png";
-const CRYSTAL_PURPLE = "/sites/isekaizero-ai-0e4f18da/shared/images/crystal-purple.png";
+import { formatUsd } from "@/lib/sites/isekaizero-ai-0e4f18da/format-usd";
 
 const HEALTH_DOT: Record<ProviderHealth, string> = {
   healthy: "bg-[rgb(128,202,16)]",
@@ -42,11 +39,6 @@ const FEATURES: Feature[] = [
   { key: "reasoning", Icon: Brain, label: "Supports reasoning" },
   { key: "functionCall", Icon: FunctionSquare, label: "Supports function calls" },
 ];
-
-/** USD per million → Mana / Arcane (×100), up to two decimals, trailing zeros stripped. */
-export function formatMana(usdPerMillion: number): string {
-  return Number((usdPerMillion * 100).toFixed(2)).toString();
-}
 
 function formatSeconds(ms: number): string {
   return (ms / 1000).toFixed(1);
@@ -112,25 +104,15 @@ function HealthRow({ route }: { route: LlmProviderRoute }) {
   );
 }
 
-function CrystalPair() {
-  return (
-    <span className="relative mx-[6px] block h-[30px] w-[40px] shrink-0" aria-hidden="true">
-      <Image src={CRYSTAL_BLUE} alt="" width={24} height={24} className="absolute left-0 top-[3px] h-[24px] w-[24px]" />
-      <Image src={CRYSTAL_PURPLE} alt="" width={24} height={24} className="absolute left-[14px] top-[3px] h-[24px] w-[24px]" />
-    </span>
-  );
-}
-
 function PriceRow({ label, amount, sub }: { label: "INPUT" | "OUTPUT"; amount: number; sub: string }) {
   return (
     <div className="flex h-[34px] flex-row items-center gap-[4px] max-sm:h-auto max-sm:flex-col max-sm:items-start max-sm:gap-[2px]">
       <span className="flex h-[28px] w-[80px] shrink-0 items-center justify-center rounded-[20px] border-2 border-[rgba(255,255,255,0.25)] bg-[rgb(31,26,90)] px-[8px] py-[4px] text-[12px] font-semibold leading-none text-white">
         {label}
       </span>
-      <div className="flex flex-row items-center max-sm:mt-[2px]">
-        <CrystalPair />
+      <div className="ml-[10px] flex flex-row items-center max-sm:ml-0 max-sm:mt-[2px]">
         <div className="flex flex-col">
-          <span className="text-[15px] font-bold leading-[18px] text-white">{formatMana(amount)} Mana / Arcane</span>
+          <span className="text-[15px] font-bold leading-[18px] text-white">{formatUsd(amount)}</span>
           <span className="text-[11px] leading-[14px] text-[rgba(255,255,255,0.55)]">{sub}</span>
         </div>
       </div>

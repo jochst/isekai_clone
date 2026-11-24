@@ -98,9 +98,8 @@ export function LlmPickerPage({ selectedId, onSelect }: LlmPickerPageProps) {
   const [compact, setCompact] = useState(false);
 
   const catalog = useModelCatalog();
-  const { configured, hydrated, presetLabel, byokStatus, byokError, byokModels, catalogModels, chips } = catalog;
+  const { configured, hydrated, presetLabel, byokStatus, byokError, byokModels, chips } = catalog;
 
-  const visibleCatalog = useMemo(() => catalogModels.filter((m) => matchesTier(m, tier) && matchesProvider(m, chip)), [catalogModels, tier, chip]);
   const visibleByok = useMemo(() => byokModels.filter((m) => matchesTier(m, tier) && matchesProvider(m, chip)), [byokModels, tier, chip]);
 
   // The picker sets this chat's (or the defaults') model only; the provider-wide default stays as it is.
@@ -151,26 +150,6 @@ export function LlmPickerPage({ selectedId, onSelect }: LlmPickerPageProps) {
         </section>
       )}
 
-      {/* ---------- Platform catalog ---------- */}
-      <section aria-label="Platform models">
-        <div className="mt-[20px] flex flex-row items-center justify-between">
-          <h2 className="text-[14px] font-bold leading-[18px] text-[rgb(167,185,255)]">Platform models</h2>
-          <span className="text-[12px] text-[rgba(255,255,255,0.6)]">{visibleCatalog.length} models</span>
-        </div>
-        <p className="mt-[8px] text-[12px] text-[rgba(255,255,255,0.5)]">
-          Platform models are shown for reference; requests are sent to your configured provider.
-        </p>
-
-        {visibleCatalog.length > 0 ? (
-          <ModelGrid className={cn("mt-[16px]", compact && "min-[900px]:grid-cols-1")}>
-            {visibleCatalog.map((model) => (
-              <ModelCard key={model.id} model={model} selected={selectedId === model.id} onSelect={() => onSelect(model.id, false)} />
-            ))}
-          </ModelGrid>
-        ) : (
-          <EmptyNotice>No models match the current filters.</EmptyNotice>
-        )}
-      </section>
     </div>
   );
 }

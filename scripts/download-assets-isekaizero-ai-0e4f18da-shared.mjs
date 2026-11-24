@@ -23,8 +23,6 @@ const files = {
   'images/nav-chat-white.png': '/assets/assets/ChatWhite.a713c8c254cd74c995033d562644e322.png',
   'images/nav-profile-gradient.png': '/assets/assets/ProfileGradient.8877b01a6a052e5f9bc71f82c3a465df.png',
   'images/nav-profile-white.png': '/assets/assets/ProfileWhite.dadf3815290b56786439537a08287eed.png',
-  'images/crystal-blue.png': '/assets/assets/blueCrystal.c8a5c2ffe4cbdfed99bcb0604aa8447b.png',
-  'images/crystal-purple.png': '/assets/assets/purpleCrystal.f0eefb6b4fd6b38695600dd2f33ea3ee.png',
   'images/mana-credit.png': '/assets/assets/mana-credit.187874f7c41adb963dc62e37bf9f0f3a.png',
   'images/arcane-credit.png': '/assets/assets/arcane-credit.56c9792116d30b0bd4bfe3e60d142627.png',
   'images/badge-google-play.png': '/assets/assets/googleDownload.2a689a4ecbce9203c7fd54e48f2c35d6.png',

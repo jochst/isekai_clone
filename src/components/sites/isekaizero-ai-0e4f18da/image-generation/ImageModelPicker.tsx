@@ -1,18 +1,15 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { Check, ChevronDown, Search, X } from "lucide-react";
+import { Check, Search, X } from "lucide-react";
 
-import { IMAGE_CATALOG } from "@/lib/sites/isekaizero-ai-0e4f18da/catalog";
+import { formatPerImage } from "@/lib/sites/isekaizero-ai-0e4f18da/format-usd";
 import { IMAGE_FILTERS, matchesImageFilter, type ImageFilter, type ProviderImageModel } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { PROVIDER_PRESETS, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import { cn } from "@/lib/utils";
 
 import { FilterChips, ModelIcon, UncensoredBadge, pickerRowClass } from "./picker-ui";
 import { useProviderCatalog } from "./use-provider-catalog";
-
-const IMG = "/sites/isekaizero-ai-0e4f18da/shared/images";
 
 /* ------------------------------------------------------------------ */
 /* Shared bottom-sheet chrome (reused by the aspect-ratio / composition lists) */
@@ -90,22 +87,6 @@ export function SheetGroupLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** "{cost×100} Mana/Arcane" (one decimal, trailing zero dropped). */
-export function formatManaCost(costPerImage: number): string {
-  const mana = Math.round(costPerImage * 100 * 10) / 10;
-  return `${mana.toLocaleString("en-US", { maximumFractionDigits: 1 })} Mana/Arcane`;
-}
-
-/** Two overlapping crystals (blue + purple) in a 28×18 box. */
-export function CrystalPair({ className }: { className?: string }) {
-  return (
-    <span className={cn("relative inline-block h-[18px] w-[28px] shrink-0", className)} aria-hidden>
-      <Image src={`${IMG}/crystal-blue.png`} alt="" width={18} height={18} className="absolute left-0 top-0 h-[18px] w-[18px] object-contain" />
-      <Image src={`${IMG}/crystal-purple.png`} alt="" width={18} height={18} className="absolute left-[10px] top-0 h-[18px] w-[18px] object-contain" />
-    </span>
-  );
-}
-
 /* ------------------------------------------------------------------ */
 /* Model picker                                                        */
 /* ------------------------------------------------------------------ */
@@ -118,14 +99,13 @@ interface PickerRow {
   costPerImage?: number;
   resolutions: string[];
   nsfw: boolean;
-  source: "provider" | "catalog";
 }
 
 export interface PickedImageModel {
   id: string;
   name: string;
   costPerImage?: number;
-  /** Provider size strings; empty for catalog rows and providers that list none. */
+  /** Provider size strings; empty for providers that list none. */
   resolutions: string[];
 }
 
@@ -152,14 +132,7 @@ function ModelRow({ row, selected, onPick }: { row: PickerRow; selected: boolean
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <span className="flex items-center gap-1 whitespace-nowrap text-[12px] leading-4 text-[rgba(255,255,255,0.7)]">
-          {row.costPerImage !== undefined ? (
-            <>
-              <CrystalPair />
-              {formatManaCost(row.costPerImage)}
-            </>
-          ) : (
-            "Provider pricing"
-          )}
+          {row.costPerImage !== undefined ? formatPerImage(row.costPerImage) : "Provider pricing"}
         </span>
         {selected ? <Check size={18} strokeWidth={2.5} className="text-white" aria-hidden /> : null}
       </div>
@@ -172,31 +145,19 @@ function rowMatches(r: PickerRow, q: string): boolean {
   return r.name.toLowerCase().includes(q) || r.id.toLowerCase().includes(q) || r.description.toLowerCase().includes(q);
 }
 
-const CATALOG_ROWS: PickerRow[] = IMAGE_CATALOG.filter((m) => m.actions.includes("generate")).map((m) => ({
-  id: m.model,
-  name: m.name,
-  description: m.description,
-  iconUrl: m.iconUrl,
-  costPerImage: m.costPerImage,
-  resolutions: [],
-  nsfw: false,
-  source: "catalog",
-}));
-
 function toRow(m: ProviderImageModel): PickerRow {
-  return { id: m.id, name: m.name, description: m.description, iconUrl: m.iconUrl, costPerImage: m.costPerImage, resolutions: m.resolutions, nsfw: m.nsfw, source: "provider" };
+  return { id: m.id, name: m.name, description: m.description, iconUrl: m.iconUrl, costPerImage: m.costPerImage, resolutions: m.resolutions, nsfw: m.nsfw };
 }
 
 /**
- * Bottom sheet listing image models: the user's provider first (search + filter chips + Uncensored badges),
- * then the curated Isekai catalog in a collapsible group.
+ * Bottom sheet listing the user's provider's image models (search + filter chips + Uncensored badges),
+ * priced live in USD per image.
  */
 export function ImageModelPicker({ open, onClose, value, onSelect }: ImageModelPickerProps) {
   const [settings] = useProviderSettings();
   const catalog = useProviderCatalog();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<ImageFilter>("all");
-  const [catalogOpen, setCatalogOpen] = useState(false);
   const [wasOpen, setWasOpen] = useState(open);
 
   const configured = Boolean(settings.baseUrl && settings.apiKey);
@@ -209,7 +170,6 @@ export function ImageModelPicker({ open, onClose, value, onSelect }: ImageModelP
     if (open) {
       setQuery("");
       setFilter("all");
-      setCatalogOpen(!configured);
     }
   }
 
@@ -222,7 +182,6 @@ export function ImageModelPicker({ open, onClose, value, onSelect }: ImageModelP
     () => catalog.images.filter((m) => matchesImageFilter(m, filter)).map(toRow).filter((r) => rowMatches(r, q)),
     [catalog.images, filter, q],
   );
-  const catalogVisible = useMemo(() => CATALOG_ROWS.filter((r) => rowMatches(r, q)), [q]);
 
   const pick = (row: PickerRow) => {
     onSelect({ id: row.id, name: row.name, costPerImage: row.costPerImage, resolutions: row.resolutions });
@@ -282,26 +241,6 @@ export function ImageModelPicker({ open, onClose, value, onSelect }: ImageModelP
         </>
       )}
 
-      <button
-        type="button"
-        aria-expanded={catalogOpen}
-        onClick={() => setCatalogOpen((v) => !v)}
-        className="mt-[10px] flex w-full cursor-pointer items-center justify-between py-1 text-left"
-      >
-        <SheetGroupLabel>Isekai catalog ({catalogVisible.length})</SheetGroupLabel>
-        <ChevronDown size={16} className={cn("text-[rgba(255,255,255,0.5)] transition-transform", catalogOpen ? "rotate-180" : "")} aria-hidden />
-      </button>
-      {catalogOpen ? (
-        catalogVisible.length === 0 ? (
-          <p className="px-3 py-2 text-[12px] leading-4 text-[rgba(255,255,255,0.5)]">No matches.</p>
-        ) : (
-          <div className="flex flex-col gap-1">
-            {catalogVisible.map((row) => (
-              <ModelRow key={`c:${row.id}`} row={row} selected={row.id === value} onPick={() => pick(row)} />
-            ))}
-          </div>
-        )
-      ) : null}
     </BottomSheet>
   );
 }

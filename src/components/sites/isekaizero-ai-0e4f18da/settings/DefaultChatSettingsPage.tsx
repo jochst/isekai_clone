@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { Palette, Play, SlidersHorizontal, Wand2 } from "lucide-react";
 
-import { LLM_CATALOG } from "@/lib/sites/isekaizero-ai-0e4f18da/catalog";
 import { useModelCatalog } from "../llms/use-model-catalog";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 
@@ -85,11 +84,10 @@ export function DefaultChatSettingsPage() {
 
   const { byokModels, presetLabel } = useModelCatalog();
   const isAuto = settings.modelId === "auto";
-  const catalogModel = isAuto ? undefined : LLM_CATALOG.find((m) => m.id === settings.modelId);
   // A model picked from the provider list is stored as its provider id (e.g. "deepseek/deepseek-latest").
-  const providerModel = isAuto || catalogModel ? undefined : byokModels.find((m) => m.model === settings.modelId || m.id === settings.modelId);
-  const modelTitle = isAuto ? AUTO_TITLE : catalogModel?.name ?? providerModel?.name ?? settings.modelId.replace(/^byok:/, "");
-  const modelDescription = isAuto ? AUTO_DESCRIPTION : catalogModel?.description || `From your ${presetLabel} models`;
+  const providerModel = isAuto ? undefined : byokModels.find((m) => m.model === settings.modelId || m.id === settings.modelId);
+  const modelTitle = isAuto ? AUTO_TITLE : providerModel?.name ?? settings.modelId.replace(/^byok:/, "");
+  const modelDescription = isAuto ? AUTO_DESCRIPTION : `From your ${presetLabel} models`;
 
   return (
     <SettingsShell

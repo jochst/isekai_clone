@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { ImageModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/image-generation/ImageModelPicker";
+import { formatPerImage } from "@/lib/sites/isekaizero-ai-0e4f18da/format-usd";
 import { useProviderCatalog } from "@/components/sites/isekaizero-ai-0e4f18da/image-generation/use-provider-catalog";
 import { VideoModelPicker } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoModelPicker";
 import { VideoParamsForm, paramSummary } from "@/components/sites/isekaizero-ai-0e4f18da/video-generation/VideoParamsForm";
@@ -88,9 +89,10 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
     [videoModel.params, videoModel.defaults, provider.videoParams],
   );
   const imageModel = resolveImageModel(settings, provider);
+  const imageInfo = catalog.imageById(imageModel.id);
   const image = {
-    name: imageModel.name || "Not set",
-    cost: imageModel.costPerImage !== undefined ? `${Math.round(imageModel.costPerImage * 100)}` : "provider pricing",
+    name: imageInfo?.name || imageModel.name || "Not set",
+    cost: imageInfo?.costPerImage !== undefined ? formatPerImage(imageInfo.costPerImage) : "provider pricing",
   };
   const fill = Math.min(100, Math.round((context.estimated / Math.max(1, context.limit)) * 100));
 
@@ -517,9 +519,9 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
                 className="mt-2 block w-full resize-y rounded-[10px] border border-white/15 bg-white/[0.06] p-2.5 text-[13px] leading-5 text-white outline-none placeholder:text-white/30 focus:border-[#a7b9ff]"
               />
             </div>
-            <p className="mt-3 text-[12px] text-white/55">Mana/Arcane Per Image: {image.cost}</p>
+            <p className="mt-3 text-[12px] text-white/55">Cost per image: {image.cost}</p>
             <p className="mt-1 text-[11px] leading-4 text-[#ffa8a8]">
-              This feature is in Alpha, expect bugs and issues. Generation may consume Arcane without producing results.
+              This feature is in Alpha, expect bugs and issues. Failed generations may still be charged by your provider.
             </p>
           </AccordionCard>
           <AccordionCard title="Manga Generation" description="Adapts the scene into manga pages and panels (More → Manga on a reply)">
@@ -645,7 +647,7 @@ export function ChatSettingsSheet({ open, onClose, session, provider, model, con
             ) : null}
             <p className="mt-3 text-[12px] text-white/55">Price: {videoModel.priceSummary ?? "provider pricing"}</p>
             <p className="mt-1 text-[11px] leading-4 text-[#ffa8a8]">
-              This feature is in Alpha, expect bugs and issues. Generation may consume Arcane without producing results.
+              This feature is in Alpha, expect bugs and issues. Failed generations may still be charged by your provider.
             </p>
           </AccordionCard>
           </div>

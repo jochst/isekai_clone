@@ -14,13 +14,11 @@ const TOPBAR_KEYS: readonly NavKey[] = ["home", "explore", "creation", "chats"];
 
 export interface TopBarProps {
   active?: NavKey;
-  mana?: number;
-  arcane?: number;
   className?: string;
 }
 
 /** 60px top navigation bar used on detail/settings pages at >=1024px. */
-export function TopBar({ active: activeProp, mana = 0, arcane = 0, className }: TopBarProps) {
+export function TopBar({ active: activeProp, className }: TopBarProps) {
   const active = useActiveNav(activeProp);
   const items = NAV_ITEMS.filter((item) => (TOPBAR_KEYS as readonly string[]).includes(item.key));
 
@@ -82,7 +80,7 @@ export function TopBar({ active: activeProp, mana = 0, arcane = 0, className }: 
         />
       </Form>
 
-      <BalancePills mana={mana} arcane={arcane} variant="compact" className="shrink-0" />
+      <BalancePills variant="compact" className="shrink-0" />
 
       <button
         type="button"
@@ -103,13 +101,11 @@ export function TopBar({ active: activeProp, mana = 0, arcane = 0, className }: 
 }
 
 export interface MobileHeaderProps {
-  mana?: number;
-  arcane?: number;
   className?: string;
 }
 
 /** 50px mobile header (<1024px): logo, two balance pills, bell. */
-export function MobileHeader({ mana = 0, arcane = 0, className }: MobileHeaderProps) {
+export function MobileHeader({ className }: MobileHeaderProps) {
   return (
     <header
       className={cn(
@@ -128,7 +124,7 @@ export function MobileHeader({ mana = 0, arcane = 0, className }: MobileHeaderPr
         />
       </Link>
       <div className="flex items-center gap-[10px]">
-        <BalancePills mana={mana} arcane={arcane} variant="crystal-right" />
+        <BalancePills variant="small" />
         <button
           type="button"
           aria-label="Notifications"
