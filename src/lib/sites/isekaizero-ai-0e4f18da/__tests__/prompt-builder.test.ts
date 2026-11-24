@@ -7,7 +7,6 @@ import { DEFAULT_CHAT_SETTINGS as PLAYER_DEFAULTS } from "@/components/sites/ise
 import { assemblePrompt, castKeeperPrompt, toolEnabled, buildScenePrompt, illustrationReferences, mangaPagePrompt, mangaReferences, mangaScriptPrompt, musicBriefPrompt, parseMangaScript, parseMusicBrief, parseVideoBeats, resolveTextModel, videoScenePlanPrompt } from "../prompt-builder";
 import { STORYLINES } from "../mock-data";
 import { DEFAULT_PROVIDER_SETTINGS } from "../provider-settings";
-import { LLM_CATALOG } from "../catalog";
 
 const story = normalizeImport(
   {
@@ -86,10 +85,8 @@ describe("resolveTextModel", () => {
     expect(resolveTextModel({ ...DEFAULT_CHAT_SETTINGS, modelId: "byok:zai-org/glm-4.7" }, provider).id).toBe("zai-org/glm-4.7");
     expect(resolveTextModel(DEFAULT_CHAT_SETTINGS, { ...provider, textModel: "byok:deepseek/deepseek-latest" }).id).toBe("deepseek/deepseek-latest");
   });
-  it("uses the provider default on auto and the catalog row's model for catalog ids", () => {
+  it("uses the provider default on auto", () => {
     expect(resolveTextModel(DEFAULT_CHAT_SETTINGS, provider)).toMatchObject({ id: "deepseek/deepseek-latest", auto: true });
-    const row = LLM_CATALOG[0];
-    expect(resolveTextModel({ ...DEFAULT_CHAT_SETTINGS, modelId: row.id }, provider)).toMatchObject({ id: row.model, name: row.name });
   });
 });
 

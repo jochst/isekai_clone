@@ -16,8 +16,6 @@ export interface AppShellProps {
   nav?: AppShellNav;
   /** Active nav item; derived from the pathname when omitted. */
   active?: NavKey;
-  mana?: number;
-  arcane?: number;
   /** Draws the faint "V" crest behind the page content. */
   backdrop?: boolean;
   /** Set false for pages that open full-bleed on mobile (the story page). */
@@ -50,8 +48,6 @@ export function AppShell({
   children,
   nav = "sidebar",
   active: activeProp,
-  mana = 0,
-  arcane = 0,
   backdrop = false,
   mobileHeader = true,
   className,
@@ -62,13 +58,13 @@ export function AppShell({
   return (
     <div className={cn("flex h-screen w-full bg-[#020920] text-white", className)}>
       {nav === "sidebar" && (
-        <Sidebar active={active} mana={mana} arcane={arcane} className="hidden lg:flex" />
+        <Sidebar active={active} className="hidden lg:flex" />
       )}
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        {hasMobileChrome && mobileHeader && <MobileHeader mana={mana} arcane={arcane} className="lg:hidden" />}
+        {hasMobileChrome && mobileHeader && <MobileHeader className="lg:hidden" />}
         {nav === "topbar" && (
-          <TopBar active={active} mana={mana} arcane={arcane} className="hidden lg:flex" />
+          <TopBar active={active} className="hidden lg:flex" />
         )}
 
         <main

@@ -12,15 +12,13 @@ export interface ChatHeaderProps {
   storyline: Storyline;
   modelName: string;
   messageCount: number;
-  mana: number;
-  arcane: number;
   onOpenMemory: () => void;
   onOpenSettings: () => void;
 }
 
 const ICON_BUTTON = "flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[19px] bg-black/30 text-white transition-colors hover:bg-black/45";
 
-export function ChatHeader({ storyline, modelName, messageCount, mana, arcane, onOpenMemory, onOpenSettings }: ChatHeaderProps) {
+export function ChatHeader({ storyline, modelName, messageCount, onOpenMemory, onOpenSettings }: ChatHeaderProps) {
   return (
     <header className="sticky top-0 z-[30] flex h-[60px] shrink-0 items-center gap-[10px] border-b border-white/[0.06] bg-[#11123c] px-3">
       <Link href={`/storylines/${storyline.id}`} aria-label="Back to storyline" className={ICON_BUTTON}>
@@ -35,7 +33,7 @@ export function ChatHeader({ storyline, modelName, messageCount, mana, arcane, o
           {modelName} · {messageCount} {messageCount === 1 ? "message" : "messages"}
         </div>
       </div>
-      <BalancePills mana={mana} arcane={arcane} variant="compact" className="hidden sm:flex" />
+      <BalancePills variant="compact" className="hidden sm:flex" />
       <button type="button" aria-label="Memory" onClick={onOpenMemory} className={ICON_BUTTON}>
         <BookMarked size={20} />
       </button>

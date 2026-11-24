@@ -11,13 +11,11 @@ export interface PageHeaderProps {
   title: string;
   /** Replaces the default right slot (balance pills + help icon). */
   right?: React.ReactNode;
-  mana?: number;
-  arcane?: number;
   className?: string;
 }
 
 /** 64px "← Title" header used by settings / LLMs / image generation pages. */
-export function PageHeader({ title, right, mana = 0, arcane = 0, className }: PageHeaderProps) {
+export function PageHeader({ title, right, className }: PageHeaderProps) {
   const router = useRouter();
 
   return (
@@ -36,7 +34,7 @@ export function PageHeader({ title, right, mana = 0, arcane = 0, className }: Pa
       <div className="flex flex-1 items-center justify-end pr-4">
         {right ?? (
           <>
-            <BalancePills mana={mana} arcane={arcane} variant="crystal-right" />
+            <BalancePills variant="small" />
             <button
               type="button"
               aria-label="Help"

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 import { AppShell } from "@/components/sites/isekaizero-ai-0e4f18da/shared";
 import { StoryCover } from "@/components/sites/isekaizero-ai-0e4f18da/shared/StoryCover";
-import { archiveSession, deleteSession, listSavedMessages, useChatSessions, useUsage } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
+import { archiveSession, deleteSession, listSavedMessages, useChatSessions } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
 import { getStoryline } from "@/lib/sites/isekaizero-ai-0e4f18da/mock-data";
 import { resolveTextModel } from "@/lib/sites/isekaizero-ai-0e4f18da/prompting";
 import { useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
@@ -95,14 +95,12 @@ function Collected({ list }: { list: "likes" | "saved" }) {
 
 export function ChatsListPage() {
   const sessions = useChatSessions();
-  const usage = useUsage();
   const [provider] = useProviderSettings();
   const [tab, setTab] = useState<Tab>("Activity");
   const [pendingDelete, setPendingDelete] = useState<ChatSummary | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [now] = useState(() => Date.now());
 
-  const mana = usage.remainingBalance !== undefined ? Math.round(usage.remainingBalance * 100) : 20;
   const active = sessions?.filter((s) => !s.archived) ?? [];
   const archived = sessions?.filter((s) => s.archived) ?? [];
 
@@ -144,7 +142,7 @@ export function ChatsListPage() {
   };
 
   return (
-    <AppShell nav="sidebar" active="chats" mana={mana} arcane={0} backdrop>
+    <AppShell nav="sidebar" active="chats" backdrop>
       <div className="mx-auto w-full max-w-[860px] p-4">
         <div className="flex items-center gap-2">
           <div className="iz-scrollbar-hide flex flex-1 gap-2 overflow-x-auto">

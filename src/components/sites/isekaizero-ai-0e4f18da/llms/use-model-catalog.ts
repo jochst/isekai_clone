@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { ProviderTextModel } from "@/app/api/providers/models/route";
-import { LLM_CATALOG, PROVIDER_CHIPS } from "@/lib/sites/isekaizero-ai-0e4f18da/catalog";
 import {
   PROVIDER_PRESETS,
   isProviderConfigured,
@@ -39,8 +38,7 @@ export interface ModelCatalogState {
   byokStatus: ByokStatus;
   byokError: string | null;
   byokModels: LlmModel[];
-  catalogModels: LlmModel[];
-  /** Provider chip ids: the built-in list plus any extra `ownedBy` values from BYOK rows. */
+  /** Provider chip ids: "all" plus every `ownedBy` value from the provider's rows. */
   chips: string[];
 }
 
@@ -151,7 +149,7 @@ export function useModelCatalog(): ModelCatalogState {
   const byokModels = useMemo(() => rows.map((row) => toByokModel(row, preset)), [rows, preset]);
 
   const chips = useMemo(() => {
-    const base: string[] = [...PROVIDER_CHIPS];
+    const base: string[] = ["all"];
     const seen = new Set(base);
     for (const model of byokModels) {
       const key = model.modelProvider;
@@ -174,7 +172,6 @@ export function useModelCatalog(): ModelCatalogState {
     byokStatus,
     byokError,
     byokModels,
-    catalogModels: LLM_CATALOG,
     chips,
   };
 }

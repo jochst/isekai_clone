@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { Image as ImageIcon, Loader2, Sparkles } from "lucide-react";
 
-import { IMAGE_CATALOG } from "@/lib/sites/isekaizero-ai-0e4f18da/catalog";
+import { formatPerImage } from "@/lib/sites/isekaizero-ai-0e4f18da/format-usd";
 import { defaultResolution, resolutionLabel } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-catalog";
 import { PROVIDER_PRESETS, providerHeaders, useProviderSettings } from "@/lib/sites/isekaizero-ai-0e4f18da/provider-settings";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,7 @@ import type { ImageSizePreset } from "@/types/isekaizero";
 
 import { PageHeader } from "../shared/PageHeader";
 import { CheckboxRow, OptionSheet, SelectRow, type SheetOption } from "./form-ui";
-import { CrystalPair, ImageModelPicker, formatManaCost, type PickedImageModel } from "./ImageModelPicker";
+import { ImageModelPicker, type PickedImageModel } from "./ImageModelPicker";
 import { PROVIDER_NOT_CONFIGURED_ERROR, useImageGeneration, type GeneratedImage } from "./use-image-generation";
 import { useProviderCatalog } from "./use-provider-catalog";
 
@@ -73,24 +73,16 @@ export function ImageGenerationPage({ showHeader = true, className }: ImageGener
   const presetLabel = PROVIDER_PRESETS.find((p) => p.id === settings.preset)?.label ?? "Provider";
   const catalog = useProviderCatalog();
 
-  const catalogModel = useMemo(
-    () => IMAGE_CATALOG.find((m) => m.model === settings.imageModel || m.id === settings.imageModel),
-    [settings.imageModel],
-  );
   const providerModel = catalog.imageById(settings.imageModel);
   const pickedMatches = picked !== null && picked.id === settings.imageModel;
-  const modelName = catalogModel?.name ?? providerModel?.name ?? (pickedMatches ? picked.name : settings.imageModel || "Select a model");
-  const modelCost = catalogModel?.costPerImage ?? providerModel?.costPerImage ?? (pickedMatches ? picked.costPerImage : undefined);
-  const isPlatformModel = catalogModel !== undefined;
+  const modelName = providerModel?.name ?? (pickedMatches ? picked.name : settings.imageModel || "Select a model");
+  const modelCost = providerModel?.costPerImage ?? (pickedMatches ? picked.costPerImage : undefined);
 
   const sizeOptions: SheetOption[] = useMemo(() => {
-    if (catalogModel && catalogModel.presets.length > 0) {
-      return catalogModel.presets.map((p) => ({ key: `${p.width}x${p.height}`, label: p.label, description: `${p.aspectRatio} • ${p.width}×${p.height}` }));
-    }
     const resolutions = providerModel?.resolutions ?? (pickedMatches ? picked.resolutions : []);
     if (resolutions.length > 0) return resolutions.map(resolutionLabel);
     return DEFAULT_SIZE_PRESETS.map((p) => ({ key: `${p.width}x${p.height}`, label: p.label, description: `${p.aspectRatio} • ${p.width}×${p.height}` }));
-  }, [catalogModel, providerModel, pickedMatches, picked]);
+  }, [providerModel, pickedMatches, picked]);
   const sizeOption = sizeOptions.find((o) => o.key === settings.imageSize) ?? sizeOptions[0];
   const size = sizeOption.key;
 
@@ -184,19 +176,13 @@ export function ImageGenerationPage({ showHeader = true, className }: ImageGener
             value={modelName}
             valueSub={
               modelCost !== undefined ? (
-                <>
-                  <CrystalPair />
-                  <span>{formatManaCost(modelCost)}</span>
-                </>
+                <span>{formatPerImage(modelCost)}</span>
               ) : (
                 <span>{presetLabel}</span>
               )
             }
             onClick={() => setSheet("model")}
           />
-          {isPlatformModel ? (
-            <p className="mt-1 text-[12px] leading-4 text-[rgba(255,255,255,0.4)]">Platform models require a provider that serves this id.</p>
-          ) : null}
 
           <div className="my-6 flex flex-col">
             <label htmlFor="iz-image-prompt" className="text-[18px] font-semibold leading-[22px] text-white">

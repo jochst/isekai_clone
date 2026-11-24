@@ -21,7 +21,6 @@ import {
   updateSceneVideo,
   useChatSession,
   useHydrated,
-  useUsage,
 } from "@/lib/sites/isekaizero-ai-0e4f18da/chat-store";
 import { getStoryline } from "@/lib/sites/isekaizero-ai-0e4f18da/mock-data";
 import { useImportedStoryline } from "@/lib/imports/use-imported-storyline";
@@ -120,7 +119,6 @@ export function ChatPage({ sessionId }: ChatPageProps) {
   const hydrated = useHydrated();
   const [session, update, status] = useChatSession(sessionId);
   const [provider] = useProviderSettings();
-  const usage = useUsage();
   const { toast, showToast } = useToast();
 
   const catalog = useProviderCatalog();
@@ -233,7 +231,6 @@ export function ChatPage({ sessionId }: ChatPageProps) {
     () => (session && storyline ? (text: string) => speechParts(text, storyline, session.settings, provider) : undefined),
     [session, storyline, provider],
   );
-  const mana = usage.remainingBalance !== undefined ? Math.round(usage.remainingBalance * 100) : 20;
 
   /* Abort any in-flight stream when leaving the page. */
   useEffect(
@@ -1403,8 +1400,6 @@ export function ChatPage({ sessionId }: ChatPageProps) {
         storyline={storyline}
         modelName={model.name}
         messageCount={messageCount}
-        mana={mana}
-        arcane={0}
         onOpenMemory={() => setMemoryOpen(true)}
         onOpenSettings={() => setSettingsOpen(true)}
       />

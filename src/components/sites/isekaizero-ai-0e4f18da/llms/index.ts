@@ -1,5 +1,5 @@
 export { LlmPickerPage, type LlmPickerPageProps } from "./LlmPickerPage";
-export { ModelCard, formatMana, type ModelCardProps } from "./ModelCard";
+export { ModelCard, type ModelCardProps } from "./ModelCard";
 export { AutoModelCard, CurrentRibbon, type AutoModelCardProps } from "./AutoModelCard";
 export { ProviderChips, type ProviderChipsProps } from "./ProviderChips";
 export {

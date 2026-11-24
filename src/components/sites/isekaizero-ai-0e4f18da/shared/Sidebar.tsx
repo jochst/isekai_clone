@@ -23,7 +23,7 @@ export type NavIcon =
   | { kind: "static"; src: string; size: number };
 
 export interface NavItem {
-  key: NavKey | "music" | "store" | "notifications" | "imports";
+  key: NavKey | "music" | "notifications" | "imports";
   label: string;
   href: string;
   icon: NavIcon;
@@ -43,7 +43,6 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { key: "creation", label: "Creation", href: "/creation", icon: { kind: "png", name: "creation" } },
   { key: "chats", label: "Chats", href: "/chats", icon: { kind: "png", name: "chat" } },
   { key: "music", label: "Music", href: "/music", icon: { kind: "svg", path: ION_MUSICAL_NOTES, size: 22 } },
-  { key: "store", label: "Arcane Store", href: "#", icon: { kind: "static", src: `${IZ_IMG}/crystal-purple.png`, size: 24 } },
   { key: "notifications", label: "Notifications", href: "#", icon: { kind: "svg", path: ION_NOTIFICATIONS, size: 22 } },
   { key: "profile", label: "Profile", href: "/profile", icon: { kind: "png", name: "profile" } },
 ];
@@ -166,12 +165,10 @@ function getServerCollapsed(): boolean {
 
 export interface SidebarProps {
   active?: NavKey;
-  mana?: number;
-  arcane?: number;
   className?: string;
 }
 
-export function Sidebar({ active: activeProp, mana = 0, arcane = 0, className }: SidebarProps) {
+export function Sidebar({ active: activeProp, className }: SidebarProps) {
   const active = useActiveNav(activeProp);
   const collapsed = useSyncExternalStore(subscribeCollapsed, readCollapsed, getServerCollapsed);
 
@@ -267,7 +264,7 @@ export function Sidebar({ active: activeProp, mana = 0, arcane = 0, className }:
       {!collapsed && (
         <>
           {/* Balance pills */}
-          <BalancePills mana={mana} arcane={arcane} variant="sidebar" className="mb-4 h-[28px] px-3" />
+          <BalancePills variant="sidebar" className="mb-4 h-[28px] px-3" />
 
           {/* App store badges */}
           <div className="flex flex-col gap-[6px] px-3 pb-2">

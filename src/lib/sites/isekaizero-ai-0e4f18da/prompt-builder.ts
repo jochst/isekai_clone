@@ -3,7 +3,6 @@
  */
 import type { ChatMessage, ChatSession, ChatSettings, FatekeeperRuling, ProviderSettings, Storyline } from "@/types/isekaizero";
 
-import { IMAGE_CATALOG, LLM_CATALOG } from "./catalog";
 import { UNNAMED_PLAYER, importedPrompt, replaceCardMacros } from "@/lib/imports/prompt";
 import type { ProviderImageModel, ProviderVideoModel, VideoParamSpec } from "./provider-catalog";
 import { defaultResolution } from "./provider-catalog";
@@ -65,24 +64,20 @@ export interface ResolvedTextModel {
 const providerModelId = (id: string) => (id.startsWith("byok:") ? id.slice("byok:".length) : id);
 
 /**
- * "auto" resolves to `ProviderSettings.textModel` (Settings → Providers). Any other id is either a platform
- * catalog id, which sends the catalog row's `model` string, or a provider model id (e.g. a NanoGPT id picked
- * in an LLM picker), which is sent as-is. Errors from the provider surface inline in the chat.
+ * "auto" resolves to `ProviderSettings.textModel` (Settings → Providers). Any other id is a provider model id
+ * (e.g. a NanoGPT id picked in an LLM picker), sent as-is. Errors from the provider surface inline in the chat.
  */
 export function resolveTextModel(settings: ChatSettings, provider: ProviderSettings): ResolvedTextModel {
   if (settings.modelId !== "auto") {
-    const row = LLM_CATALOG.find((m) => m.id === settings.modelId);
-    if (row) return { id: row.model, name: row.name, description: row.description, contextLimit: row.contextLimit, auto: false };
     const own = providerModelId(settings.modelId);
     if (own) return { id: own, name: own, description: "A model from your provider.", contextLimit: DEFAULT_CONTEXT_LIMIT, auto: false };
   }
   const id = providerModelId(provider.textModel);
-  const row = LLM_CATALOG.find((m) => m.model === id || m.id === id);
   return {
     id,
-    name: row?.name ?? (id || "No model selected"),
-    description: row?.description ?? "The model new chats start with. Auto picks the current recommended model.",
-    contextLimit: row?.contextLimit ?? DEFAULT_CONTEXT_LIMIT,
+    name: id || "No model selected",
+    description: "The model new chats start with: your provider default from Settings → Providers.",
+    contextLimit: DEFAULT_CONTEXT_LIMIT,
     auto: settings.modelId === "auto",
   };
 }
@@ -91,15 +86,12 @@ export interface ResolvedImageModel {
   /** Provider-facing model string sent to /api/images/generate ("" when nothing is configured). */
   id: string;
   name: string;
-  /** USD per image when known from the catalog. */
-  costPerImage?: number;
 }
 
-/** `"default"` → `ProviderSettings.imageModel`; a platform catalog id → the row's `model` string. */
+/** `"default"` → `ProviderSettings.imageModel`; anything else is a provider image model id. Prices come from the live provider catalog. */
 export function resolveImageModel(settings: ChatSettings, provider: ProviderSettings): ResolvedImageModel {
   const selected = settings.illustrationModel === "default" ? provider.imageModel : settings.illustrationModel;
-  const row = IMAGE_CATALOG.find((m) => m.id === selected || m.model === selected);
-  return { id: row?.model ?? selected, name: row?.name ?? selected, costPerImage: row?.costPerImage };
+  return { id: selected, name: selected };
 }
 
 /** Size sent with a scene image: the configured size when the model accepts it (or lists none), else the model's default. */
